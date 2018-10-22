@@ -170,7 +170,6 @@ public final class StatsRecorderImplTest {
         (DistributionData) viewData.getAggregationMap().get(Collections.singletonList(VALUE));
     List<Exemplar> expected =
         Arrays.asList(
-            Exemplar.create(-5.0, Timestamp.create(5, 0), Collections.singletonMap("k3", "v3")),
             Exemplar.create(1.0, Timestamp.create(2, 0), Collections.singletonMap("k2", "v2")),
             Exemplar.create(12.0, Timestamp.create(3, 0), Collections.singletonMap("k1", "v3")));
     assertThat(distributionData.getExemplars()).containsExactlyElementsIn(expected).inOrder();
