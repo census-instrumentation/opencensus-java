@@ -125,8 +125,8 @@ public abstract class Summary {
     public static Snapshot create(
         @Nullable Long count, @Nullable Double sum, List<ValueAtPercentile> valueAtPercentiles) {
       checkCountAndSum(count, sum);
-      Utils.checkNotNull(valueAtPercentiles, "valueAtPercentiles");
-      Utils.checkListElementNotNull(valueAtPercentiles, "value in valueAtPercentiles");
+      Utils.checkListElementNotNull(
+          Utils.checkNotNull(valueAtPercentiles, "valueAtPercentiles"), "valueAtPercentile");
       return new AutoValue_Summary_Snapshot(
           count,
           sum,

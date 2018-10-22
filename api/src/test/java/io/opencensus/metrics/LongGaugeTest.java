@@ -57,7 +57,7 @@ public class LongGaugeTest {
     List<LabelValue> labelValues = Collections.singletonList(null);
     LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValue element should not be null.");
+    thrown.expectMessage("labelValue");
     longGauge.getOrCreateTimeSeries(labelValues);
   }
 
@@ -65,7 +65,7 @@ public class LongGaugeTest {
   public void noopGetOrCreateTimeSeries_WithInvalidLabelSize() {
     LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Incorrect number of labels.");
+    thrown.expectMessage("Label Keys and Label Values don't have same size.");
     longGauge.getOrCreateTimeSeries(EMPTY_LABEL_VALUES);
   }
 

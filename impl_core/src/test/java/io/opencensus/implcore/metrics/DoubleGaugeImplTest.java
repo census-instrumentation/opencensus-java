@@ -82,7 +82,7 @@ public class DoubleGaugeImplTest {
     DoubleGaugeImpl doubleGauge =
         new DoubleGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValue element should not be null.");
+    thrown.expectMessage("labelValue");
     doubleGauge.getOrCreateTimeSeries(labelValues);
   }
 
@@ -92,7 +92,7 @@ public class DoubleGaugeImplTest {
         Arrays.asList(LabelValue.create("value1"), LabelValue.create("value2"));
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Incorrect number of labels.");
+    thrown.expectMessage("Label Keys and Label Values don't have same size.");
     doubleGauge.getOrCreateTimeSeries(labelValues);
   }
 

@@ -170,9 +170,9 @@ public abstract class LongGauge {
 
     @Override
     public NoopLongPoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
-      Utils.checkListElementNotNull(
-          Utils.checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");
-      Utils.checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
+      Utils.checkListElementNotNull(Utils.checkNotNull(labelValues, "labelValues"), "labelValue");
+      Utils.checkArgument(
+          labelKeysSize == labelValues.size(), "Label Keys and Label Values don't have same size.");
       return NoopLongPoint.INSTANCE;
     }
 

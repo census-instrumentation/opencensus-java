@@ -111,8 +111,9 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
       return existingPoint;
     }
 
-    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
-    Utils.checkListElementNotNull(labelValues, "labelValue element should not be null.");
+    checkArgument(
+        labelKeysSize == labelValues.size(), "Label Keys and Label Values don't have same size.");
+    Utils.checkListElementNotNull(labelValues, "labelValue");
 
     PointImpl newPoint = new PointImpl(labelValues);
     // Updating the map of points happens under a lock to avoid multiple add operations
