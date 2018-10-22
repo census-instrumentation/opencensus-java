@@ -287,20 +287,7 @@ abstract class MutableAggregation {
      */
     static MutableDistribution create(BucketBoundaries bucketBoundaries) {
       checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
-
-      List<Double> currentBucketBoundaries = bucketBoundaries.getBoundaries();
-      int ignoreBucketBounds = 0;
-      for (Double bucketBound : currentBucketBoundaries) {
-        if (bucketBound < 0) {
-          ignoreBucketBounds++;
-        } else {
-          break;
-        }
-      }
-      List<Double> newBucketBoundaries =
-          currentBucketBoundaries.subList(ignoreBucketBounds, currentBucketBoundaries.size());
-
-      return new MutableDistribution(BucketBoundaries.create(newBucketBoundaries));
+      return new MutableDistribution(bucketBoundaries);
     }
 
     @Override

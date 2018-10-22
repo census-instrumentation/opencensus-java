@@ -42,6 +42,14 @@ public class BucketBoundariesTest {
   }
 
   @Test
+  public void testConstructBoundaries_IgnoreNegativeBounds() {
+    List<Double> buckets = Arrays.asList(-5.0, -1.0, 1.0, 2.0);
+    List<Double> expectedBuckets = Arrays.asList(1.0, 2.0);
+    BucketBoundaries bucketBoundaries = BucketBoundaries.create(buckets);
+    assertThat(bucketBoundaries.getBoundaries()).isEqualTo(expectedBuckets);
+  }
+
+  @Test
   public void testBoundariesDoesNotChangeWithOriginalList() {
     List<Double> original = new ArrayList<Double>();
     original.add(0.0);
