@@ -249,5 +249,6 @@ General guidelines on imports:
     <allow pkg="io.opencensus.testing.export"/>
     <allow pkg="io.opencensus.trace"/>
     <allow pkg="io.prometheus"/>
+    <allow pkg="io.opencensus.metrics"/>
   </subpackage>
 </import-control>
