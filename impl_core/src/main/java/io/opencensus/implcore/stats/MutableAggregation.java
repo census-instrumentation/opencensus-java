@@ -297,7 +297,8 @@ abstract class MutableAggregation {
     @Override
     void add(double value, Map<String, String> attachments, Timestamp timestamp) {
       if (value < 0) {
-        logger.log(Level.WARNING, "Dropping negative values for histogram count and sum.");
+        logger.log(
+            Level.WARNING, "Dropping negative value (" + value + ") from histogram count and sum.");
         return;
       }
 
