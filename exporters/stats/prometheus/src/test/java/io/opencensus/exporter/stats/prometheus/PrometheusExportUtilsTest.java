@@ -18,6 +18,7 @@ package io.opencensus.exporter.stats.prometheus;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.LABEL_NAME_BUCKET_BOUND;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.LABEL_NAME_QUANTILE;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_BUCKET;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_COUNT;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_SUM;
@@ -69,6 +70,8 @@ public class PrometheusExportUtilsTest {
   private static final List<LabelValue> LABEL_VALUE = Arrays.asList(V1_LABEL_VALUE, V2_LABEL_VALUE);
   private static final List<LabelKey> LE_LABEL_KEY =
       Arrays.asList(K1_LABEL_KEY, LabelKey.create(LABEL_NAME_BUCKET_BOUND, KEY_DESCRIPTION));
+  private static final List<LabelKey> QUNATILE_LABEL_KEY =
+      Arrays.asList(K1_LABEL_KEY, LabelKey.create(LABEL_NAME_QUANTILE, KEY_DESCRIPTION));
 
   private static final io.opencensus.metrics.export.Distribution DISTRIBUTION =
       io.opencensus.metrics.export.Distribution.create(
@@ -82,11 +85,21 @@ public class PrometheusExportUtilsTest {
           22L,
           74.8,
           Snapshot.create(
-              10L, 87.07, Collections.singletonList(ValueAtPercentile.create(0.98, 10.2))));
+              10L, 87.07, Collections.singletonList(ValueAtPercentile.create(99, 10.2))));
+  private static final Summary SUMMARY_2 =
+      Summary.create(
+          22L,
+          74.8,
+          Snapshot.create(
+              10L,
+              87.07,
+              Arrays.asList(
+                  ValueAtPercentile.create(99.5, 8.2), ValueAtPercentile.create(99, 10.2))));
   private static final Value DOUBLE_VALUE = Value.doubleValue(-5.5);
   private static final Value LONG_VALUE = Value.longValue(123456789);
   private static final Value DISTRIBUTION_VALUE = Value.distributionValue(DISTRIBUTION);
   private static final Value SUMMARY_VALUE = Value.summaryValue(SUMMARY);
+  private static final Value SUMMARY_VALUE_2 = Value.summaryValue(SUMMARY_2);
 
   private static final MetricDescriptor CUMULATIVE_METRIC_DESCRIPTOR =
       MetricDescriptor.create(
@@ -116,6 +129,13 @@ public class PrometheusExportUtilsTest {
           METRIC_UNIT,
           MetricDescriptor.Type.CUMULATIVE_DISTRIBUTION,
           LE_LABEL_KEY);
+  private static final MetricDescriptor QUANTILE_LABEL_METRIC_DESCRIPTOR =
+      MetricDescriptor.create(
+          METRIC_NAME,
+          METRIC_DESCRIPTION,
+          METRIC_UNIT,
+          MetricDescriptor.Type.SUMMARY,
+          QUNATILE_LABEL_KEY);
 
   private static final Timestamp TIMESTAMP = Timestamp.fromMillis(3000);
   private static final Point LONG_POINT = Point.create(LONG_VALUE, TIMESTAMP);
@@ -217,7 +237,7 @@ public class PrometheusExportUtilsTest {
                 METRIC_NAME,
                 convertToLabelNames(Collections.singletonList(K3_LABEL_KEY)),
                 Collections.singletonList(V3_LABEL_VALUE),
-                SUMMARY_VALUE))
+                SUMMARY_VALUE_2))
         .containsExactly(
             new Sample(
                 METRIC_NAME + "_count",
@@ -228,7 +248,17 @@ public class PrometheusExportUtilsTest {
                 METRIC_NAME + "_sum",
                 Collections.singletonList("k_3"),
                 Collections.singletonList("v-3"),
-                74.8))
+                74.8),
+            new Sample(
+                METRIC_NAME,
+                Arrays.asList("k_3", LABEL_NAME_QUANTILE),
+                Arrays.asList("v-3", "0.995"),
+                8.2),
+            new Sample(
+                METRIC_NAME,
+                Arrays.asList("k_3", LABEL_NAME_QUANTILE),
+                Arrays.asList("v-3", "0.99"),
+                10.2))
         .inOrder();
     assertThat(
             PrometheusExportUtils.getSamples(
@@ -275,8 +305,17 @@ public class PrometheusExportUtilsTest {
     thrown.expectMessage(
         "Prometheus Histogram cannot have a label named 'le', "
             + "because it is a reserved label for bucket boundaries. "
-            + "Please remove this tag key from your view.");
+            + "Please remove this key from your view.");
     PrometheusExportUtils.createDescribableMetricFamilySamples(LE_LABEL_METRIC_DESCRIPTOR);
+  }
+
+  @Test
+  public void createDescribableMetricFamilySamples_Summary_DisallowQuantileLabelName() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage(
+        "Prometheus Summary cannot have a label named 'quantile', "
+            + "because it is a reserved label. Please remove this key from your view.");
+    PrometheusExportUtils.createDescribableMetricFamilySamples(QUANTILE_LABEL_METRIC_DESCRIPTOR);
   }
 
   @Test
@@ -309,7 +348,12 @@ public class PrometheusExportUtilsTest {
                         METRIC_NAME2 + "_sum",
                         Collections.singletonList("k_3"),
                         Collections.singletonList("v1"),
-                        74.8))));
+                        74.8),
+                    new Sample(
+                        METRIC_NAME2,
+                        Arrays.asList("k_3", LABEL_NAME_QUANTILE),
+                        Arrays.asList("v1", "0.99"),
+                        10.2))));
     assertThat(PrometheusExportUtils.createMetricFamilySamples(DISTRIBUTION_METRIC))
         .isEqualTo(
             new MetricFamilySamples(

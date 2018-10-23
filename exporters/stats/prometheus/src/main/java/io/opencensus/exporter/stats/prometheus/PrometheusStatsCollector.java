@@ -17,6 +17,7 @@
 package io.opencensus.exporter.stats.prometheus;
 
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.containsDisallowedLeLabelForHistogram;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.containsDisallowedQuantileLabelForSummary;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.convertToLabelNames;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.getType;
 
@@ -110,9 +111,14 @@ public final class PrometheusStatsCollector extends Collector implements Collect
         for (Metric metric : metricProducer.getMetrics()) {
           MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
           if (containsDisallowedLeLabelForHistogram(
-              convertToLabelNames(metricDescriptor.getLabelKeys()),
-              getType(metricDescriptor.getType()))) {
-            continue; // silently skip Distribution metricdescriptor with "le" label key
+                  convertToLabelNames(metricDescriptor.getLabelKeys()),
+                  getType(metricDescriptor.getType()))
+              || containsDisallowedQuantileLabelForSummary(
+                  convertToLabelNames(metricDescriptor.getLabelKeys()),
+                  getType(metricDescriptor.getType()))) {
+            // silently skip Distribution metricdescriptor with "le" label key and Summary
+            // metricdescriptor with "quantile" label key
+            continue;
           }
           try {
             samples.add(PrometheusExportUtils.createMetricFamilySamples(metric));

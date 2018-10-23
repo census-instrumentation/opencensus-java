@@ -31,6 +31,7 @@ import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.Summary;
+import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
 import io.opencensus.metrics.export.Value;
 import io.prometheus.client.Collector;
 import io.prometheus.client.Collector.MetricFamilySamples;
@@ -52,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * Metric}s.
  *
  * <p>Each OpenCensus {@link Metric} will be converted to a Prometheus {@link MetricFamilySamples},
- * and each {@code Row} of the {@link Metric} will be converted to Prometheus {@link Sample}s.
+ * and each {@code Point} of the {@link Metric} will be converted to Prometheus {@link Sample}s.
  *
  * <p>{@link io.opencensus.metrics.export.Value.ValueDouble}, {@link
  * io.opencensus.metrics.export.Value.ValueLong} will be converted to a single {@link Sample}.
@@ -66,13 +67,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * <p>Please note that Prometheus Metric and Label name can only have alphanumeric characters and
  * underscore. All other characters will be sanitized by underscores.
  */
-@SuppressWarnings("deprecation")
 final class PrometheusExportUtils {
 
   @VisibleForTesting static final String SAMPLE_SUFFIX_BUCKET = "_bucket";
   @VisibleForTesting static final String SAMPLE_SUFFIX_COUNT = "_count";
   @VisibleForTesting static final String SAMPLE_SUFFIX_SUM = "_sum";
   @VisibleForTesting static final String LABEL_NAME_BUCKET_BOUND = "le";
+  @VisibleForTesting static final String LABEL_NAME_QUANTILE = "quantile";
 
   // Converts a Metric to a Prometheus MetricFamilySamples.
   static MetricFamilySamples createMetricFamilySamples(Metric metric) {
@@ -97,12 +98,20 @@ final class PrometheusExportUtils {
     String name = Collector.sanitizeMetricName(metricDescriptor.getName());
     Type type = getType(metricDescriptor.getType());
     List<String> labelNames = convertToLabelNames(metricDescriptor.getLabelKeys());
+
     if (containsDisallowedLeLabelForHistogram(labelNames, type)) {
       throw new IllegalStateException(
           "Prometheus Histogram cannot have a label named 'le', "
               + "because it is a reserved label for bucket boundaries. "
-              + "Please remove this tag key from your view.");
+              + "Please remove this key from your view.");
     }
+
+    if (containsDisallowedQuantileLabelForSummary(labelNames, type)) {
+      throw new IllegalStateException(
+          "Prometheus Summary cannot have a label named 'quantile', "
+              + "because it is a reserved label. Please remove this key from your view.");
+    }
+
     return new MetricFamilySamples(
         name, type, metricDescriptor.getDescription(), Collections.<Sample>emptyList());
   }
@@ -219,6 +228,21 @@ final class PrometheusExportUtils {
                   new MetricFamilySamples.Sample(
                       name + SAMPLE_SUFFIX_SUM, labelNames, labelValues, sum));
             }
+
+            List<ValueAtPercentile> valueAtPercentiles = arg.getSnapshot().getValueAtPercentiles();
+            List<String> labelNamesWithQuantile = new ArrayList<String>(labelNames);
+            labelNamesWithQuantile.add(LABEL_NAME_QUANTILE);
+            for (ValueAtPercentile valueAtPercentile : valueAtPercentiles) {
+              List<String> labelValuesWithQuantile = new ArrayList<String>(labelValues);
+              labelValuesWithQuantile.add(
+                  doubleToGoString(valueAtPercentile.getPercentile() / 100));
+              samples.add(
+                  new MetricFamilySamples.Sample(
+                      name,
+                      labelNamesWithQuantile,
+                      labelValuesWithQuantile,
+                      valueAtPercentile.getValue()));
+            }
             return samples;
           }
         },
@@ -237,13 +261,28 @@ final class PrometheusExportUtils {
 
   // Returns true if there is an "le" label name in histogram label names, returns false otherwise.
   // Similar check to
-  // https://github.com/prometheus/client_java/commit/ed184d8e50c82e98bb2706723fff764424840c3a#diff-c505abbde72dd6bf36e89917b3469404R78
+  // https://github.com/prometheus/client_java/blob/af39ca948ca446757f14d8da618a72d18a46ef3d/simpleclient/src/main/java/io/prometheus/client/Histogram.java#L88
   static boolean containsDisallowedLeLabelForHistogram(List<String> labelNames, Type type) {
     if (!Type.HISTOGRAM.equals(type)) {
       return false;
     }
     for (String label : labelNames) {
       if (LABEL_NAME_BUCKET_BOUND.equals(label)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Returns true if there is an "quantile" label name in summary label names, returns false
+  // otherwise. Similar check to
+  // https://github.com/prometheus/client_java/blob/af39ca948ca446757f14d8da618a72d18a46ef3d/simpleclient/src/main/java/io/prometheus/client/Summary.java#L132
+  static boolean containsDisallowedQuantileLabelForSummary(List<String> labelNames, Type type) {
+    if (!Type.SUMMARY.equals(type)) {
+      return false;
+    }
+    for (String label : labelNames) {
+      if (LABEL_NAME_QUANTILE.equals(label)) {
         return true;
       }
     }
