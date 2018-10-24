@@ -67,6 +67,7 @@ public final class Repl {
   private static final Tagger tagger = Tags.getTagger();
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
 
+  /** Main launcher for the Repl example. */
   public static void main(String... args) {
     // Step 1. Enable OpenCensus Metrics.
     try {
