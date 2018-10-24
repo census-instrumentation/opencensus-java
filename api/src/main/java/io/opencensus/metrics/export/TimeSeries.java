@@ -58,6 +58,17 @@ public abstract class TimeSeries {
   }
 
   /**
+   * Creates a {@link TimeSeries} with empty(or no) points.
+   *
+   * @param labelValues the {@code LabelValue}s that uniquely identify this {@code TimeSeries}.
+   * @return a {@code TimeSeries}.
+   * @since 0.17
+   */
+  public static TimeSeries create(List<LabelValue> labelValues) {
+    return createInternal(labelValues, Collections.<Point>emptyList(), null);
+  }
+
+  /**
    * Creates a {@link TimeSeries}.
    *
    * @param labelValues the {@code LabelValue}s that uniquely identify this {@code TimeSeries}.
@@ -71,6 +82,18 @@ public abstract class TimeSeries {
       List<LabelValue> labelValues, Point point, @Nullable Timestamp startTimestamp) {
     Utils.checkNotNull(point, "point");
     return createInternal(labelValues, Collections.singletonList(point), startTimestamp);
+  }
+
+  /**
+   * Sets the {@code Point} of the {@link TimeSeries}.
+   *
+   * @param point the single data {@code Point} of this {@code TimeSeries}.
+   * @return a {@code TimeSeries}.
+   * @since 0.17
+   */
+  public TimeSeries setPoint(Point point) {
+    Utils.checkNotNull(point, "point");
+    return new AutoValue_TimeSeries(getLabelValues(), Collections.singletonList(point), null);
   }
 
   /**
