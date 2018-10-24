@@ -142,6 +142,10 @@
               <id>HelloWorldServer</id>
               <mainClass>io.opencensus.examples.grpc.helloworld.HelloWorldServer</mainClass>
             </program>
+            <program>
+              <id>Repl</id>
+              <mainClass>io.opencensus.examples.quickstart.Repl</mainClass>
+            </program>
           </programs>
         </configuration>
       </plugin>

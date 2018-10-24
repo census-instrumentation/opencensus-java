@@ -153,3 +153,11 @@ java_binary(
         ":opencensus_examples",
     ],
 )
+
+java_binary(
+    name = "Repl",
+    main_class = "io.opencensus.examples.quickstart.Repl",
+    runtime_deps = [
+        ":opencensus_examples",
+    ],
+)

@@ -111,3 +111,32 @@ $ ./target/appassembler/bin/HelloWorldClient user host serverPort cloudProjectId
 $ ./bazel-bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
 $ ./bazel-bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
 ```
+
+## To run "Repl" example
+
+See the full tutorial on [OpenCensus website](https://opencensus.io/quickstart/java/metrics/).
+
+First run:
+
+### Gradle
+```
+$ ./build/install/opencensus-examples/bin/Repl
+```
+
+### Maven
+```
+$ ./target/appassembler/bin/Repl
+```
+
+### Bazel
+```
+$ ./bazel-bin/Repl
+```
+
+Then start the Prometheus process:
+```
+$ cd src/main/java/io/opencensus/examples/quickstart/
+$ prometheus --config.file=prometheus.yaml
+```
+
+Stats will be shown on Prometheus UI on http://localhost:9090.
