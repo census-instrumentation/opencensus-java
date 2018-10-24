@@ -38,6 +38,8 @@ import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -165,9 +167,11 @@ final class StackdriverExporterWorker implements Runnable {
   // upload them as TimeSeries to StackDriver.
   @VisibleForTesting
   void export() {
-    List<Metric> metricsList = Lists.newArrayList();
+    ArrayList<Metric> metricsList = Lists.newArrayList();
     for (MetricProducer metricProducer : metricProducerManager.getAllMetricProducer()) {
-      for (Metric metric : metricProducer.getMetrics()) {
+      Collection<Metric> producerMetricsList = metricProducer.getMetrics();
+      metricsList.ensureCapacity(metricsList.size() + producerMetricsList.size());
+      for (Metric metric : producerMetricsList) {
         if (registerMetricDescriptor(metric.getMetricDescriptor())) {
           metricsList.add(metric);
         }

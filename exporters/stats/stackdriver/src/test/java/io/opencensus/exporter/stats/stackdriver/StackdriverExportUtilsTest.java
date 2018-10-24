@@ -46,17 +46,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link StackdriverExportUtils}. */
 @RunWith(JUnit4.class)
 public class StackdriverExportUtilsTest {
-  @Rule public final ExpectedException thrown = ExpectedException.none();
-
   private static final String METRIC_NAME = "my measurement";
   private static final String METRIC_DESCRIPTION = "measure description";
   private static final String METRIC_UNIT = "us";
@@ -198,14 +194,6 @@ public class StackdriverExportUtilsTest {
                 .setType("custom.googleapis.com/opencensus/" + METRIC_NAME)
                 .putLabels(StackdriverExportUtils.OPENCENSUS_TASK, DEFAULT_TASK_VALUE)
                 .build());
-  }
-
-  @Test
-  public void createMetric_throwWhenTagKeysAndValuesHaveDifferentSize() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Keys and Values don't have same size.");
-    StackdriverExportUtils.createMetric(
-        METRIC_DESCRIPTOR, EMPTY_LABEL_VALUE, CUSTOM_OPENCENSUS_DOMAIN);
   }
 
   @Test

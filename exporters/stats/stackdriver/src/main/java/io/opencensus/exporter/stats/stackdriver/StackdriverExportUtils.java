@@ -16,8 +16,6 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.api.Distribution;
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
@@ -114,6 +112,7 @@ final class StackdriverExportUtils {
         @Override
         public TypedValue apply(Summary arg) {
           // StackDriver doesn't handle Summary value.
+          // TODO(mayurkale): decide what to do with Summary value.
           Builder builder = TypedValue.newBuilder();
           return builder.build();
         }
@@ -158,7 +157,7 @@ final class StackdriverExportUtils {
     String type = generateType(metricDescriptor.getName(), domain);
     // Name format refers to
     // cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/create
-    builder.setName(String.format("projects/%s/metricDescriptors/%s", projectId, type));
+    builder.setName("projects/" + projectId + "/metricDescriptors/" + type);
     builder.setType(type);
     builder.setDescription(metricDescriptor.getDescription());
     builder.setDisplayName(createDisplayName(metricDescriptor.getName(), displayNamePrefix));
@@ -213,6 +212,7 @@ final class StackdriverExportUtils {
   // Convert a OpenCensus Type to a StackDriver ValueType
   @VisibleForTesting
   static MetricDescriptor.ValueType createValueType(Type type) {
+    // TODO(mayurkale): decide what to do with Summary type.
     if (type == Type.CUMULATIVE_DOUBLE || type == Type.GAUGE_DOUBLE) {
       return MetricDescriptor.ValueType.DOUBLE;
     } else if (type == Type.GAUGE_INT64 || type == Type.CUMULATIVE_INT64) {
@@ -240,6 +240,7 @@ final class StackdriverExportUtils {
 
     // Each entry in timeSeriesList will be converted into an independent TimeSeries object
     for (io.opencensus.metrics.export.TimeSeries timeSeries : metric.getTimeSeriesList()) {
+      // TODO(mayurkale): Consider using setPoints instead of builder clone and addPoints.
       TimeSeries.Builder builder = shared.clone();
       builder.setMetric(createMetric(metricDescriptor, timeSeries.getLabelValues(), domain));
 
@@ -262,9 +263,6 @@ final class StackdriverExportUtils {
     builder.setType(generateType(metricDescriptor.getName(), domain));
     Map<String, String> stringTagMap = Maps.newHashMap();
     List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
-
-    checkArgument(labelKeys.size() == labelValues.size(), "Keys and Values don't have same size.");
-
     for (int i = 0; i < labelValues.size(); i++) {
       String value = labelValues.get(i).getValue();
       if (value == null) {
