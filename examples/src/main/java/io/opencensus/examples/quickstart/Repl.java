@@ -143,31 +143,46 @@ public final class Repl {
 
   private static void registerAllViews() {
     // Defining the distribution aggregations
-    Aggregation latencyDistribution = Distribution.create(BucketBoundaries.create(
-        Arrays.asList(
-            // [>=0ms, >=25ms, >=50ms, >=75ms, >=100ms, >=200ms, >=400ms, >=600ms, >=800ms,
-            // >=1s, >=2s, >=4s, >=6s]
-            0.0,
-            25.0,
-            50.0,
-            75.0,
-            100.0,
-            200.0,
-            400.0,
-            600.0,
-            800.0,
-            1000.0,
-            2000.0,
-            4000.0,
-            6000.0)
-    ));
+    Aggregation latencyDistribution =
+        Distribution.create(
+            BucketBoundaries.create(
+                Arrays.asList(
+                    // [>=0ms, >=25ms, >=50ms, >=75ms, >=100ms, >=200ms, >=400ms, >=600ms, >=800ms,
+                    // >=1s, >=2s, >=4s, >=6s]
+                    0.0,
+                    25.0,
+                    50.0,
+                    75.0,
+                    100.0,
+                    200.0,
+                    400.0,
+                    600.0,
+                    800.0,
+                    1000.0,
+                    2000.0,
+                    4000.0,
+                    6000.0)));
 
-    Aggregation lengthsDistribution = Distribution.create(BucketBoundaries.create(
-        Arrays.asList(
-            // [>=0B, >=5B, >=10B, >=20B, >=40B, >=60B, >=80B, >=100B, >=200B, >=400B, >=600B,
-            // >=800B, >=1000B]
-            0.0, 5.0, 10.0, 20.0, 40.0, 60.0, 80.0, 100.0, 200.0, 400.0, 600.0, 800.0, 1000.0)
-    ));
+    Aggregation lengthsDistribution =
+        Distribution.create(
+            BucketBoundaries.create(
+                Arrays.asList(
+                    // [>=0B, >=5B, >=10B, >=20B, >=40B, >=60B, >=80B, >=100B, >=200B, >=400B,
+                    // >=600B,
+                    // >=800B, >=1000B]
+                    0.0,
+                    5.0,
+                    10.0,
+                    20.0,
+                    40.0,
+                    60.0,
+                    80.0,
+                    100.0,
+                    200.0,
+                    400.0,
+                    600.0,
+                    800.0,
+                    1000.0)));
 
     // Define the count aggregation
     Aggregation countAggregation = Aggregation.Count.create();
@@ -176,30 +191,33 @@ public final class Repl {
     List<TagKey> noKeys = new ArrayList<TagKey>();
 
     // Define the views
-    View[] views = new View[]{
-        View.create(
-            Name.create("ocjavametrics/latency"),
-            "The distribution of latencies",
-            M_LATENCY_MS, latencyDistribution,
-            Collections.singletonList(KEY_METHOD)),
-        View.create(
-            Name.create("ocjavametrics/lines_in"),
-            "The number of lines read in from standard input",
-            M_LINES_IN,
-            countAggregation,
-            noKeys),
-        View.create(
-            Name.create("ocjavametrics/errors"),
-            "The number of errors encountered",
-            M_ERRORS, countAggregation,
-            Collections.singletonList(KEY_METHOD)),
-        View.create(
-            Name.create("ocjavametrics/line_lengths"),
-            "The distribution of line lengths",
-            M_LINE_LENGTHS,
-            lengthsDistribution,
-            noKeys)
-    };
+    View[] views =
+        new View[] {
+          View.create(
+              Name.create("ocjavametrics/latency"),
+              "The distribution of latencies",
+              M_LATENCY_MS,
+              latencyDistribution,
+              Collections.singletonList(KEY_METHOD)),
+          View.create(
+              Name.create("ocjavametrics/lines_in"),
+              "The number of lines read in from standard input",
+              M_LINES_IN,
+              countAggregation,
+              noKeys),
+          View.create(
+              Name.create("ocjavametrics/errors"),
+              "The number of errors encountered",
+              M_ERRORS,
+              countAggregation,
+              Collections.singletonList(KEY_METHOD)),
+          View.create(
+              Name.create("ocjavametrics/line_lengths"),
+              "The distribution of line lengths",
+              M_LINE_LENGTHS,
+              lengthsDistribution,
+              noKeys)
+        };
 
     // Create the view manager
     ViewManager vmgr = Stats.getViewManager();
