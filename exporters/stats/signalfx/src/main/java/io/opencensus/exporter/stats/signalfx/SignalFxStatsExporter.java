@@ -18,8 +18,8 @@ package io.opencensus.exporter.stats.signalfx;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import io.opencensus.stats.Stats;
-import io.opencensus.stats.ViewManager;
+import io.opencensus.metrics.Metrics;
+import io.opencensus.metrics.export.MetricProducerManager;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
@@ -48,7 +48,8 @@ public final class SignalFxStatsExporter {
   @Nullable
   private static SignalFxStatsExporter exporter = null;
 
-  private SignalFxStatsExporter(SignalFxStatsConfiguration configuration, ViewManager viewManager) {
+  private SignalFxStatsExporter(
+      SignalFxStatsConfiguration configuration, MetricProducerManager metricProducerManager) {
     Preconditions.checkNotNull(configuration, "SignalFx stats exporter configuration");
     this.configuration = configuration;
     this.workerThread =
@@ -57,7 +58,7 @@ public final class SignalFxStatsExporter {
             configuration.getIngestEndpoint(),
             configuration.getToken(),
             configuration.getExportInterval(),
-            viewManager);
+            metricProducerManager);
   }
 
   /**
@@ -76,7 +77,9 @@ public final class SignalFxStatsExporter {
   public static void create(SignalFxStatsConfiguration configuration) {
     synchronized (monitor) {
       Preconditions.checkState(exporter == null, "SignalFx stats exporter is already created.");
-      exporter = new SignalFxStatsExporter(configuration, Stats.getViewManager());
+      exporter =
+          new SignalFxStatsExporter(
+              configuration, Metrics.getExportComponent().getMetricProducerManager());
       exporter.workerThread.start();
     }
   }

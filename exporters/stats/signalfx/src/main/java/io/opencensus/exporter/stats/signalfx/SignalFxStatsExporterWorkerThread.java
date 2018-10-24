@@ -23,16 +23,16 @@ import com.signalfx.metrics.flush.AggregateMetricSender;
 import com.signalfx.metrics.flush.AggregateMetricSender.Session;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.DataPoint;
 import io.opencensus.common.Duration;
-import io.opencensus.stats.View;
-import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewManager;
+import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricProducer;
+import io.opencensus.metrics.export.MetricProducerManager;
 import java.io.IOException;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Worker {@code Thread} that polls ViewData from the Stats's ViewManager and exports to SignalFx.
+ * Worker {@code Thread} that polls Metric from Metrics library and exports to SignalFx.
  *
  * <p>{@code SignalFxStatsExporterWorkerThread} is a daemon {@code Thread}
  */
@@ -50,7 +50,7 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
       };
 
   private final long intervalMs;
-  private final ViewManager views;
+  private final MetricProducerManager metricProducerManager;
   private final AggregateMetricSender sender;
 
   SignalFxStatsExporterWorkerThread(
@@ -58,9 +58,9 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
       URI endpoint,
       String token,
       Duration interval,
-      ViewManager views) {
+      MetricProducerManager metricProducerManager) {
     this.intervalMs = interval.toMillis();
-    this.views = views;
+    this.metricProducerManager = metricProducerManager;
     this.sender = factory.create(endpoint, token, ERROR_HANDLER);
 
     setDaemon(true);
@@ -71,15 +71,13 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
   @VisibleForTesting
   void export() throws IOException {
     Session session = sender.createSession();
-    try {
-      for (View view : views.getAllExportedViews()) {
-        ViewData data = views.getView(view.getName());
-        if (data == null) {
-          continue;
-        }
 
-        for (DataPoint datapoint : SignalFxSessionAdaptor.adapt(data)) {
-          session.setDatapoint(datapoint);
+    try {
+      for (MetricProducer metricProducer : metricProducerManager.getAllMetricProducer()) {
+        for (Metric metric : metricProducer.getMetrics()) {
+          for (DataPoint datapoint : SignalFxSessionAdaptor.adapt(metric)) {
+            session.setDatapoint(datapoint);
+          }
         }
       }
     } finally {
