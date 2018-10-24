@@ -44,6 +44,7 @@ import java.util.List;
 
 /** Sample application that shows how to record stats and export to Prometheus. */
 public final class Repl {
+
   // The latency in milliseconds
   private static final MeasureDouble M_LATENCY_MS =
       MeasureDouble.create("repl/latency", "The latency in milliseconds per REPL loop", "ms");
@@ -66,12 +67,12 @@ public final class Repl {
   private static final Tagger tagger = Tags.getTagger();
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
 
-  public static void main(String ...args) {
+  public static void main(String... args) {
     // Step 1. Enable OpenCensus Metrics.
     try {
       setupOpenCensusAndPrometheusExporter();
     } catch (IOException e) {
-      System.err.println("Failed to create and register OpenCensus Prometheus Stats exporter "+ e);
+      System.err.println("Failed to create and register OpenCensus Prometheus Stats exporter " + e);
       return;
     }
 
@@ -81,7 +82,7 @@ public final class Repl {
       try {
         readEvaluateProcessLine(stdin);
       } catch (IOException e) {
-        System.err.println("EOF bye "+ e);
+        System.err.println("EOF bye " + e);
         return;
       } catch (Exception e) {
         recordTaggedStat(KEY_METHOD, "repl", M_ERRORS, new Long(1));
@@ -121,7 +122,7 @@ public final class Repl {
       return "";
     } finally {
       long totalTimeNs = System.nanoTime() - startTimeNs;
-      double timespentMs = (new Double(totalTimeNs))/1e6;
+      double timespentMs = (new Double(totalTimeNs)) / 1e6;
       recordTaggedStat(KEY_METHOD, "processLine", M_LATENCY_MS, timespentMs);
     }
   }
@@ -203,8 +204,9 @@ public final class Repl {
     ViewManager vmgr = Stats.getViewManager();
 
     // Then finally register the views
-    for (View view : views)
+    for (View view : views) {
       vmgr.registerView(view);
+    }
   }
 
   private static void setupOpenCensusAndPrometheusExporter() throws IOException {
