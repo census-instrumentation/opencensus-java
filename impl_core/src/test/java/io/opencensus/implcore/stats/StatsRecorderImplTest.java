@@ -207,7 +207,7 @@ public final class StatsRecorderImplTest {
     CountData countData =
         (CountData) viewData.getAggregationMap().get(Collections.singletonList(VALUE));
     // Recording exemplar does not affect views with an aggregation other than distribution.
-    assertThat(countData.getCount()).isEqualTo(6L);
+    assertThat(countData.getCount()).isEqualTo(2L);
   }
 
   private void recordWithAttachments() {

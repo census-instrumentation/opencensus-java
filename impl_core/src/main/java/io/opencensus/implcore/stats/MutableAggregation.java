@@ -33,13 +33,9 @@ import io.opencensus.stats.BucketBoundaries;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /** Mutable version of {@link Aggregation} that supports adding values. */
 abstract class MutableAggregation {
-
-  private static final Logger logger = Logger.getLogger(MutableAggregation.class.getName());
 
   private MutableAggregation() {}
 
@@ -296,12 +292,6 @@ abstract class MutableAggregation {
 
     @Override
     void add(double value, Map<String, String> attachments, Timestamp timestamp) {
-      if (value < 0) {
-        logger.log(
-            Level.WARNING, "Dropping negative value (" + value + ") from histogram count and sum.");
-        return;
-      }
-
       sum += value;
       count++;
 

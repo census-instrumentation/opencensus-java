@@ -13,8 +13,8 @@
 - Update `opencensus-contrib-log-correlation-log4j2` to match the
   [OpenCensus log correlation spec](https://github.com/census-instrumentation/opencensus-specs/blob/master/trace/LogCorrelation.md).
 - The histogram bucket boundaries (`BucketBoundaries`) and values (`Count` and `Sum`) are no longer
-  supported for negative values. The Record API drops the negative values and logs the warning.
-  This could be a breaking change if you are using negative values to create or add a histogram.
+  supported for negative values. The Record API drops the negative `value` and logs the warning.
+  This could be a breaking change if you are recording negative value for any `measure`.
 
 ## 0.16.1 - 2018-09-18
 - Fix ClassCastException in Log4j log correlation

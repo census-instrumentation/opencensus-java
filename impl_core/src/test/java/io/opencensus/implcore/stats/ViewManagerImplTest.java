@@ -324,10 +324,10 @@ public class ViewManagerImplTest {
     testRecordInterval(
         MEASURE_DOUBLE,
         MEAN,
-        new double[] {20.0, -1.0, 1.0, -5.0, 5.0},
+        new double[] {20.0, 1.0, 1.0, 5.0, 5.0},
         9.0,
         30.0,
-        MeanData.create((19 * 0.6 + 1) / 4, 4),
+        MeanData.create((21 * 0.6 + 11) / 4, 4),
         MeanData.create(0.2 * 5 + 9, 1),
         MeanData.create(30.0, 1));
   }
@@ -341,7 +341,7 @@ public class ViewManagerImplTest {
         -5000,
         30,
         MeanData.create((3000 * 0.6 + 12000) / 4, 4),
-        MeanData.create(-4000, 1),
+        MeanData.create(0, 1),
         MeanData.create(30, 1));
   }
 
@@ -350,10 +350,10 @@ public class ViewManagerImplTest {
     testRecordInterval(
         MEASURE_DOUBLE,
         SUM,
-        new double[] {20.0, -1.0, 1.0, -5.0, 5.0},
+        new double[] {20.0, 1.0, 1.0, 5.0, 5.0},
         9.0,
         30.0,
-        SumDataDouble.create(19 * 0.6 + 1),
+        SumDataDouble.create(21 * 0.6 + 11),
         SumDataDouble.create(0.2 * 5 + 9),
         SumDataDouble.create(30.0));
   }
@@ -367,7 +367,7 @@ public class ViewManagerImplTest {
         -50,
         30,
         SumDataLong.create(Math.round(34 * 0.6 + 120)),
-        SumDataLong.create(-40),
+        SumDataLong.create(10),
         SumDataLong.create(30));
   }
 
@@ -393,7 +393,7 @@ public class ViewManagerImplTest {
         -5000,
         30,
         LastValueDataLong.create(5000),
-        LastValueDataLong.create(-5000),
+        LastValueDataLong.create(0),
         LastValueDataLong.create(30));
   }
 

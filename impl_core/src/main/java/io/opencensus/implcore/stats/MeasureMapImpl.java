@@ -21,9 +21,13 @@ import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.unsafe.ContextUtils;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Implementation of {@link MeasureMap}. */
 final class MeasureMapImpl extends MeasureMap {
+  private static final Logger logger = Logger.getLogger(MeasureMapImpl.class.getName());
+
   private final StatsManager statsManager;
   private final MeasureMapInternal.Builder builder = MeasureMapInternal.builder();
 
@@ -37,13 +41,21 @@ final class MeasureMapImpl extends MeasureMap {
 
   @Override
   public MeasureMapImpl put(MeasureDouble measure, double value) {
-    builder.put(measure, value);
+    if (value < 0) {
+      logger.log(Level.WARNING, "Dropping (" + value + "), value to record must be non-negative.");
+    } else {
+      builder.put(measure, value);
+    }
     return this;
   }
 
   @Override
   public MeasureMapImpl put(MeasureLong measure, long value) {
-    builder.put(measure, value);
+    if (value < 0) {
+      logger.log(Level.WARNING, "Dropping (" + value + "), value to record must be non-negative.");
+    } else {
+      builder.put(measure, value);
+    }
     return this;
   }
 
