@@ -58,7 +58,7 @@ public abstract class TimeSeries {
   }
 
   /**
-   * Creates a {@link TimeSeries}.
+   * Creates a {@link TimeSeries} with empty(or no) points.
    *
    * @param labelValues the {@code LabelValue}s that uniquely identify this {@code TimeSeries}.
    * @return a {@code TimeSeries}.
