@@ -152,6 +152,7 @@ General guidelines on imports:
         <allow pkg="io.opencensus.exporter.stats.prometheus"/>
         <allow pkg="io.opencensus.trace"/>
         <allow pkg="io.prometheus.client"/>
+        <allow pkg="io.opencensus.metrics"/>
       </subpackage>
       <subpackage name="signalfx">
         <allow pkg="com.signalfx"/>

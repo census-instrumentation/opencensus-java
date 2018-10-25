@@ -18,41 +18,30 @@ package io.opencensus.exporter.stats.prometheus;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.LABEL_NAME_BUCKET_BOUND;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.LABEL_NAME_QUANTILE;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_BUCKET;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_COUNT;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_SUM;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.convertToLabelNames;
 
-import com.google.common.collect.ImmutableMap;
-import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.Aggregation.Count;
-import io.opencensus.stats.Aggregation.Distribution;
-import io.opencensus.stats.Aggregation.LastValue;
-import io.opencensus.stats.Aggregation.Mean;
-import io.opencensus.stats.Aggregation.Sum;
-import io.opencensus.stats.AggregationData.CountData;
-import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.LastValueDataDouble;
-import io.opencensus.stats.AggregationData.LastValueDataLong;
-import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.SumDataDouble;
-import io.opencensus.stats.AggregationData.SumDataLong;
-import io.opencensus.stats.BucketBoundaries;
-import io.opencensus.stats.Measure.MeasureDouble;
-import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow.Cumulative;
-import io.opencensus.stats.View.AggregationWindow.Interval;
-import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
-import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.export.Distribution.Bucket;
+import io.opencensus.metrics.export.Distribution.BucketOptions;
+import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricDescriptor;
+import io.opencensus.metrics.export.Point;
+import io.opencensus.metrics.export.Summary;
+import io.opencensus.metrics.export.Summary.Snapshot;
+import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
+import io.opencensus.metrics.export.Value;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 import io.prometheus.client.Collector.Type;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -62,63 +51,112 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link PrometheusExportUtils}. */
 @RunWith(JUnit4.class)
 public class PrometheusExportUtilsTest {
-
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private static final Duration ONE_SECOND = Duration.create(1, 0);
-  private static final Cumulative CUMULATIVE = Cumulative.create();
-  private static final Interval INTERVAL = Interval.create(ONE_SECOND);
-  private static final Sum SUM = Sum.create();
-  private static final Count COUNT = Count.create();
-  private static final Mean MEAN = Mean.create();
-  private static final BucketBoundaries BUCKET_BOUNDARIES =
-      BucketBoundaries.create(Arrays.asList(-5.0, 0.0, 5.0));
-  private static final Distribution DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
-  private static final LastValue LAST_VALUE = LastValue.create();
-  private static final View.Name VIEW_NAME_1 = View.Name.create("view1");
-  private static final View.Name VIEW_NAME_2 = View.Name.create("view2");
-  private static final View.Name VIEW_NAME_3 = View.Name.create("view-3");
-  private static final View.Name VIEW_NAME_4 = View.Name.create("-view4");
-  private static final String DESCRIPTION = "View description";
-  private static final MeasureDouble MEASURE_DOUBLE =
-      MeasureDouble.create("measure", "description", "1");
-  private static final TagKey K1 = TagKey.create("k1");
-  private static final TagKey K2 = TagKey.create("k2");
-  private static final TagKey K3 = TagKey.create("k-3");
-  private static final TagKey TAG_KEY_LE = TagKey.create(LABEL_NAME_BUCKET_BOUND);
-  private static final TagValue V1 = TagValue.create("v1");
-  private static final TagValue V2 = TagValue.create("v2");
-  private static final TagValue V3 = TagValue.create("v-3");
-  private static final SumDataDouble SUM_DATA_DOUBLE = SumDataDouble.create(-5.5);
-  private static final SumDataLong SUM_DATA_LONG = SumDataLong.create(123456789);
-  private static final CountData COUNT_DATA = CountData.create(12345);
-  private static final MeanData MEAN_DATA = MeanData.create(3.4, 22);
-  private static final DistributionData DISTRIBUTION_DATA =
-      DistributionData.create(4.4, 5, -3.2, 15.7, 135.22, Arrays.asList(0L, 2L, 2L, 1L));
-  private static final LastValueDataDouble LAST_VALUE_DATA_DOUBLE = LastValueDataDouble.create(7.9);
-  private static final LastValueDataLong LAST_VALUE_DATA_LONG = LastValueDataLong.create(66666666);
-  private static final View VIEW1 =
-      View.create(
-          VIEW_NAME_1, DESCRIPTION, MEASURE_DOUBLE, COUNT, Arrays.asList(K1, K2), CUMULATIVE);
-  private static final View VIEW2 =
-      View.create(VIEW_NAME_2, DESCRIPTION, MEASURE_DOUBLE, MEAN, Arrays.asList(K3), CUMULATIVE);
-  private static final View VIEW3 =
-      View.create(
-          VIEW_NAME_3, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(K1), CUMULATIVE);
-  private static final View VIEW4 =
-      View.create(VIEW_NAME_4, DESCRIPTION, MEASURE_DOUBLE, COUNT, Arrays.asList(K1), INTERVAL);
-  private static final View DISTRIBUTION_VIEW_WITH_LE_KEY =
-      View.create(
-          VIEW_NAME_1,
-          DESCRIPTION,
-          MEASURE_DOUBLE,
-          DISTRIBUTION,
-          Arrays.asList(K1, TAG_KEY_LE),
-          CUMULATIVE);
-  private static final CumulativeData CUMULATIVE_DATA =
-      CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
-  private static final IntervalData INTERVAL_DATA = IntervalData.create(Timestamp.fromMillis(1000));
-  private static final String SAMPLE_NAME = "view";
+  private static final String METRIC_NAME = "my_metric";
+  private static final String METRIC_NAME2 = "my_metric2";
+  private static final String METRIC_NAME3 = "my_metric3";
+  private static final String METRIC_DESCRIPTION = "metric description";
+  private static final String METRIC_UNIT = "us";
+  private static final String KEY_DESCRIPTION = "key description";
+
+  private static final LabelKey K1_LABEL_KEY = LabelKey.create("k1", KEY_DESCRIPTION);
+  private static final LabelKey K2_LABEL_KEY = LabelKey.create("k2", KEY_DESCRIPTION);
+  private static final LabelKey K3_LABEL_KEY = LabelKey.create("k-3", KEY_DESCRIPTION);
+  private static final LabelValue V1_LABEL_VALUE = LabelValue.create("v1");
+  private static final LabelValue V2_LABEL_VALUE = LabelValue.create("v2");
+  private static final LabelValue V3_LABEL_VALUE = LabelValue.create("v-3");
+  private static final List<LabelKey> LABEL_KEY = Arrays.asList(K1_LABEL_KEY, K2_LABEL_KEY);
+  private static final List<LabelValue> LABEL_VALUE = Arrays.asList(V1_LABEL_VALUE, V2_LABEL_VALUE);
+  private static final List<LabelKey> LE_LABEL_KEY =
+      Arrays.asList(K1_LABEL_KEY, LabelKey.create(LABEL_NAME_BUCKET_BOUND, KEY_DESCRIPTION));
+  private static final List<LabelKey> QUNATILE_LABEL_KEY =
+      Arrays.asList(K1_LABEL_KEY, LabelKey.create(LABEL_NAME_QUANTILE, KEY_DESCRIPTION));
+
+  private static final io.opencensus.metrics.export.Distribution DISTRIBUTION =
+      io.opencensus.metrics.export.Distribution.create(
+          5,
+          22,
+          135.22,
+          BucketOptions.explicitOptions(Arrays.asList(1.0, 2.0, 5.0)),
+          Arrays.asList(Bucket.create(0), Bucket.create(2), Bucket.create(2), Bucket.create(1)));
+  private static final Summary SUMMARY =
+      Summary.create(
+          22L,
+          74.8,
+          Snapshot.create(
+              10L, 87.07, Collections.singletonList(ValueAtPercentile.create(99, 10.2))));
+  private static final Summary SUMMARY_2 =
+      Summary.create(
+          22L,
+          74.8,
+          Snapshot.create(
+              10L,
+              87.07,
+              Arrays.asList(
+                  ValueAtPercentile.create(99.5, 8.2), ValueAtPercentile.create(99, 10.2))));
+  private static final Value DOUBLE_VALUE = Value.doubleValue(-5.5);
+  private static final Value LONG_VALUE = Value.longValue(123456789);
+  private static final Value DISTRIBUTION_VALUE = Value.distributionValue(DISTRIBUTION);
+  private static final Value SUMMARY_VALUE = Value.summaryValue(SUMMARY);
+  private static final Value SUMMARY_VALUE_2 = Value.summaryValue(SUMMARY_2);
+
+  private static final MetricDescriptor CUMULATIVE_METRIC_DESCRIPTOR =
+      MetricDescriptor.create(
+          METRIC_NAME,
+          METRIC_DESCRIPTION,
+          METRIC_UNIT,
+          MetricDescriptor.Type.CUMULATIVE_INT64,
+          LABEL_KEY);
+  private static final MetricDescriptor SUMMARY_METRIC_DESCRIPTOR =
+      MetricDescriptor.create(
+          METRIC_NAME2,
+          METRIC_DESCRIPTION,
+          METRIC_UNIT,
+          MetricDescriptor.Type.SUMMARY,
+          Collections.singletonList(K3_LABEL_KEY));
+  private static final MetricDescriptor HISTOGRAM_METRIC_DESCRIPTOR =
+      MetricDescriptor.create(
+          METRIC_NAME3,
+          METRIC_DESCRIPTION,
+          METRIC_UNIT,
+          MetricDescriptor.Type.CUMULATIVE_DISTRIBUTION,
+          Collections.singletonList(K1_LABEL_KEY));
+  private static final MetricDescriptor LE_LABEL_METRIC_DESCRIPTOR =
+      MetricDescriptor.create(
+          METRIC_NAME,
+          METRIC_DESCRIPTION,
+          METRIC_UNIT,
+          MetricDescriptor.Type.CUMULATIVE_DISTRIBUTION,
+          LE_LABEL_KEY);
+  private static final MetricDescriptor QUANTILE_LABEL_METRIC_DESCRIPTOR =
+      MetricDescriptor.create(
+          METRIC_NAME,
+          METRIC_DESCRIPTION,
+          METRIC_UNIT,
+          MetricDescriptor.Type.SUMMARY,
+          QUNATILE_LABEL_KEY);
+
+  private static final Timestamp TIMESTAMP = Timestamp.fromMillis(3000);
+  private static final Point LONG_POINT = Point.create(LONG_VALUE, TIMESTAMP);
+  private static final Point DISTRIBUTION_POINT = Point.create(DISTRIBUTION_VALUE, TIMESTAMP);
+  private static final Point SUMMARY_POINT = Point.create(SUMMARY_VALUE, TIMESTAMP);
+
+  private static final io.opencensus.metrics.export.TimeSeries LONG_TIME_SERIES =
+      io.opencensus.metrics.export.TimeSeries.createWithOnePoint(LABEL_VALUE, LONG_POINT, null);
+  private static final io.opencensus.metrics.export.TimeSeries DISTRIBUTION_TIME_SERIES =
+      io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
+          Collections.singletonList(V3_LABEL_VALUE), DISTRIBUTION_POINT, null);
+  private static final io.opencensus.metrics.export.TimeSeries SUMMARY_TIME_SERIES =
+      io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
+          Collections.singletonList(V1_LABEL_VALUE), SUMMARY_POINT, null);
+
+  private static final Metric LONG_METRIC =
+      Metric.createWithOneTimeSeries(CUMULATIVE_METRIC_DESCRIPTOR, LONG_TIME_SERIES);
+  private static final Metric DISTRIBUTION_METRIC =
+      Metric.createWithOneTimeSeries(HISTOGRAM_METRIC_DESCRIPTOR, DISTRIBUTION_TIME_SERIES);
+  private static final Metric SUMMARY_METRIC =
+      Metric.createWithOneTimeSeries(SUMMARY_METRIC_DESCRIPTOR, SUMMARY_TIME_SERIES);
 
   @Test
   public void testConstants() {
@@ -130,123 +168,135 @@ public class PrometheusExportUtilsTest {
 
   @Test
   public void getType() {
-    assertThat(PrometheusExportUtils.getType(COUNT, INTERVAL)).isEqualTo(Type.UNTYPED);
-    assertThat(PrometheusExportUtils.getType(COUNT, CUMULATIVE)).isEqualTo(Type.COUNTER);
-    assertThat(PrometheusExportUtils.getType(DISTRIBUTION, CUMULATIVE)).isEqualTo(Type.HISTOGRAM);
-    assertThat(PrometheusExportUtils.getType(SUM, CUMULATIVE)).isEqualTo(Type.UNTYPED);
-    assertThat(PrometheusExportUtils.getType(MEAN, CUMULATIVE)).isEqualTo(Type.SUMMARY);
-    assertThat(PrometheusExportUtils.getType(LAST_VALUE, CUMULATIVE)).isEqualTo(Type.GAUGE);
+    assertThat(PrometheusExportUtils.getType(MetricDescriptor.Type.CUMULATIVE_INT64))
+        .isEqualTo(Type.COUNTER);
+    assertThat(PrometheusExportUtils.getType(MetricDescriptor.Type.CUMULATIVE_DOUBLE))
+        .isEqualTo(Type.COUNTER);
+    assertThat(PrometheusExportUtils.getType(MetricDescriptor.Type.CUMULATIVE_DISTRIBUTION))
+        .isEqualTo(Type.HISTOGRAM);
+    assertThat(PrometheusExportUtils.getType(MetricDescriptor.Type.SUMMARY))
+        .isEqualTo(Type.SUMMARY);
+    assertThat(PrometheusExportUtils.getType(MetricDescriptor.Type.GAUGE_INT64))
+        .isEqualTo(Type.GAUGE);
+    assertThat(PrometheusExportUtils.getType(MetricDescriptor.Type.GAUGE_DOUBLE))
+        .isEqualTo(Type.GAUGE);
+    assertThat(PrometheusExportUtils.getType(MetricDescriptor.Type.GAUGE_DISTRIBUTION))
+        .isEqualTo(Type.HISTOGRAM);
   }
 
   @Test
   public void createDescribableMetricFamilySamples() {
-    assertThat(PrometheusExportUtils.createDescribableMetricFamilySamples(VIEW1))
+    assertThat(
+            PrometheusExportUtils.createDescribableMetricFamilySamples(
+                CUMULATIVE_METRIC_DESCRIPTOR))
         .isEqualTo(
             new MetricFamilySamples(
-                "view1", Type.COUNTER, DESCRIPTION, Collections.<Sample>emptyList()));
-    assertThat(PrometheusExportUtils.createDescribableMetricFamilySamples(VIEW2))
+                METRIC_NAME, Type.COUNTER, METRIC_DESCRIPTION, Collections.<Sample>emptyList()));
+    assertThat(
+            PrometheusExportUtils.createDescribableMetricFamilySamples(SUMMARY_METRIC_DESCRIPTOR))
         .isEqualTo(
             new MetricFamilySamples(
-                "view2", Type.SUMMARY, DESCRIPTION, Collections.<Sample>emptyList()));
-    assertThat(PrometheusExportUtils.createDescribableMetricFamilySamples(VIEW3))
+                METRIC_NAME2, Type.SUMMARY, METRIC_DESCRIPTION, Collections.<Sample>emptyList()));
+    assertThat(
+            PrometheusExportUtils.createDescribableMetricFamilySamples(HISTOGRAM_METRIC_DESCRIPTOR))
         .isEqualTo(
             new MetricFamilySamples(
-                "view_3", Type.HISTOGRAM, DESCRIPTION, Collections.<Sample>emptyList()));
-    assertThat(PrometheusExportUtils.createDescribableMetricFamilySamples(VIEW4))
-        .isEqualTo(
-            new MetricFamilySamples(
-                "_view4", Type.UNTYPED, DESCRIPTION, Collections.<Sample>emptyList()));
+                METRIC_NAME3, Type.HISTOGRAM, METRIC_DESCRIPTION, Collections.<Sample>emptyList()));
   }
 
   @Test
   public void getSamples() {
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME,
-                convertToLabelNames(Arrays.asList(K1, K2)),
-                Arrays.asList(V1, V2),
-                SUM_DATA_DOUBLE,
-                SUM))
+                METRIC_NAME, convertToLabelNames(LABEL_KEY), LABEL_VALUE, DOUBLE_VALUE))
         .containsExactly(
-            new Sample(SAMPLE_NAME, Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), -5.5));
+            new Sample(METRIC_NAME, Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), -5.5));
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME,
-                convertToLabelNames(Arrays.asList(K3)),
-                Arrays.asList(V3),
-                SUM_DATA_LONG,
-                SUM))
+                METRIC_NAME,
+                convertToLabelNames(Collections.singletonList(K3_LABEL_KEY)),
+                Collections.singletonList(V3_LABEL_VALUE),
+                LONG_VALUE))
         .containsExactly(
-            new Sample(SAMPLE_NAME, Arrays.asList("k_3"), Arrays.asList("v-3"), 123456789));
+            new Sample(
+                METRIC_NAME,
+                Collections.singletonList("k_3"),
+                Collections.singletonList("v-3"),
+                123456789));
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME,
-                convertToLabelNames(Arrays.asList(K1, K3)),
-                Arrays.asList(V1, null),
-                COUNT_DATA,
-                COUNT))
+                METRIC_NAME,
+                convertToLabelNames(Arrays.asList(K1_LABEL_KEY, K3_LABEL_KEY)),
+                Arrays.asList(V1_LABEL_VALUE, null),
+                LONG_VALUE))
         .containsExactly(
-            new Sample(SAMPLE_NAME, Arrays.asList("k1", "k_3"), Arrays.asList("v1", ""), 12345));
+            new Sample(
+                METRIC_NAME, Arrays.asList("k1", "k_3"), Arrays.asList("v1", ""), 123456789));
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME,
-                convertToLabelNames(Arrays.asList(K3)),
-                Arrays.asList(V3),
-                MEAN_DATA,
-                MEAN))
+                METRIC_NAME,
+                convertToLabelNames(Collections.singletonList(K3_LABEL_KEY)),
+                Collections.singletonList(V3_LABEL_VALUE),
+                SUMMARY_VALUE_2))
         .containsExactly(
-            new Sample(SAMPLE_NAME + "_count", Arrays.asList("k_3"), Arrays.asList("v-3"), 22),
-            new Sample(SAMPLE_NAME + "_sum", Arrays.asList("k_3"), Arrays.asList("v-3"), 74.8))
+            new Sample(
+                METRIC_NAME + "_count",
+                Collections.singletonList("k_3"),
+                Collections.singletonList("v-3"),
+                22),
+            new Sample(
+                METRIC_NAME + "_sum",
+                Collections.singletonList("k_3"),
+                Collections.singletonList("v-3"),
+                74.8),
+            new Sample(
+                METRIC_NAME,
+                Arrays.asList("k_3", LABEL_NAME_QUANTILE),
+                Arrays.asList("v-3", "0.995"),
+                8.2),
+            new Sample(
+                METRIC_NAME,
+                Arrays.asList("k_3", LABEL_NAME_QUANTILE),
+                Arrays.asList("v-3", "0.99"),
+                10.2))
         .inOrder();
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME,
-                convertToLabelNames(Arrays.asList(K1)),
-                Arrays.asList(V1),
-                DISTRIBUTION_DATA,
-                DISTRIBUTION))
+                METRIC_NAME,
+                convertToLabelNames(Collections.singletonList(K1_LABEL_KEY)),
+                Collections.singletonList(V1_LABEL_VALUE),
+                DISTRIBUTION_VALUE))
         .containsExactly(
             new Sample(
-                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "-5.0"), 0),
+                METRIC_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "1.0"), 0),
             new Sample(
-                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "0.0"), 2),
+                METRIC_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "2.0"), 2),
             new Sample(
-                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "5.0"), 4),
+                METRIC_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "5.0"), 4),
             new Sample(
-                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "+Inf"), 5),
-            new Sample(SAMPLE_NAME + "_count", Arrays.asList("k1"), Arrays.asList("v1"), 5),
-            new Sample(SAMPLE_NAME + "_sum", Arrays.asList("k1"), Arrays.asList("v1"), 22.0))
+                METRIC_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "+Inf"), 5),
+            new Sample(
+                METRIC_NAME + "_count",
+                Collections.singletonList("k1"),
+                Collections.singletonList("v1"),
+                5),
+            new Sample(
+                METRIC_NAME + "_sum",
+                Collections.singletonList("k1"),
+                Collections.singletonList("v1"),
+                22.0))
         .inOrder();
-    assertThat(
-            PrometheusExportUtils.getSamples(
-                SAMPLE_NAME,
-                convertToLabelNames(Arrays.asList(K1, K2)),
-                Arrays.asList(V1, V2),
-                LAST_VALUE_DATA_DOUBLE,
-                LAST_VALUE))
-        .containsExactly(
-            new Sample(SAMPLE_NAME, Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 7.9));
-    assertThat(
-            PrometheusExportUtils.getSamples(
-                SAMPLE_NAME,
-                convertToLabelNames(Arrays.asList(K3)),
-                Arrays.asList(V3),
-                LAST_VALUE_DATA_LONG,
-                LAST_VALUE))
-        .containsExactly(
-            new Sample(SAMPLE_NAME, Arrays.asList("k_3"), Arrays.asList("v-3"), 66666666));
   }
 
   @Test
   public void getSamples_KeysAndValuesHaveDifferentSizes() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Label names and tag values have different sizes.");
+    thrown.expectMessage("Keys and Values don't have same size.");
     PrometheusExportUtils.getSamples(
-        SAMPLE_NAME,
-        convertToLabelNames(Arrays.asList(K1, K2, K3)),
-        Arrays.asList(V1, V2),
-        DISTRIBUTION_DATA,
-        DISTRIBUTION);
+        METRIC_NAME,
+        convertToLabelNames(Arrays.asList(K1_LABEL_KEY, K3_LABEL_KEY, K3_LABEL_KEY)),
+        Arrays.asList(V1_LABEL_VALUE, V2_LABEL_VALUE),
+        DISTRIBUTION_VALUE);
   }
 
   @Test
@@ -255,72 +305,91 @@ public class PrometheusExportUtilsTest {
     thrown.expectMessage(
         "Prometheus Histogram cannot have a label named 'le', "
             + "because it is a reserved label for bucket boundaries. "
-            + "Please remove this tag key from your view.");
-    PrometheusExportUtils.createDescribableMetricFamilySamples(DISTRIBUTION_VIEW_WITH_LE_KEY);
+            + "Please remove this key from your view.");
+    PrometheusExportUtils.createDescribableMetricFamilySamples(LE_LABEL_METRIC_DESCRIPTOR);
+  }
+
+  @Test
+  public void createDescribableMetricFamilySamples_Summary_DisallowQuantileLabelName() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage(
+        "Prometheus Summary cannot have a label named 'quantile', "
+            + "because it is a reserved label. Please remove this key from your view.");
+    PrometheusExportUtils.createDescribableMetricFamilySamples(QUANTILE_LABEL_METRIC_DESCRIPTOR);
   }
 
   @Test
   public void createMetricFamilySamples() {
-    assertThat(
-            PrometheusExportUtils.createMetricFamilySamples(
-                ViewData.create(
-                    VIEW1, ImmutableMap.of(Arrays.asList(V1, V2), COUNT_DATA), CUMULATIVE_DATA)))
+    assertThat(PrometheusExportUtils.createMetricFamilySamples(LONG_METRIC))
         .isEqualTo(
             new MetricFamilySamples(
-                "view1",
+                METRIC_NAME,
                 Type.COUNTER,
-                DESCRIPTION,
-                Arrays.asList(
+                METRIC_DESCRIPTION,
+                Collections.singletonList(
                     new Sample(
-                        "view1", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 12345))));
-    assertThat(
-            PrometheusExportUtils.createMetricFamilySamples(
-                ViewData.create(
-                    VIEW2, ImmutableMap.of(Arrays.asList(V1), MEAN_DATA), CUMULATIVE_DATA)))
+                        METRIC_NAME,
+                        Arrays.asList("k1", "k2"),
+                        Arrays.asList("v1", "v2"),
+                        123456789))));
+    assertThat(PrometheusExportUtils.createMetricFamilySamples(SUMMARY_METRIC))
         .isEqualTo(
             new MetricFamilySamples(
-                "view2",
+                METRIC_NAME2,
                 Type.SUMMARY,
-                DESCRIPTION,
-                Arrays.asList(
-                    new Sample("view2_count", Arrays.asList("k_3"), Arrays.asList("v1"), 22),
-                    new Sample("view2_sum", Arrays.asList("k_3"), Arrays.asList("v1"), 74.8))));
-    assertThat(
-            PrometheusExportUtils.createMetricFamilySamples(
-                ViewData.create(
-                    VIEW3, ImmutableMap.of(Arrays.asList(V3), DISTRIBUTION_DATA), CUMULATIVE_DATA)))
-        .isEqualTo(
-            new MetricFamilySamples(
-                "view_3",
-                Type.HISTOGRAM,
-                DESCRIPTION,
+                METRIC_DESCRIPTION,
                 Arrays.asList(
                     new Sample(
-                        "view_3_bucket",
+                        METRIC_NAME2 + "_count",
+                        Collections.singletonList("k_3"),
+                        Collections.singletonList("v1"),
+                        22),
+                    new Sample(
+                        METRIC_NAME2 + "_sum",
+                        Collections.singletonList("k_3"),
+                        Collections.singletonList("v1"),
+                        74.8),
+                    new Sample(
+                        METRIC_NAME2,
+                        Arrays.asList("k_3", LABEL_NAME_QUANTILE),
+                        Arrays.asList("v1", "0.99"),
+                        10.2))));
+    assertThat(PrometheusExportUtils.createMetricFamilySamples(DISTRIBUTION_METRIC))
+        .isEqualTo(
+            new MetricFamilySamples(
+                METRIC_NAME3,
+                Type.HISTOGRAM,
+                METRIC_DESCRIPTION,
+                Arrays.asList(
+                    new Sample(
+                        METRIC_NAME3 + "_bucket",
                         Arrays.asList("k1", "le"),
-                        Arrays.asList("v-3", "-5.0"),
+                        Arrays.asList("v-3", "1.0"),
                         0),
                     new Sample(
-                        "view_3_bucket", Arrays.asList("k1", "le"), Arrays.asList("v-3", "0.0"), 2),
+                        METRIC_NAME3 + "_bucket",
+                        Arrays.asList("k1", "le"),
+                        Arrays.asList("v-3", "2.0"),
+                        2),
                     new Sample(
-                        "view_3_bucket", Arrays.asList("k1", "le"), Arrays.asList("v-3", "5.0"), 4),
+                        METRIC_NAME3 + "_bucket",
+                        Arrays.asList("k1", "le"),
+                        Arrays.asList("v-3", "5.0"),
+                        4),
                     new Sample(
-                        "view_3_bucket",
+                        METRIC_NAME3 + "_bucket",
                         Arrays.asList("k1", "le"),
                         Arrays.asList("v-3", "+Inf"),
                         5),
-                    new Sample("view_3_count", Arrays.asList("k1"), Arrays.asList("v-3"), 5),
-                    new Sample("view_3_sum", Arrays.asList("k1"), Arrays.asList("v-3"), 22.0))));
-    assertThat(
-            PrometheusExportUtils.createMetricFamilySamples(
-                ViewData.create(
-                    VIEW4, ImmutableMap.of(Arrays.asList(V1), COUNT_DATA), INTERVAL_DATA)))
-        .isEqualTo(
-            new MetricFamilySamples(
-                "_view4",
-                Type.UNTYPED,
-                DESCRIPTION,
-                Arrays.asList(
-                    new Sample("_view4", Arrays.asList("k1"), Arrays.asList("v1"), 12345))));
+                    new Sample(
+                        METRIC_NAME3 + "_count",
+                        Collections.singletonList("k1"),
+                        Collections.singletonList("v-3"),
+                        5),
+                    new Sample(
+                        METRIC_NAME3 + "_sum",
+                        Collections.singletonList("k1"),
+                        Collections.singletonList("v-3"),
+                        22.0))));
   }
 }
