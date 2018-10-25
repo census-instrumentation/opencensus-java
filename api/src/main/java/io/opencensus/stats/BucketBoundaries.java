@@ -62,25 +62,31 @@ public abstract class BucketBoundaries {
   }
 
   private static List<Double> dropNegativeBucketBounds(List<Double> bucketBoundaries) {
-    // Negative values are currently not supported by any of the backends that OC supports.
-    int negativeValuesCount = 0;
+    // Negative values (BucketBounds) are currently not supported by any of the backends
+    // that OC supports.
+    int negativeBucketBounds = 0;
+    int zeroBucketBounds = 0;
     for (Double value : bucketBoundaries) {
-      if (value < 0) {
-        negativeValuesCount++;
+      if (value <= 0) {
+        if (value == 0) {
+          zeroBucketBounds++;
+        } else {
+          negativeBucketBounds++;
+        }
       } else {
         break;
       }
     }
 
-    if (negativeValuesCount > 0) {
-      bucketBoundaries = bucketBoundaries.subList(negativeValuesCount, bucketBoundaries.size());
+    if (negativeBucketBounds > 0) {
       logger.log(
           Level.WARNING,
           "Dropping "
-              + negativeValuesCount
+              + negativeBucketBounds
               + " negative bucket boundaries, the values must be strictly > 0.");
     }
-    return bucketBoundaries;
+    return bucketBoundaries.subList(
+        negativeBucketBounds + zeroBucketBounds, bucketBoundaries.size());
   }
 
   /**

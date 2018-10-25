@@ -30,6 +30,7 @@ final class MeasureMapImpl extends MeasureMap {
 
   private final StatsManager statsManager;
   private final MeasureMapInternal.Builder builder = MeasureMapInternal.builder();
+  private volatile boolean hasUnsupportedValues;
 
   static MeasureMapImpl create(StatsManager statsManager) {
     return new MeasureMapImpl(statsManager);
@@ -42,20 +43,18 @@ final class MeasureMapImpl extends MeasureMap {
   @Override
   public MeasureMapImpl put(MeasureDouble measure, double value) {
     if (value < 0) {
-      logger.log(Level.WARNING, "Dropping (" + value + "), value to record must be non-negative.");
-    } else {
-      builder.put(measure, value);
+      hasUnsupportedValues = true;
     }
+    builder.put(measure, value);
     return this;
   }
 
   @Override
   public MeasureMapImpl put(MeasureLong measure, long value) {
     if (value < 0) {
-      logger.log(Level.WARNING, "Dropping (" + value + "), value to record must be non-negative.");
-    } else {
-      builder.put(measure, value);
+      hasUnsupportedValues = true;
     }
+    builder.put(measure, value);
     return this;
   }
 
@@ -73,6 +72,13 @@ final class MeasureMapImpl extends MeasureMap {
 
   @Override
   public void record(TagContext tags) {
+    if (hasUnsupportedValues) {
+      // drop all the recorded values
+      builder.clear();
+      logger.log(Level.WARNING, "Dropping values, value to record must be non-negative.");
+      hasUnsupportedValues = false;
+      return;
+    }
     statsManager.record(tags, builder.build());
   }
 }

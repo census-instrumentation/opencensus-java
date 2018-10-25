@@ -109,6 +109,11 @@ public final class NoopStatsTest {
     measureMap.putAttachment("key", null);
   }
 
+  @Test
+  public void noopStatsRecorder_PutNegativeValue() {
+    NoopStats.getNoopStatsRecorder().newMeasureMap().put(MEASURE, -5).record(tagContext);
+  }
+
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
   // exception.
   @Test

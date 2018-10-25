@@ -139,7 +139,7 @@ public class MutableAggregationTest {
         TOLERANCE);
     assertAggregationDataEquals(
         aggregations.get(4).toAggregationData(),
-        AggregationData.DistributionData.create(4.0, 5, -5.0, 20.0, 372, Arrays.asList(2L, 2L, 1L)),
+        AggregationData.DistributionData.create(4.0, 5, -5.0, 20.0, 372, Arrays.asList(4L, 1L)),
         TOLERANCE);
     assertAggregationDataEquals(
         aggregations.get(5).toAggregationData(),
@@ -180,7 +180,6 @@ public class MutableAggregationTest {
     // bucket, only the last one will be kept.
     List<Exemplar> expected =
         Arrays.<Exemplar>asList(
-            Exemplar.create(values.get(2), timestamps.get(2), attachmentsList.get(2)),
             Exemplar.create(values.get(4), timestamps.get(4), attachmentsList.get(4)),
             Exemplar.create(values.get(3), timestamps.get(3), attachmentsList.get(3)));
     assertThat(mutableDistribution.getExemplars())
@@ -256,12 +255,12 @@ public class MutableAggregationTest {
     MutableDistribution combined = MutableDistribution.create(BUCKET_BOUNDARIES);
     combined.combine(distribution1, 1.0); // distribution1 will be combined
     combined.combine(distribution2, 0.6); // distribution2 will be ignored
-    verifyMutableDistribution(combined, 0, 2, -5, 5, 50.0, new long[] {1, 1, 0}, TOLERANCE);
+    verifyMutableDistribution(combined, 0, 2, -5, 5, 50.0, new long[] {2, 0}, TOLERANCE);
 
     combined.combine(distribution2, 1.0); // distribution2 will be combined
-    verifyMutableDistribution(combined, 7.5, 4, -5, 20, 325.0, new long[] {1, 1, 2}, TOLERANCE);
+    verifyMutableDistribution(combined, 7.5, 4, -5, 20, 325.0, new long[] {2, 2}, TOLERANCE);
     combined.combine(distribution3, 1.0); // distribution3 will be combined
-    verifyMutableDistribution(combined, 0, 8, -20, 20, 1500.0, new long[] {4, 1, 3}, TOLERANCE);
+    verifyMutableDistribution(combined, 0, 8, -20, 20, 1500.0, new long[] {5, 3}, TOLERANCE);
   }
 
   @Test
@@ -278,7 +277,7 @@ public class MutableAggregationTest {
                 Double.POSITIVE_INFINITY,
                 Double.NEGATIVE_INFINITY,
                 0,
-                Arrays.asList(0L, 0L, 0L)));
+                Arrays.asList(0L, 0L)));
     assertThat(MutableLastValueDouble.create().toAggregationData())
         .isEqualTo(LastValueDataDouble.create(Double.NaN));
     assertThat(MutableLastValueLong.create().toAggregationData())
@@ -296,8 +295,6 @@ public class MutableAggregationTest {
     assertThat(MutableMean.create().toPoint(TIMESTAMP))
         .isEqualTo(Point.create(Value.doubleValue(0), TIMESTAMP));
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("bucket boundary should be > 0");
     assertThat(MutableDistribution.create(BUCKET_BOUNDARIES).toPoint(TIMESTAMP))
         .isEqualTo(
             Point.create(
@@ -307,11 +304,7 @@ public class MutableAggregationTest {
                         0,
                         0,
                         BucketOptions.explicitOptions(BUCKET_BOUNDARIES.getBoundaries()),
-                        Arrays.asList(
-                            Bucket.create(0),
-                            Bucket.create(0),
-                            Bucket.create(0),
-                            Bucket.create(0)))),
+                        Arrays.asList(Bucket.create(0), Bucket.create(0)))),
                 TIMESTAMP));
   }
 

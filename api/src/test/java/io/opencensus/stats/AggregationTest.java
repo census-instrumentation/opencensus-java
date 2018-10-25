@@ -61,10 +61,11 @@ public class AggregationTest {
         .addEqualityGroup(Count.create(), Count.create())
         .addEqualityGroup(
             Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
-            Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))))
-        .addEqualityGroup(
-            Distribution.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))),
+            Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
             Distribution.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))))
+        .addEqualityGroup(
+            Distribution.create(BucketBoundaries.create(Arrays.asList(1.0, 2.0, 5.0))),
+            Distribution.create(BucketBoundaries.create(Arrays.asList(1.0, 2.0, 5.0))))
         .addEqualityGroup(Mean.create(), Mean.create())
         .addEqualityGroup(LastValue.create(), LastValue.create())
         .testEquals();
