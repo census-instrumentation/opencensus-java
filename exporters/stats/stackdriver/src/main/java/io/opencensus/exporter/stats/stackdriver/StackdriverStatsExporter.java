@@ -22,6 +22,9 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.api.MonitoredResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
+import com.google.api.gax.rpc.FixedHeaderProvider;
+import com.google.api.gax.rpc.HeaderProvider;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
@@ -30,6 +33,7 @@ import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.opencensus.common.Duration;
+import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.metrics.Metrics;
 import io.opencensus.metrics.export.MetricProducerManager;
 import java.io.IOException;
@@ -67,6 +71,13 @@ public final class StackdriverStatsExporter {
   private static StackdriverStatsExporter exporter = null;
 
   private static final Duration ZERO = Duration.create(0, 0);
+
+  // See io.grpc.internal.GrpcUtil.USER_AGENT_KEY
+  private static final String USER_AGENT_KEY = "user-agent";
+  private static final String USER_AGENT =
+      "opencensus-java [" + OpenCensusLibraryInformation.VERSION + "]";
+  private static final HeaderProvider OPENCENSUS_USER_AGENT_HEADER_PROVIDER =
+      FixedHeaderProvider.create(USER_AGENT_KEY, USER_AGENT);
 
   @VisibleForTesting static final Duration DEFAULT_INTERVAL = Duration.create(60, 0);
 
@@ -322,6 +333,10 @@ public final class StackdriverStatsExporter {
         metricServiceClient =
             MetricServiceClient.create(
                 MetricServiceSettings.newBuilder()
+                    .setTransportChannelProvider(
+                        InstantiatingGrpcChannelProvider.newBuilder()
+                            .setHeaderProvider(OPENCENSUS_USER_AGENT_HEADER_PROVIDER)
+                            .build())
                     .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
                     .build());
       }
