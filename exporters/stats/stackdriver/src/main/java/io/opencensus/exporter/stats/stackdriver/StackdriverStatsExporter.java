@@ -30,6 +30,7 @@ import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.opencensus.common.Duration;
+import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.metrics.Metrics;
 import io.opencensus.metrics.export.MetricProducerManager;
 import java.io.IOException;
@@ -67,6 +68,8 @@ public final class StackdriverStatsExporter {
   private static StackdriverStatsExporter exporter = null;
 
   private static final Duration ZERO = Duration.create(0, 0);
+  private static final String USER_AGENT =
+      "opencensus-java [" + OpenCensusLibraryInformation.VERSION + "]";
 
   @VisibleForTesting static final Duration DEFAULT_INTERVAL = Duration.create(60, 0);
 
@@ -317,6 +320,7 @@ public final class StackdriverStatsExporter {
         metricServiceClient =
             MetricServiceClient.create(
                 MetricServiceSettings.newBuilder()
+                    .setEndpoint(USER_AGENT)
                     .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
                     .build());
       }
