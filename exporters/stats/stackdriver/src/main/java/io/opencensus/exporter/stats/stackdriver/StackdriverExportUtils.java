@@ -16,8 +16,6 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.api.Distribution;
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
@@ -44,28 +42,20 @@ import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInst
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
 import io.opencensus.contrib.monitoredresource.util.ResourceType;
-import io.opencensus.stats.Aggregation;
-import io.opencensus.stats.Aggregation.LastValue;
-import io.opencensus.stats.AggregationData;
-import io.opencensus.stats.AggregationData.CountData;
-import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.LastValueDataDouble;
-import io.opencensus.stats.AggregationData.LastValueDataLong;
-import io.opencensus.stats.AggregationData.SumDataDouble;
-import io.opencensus.stats.AggregationData.SumDataLong;
-import io.opencensus.stats.BucketBoundaries;
-import io.opencensus.stats.Measure;
-import io.opencensus.stats.View;
-import io.opencensus.stats.ViewData;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.export.Distribution.Bucket;
+import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;
+import io.opencensus.metrics.export.MetricDescriptor.Type;
+import io.opencensus.metrics.export.Summary;
+import io.opencensus.metrics.export.Value;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,12 +63,11 @@ import java.util.logging.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
-/** Util methods to convert OpenCensus Stats data models to StackDriver monitoring data models. */
+/** Util methods to convert OpenCensus Metrics data models to StackDriver monitoring data models. */
 @SuppressWarnings("deprecation")
 final class StackdriverExportUtils {
 
   // TODO(songya): do we want these constants to be customizable?
-  @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
   private static final String GCP_GKE_CONTAINER = "k8s_container";
@@ -90,96 +79,53 @@ final class StackdriverExportUtils {
   private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
   private static final String PROJECT_ID_LABEL_KEY = "project_id";
 
-  // Constant functions for ValueType.
-  private static final Function<Object, MetricDescriptor.ValueType> VALUE_TYPE_DOUBLE_FUNCTION =
-      Functions.returnConstant(MetricDescriptor.ValueType.DOUBLE);
-  private static final Function<Object, MetricDescriptor.ValueType> VALUE_TYPE_INT64_FUNCTION =
-      Functions.returnConstant(MetricDescriptor.ValueType.INT64);
-  private static final Function<Object, MetricDescriptor.ValueType>
-      VALUE_TYPE_UNRECOGNIZED_FUNCTION =
-          Functions.returnConstant(MetricDescriptor.ValueType.UNRECOGNIZED);
-  private static final Function<Object, MetricDescriptor.ValueType>
-      VALUE_TYPE_DISTRIBUTION_FUNCTION =
-          Functions.returnConstant(MetricDescriptor.ValueType.DISTRIBUTION);
-  private static final Function<Aggregation, MetricDescriptor.ValueType> valueTypeMeanFunction =
-      new Function<Aggregation, MetricDescriptor.ValueType>() {
-        @Override
-        public MetricDescriptor.ValueType apply(Aggregation arg) {
-          // TODO(songya): remove this once Mean aggregation is completely removed. Before that
-          // we need to continue supporting Mean, since it could still be used by users and some
-          // deprecated RPC views.
-          if (arg instanceof Aggregation.Mean) {
-            return MetricDescriptor.ValueType.DOUBLE;
-          }
-          return MetricDescriptor.ValueType.UNRECOGNIZED;
-        }
-      };
-
-  // Constant functions for MetricKind.
-  private static final Function<Object, MetricKind> METRIC_KIND_CUMULATIVE_FUNCTION =
-      Functions.returnConstant(MetricKind.CUMULATIVE);
-  private static final Function<Object, MetricKind> METRIC_KIND_UNRECOGNIZED_FUNCTION =
-      Functions.returnConstant(MetricKind.UNRECOGNIZED);
-
   // Constant functions for TypedValue.
-  private static final Function<SumDataDouble, TypedValue> typedValueSumDoubleFunction =
-      new Function<SumDataDouble, TypedValue>() {
+  private static final Function<Double, TypedValue> typedValueDoubleFunction =
+      new Function<Double, TypedValue>() {
         @Override
-        public TypedValue apply(SumDataDouble arg) {
+        public TypedValue apply(Double arg) {
           Builder builder = TypedValue.newBuilder();
-          builder.setDoubleValue(arg.getSum());
+          builder.setDoubleValue(arg);
           return builder.build();
         }
       };
-  private static final Function<SumDataLong, TypedValue> typedValueSumLongFunction =
-      new Function<SumDataLong, TypedValue>() {
+  private static final Function<Long, TypedValue> typedValueLongFunction =
+      new Function<Long, TypedValue>() {
         @Override
-        public TypedValue apply(SumDataLong arg) {
+        public TypedValue apply(Long arg) {
           Builder builder = TypedValue.newBuilder();
-          builder.setInt64Value(arg.getSum());
+          builder.setInt64Value(arg);
           return builder.build();
         }
       };
-  private static final Function<CountData, TypedValue> typedValueCountFunction =
-      new Function<CountData, TypedValue>() {
+  private static final Function<io.opencensus.metrics.export.Distribution, TypedValue>
+      typedValueDistributionFunction =
+          new Function<io.opencensus.metrics.export.Distribution, TypedValue>() {
+            @Override
+            public TypedValue apply(io.opencensus.metrics.export.Distribution arg) {
+              TypedValue.Builder builder = TypedValue.newBuilder();
+              return builder.setDistributionValue(createDistribution(arg)).build();
+            }
+          };
+  private static final Function<Summary, TypedValue> typedValueSummaryFunction =
+      new Function<Summary, TypedValue>() {
         @Override
-        public TypedValue apply(CountData arg) {
+        public TypedValue apply(Summary arg) {
+          // StackDriver doesn't handle Summary value.
+          // TODO(mayurkale): decide what to do with Summary value.
           Builder builder = TypedValue.newBuilder();
-          builder.setInt64Value(arg.getCount());
           return builder.build();
         }
       };
-  private static final Function<LastValueDataDouble, TypedValue> typedValueLastValueDoubleFunction =
-      new Function<LastValueDataDouble, TypedValue>() {
+
+  // Constant functions for BucketOptions.
+  private static final Function<ExplicitOptions, BucketOptions> bucketOptionsExplicitFunction =
+      new Function<ExplicitOptions, BucketOptions>() {
         @Override
-        public TypedValue apply(LastValueDataDouble arg) {
-          Builder builder = TypedValue.newBuilder();
-          builder.setDoubleValue(arg.getLastValue());
+        public BucketOptions apply(ExplicitOptions arg) {
+          BucketOptions.Builder builder = BucketOptions.newBuilder();
+          builder.setExplicitBuckets(Explicit.newBuilder().addAllBounds(arg.getBucketBoundaries()));
           return builder.build();
-        }
-      };
-  private static final Function<LastValueDataLong, TypedValue> typedValueLastValueLongFunction =
-      new Function<LastValueDataLong, TypedValue>() {
-        @Override
-        public TypedValue apply(LastValueDataLong arg) {
-          Builder builder = TypedValue.newBuilder();
-          builder.setInt64Value(arg.getLastValue());
-          return builder.build();
-        }
-      };
-  private static final Function<AggregationData, TypedValue> typedValueMeanFunction =
-      new Function<AggregationData, TypedValue>() {
-        @Override
-        public TypedValue apply(AggregationData arg) {
-          Builder builder = TypedValue.newBuilder();
-          // TODO(songya): remove this once Mean aggregation is completely removed. Before that
-          // we need to continue supporting Mean, since it could still be used by users and some
-          // deprecated RPC views.
-          if (arg instanceof AggregationData.MeanData) {
-            builder.setDoubleValue(((AggregationData.MeanData) arg).getMean());
-            return builder.build();
-          }
-          throw new IllegalArgumentException("Unknown Aggregation");
         }
       };
 
@@ -200,27 +146,23 @@ final class StackdriverExportUtils {
     return "java-" + jvmName;
   }
 
-  // Construct a MetricDescriptor using a View.
-  @javax.annotation.Nullable
+  // Convert a OpenCensus MetricDescriptor to a StackDriver MetricDescriptor
   static MetricDescriptor createMetricDescriptor(
-      View view, String projectId, String domain, String displayNamePrefix) {
-    if (!(view.getWindow() instanceof View.AggregationWindow.Cumulative)) {
-      // TODO(songya): Only Cumulative view will be exported to Stackdriver in this version.
-      return null;
-    }
+      io.opencensus.metrics.export.MetricDescriptor metricDescriptor,
+      String projectId,
+      String domain,
+      String displayNamePrefix) {
 
     MetricDescriptor.Builder builder = MetricDescriptor.newBuilder();
-    String viewName = view.getName().asString();
-    String type = generateType(viewName, domain);
+    String type = generateType(metricDescriptor.getName(), domain);
     // Name format refers to
     // cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/create
-    builder.setName(String.format("projects/%s/metricDescriptors/%s", projectId, type));
+    builder.setName("projects/" + projectId + "/metricDescriptors/" + type);
     builder.setType(type);
-    builder.setDescription(view.getDescription());
-    String displayName = createDisplayName(viewName, displayNamePrefix);
-    builder.setDisplayName(displayName);
-    for (TagKey tagKey : view.getColumns()) {
-      builder.addLabels(createLabelDescriptor(tagKey));
+    builder.setDescription(metricDescriptor.getDescription());
+    builder.setDisplayName(createDisplayName(metricDescriptor.getName(), displayNamePrefix));
+    for (LabelKey labelKey : metricDescriptor.getLabelKeys()) {
+      builder.addLabels(createLabelDescriptor(labelKey));
     }
     builder.addLabels(
         LabelDescriptor.newBuilder()
@@ -228,221 +170,180 @@ final class StackdriverExportUtils {
             .setDescription(OPENCENSUS_TASK_DESCRIPTION)
             .setValueType(ValueType.STRING)
             .build());
-    builder.setUnit(createUnit(view.getAggregation(), view.getMeasure()));
-    builder.setMetricKind(createMetricKind(view.getWindow(), view.getAggregation()));
-    builder.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
+
+    builder.setUnit(metricDescriptor.getUnit());
+    builder.setMetricKind(createMetricKind(metricDescriptor.getType()));
+    builder.setValueType(createValueType(metricDescriptor.getType()));
     return builder.build();
   }
 
-  private static String generateType(String viewName, String domain) {
-    return domain + viewName;
+  private static String generateType(String metricName, String domain) {
+    return domain + metricName;
   }
 
-  private static String createDisplayName(String viewName, String displayNamePrefix) {
-    return displayNamePrefix + viewName;
+  private static String createDisplayName(String metricName, String displayNamePrefix) {
+    return displayNamePrefix + metricName;
   }
 
-  // Construct a LabelDescriptor from a TagKey
+  // Construct a LabelDescriptor from a LabelKey
   @VisibleForTesting
-  static LabelDescriptor createLabelDescriptor(TagKey tagKey) {
+  static LabelDescriptor createLabelDescriptor(LabelKey labelKey) {
     LabelDescriptor.Builder builder = LabelDescriptor.newBuilder();
-    builder.setKey(tagKey.getName());
-    builder.setDescription(LABEL_DESCRIPTION);
+    builder.setKey(labelKey.getKey());
+    builder.setDescription(labelKey.getDescription());
     // Now we only support String tags
     builder.setValueType(ValueType.STRING);
     return builder.build();
   }
 
-  // Construct a MetricKind from an AggregationWindow
+  // Convert a OpenCensus Type to a StackDriver MetricKind
   @VisibleForTesting
-  static MetricKind createMetricKind(View.AggregationWindow window, Aggregation aggregation) {
-    if (aggregation instanceof LastValue) {
+  static MetricKind createMetricKind(Type type) {
+    if (type == Type.GAUGE_INT64 || type == Type.GAUGE_DOUBLE) {
       return MetricKind.GAUGE;
+    } else if (type == Type.CUMULATIVE_INT64
+        || type == Type.CUMULATIVE_DOUBLE
+        || type == Type.CUMULATIVE_DISTRIBUTION) {
+      return MetricKind.CUMULATIVE;
     }
-    return window.match(
-        METRIC_KIND_CUMULATIVE_FUNCTION, // Cumulative
-        // TODO(songya): We don't support exporting Interval stats to StackDriver in this version.
-        METRIC_KIND_UNRECOGNIZED_FUNCTION, // Interval
-        METRIC_KIND_UNRECOGNIZED_FUNCTION);
+    return MetricKind.UNRECOGNIZED;
   }
 
-  // Construct a MetricDescriptor.ValueType from an Aggregation and a Measure
+  // Convert a OpenCensus Type to a StackDriver ValueType
   @VisibleForTesting
-  static String createUnit(Aggregation aggregation, final Measure measure) {
-    if (aggregation instanceof Aggregation.Count) {
-      return "1";
+  static MetricDescriptor.ValueType createValueType(Type type) {
+    // TODO(mayurkale): decide what to do with Summary type.
+    if (type == Type.CUMULATIVE_DOUBLE || type == Type.GAUGE_DOUBLE) {
+      return MetricDescriptor.ValueType.DOUBLE;
+    } else if (type == Type.GAUGE_INT64 || type == Type.CUMULATIVE_INT64) {
+      return MetricDescriptor.ValueType.INT64;
+    } else if (type == Type.GAUGE_DISTRIBUTION || type == Type.CUMULATIVE_DISTRIBUTION) {
+      return MetricDescriptor.ValueType.DISTRIBUTION;
     }
-    return measure.getUnit();
+    return MetricDescriptor.ValueType.UNRECOGNIZED;
   }
 
-  // Construct a MetricDescriptor.ValueType from an Aggregation and a Measure
-  @VisibleForTesting
-  static MetricDescriptor.ValueType createValueType(
-      Aggregation aggregation, final Measure measure) {
-    return aggregation.match(
-        Functions.returnConstant(
-            measure.match(
-                VALUE_TYPE_DOUBLE_FUNCTION, // Sum Double
-                VALUE_TYPE_INT64_FUNCTION, // Sum Long
-                VALUE_TYPE_UNRECOGNIZED_FUNCTION)),
-        VALUE_TYPE_INT64_FUNCTION, // Count
-        VALUE_TYPE_DISTRIBUTION_FUNCTION, // Distribution
-        Functions.returnConstant(
-            measure.match(
-                VALUE_TYPE_DOUBLE_FUNCTION, // LastValue Double
-                VALUE_TYPE_INT64_FUNCTION, // LastValue Long
-                VALUE_TYPE_UNRECOGNIZED_FUNCTION)),
-        valueTypeMeanFunction);
-  }
-
-  // Convert ViewData to a list of TimeSeries, so that ViewData can be uploaded to Stackdriver.
+  // Convert metric's timeseries to a list of TimeSeries, so that metric can be uploaded to
+  // StackDriver.
   static List<TimeSeries> createTimeSeriesList(
-      @javax.annotation.Nullable ViewData viewData,
+      io.opencensus.metrics.export.Metric metric,
       MonitoredResource monitoredResource,
       String domain) {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
-    if (viewData == null) {
-      return timeSeriesList;
-    }
-    View view = viewData.getView();
-    if (!(view.getWindow() instanceof View.AggregationWindow.Cumulative)) {
-      // TODO(songya): Only Cumulative view will be exported to Stackdriver in this version.
-      return timeSeriesList;
-    }
+    io.opencensus.metrics.export.MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
 
-    // Shared fields for all TimeSeries generated from the same ViewData
+    // Shared fields for all TimeSeries generated from the same Metric
     TimeSeries.Builder shared = TimeSeries.newBuilder();
-    shared.setMetricKind(createMetricKind(view.getWindow(), view.getAggregation()));
+    shared.setMetricKind(createMetricKind(metricDescriptor.getType()));
     shared.setResource(monitoredResource);
-    shared.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
+    shared.setValueType(createValueType(metricDescriptor.getType()));
 
-    // Each entry in AggregationMap will be converted into an independent TimeSeries object
-    for (Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
-        viewData.getAggregationMap().entrySet()) {
+    // Each entry in timeSeriesList will be converted into an independent TimeSeries object
+    for (io.opencensus.metrics.export.TimeSeries timeSeries : metric.getTimeSeriesList()) {
+      // TODO(mayurkale): Consider using setPoints instead of builder clone and addPoints.
       TimeSeries.Builder builder = shared.clone();
-      builder.setMetric(createMetric(view, entry.getKey(), domain));
-      builder.addPoints(
-          createPoint(entry.getValue(), viewData.getWindowData(), view.getAggregation()));
+      builder.setMetric(createMetric(metricDescriptor, timeSeries.getLabelValues(), domain));
+
+      io.opencensus.common.Timestamp startTimeStamp = timeSeries.getStartTimestamp();
+      for (io.opencensus.metrics.export.Point point : timeSeries.getPoints()) {
+        builder.addPoints(createPoint(point, startTimeStamp));
+      }
       timeSeriesList.add(builder.build());
     }
-
     return timeSeriesList;
   }
 
-  // Create a Metric using the TagKeys and TagValues.
+  // Create a Metric using the LabelKeys and LabelValues.
   @VisibleForTesting
-  static Metric createMetric(View view, List</*@Nullable*/ TagValue> tagValues, String domain) {
+  static Metric createMetric(
+      io.opencensus.metrics.export.MetricDescriptor metricDescriptor,
+      List<LabelValue> labelValues,
+      String domain) {
     Metric.Builder builder = Metric.newBuilder();
-    // TODO(songya): use pre-defined metrics for canonical views
-    builder.setType(generateType(view.getName().asString(), domain));
+    builder.setType(generateType(metricDescriptor.getName(), domain));
     Map<String, String> stringTagMap = Maps.newHashMap();
-    List<TagKey> columns = view.getColumns();
-    checkArgument(
-        tagValues.size() == columns.size(), "TagKeys and TagValues don't have same size.");
-    for (int i = 0; i < tagValues.size(); i++) {
-      TagKey key = columns.get(i);
-      TagValue value = tagValues.get(i);
+    List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
+    for (int i = 0; i < labelValues.size(); i++) {
+      String value = labelValues.get(i).getValue();
       if (value == null) {
         continue;
       }
-      stringTagMap.put(key.getName(), value.asString());
+      stringTagMap.put(labelKeys.get(i).getKey(), value);
     }
     stringTagMap.put(OPENCENSUS_TASK, OPENCENSUS_TASK_VALUE_DEFAULT);
     builder.putAllLabels(stringTagMap);
     return builder.build();
   }
 
-  // Create Point from AggregationData, AggregationWindowData and Aggregation.
+  // Convert a OpenCensus Point to a StackDriver Point
   @VisibleForTesting
   static Point createPoint(
-      AggregationData aggregationData,
-      ViewData.AggregationWindowData windowData,
-      Aggregation aggregation) {
+      io.opencensus.metrics.export.Point point,
+      @javax.annotation.Nullable io.opencensus.common.Timestamp startTimestamp) {
+    TimeInterval.Builder timeIntervalBuilder = TimeInterval.newBuilder();
+    timeIntervalBuilder.setEndTime(convertTimestamp(point.getTimestamp()));
+    if (startTimestamp != null) {
+      timeIntervalBuilder.setStartTime(convertTimestamp(startTimestamp));
+    }
+
     Point.Builder builder = Point.newBuilder();
-    builder.setInterval(createTimeInterval(windowData, aggregation));
-    builder.setValue(createTypedValue(aggregation, aggregationData));
+    builder.setInterval(timeIntervalBuilder.build());
+    builder.setValue(createTypedValue(point.getValue()));
     return builder.build();
   }
 
-  // Convert AggregationWindowData to TimeInterval, currently only support CumulativeData.
-  @VisibleForTesting
-  static TimeInterval createTimeInterval(
-      ViewData.AggregationWindowData windowData, final Aggregation aggregation) {
-    return windowData.match(
-        new Function<ViewData.AggregationWindowData.CumulativeData, TimeInterval>() {
-          @Override
-          public TimeInterval apply(ViewData.AggregationWindowData.CumulativeData arg) {
-            TimeInterval.Builder builder = TimeInterval.newBuilder();
-            builder.setEndTime(convertTimestamp(arg.getEnd()));
-            if (!(aggregation instanceof LastValue)) {
-              builder.setStartTime(convertTimestamp(arg.getStart()));
-            }
-            return builder.build();
-          }
-        },
-        Functions.<TimeInterval>throwIllegalArgumentException(),
-        Functions.<TimeInterval>throwIllegalArgumentException());
-  }
-
-  // Create a TypedValue using AggregationData and Aggregation
+  // Convert a OpenCensus Value to a StackDriver TypedValue
   // Note TypedValue is "A single strongly-typed value", i.e only one field should be set.
   @VisibleForTesting
-  static TypedValue createTypedValue(
-      final Aggregation aggregation, AggregationData aggregationData) {
-    return aggregationData.match(
-        typedValueSumDoubleFunction,
-        typedValueSumLongFunction,
-        typedValueCountFunction,
-        new Function<DistributionData, TypedValue>() {
-          @Override
-          public TypedValue apply(DistributionData arg) {
-            TypedValue.Builder builder = TypedValue.newBuilder();
-            checkArgument(
-                aggregation instanceof Aggregation.Distribution,
-                "Aggregation and AggregationData mismatch.");
-            builder.setDistributionValue(
-                createDistribution(
-                    arg, ((Aggregation.Distribution) aggregation).getBucketBoundaries()));
-            return builder.build();
-          }
-        },
-        typedValueLastValueDoubleFunction,
-        typedValueLastValueLongFunction,
-        typedValueMeanFunction);
+  static TypedValue createTypedValue(Value value) {
+    return value.match(
+        typedValueDoubleFunction,
+        typedValueLongFunction,
+        typedValueDistributionFunction,
+        typedValueSummaryFunction,
+        Functions.<TypedValue>throwIllegalArgumentException());
   }
 
-  // Create a StackDriver Distribution from DistributionData and BucketBoundaries
+  // Convert a OpenCensus Distribution to a StackDriver Distribution
   @VisibleForTesting
-  static Distribution createDistribution(
-      DistributionData distributionData, BucketBoundaries bucketBoundaries) {
+  static Distribution createDistribution(io.opencensus.metrics.export.Distribution distribution) {
     return Distribution.newBuilder()
-        .setBucketOptions(createBucketOptions(bucketBoundaries))
-        .addAllBucketCounts(distributionData.getBucketCounts())
-        .setCount(distributionData.getCount())
-        .setMean(distributionData.getMean())
-        // TODO(songya): uncomment this once Stackdriver supports setting max and min.
-        // .setRange(
-        //    Range.newBuilder()
-        //        .setMax(distributionData.getMax())
-        //        .setMin(distributionData.getMin())
-        //        .build())
-        .setSumOfSquaredDeviation(distributionData.getSumOfSquaredDeviations())
+        .setBucketOptions(createBucketOptions(distribution.getBucketOptions()))
+        .addAllBucketCounts(createBucketCounts(distribution.getBuckets()))
+        .setCount(distribution.getCount())
+        .setMean(distribution.getCount() == 0 ? 0 : distribution.getSum() / distribution.getCount())
+        .setSumOfSquaredDeviation(distribution.getSumOfSquaredDeviations())
         .build();
   }
 
-  // Create BucketOptions from BucketBoundaries
+  // Convert a OpenCensus BucketOptions to a StackDriver BucketOptions
   @VisibleForTesting
-  static BucketOptions createBucketOptions(BucketBoundaries bucketBoundaries) {
-    return BucketOptions.newBuilder()
-        .setExplicitBuckets(Explicit.newBuilder().addAllBounds(bucketBoundaries.getBoundaries()))
-        .build();
+  static BucketOptions createBucketOptions(
+      @javax.annotation.Nullable
+          io.opencensus.metrics.export.Distribution.BucketOptions bucketOptions) {
+    final BucketOptions.Builder builder = BucketOptions.newBuilder();
+    if (bucketOptions == null) {
+      return builder.build();
+    }
+
+    return bucketOptions.match(
+        bucketOptionsExplicitFunction, Functions.<BucketOptions>throwIllegalArgumentException());
   }
 
-  // Convert a Census Timestamp to a StackDriver Timestamp
+  // Convert a OpenCensus Buckets to a list of counts
+  private static List<Long> createBucketCounts(List<Bucket> buckets) {
+    List<Long> bucketCounts = new ArrayList<>();
+    for (Bucket bucket : buckets) {
+      bucketCounts.add(bucket.getCount());
+    }
+    return bucketCounts;
+  }
+
+  // Convert a OpenCensus Timestamp to a StackDriver Timestamp
   @VisibleForTesting
   static Timestamp convertTimestamp(io.opencensus.common.Timestamp censusTimestamp) {
     if (censusTimestamp.getSeconds() < 0) {
-      // Stackdriver doesn't handle negative timestamps.
+      // StackDriver doesn't handle negative timestamps.
       return Timestamp.newBuilder().build();
     }
     return Timestamp.newBuilder()
@@ -451,7 +352,7 @@ final class StackdriverExportUtils {
         .build();
   }
 
-  /* Return a self-configured Stackdriver monitored resource. */
+  /* Return a self-configured StackDriver monitored resource. */
   static MonitoredResource getDefaultResource() {
     MonitoredResource.Builder builder = MonitoredResource.newBuilder();
     io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource =

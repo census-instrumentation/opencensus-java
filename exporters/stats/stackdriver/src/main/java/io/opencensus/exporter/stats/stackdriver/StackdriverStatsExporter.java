@@ -30,8 +30,8 @@ import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.opencensus.common.Duration;
-import io.opencensus.stats.Stats;
-import io.opencensus.stats.ViewManager;
+import io.opencensus.metrics.Metrics;
+import io.opencensus.metrics.export.MetricProducerManager;
 import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
 import javax.annotation.Nullable;
@@ -78,7 +78,7 @@ public final class StackdriverStatsExporter {
       String projectId,
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
-      ViewManager viewManager,
+      MetricProducerManager metricProducerManager,
       MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix) {
     checkArgument(exportInterval.compareTo(ZERO) > 0, "Duration must be positive");
@@ -87,7 +87,7 @@ public final class StackdriverStatsExporter {
             projectId,
             metricServiceClient,
             exportInterval,
-            viewManager,
+            metricProducerManager,
             monitoredResource,
             metricNamePrefix);
     this.workerThread = new DaemonThreadFactory().newThread(worker);
@@ -325,7 +325,7 @@ public final class StackdriverStatsExporter {
               projectId,
               metricServiceClient,
               exportInterval,
-              Stats.getViewManager(),
+              Metrics.getExportComponent().getMetricProducerManager(),
               monitoredResource,
               metricNamePrefix);
       exporter.workerThread.start();

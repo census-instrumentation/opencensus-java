@@ -31,7 +31,6 @@ import com.google.api.MonitoredResource;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
@@ -39,21 +38,15 @@ import com.google.monitoring.v3.TimeSeries;
 import com.google.protobuf.Empty;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.Aggregation.Sum;
-import io.opencensus.stats.AggregationData;
-import io.opencensus.stats.AggregationData.SumDataLong;
-import io.opencensus.stats.Measure.MeasureLong;
-import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow.Cumulative;
-import io.opencensus.stats.View.AggregationWindow.Interval;
-import io.opencensus.stats.View.Name;
-import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
-import io.opencensus.stats.ViewManager;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricDescriptor.Type;
+import io.opencensus.metrics.export.MetricProducer;
+import io.opencensus.metrics.export.MetricProducerManager;
+import io.opencensus.metrics.export.Point;
+import io.opencensus.metrics.export.Value;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -66,25 +59,45 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link StackdriverExporterWorker}. */
 @RunWith(JUnit4.class)
 public class StackdriverExporterWorkerTest {
-
   private static final String PROJECT_ID = "projectId";
   private static final Duration ONE_SECOND = Duration.create(1, 0);
-  private static final TagKey KEY = TagKey.create("KEY");
-  private static final TagValue VALUE = TagValue.create("VALUE");
-  private static final String MEASURE_NAME = "my measurement";
-  private static final String MEASURE_UNIT = "us";
-  private static final String MEASURE_DESCRIPTION = "measure description";
-  private static final MeasureLong MEASURE =
-      MeasureLong.create(MEASURE_NAME, MEASURE_DESCRIPTION, MEASURE_UNIT);
-  private static final Name VIEW_NAME = Name.create("my view");
-  private static final String VIEW_DESCRIPTION = "view description";
-  private static final Cumulative CUMULATIVE = Cumulative.create();
-  private static final Interval INTERVAL = Interval.create(ONE_SECOND);
-  private static final Sum SUM = Sum.create();
+
+  private static final String METRIC_NAME = "my metric";
+  private static final String METRIC_DESCRIPTION = "metric description";
+  private static final String METRIC_DESCRIPTION_2 = "metric description2";
+  private static final String METRIC_UNIT = "us";
+  private static final List<LabelKey> LABEL_KEY =
+      Collections.singletonList(LabelKey.create("KEY", "key description"));
+  private static final List<LabelValue> LABEL_VALUE =
+      Collections.singletonList(LabelValue.create("VALUE"));
+
+  private static final io.opencensus.metrics.export.MetricDescriptor METRIC_DESCRIPTOR =
+      io.opencensus.metrics.export.MetricDescriptor.create(
+          METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, Type.CUMULATIVE_INT64, LABEL_KEY);
+
+  private static final io.opencensus.metrics.export.MetricDescriptor METRIC_DESCRIPTOR_2 =
+      io.opencensus.metrics.export.MetricDescriptor.create(
+          METRIC_NAME, METRIC_DESCRIPTION_2, METRIC_UNIT, Type.CUMULATIVE_INT64, LABEL_KEY);
+
+  private static final Value VALUE_LONG = Value.longValue(12345678);
+  private static final Timestamp TIMESTAMP = Timestamp.fromMillis(3000);
+  private static final Timestamp TIMESTAMP_2 = Timestamp.fromMillis(1000);
+  private static final Point POINT = Point.create(VALUE_LONG, TIMESTAMP);
+
+  private static final io.opencensus.metrics.export.TimeSeries CUMULATIVE_TIME_SERIES =
+      io.opencensus.metrics.export.TimeSeries.createWithOnePoint(LABEL_VALUE, POINT, TIMESTAMP_2);
+
+  private static final Metric METRIC =
+      Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR, CUMULATIVE_TIME_SERIES);
+  private static final Metric METRIC_2 =
+      Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_2, CUMULATIVE_TIME_SERIES);
+
   private static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
 
-  @Mock private ViewManager mockViewManager;
+  @Mock private MetricProducerManager metricProducerManager;
+
+  @Mock private MetricProducer metricProducer;
 
   @Mock private MetricServiceStub mockStub;
 
@@ -104,6 +117,7 @@ public class StackdriverExporterWorkerTest {
         .when(mockCreateMetricDescriptorCallable)
         .call(any(CreateMetricDescriptorRequest.class));
     doReturn(null).when(mockCreateTimeSeriesCallable).call(any(CreateTimeSeriesRequest.class));
+    doReturn(ImmutableSet.of(metricProducer)).when(metricProducerManager).getAllMetricProducer();
   }
 
   @Test
@@ -116,23 +130,14 @@ public class StackdriverExporterWorkerTest {
   }
 
   @Test
-  public void export() throws IOException {
-    View view =
-        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
-    ViewData viewData =
-        ViewData.create(
-            view,
-            ImmutableMap.of(Arrays.asList(VALUE), SumDataLong.create(1)),
-            CumulativeData.create(Timestamp.fromMillis(100), Timestamp.fromMillis(200)));
-    doReturn(ImmutableSet.of(view)).when(mockViewManager).getAllExportedViews();
-    doReturn(viewData).when(mockViewManager).getView(VIEW_NAME);
-
+  public void export() {
+    doReturn(Collections.singletonList(METRIC)).when(metricProducer).getMetrics();
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
-            mockViewManager,
+            metricProducerManager,
             DEFAULT_RESOURCE,
             null);
     worker.export();
@@ -142,10 +147,10 @@ public class StackdriverExporterWorkerTest {
 
     MetricDescriptor descriptor =
         StackdriverExportUtils.createMetricDescriptor(
-            view, PROJECT_ID, CUSTOM_OPENCENSUS_DOMAIN, DEFAULT_DISPLAY_NAME_PREFIX);
+            METRIC_DESCRIPTOR, PROJECT_ID, CUSTOM_OPENCENSUS_DOMAIN, DEFAULT_DISPLAY_NAME_PREFIX);
     List<TimeSeries> timeSeries =
         StackdriverExportUtils.createTimeSeriesList(
-            viewData, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN);
+            METRIC, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN);
     verify(mockCreateMetricDescriptorCallable, times(1))
         .call(
             eq(
@@ -163,112 +168,88 @@ public class StackdriverExporterWorkerTest {
   }
 
   @Test
-  public void doNotExportForEmptyViewData() {
-    View view =
-        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
-    ViewData empty =
-        ViewData.create(
-            view,
-            Collections.<List<TagValue>, AggregationData>emptyMap(),
-            CumulativeData.create(Timestamp.fromMillis(100), Timestamp.fromMillis(200)));
-    doReturn(ImmutableSet.of(view)).when(mockViewManager).getAllExportedViews();
-    doReturn(empty).when(mockViewManager).getView(VIEW_NAME);
-
+  public void doNotExportForEmptyMetrics() {
+    doReturn(Collections.EMPTY_LIST).when(metricProducer).getMetrics();
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
-            mockViewManager,
+            metricProducerManager,
             DEFAULT_RESOURCE,
             null);
-
     worker.export();
-    verify(mockStub, times(1)).createMetricDescriptorCallable();
+    verify(mockStub, times(0)).createMetricDescriptorCallable();
     verify(mockStub, times(0)).createTimeSeriesCallable();
   }
 
   @Test
-  public void doNotExportIfFailedToRegisterView() {
-    View view =
-        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
-    doReturn(ImmutableSet.of(view)).when(mockViewManager).getAllExportedViews();
+  public void doNotExportIfFailedToRegisterMetric() {
     doThrow(new IllegalArgumentException()).when(mockStub).createMetricDescriptorCallable();
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
-            mockViewManager,
+            metricProducerManager,
             DEFAULT_RESOURCE,
             null);
 
-    assertThat(worker.registerView(view)).isFalse();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isFalse();
     worker.export();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     verify(mockStub, times(0)).createTimeSeriesCallable();
   }
 
   @Test
-  public void skipDifferentViewWithSameName() throws IOException {
+  public void skipDifferentMetricWithSameName() throws IOException {
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
-            mockViewManager,
+            metricProducerManager,
             DEFAULT_RESOURCE,
             null);
-    View view1 =
-        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
-    assertThat(worker.registerView(view1)).isTrue();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
 
-    View view2 =
-        View.create(
-            VIEW_NAME,
-            "This is a different description.",
-            MEASURE,
-            SUM,
-            Arrays.asList(KEY),
-            CUMULATIVE);
-    assertThat(worker.registerView(view2)).isFalse();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR_2)).isFalse();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
   }
 
   @Test
-  public void doNotCreateMetricDescriptorForRegisteredView() {
+  public void skipSameMetricWithSameName() throws IOException {
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
-            mockViewManager,
+            metricProducerManager,
             DEFAULT_RESOURCE,
             null);
-    View view =
-        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
-    assertThat(worker.registerView(view)).isTrue();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
 
-    assertThat(worker.registerView(view)).isTrue();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
   }
 
   @Test
-  public void doNotCreateMetricDescriptorForIntervalView() {
+  public void doNotCreateMetricDescriptorForRegisteredeMetric() {
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
-            mockViewManager,
+            metricProducerManager,
             DEFAULT_RESOURCE,
             null);
-    View view =
-        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), INTERVAL);
-    assertThat(worker.registerView(view)).isFalse();
-    verify(mockStub, times(0)).createMetricDescriptorCallable();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isTrue();
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isTrue();
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
   }
 
   @Test

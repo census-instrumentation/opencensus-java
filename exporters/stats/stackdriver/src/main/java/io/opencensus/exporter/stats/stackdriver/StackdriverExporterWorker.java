@@ -29,17 +29,19 @@ import com.google.monitoring.v3.ProjectName;
 import com.google.monitoring.v3.TimeSeries;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Scope;
-import io.opencensus.stats.View;
-import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewManager;
+import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricProducer;
+import io.opencensus.metrics.export.MetricProducerManager;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -51,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /**
- * Worker {@code Runnable} that polls ViewData from Stats library and batch export to StackDriver.
+ * Worker {@code Runnable} that polls Metric from Metrics library and batch export to StackDriver.
  *
  * <p>{@code StackdriverExporterWorker} will be started in a daemon {@code Thread}.
  *
@@ -76,11 +78,12 @@ final class StackdriverExporterWorker implements Runnable {
   private final String projectId;
   private final ProjectName projectName;
   private final MetricServiceClient metricServiceClient;
-  private final ViewManager viewManager;
+  private final MetricProducerManager metricProducerManager;
   private final MonitoredResource monitoredResource;
   private final String domain;
   private final String displayNamePrefix;
-  private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
+  private final Map<String, io.opencensus.metrics.export.MetricDescriptor>
+      registeredMetricDescriptors = new LinkedHashMap<>();
 
   private static final Tracer tracer = Tracing.getTracer();
   private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
@@ -89,14 +92,14 @@ final class StackdriverExporterWorker implements Runnable {
       String projectId,
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
-      ViewManager viewManager,
+      MetricProducerManager metricProducerManager,
       MonitoredResource monitoredResource,
       @javax.annotation.Nullable String metricNamePrefix) {
     this.scheduleDelayMillis = exportInterval.toMillis();
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
-    this.viewManager = viewManager;
+    this.metricProducerManager = metricProducerManager;
     this.monitoredResource = monitoredResource;
     this.domain = getDomain(metricNamePrefix);
     this.displayNamePrefix = getDisplayNamePrefix(metricNamePrefix);
@@ -107,42 +110,37 @@ final class StackdriverExporterWorker implements Runnable {
             Collections.singletonList("ExportStatsToStackdriverMonitoring"));
   }
 
-  // Returns true if the given view is successfully registered to Stackdriver Monitoring, or the
-  // exact same view has already been registered. Returns false otherwise.
+  // Returns true if the given metricDescriptor is successfully registered to Stackdriver
+  // Monitoring, or the
+  // exact same metric has already been registered. Returns false otherwise.
   @VisibleForTesting
-  boolean registerView(View view) {
-    View existing = registeredViews.get(view.getName());
-    if (existing != null) {
-      if (existing.equals(view)) {
-        // Ignore views that are already registered.
+  boolean registerMetricDescriptor(io.opencensus.metrics.export.MetricDescriptor metricDescriptor) {
+    io.opencensus.metrics.export.MetricDescriptor existingMetricDescriptor =
+        registeredMetricDescriptors.get(metricDescriptor.getName());
+    if (existingMetricDescriptor != null) {
+      if (existingMetricDescriptor.equals(metricDescriptor)) {
+        // Ignore metricDescriptor that are already registered.
         return true;
       } else {
-        // If we upload a view that has the same name with a registered view but with different
-        // attributes, Stackdriver client will throw an exception.
         logger.log(
             Level.WARNING,
-            "A different view with the same name is already registered: " + existing);
+            "A different metric with the same name is already registered: "
+                + existingMetricDescriptor);
         return false;
       }
     }
-    registeredViews.put(view.getName(), view);
+    registeredMetricDescriptors.put(metricDescriptor.getName(), metricDescriptor);
 
     Span span = tracer.getCurrentSpan();
     span.addAnnotation("Create Stackdriver Metric.");
-    // TODO(songya): don't need to create MetricDescriptor for RpcViewConstants once we defined
-    // canonical metrics. Registration is required only for custom view definitions. Canonical
-    // views should be pre-registered.
-    MetricDescriptor metricDescriptor =
-        StackdriverExportUtils.createMetricDescriptor(view, projectId, domain, displayNamePrefix);
-    if (metricDescriptor == null) {
-      // Don't register interval views in this version.
-      return false;
-    }
+    MetricDescriptor stackDriverMetricDescriptor =
+        StackdriverExportUtils.createMetricDescriptor(
+            metricDescriptor, projectId, domain, displayNamePrefix);
 
     CreateMetricDescriptorRequest request =
         CreateMetricDescriptorRequest.newBuilder()
             .setName(projectName.toString())
-            .setMetricDescriptor(metricDescriptor)
+            .setMetricDescriptor(stackDriverMetricDescriptor)
             .build();
     try {
       metricServiceClient.createMetricDescriptor(request);
@@ -165,23 +163,27 @@ final class StackdriverExporterWorker implements Runnable {
     }
   }
 
-  // Polls ViewData from Stats library for all exported views, and upload them as TimeSeries to
-  // StackDriver.
+  // Polls MetricProducerManager from Metrics library for all registered MetricDescriptors, and
+  // upload them as TimeSeries to StackDriver.
   @VisibleForTesting
   void export() {
-    List</*@Nullable*/ ViewData> viewDataList = Lists.newArrayList();
-    for (View view : viewManager.getAllExportedViews()) {
-      if (registerView(view)) {
-        // Only upload stats for valid views.
-        viewDataList.add(viewManager.getView(view.getName()));
+    ArrayList<Metric> metricsList = Lists.newArrayList();
+    for (MetricProducer metricProducer : metricProducerManager.getAllMetricProducer()) {
+      Collection<Metric> producerMetricsList = metricProducer.getMetrics();
+      metricsList.ensureCapacity(metricsList.size() + producerMetricsList.size());
+      for (Metric metric : producerMetricsList) {
+        if (registerMetricDescriptor(metric.getMetricDescriptor())) {
+          metricsList.add(metric);
+        }
       }
     }
 
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
-    for (/*@Nullable*/ ViewData viewData : viewDataList) {
+    for (Metric metric : metricsList) {
       timeSeriesList.addAll(
-          StackdriverExportUtils.createTimeSeriesList(viewData, monitoredResource, domain));
+          StackdriverExportUtils.createTimeSeriesList(metric, monitoredResource, domain));
     }
+
     for (List<TimeSeries> batchedTimeSeries :
         Lists.partition(timeSeriesList, MAX_BATCH_EXPORT_SIZE)) {
       Span span = tracer.getCurrentSpan();
