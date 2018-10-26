@@ -309,7 +309,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
     assertThat(span.getLinks()).isEqualTo(spanLinks);
     assertThat(span.getStatus()).isEqualTo(spanStatus);
     assertThat(span.getSameProcessAsParentSpan())
-        .isEqualTo(com.google.protobuf.BoolValue.newBuilder().build());
+        .isEqualTo(com.google.protobuf.BoolValue.of(false));
     assertThat(span.getChildSpanCount())
         .isEqualTo(Int32Value.newBuilder().setValue(CHILD_SPAN_COUNT).build());
   }

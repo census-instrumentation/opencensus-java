@@ -35,6 +35,7 @@ import com.google.devtools.cloudtrace.v2.Span.TimeEvent;
 import com.google.devtools.cloudtrace.v2.Span.TimeEvent.MessageEvent;
 import com.google.devtools.cloudtrace.v2.SpanName;
 import com.google.devtools.cloudtrace.v2.TruncatableString;
+import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
 import com.google.rpc.Status;
 import io.opencensus.common.Function;
@@ -207,7 +208,9 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
       spanBuilder.setParentSpanId(spanData.getParentSpanId().toLowerBase16());
     }
-
+    if (spanData.getHasRemoteParent() != null) {
+      spanBuilder.setSameProcessAsParentSpan(BoolValue.of(!spanData.getHasRemoteParent()));
+    }
     return spanBuilder.build();
   }
 
