@@ -208,8 +208,9 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
       spanBuilder.setParentSpanId(spanData.getParentSpanId().toLowerBase16());
     }
-    if (spanData.getHasRemoteParent() != null) {
-      spanBuilder.setSameProcessAsParentSpan(BoolValue.of(!spanData.getHasRemoteParent()));
+    /*@Nullable*/ Boolean hasRemoteParent = spanData.getHasRemoteParent();
+    if (hasRemoteParent != null) {
+      spanBuilder.setSameProcessAsParentSpan(BoolValue.of(!hasRemoteParent));
     }
     return spanBuilder.build();
   }
