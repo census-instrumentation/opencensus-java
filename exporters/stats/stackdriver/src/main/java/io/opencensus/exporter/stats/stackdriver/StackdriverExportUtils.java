@@ -115,8 +115,6 @@ final class StackdriverExportUtils {
       new Function<Summary, TypedValue>() {
         @Override
         public TypedValue apply(Summary arg) {
-          // StackDriver doesn't handle Summary value.
-          // TODO(mayurkale): decide what to do with Summary value.
           TypedValue.Builder builder = TypedValue.newBuilder();
           return builder.build();
         }
@@ -222,7 +220,6 @@ final class StackdriverExportUtils {
   // Convert a OpenCensus Type to a StackDriver ValueType
   @VisibleForTesting
   static MetricDescriptor.ValueType createValueType(Type type) {
-    // TODO(mayurkale): decide what to do with Summary type.
     if (type == Type.CUMULATIVE_DOUBLE || type == Type.GAUGE_DOUBLE) {
       return MetricDescriptor.ValueType.DOUBLE;
     } else if (type == Type.GAUGE_INT64 || type == Type.CUMULATIVE_INT64) {
