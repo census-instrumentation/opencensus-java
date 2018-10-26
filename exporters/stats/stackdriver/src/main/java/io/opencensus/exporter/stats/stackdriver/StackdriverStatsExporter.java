@@ -62,7 +62,7 @@ import javax.annotation.concurrent.GuardedBy;
  */
 public final class StackdriverStatsExporter {
 
-  private static final Object monitor = new Object();
+  @VisibleForTesting static final Object monitor = new Object();
 
   private final Thread workerThread;
 
@@ -317,7 +317,6 @@ public final class StackdriverStatsExporter {
       throws IOException {
     projectId =
         projectId == null
-
             // TODO(sebright): Handle null default project ID.
             ? castNonNull(ServiceOptions.getDefaultProjectId())
             : projectId;
@@ -325,25 +324,10 @@ public final class StackdriverStatsExporter {
     monitoredResource = monitoredResource == null ? DEFAULT_RESOURCE : monitoredResource;
     synchronized (monitor) {
       checkState(exporter == null, "Stackdriver stats exporter is already created.");
-      MetricServiceClient metricServiceClient;
-      // Initialize MetricServiceClient inside lock to avoid creating multiple clients.
-      if (credentials == null) {
-        metricServiceClient = MetricServiceClient.create();
-      } else {
-        metricServiceClient =
-            MetricServiceClient.create(
-                MetricServiceSettings.newBuilder()
-                    .setTransportChannelProvider(
-                        InstantiatingGrpcChannelProvider.newBuilder()
-                            .setHeaderProvider(OPENCENSUS_USER_AGENT_HEADER_PROVIDER)
-                            .build())
-                    .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
-                    .build());
-      }
       exporter =
           new StackdriverStatsExporter(
               projectId,
-              metricServiceClient,
+              createMetricServiceClient(credentials),
               exportInterval,
               Metrics.getExportComponent().getMetricProducerManager(),
               monitoredResource,
@@ -356,6 +340,23 @@ public final class StackdriverStatsExporter {
   @SuppressWarnings("nullness")
   private static <T> T castNonNull(@javax.annotation.Nullable T arg) {
     return arg;
+  }
+
+  // Initialize MetricServiceClient inside lock to avoid creating multiple clients.
+  @GuardedBy("monitor")
+  @VisibleForTesting
+  static MetricServiceClient createMetricServiceClient(@Nullable Credentials credentials)
+      throws IOException {
+    MetricServiceSettings.Builder settingsBuilder =
+        MetricServiceSettings.newBuilder()
+            .setTransportChannelProvider(
+                InstantiatingGrpcChannelProvider.newBuilder()
+                    .setHeaderProvider(OPENCENSUS_USER_AGENT_HEADER_PROVIDER)
+                    .build());
+    if (credentials != null) {
+      settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
+    }
+    return MetricServiceClient.create(settingsBuilder.build());
   }
 
   // Resets exporter to null. Used only for unit tests.
