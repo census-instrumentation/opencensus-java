@@ -38,9 +38,12 @@ import io.opencensus.metrics.export.Value;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Adapter for a {@code Metric}'s contents into SignalFx datapoints. */
 final class SignalFxSessionAdaptor {
+  private static final Logger logger = Logger.getLogger(SignalFxSessionAdaptor.class.getName());
 
   // Constant functions for Datum.
   private static final Function<Double, Datum> datumDoubleFunction =
@@ -67,7 +70,9 @@ final class SignalFxSessionAdaptor {
         public Datum apply(Distribution arg) {
           // Signal doesn't handle Distribution value.
           // TODO(mayurkale): decide what to do with Distribution value.
-          throw new IllegalArgumentException("Distribution type are not supported");
+          logger.log(Level.INFO, "Distribution type is not supported.");
+          Datum.Builder builder = Datum.newBuilder();
+          return builder.build();
         }
       };
   private static final Function<Summary, Datum> datumSummaryFunction =
@@ -76,7 +81,9 @@ final class SignalFxSessionAdaptor {
         public Datum apply(Summary arg) {
           // Signal doesn't handle Summary value.
           // TODO(mayurkale): decide what to do with Summary value.
-          throw new IllegalArgumentException("Summary type are not supported");
+          logger.log(Level.INFO, "Summary type is not supported.");
+          Datum.Builder builder = Datum.newBuilder();
+          return builder.build();
         }
       };
 
@@ -131,7 +138,7 @@ final class SignalFxSessionAdaptor {
     List<Dimension> dimensions = new ArrayList<>(keys.size());
     for (int i = 0; i < values.size(); i++) {
       LabelValue value = values.get(i);
-      if (value == null || Strings.isNullOrEmpty(value.getValue())) {
+      if (Strings.isNullOrEmpty(value.getValue())) {
         continue;
       }
       dimensions.add(createDimension(keys.get(i), value));

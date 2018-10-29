@@ -16,6 +16,7 @@
 
 package io.opencensus.exporter.stats.signalfx;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -46,17 +47,13 @@ import io.opencensus.metrics.export.Value;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link SignalFxSessionAdaptor}. */
 @RunWith(JUnit4.class)
 public class SignalFxSessionAdaptorTest {
-  @Rule public final ExpectedException thrown = ExpectedException.none();
-
   private static final String METRIC_NAME = "metric-name";
   private static final String METRIC_DESCRIPTION = "metric-description";
   private static final String METRIC_UNIT = "1";
@@ -163,16 +160,14 @@ public class SignalFxSessionAdaptorTest {
 
   @Test
   public void createDatumFromValueDistribution() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Distribution type are not supported");
-    SignalFxSessionAdaptor.createDatum(VALUE_DISTRIBUTION);
+    Datum datum = SignalFxSessionAdaptor.createDatum(VALUE_DISTRIBUTION);
+    assertThat(datum).isEqualTo(Datum.newBuilder().build());
   }
 
   @Test
   public void createDatumFromValueSummary() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Summary type are not supported");
-    SignalFxSessionAdaptor.createDatum(VALUE_SUMMARY);
+    Datum datum = SignalFxSessionAdaptor.createDatum(VALUE_SUMMARY);
+    assertThat(datum).isEqualTo(Datum.newBuilder().build());
   }
 
   @Test
