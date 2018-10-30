@@ -31,28 +31,32 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
-/**
- * StackdriverExample is an example of exporting a custom metric from OpenCensus to Stackdriver.
- */
-public class StackdriverExample {
+/** StackdriverExample is an example of exporting a custom metric from OpenCensus to Stackdriver. */
+public final class StackdriverExample {
 
   // The task latency in milliseconds.
-  private static final MeasureDouble LATENCY_MS = MeasureDouble.create("task_latency",
-    "The task latency in milliseconds", "ms");
+  private static final MeasureDouble LATENCY_MS =
+      MeasureDouble.create("task_latency", "The task latency in milliseconds", "ms");
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
 
-  public static void main(String ...args) throws IOException, InterruptedException {
+  /** Main launcher for the Stackdriver example. */
+  public static void main(String... args) throws IOException, InterruptedException {
 
     // Defining the distribution aggregations
-    Aggregation latencyDistribution = Distribution.create(BucketBoundaries.create(
-      Arrays.asList(
-        // Latency in buckets: [>=0ms, >=100ms, >=200ms, >=400ms, >=1s, >=2s, >=4s]
-        0.0, 100.0, 200.0, 400.0, 1000.0, 2000.0, 4000.0)
-    ));
+    Aggregation latencyDistribution =
+        Distribution.create(
+            BucketBoundaries.create(
+                Arrays.asList(
+                    // Latency in buckets: [>=0ms, >=100ms, >=200ms, >=400ms, >=1s, >=2s, >=4s]
+                    0.0, 100.0, 200.0, 400.0, 1000.0, 2000.0, 4000.0)));
 
-    View view = View.create(Name.create("task_latency_distribution"),
-      "The distribution of the task latencies", LATENCY_MS, latencyDistribution,
-      Collections.<TagKey>emptyList());
+    View view =
+        View.create(
+            Name.create("task_latency_distribution"),
+            "The distribution of the task latencies",
+            LATENCY_MS,
+            latencyDistribution,
+            Collections.<TagKey>emptyList());
 
     // Create the view manager
     ViewManager vmgr = Stats.getViewManager();
