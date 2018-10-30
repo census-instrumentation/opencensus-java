@@ -37,6 +37,7 @@ subprojects {
     apply plugin: 'ru.vyarus.animalsniffer'
     apply plugin: 'findbugs'
     apply plugin: 'net.ltgt.apt'
+    apply plugin: 'net.ltgt.apt-idea'
     apply plugin: "me.champeau.gradle.jmh"
     apply plugin: "io.morethan.jmhreport"
     // Plugins that require java8
