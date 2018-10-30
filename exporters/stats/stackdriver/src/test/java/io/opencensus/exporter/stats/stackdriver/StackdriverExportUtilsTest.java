@@ -119,6 +119,18 @@ public class StackdriverExportUtilsTest {
   private static final Value DISTRIBUTION_VALUE = Value.distributionValue(DISTRIBUTION);
   private static final Value SUMMARY_VALUE = Value.summaryValue(SUMMARY);
 
+  private static final io.opencensus.metrics.export.MetricDescriptor HISTOGRAM_METRIC_DESCRIPTOR =
+      io.opencensus.metrics.export.MetricDescriptor.create(
+          METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, Type.CUMULATIVE_DISTRIBUTION, LABEL_KEY);
+
+  private static final Point DISTRIBUTION_POINT = Point.create(DISTRIBUTION_VALUE, TIMESTAMP);
+  private static final io.opencensus.metrics.export.TimeSeries DISTRIBUTION_TIME_SERIES =
+      io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
+          LABEL_VALUE, DISTRIBUTION_POINT, null);
+  private static final io.opencensus.metrics.export.Metric DISTRIBUTION_METRIC =
+      io.opencensus.metrics.export.Metric.createWithOneTimeSeries(
+          HISTOGRAM_METRIC_DESCRIPTOR, DISTRIBUTION_TIME_SERIES);
+
   @Test
   public void createLabelDescriptor() {
     assertThat(StackdriverExportUtils.createLabelDescriptor(LabelKey.create("key", "desc")))
@@ -216,7 +228,7 @@ public class StackdriverExportUtilsTest {
         .isEqualTo(
             BucketOptions.newBuilder()
                 .setExplicitBuckets(
-                    Explicit.newBuilder().addAllBounds(Arrays.asList(1.0, 3.0, 5.0)))
+                    Explicit.newBuilder().addAllBounds(Arrays.asList(0.0, 1.0, 3.0, 5.0)))
                 .build());
   }
 
@@ -234,7 +246,7 @@ public class StackdriverExportUtilsTest {
                 .setCount(3)
                 .setMean(0.6666666666666666)
                 .setBucketOptions(StackdriverExportUtils.createBucketOptions(BUCKET_OPTIONS))
-                .addAllBucketCounts(Arrays.asList(3L, 1L, 2L, 4L))
+                .addAllBucketCounts(Arrays.asList(0L, 3L, 1L, 2L, 4L))
                 .setSumOfSquaredDeviation(14)
                 .build());
   }
@@ -361,6 +373,32 @@ public class StackdriverExportUtilsTest {
             .addPoints(StackdriverExportUtils.createPoint(POINT, TIMESTAMP_2))
             .build();
     assertThat(timeSeriesList).containsExactly(expectedTimeSeries);
+  }
+
+  @Test
+  public void createTimeSeriesList_Distribution() {
+    List<TimeSeries> timeSeriesList =
+        StackdriverExportUtils.createTimeSeriesList(
+            DISTRIBUTION_METRIC, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN);
+
+    assertThat(timeSeriesList.size()).isEqualTo(1);
+    TimeSeries timeSeries = timeSeriesList.get(0);
+    assertThat(timeSeries.getPointsCount()).isEqualTo(1);
+    assertThat(timeSeries.getPoints(0).getValue().getDistributionValue())
+        .isEqualTo(
+            com.google.api.Distribution.newBuilder()
+                .setCount(3)
+                .setMean(0.6666666666666666)
+                .setBucketOptions(
+                    BucketOptions.newBuilder()
+                        .setExplicitBuckets(
+                            Explicit.newBuilder()
+                                .addAllBounds(Arrays.asList(0.0, 1.0, 3.0, 5.0))
+                                .build())
+                        .build())
+                .addAllBucketCounts(Arrays.asList(0L, 3L, 1L, 2L, 4L))
+                .setSumOfSquaredDeviation(14)
+                .build());
   }
 
   @Test

@@ -124,7 +124,11 @@ final class StackdriverExportUtils {
         @Override
         public BucketOptions apply(ExplicitOptions arg) {
           BucketOptions.Builder builder = BucketOptions.newBuilder();
-          builder.setExplicitBuckets(Explicit.newBuilder().addAllBounds(arg.getBucketBoundaries()));
+          Explicit.Builder explicitBuilder = Explicit.newBuilder();
+          // The first bucket bound should be 0.0.
+          explicitBuilder.addBounds(0.0);
+          explicitBuilder.addAllBounds(arg.getBucketBoundaries());
+          builder.setExplicitBuckets(explicitBuilder.build());
           return builder.build();
         }
       };
@@ -333,6 +337,9 @@ final class StackdriverExportUtils {
   // Convert a OpenCensus Buckets to a list of counts
   private static List<Long> createBucketCounts(List<Bucket> buckets) {
     List<Long> bucketCounts = new ArrayList<>();
+    // The first bucket (underflow bucket) should always be 0 count.
+    // More Info : https://cloud.google.com/monitoring/api/ref_v3/rest/v3/TimeSeries
+    bucketCounts.add(0L);
     for (Bucket bucket : buckets) {
       bucketCounts.add(bucket.getCount());
     }
