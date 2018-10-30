@@ -85,14 +85,6 @@ final class MeasureMapInternal {
       return this;
     }
 
-    /**
-     * Removes all of the measurements from this {@code measurements}. The list will be empty after
-     * this call returns.
-     */
-    void clear() {
-      measurements.clear();
-    }
-
     Builder putAttachment(String key, String value) {
       this.attachments.put(key, value);
       return this;

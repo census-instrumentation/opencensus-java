@@ -154,7 +154,6 @@ final class NoopStats {
       if (hasUnsupportedValues) {
         // drop all the recorded values
         logger.log(Level.WARNING, "Dropping values, value to record must be non-negative.");
-        hasUnsupportedValues = false;
       }
     }
   }

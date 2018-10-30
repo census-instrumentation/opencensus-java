@@ -82,17 +82,6 @@ public class MeasureMapInternalTest {
   }
 
   @Test
-  public void testBuilderClear() {
-    MeasureMapInternal.Builder builder = MeasureMapInternal.builder();
-    MeasureMapInternal metrics = builder.put(M1, -44.4).build();
-    assertContains(metrics, MeasurementDouble.create(M1, -44.4));
-    builder.clear();
-    assertContains(metrics);
-    MeasureMapInternal metrics1 = builder.put(M2, 66.6).build();
-    assertContains(metrics1, MeasurementDouble.create(M2, 66.6));
-  }
-
-  @Test
   public void testBuilder() {
     ArrayList<Measurement> expected = new ArrayList<Measurement>(10);
     MeasureMapInternal.Builder builder = MeasureMapInternal.builder();

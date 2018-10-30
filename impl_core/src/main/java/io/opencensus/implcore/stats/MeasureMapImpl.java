@@ -74,9 +74,7 @@ final class MeasureMapImpl extends MeasureMap {
   public void record(TagContext tags) {
     if (hasUnsupportedValues) {
       // drop all the recorded values
-      builder.clear();
       logger.log(Level.WARNING, "Dropping values, value to record must be non-negative.");
-      hasUnsupportedValues = false;
       return;
     }
     statsManager.record(tags, builder.build());
