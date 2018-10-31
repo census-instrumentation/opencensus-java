@@ -146,13 +146,11 @@ General guidelines on imports:
     <allow pkg="com.google.common"/>
     <allow pkg="io.opencensus.common"/>
     <subpackage name="stats">
-      <allow pkg="io.opencensus.stats"/>
-      <allow pkg="io.opencensus.tags"/>
+      <allow pkg="io.opencensus.metrics"/>
       <subpackage name="prometheus">
         <allow pkg="io.opencensus.exporter.stats.prometheus"/>
         <allow pkg="io.opencensus.trace"/>
         <allow pkg="io.prometheus.client"/>
-        <allow pkg="io.opencensus.metrics"/>
       </subpackage>
       <subpackage name="signalfx">
         <allow pkg="com.signalfx"/>
@@ -164,7 +162,6 @@ General guidelines on imports:
         <allow pkg="io.opencensus.exporter.stats.stackdriver"/>
         <allow pkg="io.opencensus.trace"/>
         <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
-        <allow pkg="io.opencensus.metrics"/>
       </subpackage>
     </subpackage>
     <subpackage name="trace">

@@ -16,6 +16,7 @@
 
 package io.opencensus.exporter.stats.signalfx;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -23,110 +24,104 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.DataPoint;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.Datum;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.Dimension;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.MetricType;
-import io.opencensus.common.Duration;
-import io.opencensus.stats.Aggregation;
-import io.opencensus.stats.AggregationData;
-import io.opencensus.stats.AggregationData.CountData;
-import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.LastValueDataDouble;
-import io.opencensus.stats.AggregationData.LastValueDataLong;
-import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.SumDataDouble;
-import io.opencensus.stats.AggregationData.SumDataLong;
-import io.opencensus.stats.BucketBoundaries;
-import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow;
-import io.opencensus.stats.View.Name;
-import io.opencensus.stats.ViewData;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
+import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.export.Distribution;
+import io.opencensus.metrics.export.Distribution.Bucket;
+import io.opencensus.metrics.export.Distribution.BucketOptions;
+import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricDescriptor;
+import io.opencensus.metrics.export.MetricDescriptor.Type;
+import io.opencensus.metrics.export.Point;
+import io.opencensus.metrics.export.Summary;
+import io.opencensus.metrics.export.Summary.Snapshot;
+import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
+import io.opencensus.metrics.export.TimeSeries;
+import io.opencensus.metrics.export.Value;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.runners.JUnit4;
 
-@RunWith(MockitoJUnitRunner.class)
+/** Unit tests for {@link SignalFxSessionAdaptor}. */
+@RunWith(JUnit4.class)
 public class SignalFxSessionAdaptorTest {
-
-  private static final Duration ONE_SECOND = Duration.create(1, 0);
-
-  @Rule public final ExpectedException thrown = ExpectedException.none();
-
-  @Mock private View view;
-
-  @Mock private ViewData viewData;
-
-  @Before
-  public void setUp() {
-    Mockito.when(view.getName()).thenReturn(Name.create("view-name"));
-    Mockito.when(view.getColumns()).thenReturn(ImmutableList.of(TagKey.create("animal")));
-    Mockito.when(viewData.getView()).thenReturn(view);
-  }
-
-  @Test
-  public void checkMetricTypeFromAggregation() {
-    assertNull(SignalFxSessionAdaptor.getMetricTypeForAggregation(null, null));
-    assertNull(
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            null, AggregationWindow.Cumulative.create()));
-    assertEquals(
-        MetricType.GAUGE,
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.Mean.create(), AggregationWindow.Cumulative.create()));
-    assertEquals(
-        MetricType.GAUGE,
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.Mean.create(), AggregationWindow.Interval.create(ONE_SECOND)));
-    assertEquals(
-        MetricType.CUMULATIVE_COUNTER,
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.Count.create(), AggregationWindow.Cumulative.create()));
-    assertEquals(
-        MetricType.CUMULATIVE_COUNTER,
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.Sum.create(), AggregationWindow.Cumulative.create()));
-    assertNull(
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(Aggregation.Count.create(), null));
-    assertNull(SignalFxSessionAdaptor.getMetricTypeForAggregation(Aggregation.Sum.create(), null));
-    assertNull(
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.Count.create(), AggregationWindow.Interval.create(ONE_SECOND)));
-    assertNull(
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.Sum.create(), AggregationWindow.Interval.create(ONE_SECOND)));
-    assertNull(
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.Distribution.create(BucketBoundaries.create(ImmutableList.of(3.15d))),
-            AggregationWindow.Cumulative.create()));
-    assertEquals(
-        MetricType.GAUGE,
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.LastValue.create(), AggregationWindow.Cumulative.create()));
-    assertEquals(
-        MetricType.GAUGE,
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.LastValue.create(), AggregationWindow.Interval.create(ONE_SECOND)));
-  }
+  private static final String METRIC_NAME = "metric-name";
+  private static final String METRIC_DESCRIPTION = "metric-description";
+  private static final String METRIC_UNIT = "1";
+  private static final LabelKey LABEL_KEY_1 = LabelKey.create("key1", "description");
+  private static final LabelKey LABEL_KEY_2 = LabelKey.create("key2", "description");
+  private static final LabelValue LABEL_VALUE_1 = LabelValue.create("value1");
+  private static final LabelValue LABEL_VALUE_2 = LabelValue.create("value2");
+  private static final LabelValue EMPTY_LABEL_VALUE = LabelValue.create("");
+  private static final MetricDescriptor METRIC_DESCRIPTOR =
+      MetricDescriptor.create(
+          METRIC_NAME,
+          METRIC_DESCRIPTION,
+          METRIC_UNIT,
+          Type.CUMULATIVE_INT64,
+          Collections.singletonList(LABEL_KEY_1));
+  private static final MetricDescriptor DISTRIBUTION_METRIC_DESCRIPTOR =
+      MetricDescriptor.create(
+          METRIC_NAME,
+          METRIC_DESCRIPTION,
+          METRIC_UNIT,
+          Type.CUMULATIVE_DISTRIBUTION,
+          Collections.singletonList(LABEL_KEY_1));
+  private static final List<Double> BUCKET_BOUNDARIES = Arrays.asList(1.0, 3.0, 5.0);
+  private static final Distribution DISTRIBUTION =
+      Distribution.create(
+          3,
+          2,
+          14,
+          BucketOptions.explicitOptions(BUCKET_BOUNDARIES),
+          Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)));
+  private static final Summary SUMMARY =
+      Summary.create(
+          10L,
+          10.0,
+          Snapshot.create(
+              10L, 87.07, Collections.singletonList(ValueAtPercentile.create(0.98, 10.2))));
+  private static final Value VALUE_LONG = Value.longValue(42L);
+  private static final Value VALUE_DOUBLE = Value.doubleValue(12.2);
+  private static final Value VALUE_DISTRIBUTION = Value.distributionValue(DISTRIBUTION);
+  private static final Value VALUE_SUMMARY = Value.summaryValue(SUMMARY);
+  private static final Timestamp TIMESTAMP = Timestamp.fromMillis(3000);
+  private static final Point POINT_1 = Point.create(Value.longValue(2L), TIMESTAMP);
+  private static final Point POINT_2 = Point.create(Value.longValue(3L), TIMESTAMP);
+  private static final TimeSeries TIME_SERIES_1 =
+      TimeSeries.createWithOnePoint(Collections.singletonList(LABEL_VALUE_1), POINT_1, null);
+  private static final TimeSeries TIME_SERIES_2 =
+      TimeSeries.createWithOnePoint(Collections.singletonList(LABEL_VALUE_2), POINT_2, null);
+  private static final TimeSeries TIME_SERIES_3 =
+      TimeSeries.createWithOnePoint(Collections.singletonList(EMPTY_LABEL_VALUE), POINT_2, null);
+  private static final Metric METRIC =
+      Metric.create(METRIC_DESCRIPTOR, Arrays.asList(TIME_SERIES_1, TIME_SERIES_2));
+  private static final Metric METRIC_1 =
+      Metric.create(METRIC_DESCRIPTOR, Arrays.asList(TIME_SERIES_1, TIME_SERIES_3));
+  private static final Metric DISTRIBUTION_METRIC =
+      Metric.create(DISTRIBUTION_METRIC_DESCRIPTOR, Collections.<TimeSeries>emptyList());
 
   @Test
-  public void createDimensionsWithNonMatchingListSizes() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("don't have the same size");
-    SignalFxSessionAdaptor.createDimensions(
-        ImmutableList.of(TagKey.create("animal"), TagKey.create("color")),
-        ImmutableList.of(TagValue.create("dog")));
+  public void checkMetricType() {
+    assertNull(SignalFxSessionAdaptor.getType(null));
+    assertEquals(MetricType.GAUGE, SignalFxSessionAdaptor.getType(Type.GAUGE_INT64));
+    assertEquals(MetricType.GAUGE, SignalFxSessionAdaptor.getType(Type.GAUGE_DOUBLE));
+    assertEquals(
+        MetricType.CUMULATIVE_COUNTER, SignalFxSessionAdaptor.getType(Type.CUMULATIVE_INT64));
+    assertEquals(
+        MetricType.CUMULATIVE_COUNTER, SignalFxSessionAdaptor.getType(Type.CUMULATIVE_DOUBLE));
+    assertNull(SignalFxSessionAdaptor.getType(Type.SUMMARY));
+    assertNull(SignalFxSessionAdaptor.getType(Type.GAUGE_DISTRIBUTION));
+    assertNull(SignalFxSessionAdaptor.getType(Type.CUMULATIVE_DISTRIBUTION));
   }
 
   @Test
@@ -134,53 +129,29 @@ public class SignalFxSessionAdaptorTest {
     List<Dimension> dimensions =
         Lists.newArrayList(
             SignalFxSessionAdaptor.createDimensions(
-                ImmutableList.of(TagKey.create("animal"), TagKey.create("color")),
-                ImmutableList.of(TagValue.create("dog"), TagValue.create(""))));
+                ImmutableList.of(LABEL_KEY_1, LABEL_KEY_2),
+                ImmutableList.of(LABEL_VALUE_1, EMPTY_LABEL_VALUE)));
     assertEquals(1, dimensions.size());
-    assertEquals("animal", dimensions.get(0).getKey());
-    assertEquals("dog", dimensions.get(0).getValue());
+    assertEquals(LABEL_KEY_1.getKey(), dimensions.get(0).getKey());
+    assertEquals(LABEL_VALUE_1.getValue(), dimensions.get(0).getValue());
   }
 
   @Test
   public void createDimension() {
-    Dimension dimension =
-        SignalFxSessionAdaptor.createDimension(TagKey.create("animal"), TagValue.create("dog"));
-    assertEquals("animal", dimension.getKey());
-    assertEquals("dog", dimension.getValue());
+    Dimension dimension = SignalFxSessionAdaptor.createDimension(LABEL_KEY_1, LABEL_VALUE_1);
+    assertEquals(LABEL_KEY_1.getKey(), dimension.getKey());
+    assertEquals(LABEL_VALUE_1.getValue(), dimension.getValue());
   }
 
   @Test
-  public void unsupportedAggregationYieldsNoDatapoints() {
-    Mockito.when(view.getAggregation())
-        .thenReturn(
-            Aggregation.Distribution.create(BucketBoundaries.create(ImmutableList.of(3.15d))));
-    Mockito.when(view.getWindow()).thenReturn(AggregationWindow.Cumulative.create());
-    List<DataPoint> datapoints = SignalFxSessionAdaptor.adapt(viewData);
+  public void adoptMetricNoDatapoints() {
+    List<DataPoint> datapoints = SignalFxSessionAdaptor.adapt(DISTRIBUTION_METRIC);
     assertEquals(0, datapoints.size());
   }
 
   @Test
-  public void noAggregationDataYieldsNoDatapoints() {
-    Mockito.when(view.getAggregation()).thenReturn(Aggregation.Count.create());
-    Mockito.when(view.getWindow()).thenReturn(AggregationWindow.Cumulative.create());
-    List<DataPoint> datapoints = SignalFxSessionAdaptor.adapt(viewData);
-    assertEquals(0, datapoints.size());
-  }
-
-  @Test
-  public void createDatumFromDoubleSum() {
-    SumDataDouble data = SumDataDouble.create(3.15d);
-    Datum datum = SignalFxSessionAdaptor.createDatum(data);
-    assertTrue(datum.hasDoubleValue());
-    assertFalse(datum.hasIntValue());
-    assertFalse(datum.hasStrValue());
-    assertEquals(3.15d, datum.getDoubleValue(), 0d);
-  }
-
-  @Test
-  public void createDatumFromLongSum() {
-    SumDataLong data = SumDataLong.create(42L);
-    Datum datum = SignalFxSessionAdaptor.createDatum(data);
+  public void createDatumFromValueLong() {
+    Datum datum = SignalFxSessionAdaptor.createDatum(VALUE_LONG);
     assertFalse(datum.hasDoubleValue());
     assertTrue(datum.hasIntValue());
     assertFalse(datum.hasStrValue());
@@ -188,37 +159,20 @@ public class SignalFxSessionAdaptorTest {
   }
 
   @Test
-  public void createDatumFromCount() {
-    CountData data = CountData.create(42L);
-    Datum datum = SignalFxSessionAdaptor.createDatum(data);
-    assertFalse(datum.hasDoubleValue());
-    assertTrue(datum.hasIntValue());
-    assertFalse(datum.hasStrValue());
-    assertEquals(42L, datum.getIntValue());
+  public void createDatumFromValueDistribution() {
+    Datum datum = SignalFxSessionAdaptor.createDatum(VALUE_DISTRIBUTION);
+    assertThat(datum).isEqualTo(Datum.newBuilder().build());
   }
 
   @Test
-  public void createDatumFromMean() {
-    MeanData data = MeanData.create(3.15d, 2L);
-    Datum datum = SignalFxSessionAdaptor.createDatum(data);
-    assertTrue(datum.hasDoubleValue());
-    assertFalse(datum.hasIntValue());
-    assertFalse(datum.hasStrValue());
-    assertEquals(3.15d, datum.getDoubleValue(), 0d);
+  public void createDatumFromValueSummary() {
+    Datum datum = SignalFxSessionAdaptor.createDatum(VALUE_SUMMARY);
+    assertThat(datum).isEqualTo(Datum.newBuilder().build());
   }
 
   @Test
-  public void createDatumFromDistributionThrows() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Distribution aggregations are not supported");
-    SignalFxSessionAdaptor.createDatum(
-        DistributionData.create(5, 2, 0, 10, 40, ImmutableList.of(1L)));
-  }
-
-  @Test
-  public void createDatumFromLastValueDouble() {
-    LastValueDataDouble data = LastValueDataDouble.create(12.2);
-    Datum datum = SignalFxSessionAdaptor.createDatum(data);
+  public void createDatumFromValueDouble() {
+    Datum datum = SignalFxSessionAdaptor.createDatum(VALUE_DOUBLE);
     assertTrue(datum.hasDoubleValue());
     assertFalse(datum.hasIntValue());
     assertFalse(datum.hasStrValue());
@@ -226,31 +180,11 @@ public class SignalFxSessionAdaptorTest {
   }
 
   @Test
-  public void createDatumFromLastValueLong() {
-    LastValueDataLong data = LastValueDataLong.create(100000);
-    Datum datum = SignalFxSessionAdaptor.createDatum(data);
-    assertFalse(datum.hasDoubleValue());
-    assertTrue(datum.hasIntValue());
-    assertFalse(datum.hasStrValue());
-    assertEquals(100000, datum.getIntValue());
-  }
-
-  @Test
-  public void adaptViewIntoDatapoints() {
-    Map<List<TagValue>, AggregationData> map =
-        ImmutableMap.<List<TagValue>, AggregationData>of(
-            ImmutableList.of(TagValue.create("dog")),
-            SumDataLong.create(2L),
-            ImmutableList.of(TagValue.create("cat")),
-            SumDataLong.create(3L));
-    Mockito.when(viewData.getAggregationMap()).thenReturn(map);
-    Mockito.when(view.getAggregation()).thenReturn(Aggregation.Count.create());
-    Mockito.when(view.getWindow()).thenReturn(AggregationWindow.Cumulative.create());
-
-    List<DataPoint> datapoints = SignalFxSessionAdaptor.adapt(viewData);
+  public void adaptMetricIntoDatapoints() {
+    List<DataPoint> datapoints = SignalFxSessionAdaptor.adapt(METRIC);
     assertEquals(2, datapoints.size());
     for (DataPoint dp : datapoints) {
-      assertEquals("view-name", dp.getMetric());
+      assertEquals(METRIC_NAME, dp.getMetric());
       assertEquals(MetricType.CUMULATIVE_COUNTER, dp.getMetricType());
       assertEquals(1, dp.getDimensionsCount());
       assertTrue(dp.hasValue());
@@ -262,12 +196,12 @@ public class SignalFxSessionAdaptorTest {
       assertFalse(datum.hasStrValue());
 
       Dimension dimension = dp.getDimensions(0);
-      assertEquals("animal", dimension.getKey());
+      assertEquals(LABEL_KEY_1.getKey(), dimension.getKey());
       switch (dimension.getValue()) {
-        case "dog":
+        case "value1":
           assertEquals(2L, datum.getIntValue());
           break;
-        case "cat":
+        case "value2":
           assertEquals(3L, datum.getIntValue());
           break;
         default:
@@ -277,21 +211,11 @@ public class SignalFxSessionAdaptorTest {
   }
 
   @Test
-  public void adaptViewWithEmptyTagValueIntoDatapoints() {
-    Map<List<TagValue>, AggregationData> map =
-        ImmutableMap.<List<TagValue>, AggregationData>of(
-            ImmutableList.of(TagValue.create("dog")),
-            SumDataLong.create(2L),
-            ImmutableList.of(TagValue.create("")),
-            SumDataLong.create(3L));
-    Mockito.when(viewData.getAggregationMap()).thenReturn(map);
-    Mockito.when(view.getAggregation()).thenReturn(Aggregation.Count.create());
-    Mockito.when(view.getWindow()).thenReturn(AggregationWindow.Cumulative.create());
-
-    List<DataPoint> datapoints = SignalFxSessionAdaptor.adapt(viewData);
+  public void adaptMetricWithEmptyLabelValueIntoDatapoints() {
+    List<DataPoint> datapoints = SignalFxSessionAdaptor.adapt(METRIC_1);
     assertEquals(2, datapoints.size());
     for (DataPoint dp : datapoints) {
-      assertEquals("view-name", dp.getMetric());
+      assertEquals(METRIC_NAME, dp.getMetric());
       assertEquals(MetricType.CUMULATIVE_COUNTER, dp.getMetricType());
       assertTrue(dp.hasValue());
       assertFalse(dp.hasSource());
@@ -307,8 +231,8 @@ public class SignalFxSessionAdaptorTest {
           break;
         case 1:
           Dimension dimension = dp.getDimensions(0);
-          assertEquals("animal", dimension.getKey());
-          assertEquals("dog", dimension.getValue());
+          assertEquals(LABEL_KEY_1.getKey(), dimension.getKey());
+          assertEquals(LABEL_VALUE_1.getValue(), dimension.getValue());
           assertEquals(2L, datum.getIntValue());
           break;
         default:

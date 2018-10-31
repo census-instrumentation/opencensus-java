@@ -20,9 +20,8 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.signalfx.metrics.errorhandler.OnSendErrorHandler;
 import com.signalfx.metrics.flush.AggregateMetricSender;
@@ -31,18 +30,20 @@ import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.Datum;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.Dimension;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.MetricType;
 import io.opencensus.common.Duration;
-import io.opencensus.stats.Aggregation;
-import io.opencensus.stats.AggregationData;
-import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow;
-import io.opencensus.stats.View.Name;
-import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewManager;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
+import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricDescriptor;
+import io.opencensus.metrics.export.MetricDescriptor.Type;
+import io.opencensus.metrics.export.MetricProducer;
+import io.opencensus.metrics.export.MetricProducerManager;
+import io.opencensus.metrics.export.Point;
+import io.opencensus.metrics.export.TimeSeries;
+import io.opencensus.metrics.export.Value;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,15 +54,35 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+/** Unit tests for {@link SignalFxStatsExporterWorkerThread}. */
 @RunWith(MockitoJUnitRunner.class)
 public class SignalFxStatsExporterWorkerThreadTest {
 
   private static final String TEST_TOKEN = "token";
   private static final Duration ONE_SECOND = Duration.create(1, 0);
+  private static final String METRIC_NAME = "metric-name";
+  private static final String METRIC_DESCRIPTION = "description";
+  private static final String METRIC_UNIT = "1";
+  private static final List<LabelKey> LABEL_KEY =
+      Collections.singletonList(LabelKey.create("key1", "description"));
+  private static final List<LabelValue> LABEL_VALUE =
+      Collections.singletonList(LabelValue.create("value1"));
+  private static final MetricDescriptor METRIC_DESCRIPTOR =
+      MetricDescriptor.create(
+          METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, Type.GAUGE_DOUBLE, LABEL_KEY);
+  private static final Value VALUE_LONG = Value.doubleValue(3.15d);
+  private static final Timestamp TIMESTAMP = Timestamp.fromMillis(3000);
+  private static final Point POINT = Point.create(VALUE_LONG, TIMESTAMP);
+  private static final TimeSeries TIME_SERIES =
+      TimeSeries.createWithOnePoint(LABEL_VALUE, POINT, null);
+  private static final Metric METRIC =
+      Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR, TIME_SERIES);
 
   @Mock private AggregateMetricSender.Session session;
 
-  @Mock private ViewManager viewManager;
+  @Mock private MetricProducerManager metricProducerManager;
+
+  @Mock private MetricProducer metricProducer;
 
   @Mock private SignalFxMetricsSenderFactory factory;
 
@@ -83,17 +104,19 @@ public class SignalFxStatsExporterWorkerThreadTest {
                     SignalFxMetricsSenderFactory.DEFAULT.create(
                         (URI) args[0], (String) args[1], (OnSendErrorHandler) args[2]);
                 AggregateMetricSender spy = Mockito.spy(sender);
-                Mockito.doReturn(session).when(spy).createSession();
+                doReturn(session).when(spy).createSession();
                 return spy;
               }
             });
+    doReturn(ImmutableSet.of(metricProducer)).when(metricProducerManager).getAllMetricProducer();
+    doReturn(ImmutableSet.<Metric>of()).when(metricProducer).getMetrics();
   }
 
   @Test
   public void createThread() {
     SignalFxStatsExporterWorkerThread thread =
         new SignalFxStatsExporterWorkerThread(
-            factory, endpoint, TEST_TOKEN, ONE_SECOND, viewManager);
+            factory, endpoint, TEST_TOKEN, ONE_SECOND, metricProducerManager);
     assertTrue(thread.isDaemon());
     assertThat(thread.getName(), startsWith("SignalFx"));
   }
@@ -101,11 +124,11 @@ public class SignalFxStatsExporterWorkerThreadTest {
   @Test
   public void senderThreadInterruptStopsLoop() throws InterruptedException {
     Mockito.when(session.setDatapoint(Mockito.any(DataPoint.class))).thenReturn(session);
-    Mockito.when(viewManager.getAllExportedViews()).thenReturn(ImmutableSet.<View>of());
+    doReturn(ImmutableSet.<Metric>of()).when(metricProducer).getMetrics();
 
     SignalFxStatsExporterWorkerThread thread =
         new SignalFxStatsExporterWorkerThread(
-            factory, endpoint, TEST_TOKEN, ONE_SECOND, viewManager);
+            factory, endpoint, TEST_TOKEN, ONE_SECOND, metricProducerManager);
     thread.start();
     thread.interrupt();
     thread.join(5000, 0);
@@ -114,33 +137,18 @@ public class SignalFxStatsExporterWorkerThreadTest {
 
   @Test
   public void setsDatapointsFromViewOnSession() throws IOException {
-    View view = Mockito.mock(View.class);
-    Name viewName = Name.create("test");
-    Mockito.when(view.getName()).thenReturn(viewName);
-    Mockito.when(view.getAggregation()).thenReturn(Aggregation.Mean.create());
-    Mockito.when(view.getWindow()).thenReturn(AggregationWindow.Cumulative.create());
-    Mockito.when(view.getColumns()).thenReturn(ImmutableList.of(TagKey.create("animal")));
-
-    ViewData viewData = Mockito.mock(ViewData.class);
-    Mockito.when(viewData.getView()).thenReturn(view);
-    Mockito.when(viewData.getAggregationMap())
-        .thenReturn(
-            ImmutableMap.<List<TagValue>, AggregationData>of(
-                ImmutableList.of(TagValue.create("cat")), MeanData.create(3.15d, 1)));
-
-    Mockito.when(viewManager.getAllExportedViews()).thenReturn(ImmutableSet.of(view));
-    Mockito.when(viewManager.getView(Mockito.eq(viewName))).thenReturn(viewData);
+    doReturn(Collections.singletonList(METRIC)).when(metricProducer).getMetrics();
 
     SignalFxStatsExporterWorkerThread thread =
         new SignalFxStatsExporterWorkerThread(
-            factory, endpoint, TEST_TOKEN, ONE_SECOND, viewManager);
+            factory, endpoint, TEST_TOKEN, ONE_SECOND, metricProducerManager);
     thread.export();
 
     DataPoint datapoint =
         DataPoint.newBuilder()
-            .setMetric("test")
+            .setMetric("metric-name")
             .setMetricType(MetricType.GAUGE)
-            .addDimensions(Dimension.newBuilder().setKey("animal").setValue("cat").build())
+            .addDimensions(Dimension.newBuilder().setKey("key1").setValue("value1").build())
             .setValue(Datum.newBuilder().setDoubleValue(3.15d).build())
             .build();
     Mockito.verify(session).setDatapoint(Mockito.eq(datapoint));

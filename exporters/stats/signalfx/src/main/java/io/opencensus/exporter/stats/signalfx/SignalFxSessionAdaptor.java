@@ -17,172 +17,152 @@
 package io.opencensus.exporter.stats.signalfx;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.DataPoint;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.Datum;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.Dimension;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.MetricType;
 import io.opencensus.common.Function;
-import io.opencensus.stats.Aggregation;
-import io.opencensus.stats.AggregationData;
-import io.opencensus.stats.AggregationData.CountData;
-import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.LastValueDataDouble;
-import io.opencensus.stats.AggregationData.LastValueDataLong;
-import io.opencensus.stats.AggregationData.SumDataDouble;
-import io.opencensus.stats.AggregationData.SumDataLong;
-import io.opencensus.stats.View;
-import io.opencensus.stats.ViewData;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
+import io.opencensus.common.Functions;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.export.Distribution;
+import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricDescriptor;
+import io.opencensus.metrics.export.MetricDescriptor.Type;
+import io.opencensus.metrics.export.Point;
+import io.opencensus.metrics.export.Summary;
+import io.opencensus.metrics.export.TimeSeries;
+import io.opencensus.metrics.export.Value;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/*>>>
-import org.checkerframework.checker.nullness.qual.Nullable;
-*/
-
-/** Adapter for a {@code ViewData}'s contents into SignalFx datapoints. */
-@SuppressWarnings("deprecation")
+/** Adapter for a {@code Metric}'s contents into SignalFx datapoints. */
 final class SignalFxSessionAdaptor {
+  private static final Logger logger = Logger.getLogger(SignalFxSessionAdaptor.class.getName());
+
+  // Constant functions for Datum.
+  private static final Function<Double, Datum> datumDoubleFunction =
+      new Function<Double, Datum>() {
+        @Override
+        public Datum apply(Double arg) {
+          Datum.Builder builder = Datum.newBuilder();
+          builder.setDoubleValue(arg);
+          return builder.build();
+        }
+      };
+  private static final Function<Long, Datum> datumLongFunction =
+      new Function<Long, Datum>() {
+        @Override
+        public Datum apply(Long arg) {
+          Datum.Builder builder = Datum.newBuilder();
+          builder.setIntValue(arg);
+          return builder.build();
+        }
+      };
+  private static final Function<Distribution, Datum> datumDistributionFunction =
+      new Function<Distribution, Datum>() {
+        @Override
+        public Datum apply(Distribution arg) {
+          // Signal doesn't handle Distribution value.
+          // TODO(mayurkale): decide what to do with Distribution value.
+          logger.log(Level.INFO, "Distribution type is not supported.");
+          Datum.Builder builder = Datum.newBuilder();
+          return builder.build();
+        }
+      };
+  private static final Function<Summary, Datum> datumSummaryFunction =
+      new Function<Summary, Datum>() {
+        @Override
+        public Datum apply(Summary arg) {
+          // Signal doesn't handle Summary value.
+          // TODO(mayurkale): decide what to do with Summary value.
+          logger.log(Level.INFO, "Summary type is not supported.");
+          Datum.Builder builder = Datum.newBuilder();
+          return builder.build();
+        }
+      };
 
   private SignalFxSessionAdaptor() {}
 
   /**
-   * Converts the given view data into datapoints that can be sent to SignalFx.
+   * Converts the given Metric into datapoints that can be sent to SignalFx.
    *
-   * <p>The view name is used as the metric name, and the aggregation type and aggregation window
-   * type determine the metric type.
-   *
-   * @param data The {@link ViewData} containing the aggregation data of each combination of tag
-   *     values.
-   * @return A list of datapoints for the corresponding metric timeseries of this view's metric.
+   * @param metric The {@link Metric} containing the timeseries of each combination of label values.
+   * @return A list of datapoints for the corresponding metric timeseries of this metric.
    */
-  static List<DataPoint> adapt(ViewData data) {
-    View view = data.getView();
-    List<TagKey> keys = view.getColumns();
-
-    MetricType metricType = getMetricTypeForAggregation(view.getAggregation(), view.getWindow());
+  static List<DataPoint> adapt(Metric metric) {
+    MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
+    MetricType metricType = getType(metricDescriptor.getType());
     if (metricType == null) {
       return Collections.emptyList();
     }
 
-    List<DataPoint> datapoints = new ArrayList<>(data.getAggregationMap().size());
-    for (Map.Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
-        data.getAggregationMap().entrySet()) {
-      datapoints.add(
-          DataPoint.newBuilder()
-              .setMetric(view.getName().asString())
-              .setMetricType(metricType)
-              .addAllDimensions(createDimensions(keys, entry.getKey()))
-              .setValue(createDatum(entry.getValue()))
-              .build());
+    DataPoint.Builder shared = DataPoint.newBuilder();
+    shared.setMetric(metricDescriptor.getName());
+    shared.setMetricType(metricType);
+
+    ArrayList<DataPoint> datapoints = Lists.newArrayList();
+    for (TimeSeries timeSeries : metric.getTimeSeriesList()) {
+      DataPoint.Builder builder = shared.clone();
+      builder.addAllDimensions(
+          createDimensions(metricDescriptor.getLabelKeys(), timeSeries.getLabelValues()));
+
+      List<Point> points = timeSeries.getPoints();
+      datapoints.ensureCapacity(datapoints.size() + points.size());
+      for (Point point : points) {
+        datapoints.add(builder.setValue(createDatum(point.getValue())).build());
+      }
     }
     return datapoints;
   }
 
   @VisibleForTesting
   @javax.annotation.Nullable
-  static MetricType getMetricTypeForAggregation(
-      Aggregation aggregation, View.AggregationWindow window) {
-    if (aggregation instanceof Aggregation.Mean || aggregation instanceof Aggregation.LastValue) {
+  static MetricType getType(Type type) {
+    if (type == Type.GAUGE_INT64 || type == Type.GAUGE_DOUBLE) {
       return MetricType.GAUGE;
-    } else if (aggregation instanceof Aggregation.Count || aggregation instanceof Aggregation.Sum) {
-      if (window instanceof View.AggregationWindow.Cumulative) {
-        return MetricType.CUMULATIVE_COUNTER;
-      }
-      // TODO(mpetazzoni): support incremental counters when AggregationWindow.Interval is ready
+    } else if (type == Type.CUMULATIVE_INT64 || type == Type.CUMULATIVE_DOUBLE) {
+      return MetricType.CUMULATIVE_COUNTER;
     }
-
-    // TODO(mpetazzoni): add support for histograms (Aggregation.Distribution).
+    // TODO(mayurkale): decide what to do with Distribution and Summary types.
     return null;
   }
 
   @VisibleForTesting
-  static Iterable<Dimension> createDimensions(
-      List<TagKey> keys, List</*@Nullable*/ TagValue> values) {
-    Preconditions.checkArgument(
-        keys.size() == values.size(), "TagKeys and TagValues don't have the same size.");
+  static Iterable<Dimension> createDimensions(List<LabelKey> keys, List<LabelValue> values) {
     List<Dimension> dimensions = new ArrayList<>(keys.size());
-    for (ListIterator<TagKey> it = keys.listIterator(); it.hasNext(); ) {
-      TagKey key = it.next();
-      TagValue value = values.get(it.previousIndex());
-      if (value == null || Strings.isNullOrEmpty(value.asString())) {
+    for (int i = 0; i < values.size(); i++) {
+      LabelValue value = values.get(i);
+      if (Strings.isNullOrEmpty(value.getValue())) {
         continue;
       }
-      dimensions.add(createDimension(key, value));
+      dimensions.add(createDimension(keys.get(i), value));
     }
     return dimensions;
   }
 
   @VisibleForTesting
-  static Dimension createDimension(TagKey key, TagValue value) {
-    return Dimension.newBuilder().setKey(key.getName()).setValue(value.asString()).build();
+  static Dimension createDimension(LabelKey labelKey, LabelValue labelValue) {
+    Dimension.Builder builder = Dimension.newBuilder();
+    String value = labelValue.getValue();
+    if (!Strings.isNullOrEmpty(value)) {
+      builder.setKey(labelKey.getKey()).setValue(value);
+    }
+    return builder.build();
   }
 
   @VisibleForTesting
-  static Datum createDatum(AggregationData data) {
-    final Datum.Builder builder = Datum.newBuilder();
-    data.match(
-        new Function<SumDataDouble, Void>() {
-          @Override
-          public Void apply(SumDataDouble arg) {
-            builder.setDoubleValue(arg.getSum());
-            return null;
-          }
-        },
-        new Function<SumDataLong, Void>() {
-          @Override
-          public Void apply(SumDataLong arg) {
-            builder.setIntValue(arg.getSum());
-            return null;
-          }
-        },
-        new Function<CountData, Void>() {
-          @Override
-          public Void apply(CountData arg) {
-            builder.setIntValue(arg.getCount());
-            return null;
-          }
-        },
-        new Function<DistributionData, Void>() {
-          @Override
-          public Void apply(DistributionData arg) {
-            // TODO(mpetazzoni): add histogram support.
-            throw new IllegalArgumentException("Distribution aggregations are not supported");
-          }
-        },
-        new Function<LastValueDataDouble, Void>() {
-          @Override
-          public Void apply(LastValueDataDouble arg) {
-            builder.setDoubleValue(arg.getLastValue());
-            return null;
-          }
-        },
-        new Function<LastValueDataLong, Void>() {
-          @Override
-          public Void apply(LastValueDataLong arg) {
-            builder.setIntValue(arg.getLastValue());
-            return null;
-          }
-        },
-        new Function<AggregationData, Void>() {
-          @Override
-          public Void apply(AggregationData arg) {
-            // TODO(songya): remove this once Mean aggregation is completely removed. Before that
-            // we need to continue supporting Mean, since it could still be used by users and some
-            // deprecated RPC views.
-            if (arg instanceof AggregationData.MeanData) {
-              builder.setDoubleValue(((AggregationData.MeanData) arg).getMean());
-              return null;
-            }
-            throw new IllegalArgumentException("Unknown Aggregation.");
-          }
-        });
-    return builder.build();
+  static Datum createDatum(Value value) {
+    return value.match(
+        datumDoubleFunction,
+        datumLongFunction,
+        datumDistributionFunction,
+        datumSummaryFunction,
+        Functions.<Datum>throwIllegalArgumentException());
   }
 }
