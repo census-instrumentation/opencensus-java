@@ -125,7 +125,9 @@ final class StackdriverExportUtils {
         public BucketOptions apply(ExplicitOptions arg) {
           BucketOptions.Builder builder = BucketOptions.newBuilder();
           Explicit.Builder explicitBuilder = Explicit.newBuilder();
-          // The first bucket bound should be 0.0.
+          // The first bucket bound should be 0.0 because the Metrics first bucket is
+          // [0, first_bound) but Stackdriver monitoring bucket bounds begin with -infinity
+          // (first bucket is (-infinity, 0))
           explicitBuilder.addBounds(0.0);
           explicitBuilder.addAllBounds(arg.getBucketBoundaries());
           builder.setExplicitBuckets(explicitBuilder.build());
@@ -337,8 +339,8 @@ final class StackdriverExportUtils {
   // Convert a OpenCensus Buckets to a list of counts
   private static List<Long> createBucketCounts(List<Bucket> buckets) {
     List<Long> bucketCounts = new ArrayList<>();
-    // The first bucket (underflow bucket) should always be 0 count.
-    // More Info : https://cloud.google.com/monitoring/api/ref_v3/rest/v3/TimeSeries
+    // The first bucket (underflow bucket) should always be 0 count because the Metrics first bucket
+    // is [0, first_bound) but StackDriver distribution consists of an underflow bucket (number 0).
     bucketCounts.add(0L);
     for (Bucket bucket : buckets) {
       bucketCounts.add(bucket.getCount());
