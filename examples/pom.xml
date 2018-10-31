@@ -11,7 +11,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- change to the version you want to use. -->
     <opencensus.version>0.16.1</opencensus.version><!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
-    <grpc.version>1.13.1</grpc.version><!-- CURRENT_GRPC_VERSION -->
+    <grpc.version>1.16.1</grpc.version><!-- CURRENT_GRPC_VERSION -->
   </properties>
   <dependencies>
     <dependency>
@@ -67,7 +67,7 @@
     <dependency>
       <groupId>io.prometheus</groupId>
       <artifactId>simpleclient_httpserver</artifactId>
-      <version>0.3.0</version>
+      <version>0.5.0</version>
     </dependency>
     <dependency>
       <groupId>io.opencensus</groupId>
