@@ -161,3 +161,11 @@ java_binary(
         ":opencensus_examples",
     ],
 )
+
+java_binary(
+    name = "StackdriverExample",
+    main_class = "io.opencensus.examples.stats.StackdriverExample",
+    runtime_deps = [
+        ":opencensus_examples",
+    ],
+)

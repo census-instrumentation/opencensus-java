@@ -148,6 +148,13 @@ task repl(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
 }
 
+task stackdriverStatsExample(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.stats.StackdriverExample'
+    applicationName = 'StackdriverExample'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
 applicationDistribution.into('bin') {
     from(multiSpansTracing)
     from(multiSpansScopedTracing)
@@ -158,5 +165,6 @@ applicationDistribution.into('bin') {
     from(helloWorldServer)
     from(helloWorldClient)
     from(repl)
+    from(stackdriverStatsExample)
     fileMode = 0755
 }
