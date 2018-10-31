@@ -68,8 +68,8 @@ final class NoopStats {
    *
    * @return a {@code MeasureMap} that ignores all calls to {@code MeasureMap#put}.
    */
-  static MeasureMap getNoopMeasureMap() {
-    return NoopMeasureMap.INSTANCE;
+  static MeasureMap newNoopMeasureMap() {
+    return new NoopMeasureMap();
   }
 
   /**
@@ -118,14 +118,13 @@ final class NoopStats {
 
     @Override
     public MeasureMap newMeasureMap() {
-      return getNoopMeasureMap();
+      return newNoopMeasureMap();
     }
   }
 
   @Immutable
   private static final class NoopMeasureMap extends MeasureMap {
     private static final Logger logger = Logger.getLogger(NoopMeasureMap.class.getName());
-    static final MeasureMap INSTANCE = new NoopMeasureMap();
     private volatile boolean hasUnsupportedValues;
 
     @Override
