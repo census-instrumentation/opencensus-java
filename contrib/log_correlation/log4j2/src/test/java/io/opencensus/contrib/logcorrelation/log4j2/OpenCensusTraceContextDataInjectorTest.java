@@ -53,20 +53,18 @@ public final class OpenCensusTraceContextDataInjectorTest {
 
   @Test
   public void traceIdKey() {
-    assertThat(OpenCensusTraceContextDataInjector.TRACE_ID_CONTEXT_KEY)
-        .isEqualTo("opencensusTraceId");
+    assertThat(OpenCensusTraceContextDataInjector.TRACE_ID_CONTEXT_KEY).isEqualTo("traceId");
   }
 
   @Test
   public void spanIdKey() {
-    assertThat(OpenCensusTraceContextDataInjector.SPAN_ID_CONTEXT_KEY)
-        .isEqualTo("opencensusSpanId");
+    assertThat(OpenCensusTraceContextDataInjector.SPAN_ID_CONTEXT_KEY).isEqualTo("spanId");
   }
 
   @Test
   public void traceSampledKey() {
     assertThat(OpenCensusTraceContextDataInjector.TRACE_SAMPLED_CONTEXT_KEY)
-        .isEqualTo("opencensusTraceSampled");
+        .isEqualTo("traceSampled");
   }
 
   @Test
@@ -115,11 +113,11 @@ public final class OpenCensusTraceContextDataInjectorTest {
             "value1",
             "property2",
             "value2",
-            "opencensusTraceId",
+            "traceId",
             "00000000000000000000000000000000",
-            "opencensusSpanId",
+            "spanId",
             "0000000000000000",
-            "opencensusTraceSampled",
+            "traceSampled",
             "false");
   }
 
@@ -140,11 +138,11 @@ public final class OpenCensusTraceContextDataInjectorTest {
   private static void assertContainsOnlyDefaultTracingEntries(StringMap stringMap) {
     assertThat(stringMap.toMap())
         .containsExactly(
-            "opencensusTraceId",
+            "traceId",
             "00000000000000000000000000000000",
-            "opencensusSpanId",
+            "spanId",
             "0000000000000000",
-            "opencensusTraceSampled",
+            "traceSampled",
             "false");
   }
 
@@ -167,11 +165,11 @@ public final class OpenCensusTraceContextDataInjectorTest {
             .containsExactly(
                 "myTestKey",
                 "myTestValue",
-                "opencensusTraceId",
+                "traceId",
                 "e17944156660f55b8cae5ce3f45d4a40",
-                "opencensusSpanId",
+                "spanId",
                 "fc3d2ba0d283b66a",
-                "opencensusTraceSampled",
+                "traceSampled",
                 "true");
       } finally {
         ThreadContext.remove(key);

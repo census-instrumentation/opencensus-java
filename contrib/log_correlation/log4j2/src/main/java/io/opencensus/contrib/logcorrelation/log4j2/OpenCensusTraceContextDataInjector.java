@@ -44,9 +44,9 @@ import org.apache.logging.log4j.util.StringMap;
  * Layout</a>:
  *
  * <ul>
- *   <li><code>%X{opencensusTraceId}</code>
- *   <li><code>%X{opencensusSpanId}</code>
- *   <li><code>%X{opencensusTraceSampled}</code>
+ *   <li><code>%X{traceId}</code>
+ *   <li><code>%X{spanId}</code>
+ *   <li><code>%X{traceSampled}</code>
  * </ul>
  *
  * <p>This feature is currently experimental.
@@ -64,21 +64,21 @@ public final class OpenCensusTraceContextDataInjector implements ContextDataInje
    *
    * @since 0.16
    */
-  public static final String TRACE_ID_CONTEXT_KEY = "opencensusTraceId";
+  public static final String TRACE_ID_CONTEXT_KEY = "traceId";
 
   /**
    * Context key for the current span ID. The name is {@value}.
    *
    * @since 0.16
    */
-  public static final String SPAN_ID_CONTEXT_KEY = "opencensusSpanId";
+  public static final String SPAN_ID_CONTEXT_KEY = "spanId";
 
   /**
    * Context key for the sampling decision of the current span. The name is {@value}.
    *
    * @since 0.16
    */
-  public static final String TRACE_SAMPLED_CONTEXT_KEY = "opencensusTraceSampled";
+  public static final String TRACE_SAMPLED_CONTEXT_KEY = "traceSampled";
 
   /**
    * Name of the property that defines the {@link SpanSelection}. The name is {@value}.

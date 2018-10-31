@@ -1,10 +1,5 @@
 # OpenCensus Log4j 2 Log Correlation
 
-This subproject is currently experimental, so it may be redesigned or removed in the future.  It
-will remain experimental until we have a specification for a log correlation feature in
-[opencensus-specs](https://github.com/census-instrumentation/opencensus-specs/)
-(issue [#123](https://github.com/census-instrumentation/opencensus-specs/issues/123)).
-
 The `opencensus-contrib-log-correlation-log4j2` artifact provides a
 [Log4j 2](https://logging.apache.org/log4j/2.x/)
 [`ContextDataInjector`](https://logging.apache.org/log4j/2.x/manual/extending.html#Custom_ContextDataInjector)
@@ -69,16 +64,16 @@ The allowed values are:
 `opencensus-contrib-log-correlation-log4j2` adds the following key-value pairs to the `LogEvent`
 context:
 
-* `opencensusTraceId` - the lowercase base16 encoding of the current trace ID
-* `opencensusSpanId` - the lowercase base16 encoding of the current span ID
-* `opencensusTraceSampled` - the sampling decision of the current span ("true" or "false")
+* `traceId` - the lowercase base16 encoding of the current trace ID
+* `spanId` - the lowercase base16 encoding of the current span ID
+* `traceSampled` - the sampling decision of the current span ("true" or "false")
 
 These values can be accessed from layouts with
 [Context Map Lookup](http://logging.apache.org/log4j/2.x/manual/lookups.html#ContextMapLookup).  For
-example, the trace ID can be accessed with `$${ctx:opencensusTraceId}`.  The values can also be
-accessed with the `X` conversion character in
+example, the trace ID can be accessed with `$${ctx:traceId}`.  The values can also be accessed with
+the `X` conversion character in
 [`PatternLayout`](http://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout), for
-example, `%X{opencensusTraceId}`.
+example, `%X{traceId}`.
 
 See an example Log4j configuration file in the demo:
 https://github.com/census-ecosystem/opencensus-experiments/tree/master/java/log_correlation/log4j2/src/main/resources/log4j2.xml
