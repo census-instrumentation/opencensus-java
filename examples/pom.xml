@@ -146,6 +146,10 @@
               <id>Repl</id>
               <mainClass>io.opencensus.examples.quickstart.Repl</mainClass>
             </program>
+            <program>
+              <id>StackdriverExample</id>
+              <mainClass>io.opencensus.examples.stats.StackdriverExample</mainClass>
+            </program>
           </programs>
         </configuration>
       </plugin>

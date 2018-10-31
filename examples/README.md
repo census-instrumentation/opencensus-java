@@ -140,3 +140,22 @@ $ prometheus --config.file=prometheus.yaml
 ```
 
 Stats will be shown on Prometheus UI on http://localhost:9090.
+
+## To run "StackdriverExample" use
+
+See the full tutorial on [OpenCensus website](https://opencensus.io/guides/exporters/supported-exporters/java/stackdriver/).
+
+### Gradle
+```
+$ ./build/install/opencensus-examples/bin/StackdriverExample
+```
+
+### Maven
+```
+$ ./target/appassembler/bin/StackdriverExample
+```
+
+### Bazel
+```
+$ ./bazel-bin/StackdriverExample
+```
