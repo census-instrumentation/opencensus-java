@@ -21,6 +21,8 @@ import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -31,6 +33,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @AutoValue
 public abstract class BucketBoundaries {
+
+  private static final Logger logger = Logger.getLogger(BucketBoundaries.class.getName());
 
   /**
    * Returns a {@code BucketBoundaries} with the given buckets.
@@ -46,14 +50,43 @@ public abstract class BucketBoundaries {
     List<Double> bucketBoundariesCopy = new ArrayList<Double>(bucketBoundaries); // Deep copy.
     // Check if sorted.
     if (bucketBoundariesCopy.size() > 1) {
-      double lower = bucketBoundariesCopy.get(0);
+      double previous = bucketBoundariesCopy.get(0);
       for (int i = 1; i < bucketBoundariesCopy.size(); i++) {
         double next = bucketBoundariesCopy.get(i);
-        Utils.checkArgument(lower < next, "Bucket boundaries not sorted.");
-        lower = next;
+        Utils.checkArgument(previous < next, "Bucket boundaries not sorted.");
+        previous = next;
       }
     }
-    return new AutoValue_BucketBoundaries(Collections.unmodifiableList(bucketBoundariesCopy));
+    return new AutoValue_BucketBoundaries(
+        Collections.unmodifiableList(dropNegativeBucketBounds(bucketBoundariesCopy)));
+  }
+
+  private static List<Double> dropNegativeBucketBounds(List<Double> bucketBoundaries) {
+    // Negative values (BucketBounds) are currently not supported by any of the backends
+    // that OC supports.
+    int negativeBucketBounds = 0;
+    int zeroBucketBounds = 0;
+    for (Double value : bucketBoundaries) {
+      if (value <= 0) {
+        if (value == 0) {
+          zeroBucketBounds++;
+        } else {
+          negativeBucketBounds++;
+        }
+      } else {
+        break;
+      }
+    }
+
+    if (negativeBucketBounds > 0) {
+      logger.log(
+          Level.WARNING,
+          "Dropping "
+              + negativeBucketBounds
+              + " negative bucket boundaries, the values must be strictly > 0.");
+    }
+    return bucketBoundaries.subList(
+        negativeBucketBounds + zeroBucketBounds, bucketBoundaries.size());
   }
 
   /**

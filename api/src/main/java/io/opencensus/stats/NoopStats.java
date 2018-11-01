@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -66,8 +68,8 @@ final class NoopStats {
    *
    * @return a {@code MeasureMap} that ignores all calls to {@code MeasureMap#put}.
    */
-  static MeasureMap getNoopMeasureMap() {
-    return NoopMeasureMap.INSTANCE;
+  static MeasureMap newNoopMeasureMap() {
+    return new NoopMeasureMap();
   }
 
   /**
@@ -116,21 +118,27 @@ final class NoopStats {
 
     @Override
     public MeasureMap newMeasureMap() {
-      return getNoopMeasureMap();
+      return newNoopMeasureMap();
     }
   }
 
-  @Immutable
   private static final class NoopMeasureMap extends MeasureMap {
-    static final MeasureMap INSTANCE = new NoopMeasureMap();
+    private static final Logger logger = Logger.getLogger(NoopMeasureMap.class.getName());
+    private boolean hasUnsupportedValues;
 
     @Override
     public MeasureMap put(MeasureDouble measure, double value) {
+      if (value < 0) {
+        hasUnsupportedValues = true;
+      }
       return this;
     }
 
     @Override
     public MeasureMap put(MeasureLong measure, long value) {
+      if (value < 0) {
+        hasUnsupportedValues = true;
+      }
       return this;
     }
 
@@ -140,6 +148,11 @@ final class NoopStats {
     @Override
     public void record(TagContext tags) {
       Utils.checkNotNull(tags, "tags");
+
+      if (hasUnsupportedValues) {
+        // drop all the recorded values
+        logger.log(Level.WARNING, "Dropping values, value to record must be non-negative.");
+      }
     }
   }
 

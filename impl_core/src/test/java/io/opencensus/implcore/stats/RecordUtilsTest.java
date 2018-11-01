@@ -111,6 +111,6 @@ public class RecordUtilsTest {
     assertThat(mutableDistribution.getMin()).isPositiveInfinity();
     assertThat(mutableDistribution.getMax()).isNegativeInfinity();
     assertThat(mutableDistribution.getSumOfSquaredDeviations()).isWithin(EPSILON).of(0);
-    assertThat(mutableDistribution.getBucketCounts()).isEqualTo(new long[4]);
+    assertThat(mutableDistribution.getBucketCounts()).isEqualTo(new long[2]);
   }
 }

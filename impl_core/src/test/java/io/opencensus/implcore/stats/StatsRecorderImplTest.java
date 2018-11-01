@@ -170,8 +170,6 @@ public final class StatsRecorderImplTest {
         (DistributionData) viewData.getAggregationMap().get(Collections.singletonList(VALUE));
     List<Exemplar> expected =
         Arrays.asList(
-            Exemplar.create(-20.0, Timestamp.create(4, 0), Collections.singletonMap("k3", "v1")),
-            Exemplar.create(-5.0, Timestamp.create(5, 0), Collections.singletonMap("k3", "v3")),
             Exemplar.create(1.0, Timestamp.create(2, 0), Collections.singletonMap("k2", "v2")),
             Exemplar.create(12.0, Timestamp.create(3, 0), Collections.singletonMap("k1", "v3")));
     assertThat(distributionData.getExemplars()).containsExactlyElementsIn(expected).inOrder();
@@ -209,7 +207,7 @@ public final class StatsRecorderImplTest {
     CountData countData =
         (CountData) viewData.getAggregationMap().get(Collections.singletonList(VALUE));
     // Recording exemplar does not affect views with an aggregation other than distribution.
-    assertThat(countData.getCount()).isEqualTo(6L);
+    assertThat(countData.getCount()).isEqualTo(2L);
   }
 
   private void recordWithAttachments() {

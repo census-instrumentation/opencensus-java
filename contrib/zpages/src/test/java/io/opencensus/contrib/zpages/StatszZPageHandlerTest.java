@@ -82,7 +82,7 @@ public class StatszZPageHandlerTest {
           0.2,
           16.3,
           234.56,
-          Arrays.asList(0L, 1L, 1L, 2L, 1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L));
+          Arrays.asList(1L, 1L, 2L, 1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L));
   private static final AggregationData.DistributionData DISTRIBUTION_DATA_2 =
       AggregationData.DistributionData.create(
           7.9,

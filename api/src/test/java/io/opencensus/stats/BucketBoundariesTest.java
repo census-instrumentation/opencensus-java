@@ -37,8 +37,24 @@ public class BucketBoundariesTest {
   @Test
   public void testConstructBoundaries() {
     List<Double> buckets = Arrays.asList(0.0, 1.0, 2.0);
+    List<Double> expectedBuckets = Arrays.asList(1.0, 2.0);
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(buckets);
-    assertThat(bucketBoundaries.getBoundaries()).isEqualTo(buckets);
+    assertThat(bucketBoundaries.getBoundaries()).isEqualTo(expectedBuckets);
+  }
+
+  @Test
+  public void testConstructBoundaries_IgnoreNegativeBounds() {
+    List<Double> buckets = Arrays.asList(-5.0, -1.0, 1.0, 2.0);
+    List<Double> expectedBuckets = Arrays.asList(1.0, 2.0);
+    BucketBoundaries bucketBoundaries = BucketBoundaries.create(buckets);
+    assertThat(bucketBoundaries.getBoundaries()).isEqualTo(expectedBuckets);
+  }
+
+  @Test
+  public void testConstructBoundaries_IgnoreZeroAndNegativeBounds() {
+    List<Double> buckets = Arrays.asList(-5.0, -2.0, -1.0, 0.0);
+    BucketBoundaries bucketBoundaries = BucketBoundaries.create(buckets);
+    assertThat(bucketBoundaries.getBoundaries()).isEmpty();
   }
 
   @Test
@@ -50,7 +66,7 @@ public class BucketBoundariesTest {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(original);
     original.set(2, 3.0);
     original.add(4.0);
-    List<Double> expected = Arrays.asList(0.0, 1.0, 2.0);
+    List<Double> expected = Arrays.asList(1.0, 2.0);
     assertThat(bucketBoundaries.getBoundaries()).isNotEqualTo(original);
     assertThat(bucketBoundaries.getBoundaries()).isEqualTo(expected);
   }

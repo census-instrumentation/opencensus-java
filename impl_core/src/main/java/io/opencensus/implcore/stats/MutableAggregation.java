@@ -429,8 +429,6 @@ abstract class MutableAggregation {
         buckets.add(metricBucket);
       }
 
-      // TODO(mayurkale): Drop the first bucket when converting to metrics.
-      // Reason: In Stats API, bucket bounds begin with -infinity (first bucket is (-infinity, 0)).
       BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBoundaries.getBoundaries());
 
       return Point.create(
