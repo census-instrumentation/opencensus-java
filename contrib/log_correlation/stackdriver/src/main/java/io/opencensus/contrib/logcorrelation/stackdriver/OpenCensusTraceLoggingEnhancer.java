@@ -36,7 +36,6 @@ import javax.annotation.Nullable;
  */
 @ExperimentalApi
 public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
-  private static final String SAMPLED_LABEL_KEY = "opencensusTraceSampled";
 
   /**
    * Name of the property that overrides the default project ID (overrides the value returned by
@@ -120,8 +119,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
     builder.setTrace(formatTraceId(tracePrefix, span.getTraceId()));
     builder.setSpanId(span.getSpanId().toLowerBase16());
 
-    // TODO(sebright): Find the correct way to add the sampling decision.
-    builder.addLabel(SAMPLED_LABEL_KEY, Boolean.toString(span.getTraceOptions().isSampled()));
+    // TODO(sebright): Add the sampling decision once google-cloud-logging supports it.
   }
 
   private static String formatTraceId(String tracePrefix, TraceId traceId) {
