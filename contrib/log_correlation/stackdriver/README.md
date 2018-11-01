@@ -59,21 +59,6 @@ To override the project ID, set the following property as a system property or a
 
 `io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.projectId`
 
-#### Choosing when to add tracing data to log entries
-
-The following property controls the decision to add tracing data from the current span to a log
-entry:
-
-`io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.spanSelection`
-
-The allowed values are:
-
-* `ALL_SPANS`: adds tracing data to all log entries (default)
-
-* `NO_SPANS`: disables the log correlation feature
-
-* `SAMPLED_SPANS`: adds tracing data to log entries when the current span is sampled
-
 Other aspects of configuring the `OpenCensusTraceLoggingEnhancer` depend on the logging
 implementation and `google-cloud-logging` adapter in use.
 
@@ -82,16 +67,14 @@ implementation and `google-cloud-logging` adapter in use.
 The `LoggingAppender` should already be configured in `logback.xml` as described in
 https://cloud.google.com/logging/docs/setup/java#logback_appender. Add
 "`io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer`" to the list of
-enhancers. Optionally, set the `spanSelection` and `projectId` properties described above as system
-properties.
+enhancers. Optionally, set the `projectId` property described above as a system property.
 
 Here is an example `logback.xml`, based on the
 [`google-cloud-logging-logback` example](https://github.com/GoogleCloudPlatform/java-docs-samples/blob/a2b04b20d81ee631439a9368fb99b44849519e28/logging/logback/src/main/resources/logback.xml).
-It specifies the `LoggingEnhancer` class and sets both optional properties:
+It specifies the `LoggingEnhancer` class and sets the optional project ID property:
 
 ```xml
 <configuration>
-  <property scope="system" name="io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.spanSelection" value="SAMPLED_SPANS" />
   <property scope="system" name="io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.projectId" value="my-project-id" />
   <appender name="CLOUD" class="com.google.cloud.logging.logback.LoggingAppender">
     <enhancer>io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer</enhancer>
@@ -112,12 +95,11 @@ for a full example.
 The `LoggingHandler` should already be configured in a logging `.properties` file, as described in
 https://cloud.google.com/logging/docs/setup/java#jul_handler. Add
 "`io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer`" to the list of
-enhancers. Optionally, set the `spanSelection` and `projectId` properties described above in the
-properties file.
+enhancers. Optionally, set the `projectId` property described above in the properties file.
 
 Here is an example `.properties` file, based on the
 [`google-cloud-logging` example](https://github.com/GoogleCloudPlatform/java-docs-samples/blob/a2b04b20d81ee631439a9368fb99b44849519e28/logging/jul/src/main/resources/logging.properties).
-It specifies the `LoggingEnhancer` class and sets both optional properties:
+It specifies the `LoggingEnhancer` class and sets the optional project ID property:
 
 ```properties
 .level = INFO
@@ -125,7 +107,6 @@ It specifies the `LoggingEnhancer` class and sets both optional properties:
 com.example.MyClass.handlers=com.google.cloud.logging.LoggingHandler
 
 com.google.cloud.logging.LoggingHandler.enhancers=io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer
-io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.spanSelection=SAMPLED_SPANS
 io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.projectId=my-project-id
 ```
 

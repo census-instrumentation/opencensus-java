@@ -37,7 +37,6 @@ import javax.annotation.Nullable;
 @ExperimentalApi
 public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   private static final String SAMPLED_LABEL_KEY = "opencensusTraceSampled";
-  private static final SpanSelection DEFAULT_SPAN_SELECTION = SpanSelection.ALL_SPANS;
 
   /**
    * Name of the property that overrides the default project ID (overrides the value returned by
@@ -48,80 +47,35 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   public static final String PROJECT_ID_PROPERTY_NAME =
       "io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.projectId";
 
-  /**
-   * Name of the property that defines the {@link SpanSelection}. The name is {@value}.
-   *
-   * @since 0.15
-   */
-  public static final String SPAN_SELECTION_PROPERTY_NAME =
-      "io.opencensus.contrib.logcorrelation.stackdriver."
-          + "OpenCensusTraceLoggingEnhancer.spanSelection";
-
   private final String projectId;
-  private final SpanSelection spanSelection;
 
   // This field caches the prefix used for the LogEntry.trace field and is derived from projectId.
   private final String tracePrefix;
 
   /**
-   * How to decide whether to add tracing data from the current span to a log entry.
-   *
-   * @since 0.15
-   */
-  public enum SpanSelection {
-
-    /**
-     * Never add tracing data to log entries. This constant disables the log correlation feature.
-     *
-     * @since 0.15
-     */
-    NO_SPANS,
-
-    /**
-     * Add tracing data to a log entry iff the current span is sampled.
-     *
-     * @since 0.15
-     */
-    SAMPLED_SPANS,
-
-    /**
-     * Always add tracing data to log entries, even when the current span is not sampled. This is
-     * the default.
-     *
-     * @since 0.15
-     */
-    ALL_SPANS
-  }
-
-  /**
    * Constructor to be called by reflection, e.g., by a google-cloud-java {@code LoggingHandler} or
    * google-cloud-logging-logback {@code LoggingAppender}.
    *
-   * <p>This constructor looks up the project ID and {@link SpanSelection SpanSelection} from the
-   * environment. It uses the default project ID (the value returned by {@code
-   * com.google.cloud.ServiceOptions.getDefaultProjectId()}), unless the ID is overridden by the
-   * property {@value #PROJECT_ID_PROPERTY_NAME}. It looks up the {@code SpanSelection} using the
-   * property {@value #SPAN_SELECTION_PROPERTY_NAME}. Each property can be specified with a {@link
-   * java.util.logging} property or a system property, with preference given to the logging
-   * property.
+   * <p>This constructor looks up the project ID from the environment. It uses the default project
+   * ID (the value returned by {@code com.google.cloud.ServiceOptions.getDefaultProjectId()}),
+   * unless the ID is overridden by the property {@value #PROJECT_ID_PROPERTY_NAME}. The property
+   * can be specified with a {@link java.util.logging} property or a system property, with
+   * preference given to the logging property.
    *
    * @since 0.15
    */
   public OpenCensusTraceLoggingEnhancer() {
-    this(lookUpProjectId(), lookUpSpanSelectionProperty());
+    this(lookUpProjectId());
   }
 
   /**
-   * Constructs a {@code OpenCensusTraceLoggingEnhancer} with the given project ID and {@code
-   * SpanSelection}.
+   * Constructs a {@code OpenCensusTraceLoggingEnhancer} with the given project ID.
    *
    * @param projectId the project ID for this instance.
-   * @param spanSelection the {@code SpanSelection} for this instance.
-   * @since 0.15
+   * @since 0.17
    */
-  public OpenCensusTraceLoggingEnhancer(@Nullable String projectId, SpanSelection spanSelection) {
+  public OpenCensusTraceLoggingEnhancer(@Nullable String projectId) {
     this.projectId = projectId == null ? "" : projectId;
-    this.spanSelection = spanSelection;
     this.tracePrefix = "projects/" + this.projectId + "/traces/";
   }
 
@@ -130,21 +84,6 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
     return projectIdProperty == null || projectIdProperty.isEmpty()
         ? ServiceOptions.getDefaultProjectId()
         : projectIdProperty;
-  }
-
-  private static SpanSelection lookUpSpanSelectionProperty() {
-    String spanSelectionProperty = lookUpProperty(SPAN_SELECTION_PROPERTY_NAME);
-    return spanSelectionProperty == null || spanSelectionProperty.isEmpty()
-        ? DEFAULT_SPAN_SELECTION
-        : parseSpanSelection(spanSelectionProperty);
-  }
-
-  private static SpanSelection parseSpanSelection(String spanSelection) {
-    try {
-      return SpanSelection.valueOf(spanSelection);
-    } catch (IllegalArgumentException e) {
-      return DEFAULT_SPAN_SELECTION;
-    }
   }
 
   // An OpenCensusTraceLoggingEnhancer property can be set with a logging property or a system
@@ -165,33 +104,10 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
     return projectId;
   }
 
-  /**
-   * Returns the {@code SpanSelection} setting for this instance.
-   *
-   * @return the {@code SpanSelection} setting for this instance.
-   * @since 0.15
-   */
-  public SpanSelection getSpanSelection() {
-    return spanSelection;
-  }
-
   // This method avoids getting the current span when the feature is disabled, for efficiency.
   @Override
   public void enhanceLogEntry(LogEntry.Builder builder) {
-    switch (spanSelection) {
-      case NO_SPANS:
-        return;
-      case SAMPLED_SPANS:
-        SpanContext span = getCurrentSpanContext();
-        if (span.getTraceOptions().isSampled()) {
-          addTracingData(tracePrefix, span, builder);
-        }
-        return;
-      case ALL_SPANS:
-        addTracingData(tracePrefix, getCurrentSpanContext(), builder);
-        return;
-    }
-    throw new AssertionError("Unknown spanSelection: " + spanSelection);
+    addTracingData(tracePrefix, getCurrentSpanContext(), builder);
   }
 
   private static SpanContext getCurrentSpanContext() {

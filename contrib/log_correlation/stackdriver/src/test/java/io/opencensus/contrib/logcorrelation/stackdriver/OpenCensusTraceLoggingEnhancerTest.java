@@ -23,7 +23,6 @@ import com.google.cloud.logging.LoggingEnhancer;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharSource;
 import io.opencensus.common.Scope;
-import io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.SpanSelection;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.BlankSpan;
@@ -58,41 +57,10 @@ public class OpenCensusTraceLoggingEnhancerTest {
   private static final Tracer tracer = Tracing.getTracer();
 
   @Test
-  public void enhanceLogEntry_DoNotAddSampledSpanToLogEntryWithNoSpans() {
+  public void enhanceLogEntry_AddSampledSpanToLogEntry() {
     LogEntry logEntry =
         getEnhancedLogEntry(
-            new OpenCensusTraceLoggingEnhancer("my-test-project-1", SpanSelection.NO_SPANS),
-            new TestSpan(
-                SpanContext.create(
-                    TraceId.fromLowerBase16("3da31be987098abb08c71c7700d2680e"),
-                    SpanId.fromLowerBase16("51b109f15e0d3881"),
-                    TraceOptions.builder().setIsSampled(true).build(),
-                    EMPTY_TRACESTATE)));
-    assertContainsNoTracingData(logEntry);
-  }
-
-  @Test
-  public void enhanceLogEntry_AddSampledSpanToLogEntryWithSampledSpans() {
-    LogEntry logEntry =
-        getEnhancedLogEntry(
-            new OpenCensusTraceLoggingEnhancer("my-test-project-2", SpanSelection.SAMPLED_SPANS),
-            new TestSpan(
-                SpanContext.create(
-                    TraceId.fromLowerBase16("4c9874d0b41224cce77ff74ee10f5ee6"),
-                    SpanId.fromLowerBase16("592ae363e92cb3dd"),
-                    TraceOptions.builder().setIsSampled(true).build(),
-                    EMPTY_TRACESTATE)));
-    assertThat(logEntry.getLabels()).containsEntry("opencensusTraceSampled", "true");
-    assertThat(logEntry.getTrace())
-        .isEqualTo("projects/my-test-project-2/traces/4c9874d0b41224cce77ff74ee10f5ee6");
-    assertThat(logEntry.getSpanId()).isEqualTo("592ae363e92cb3dd");
-  }
-
-  @Test
-  public void enhanceLogEntry_AddSampledSpanToLogEntryWithAllSpans() {
-    LogEntry logEntry =
-        getEnhancedLogEntry(
-            new OpenCensusTraceLoggingEnhancer("my-test-project-3", SpanSelection.ALL_SPANS),
+            new OpenCensusTraceLoggingEnhancer("my-test-project-3"),
             new TestSpan(
                 SpanContext.create(
                     TraceId.fromLowerBase16("4c6af40c499951eb7de2777ba1e4fefa"),
@@ -106,38 +74,10 @@ public class OpenCensusTraceLoggingEnhancerTest {
   }
 
   @Test
-  public void enhanceLogEntry_DoNotAddNonSampledSpanToLogEntryWithNoSpans() {
+  public void enhanceLogEntry_AddNonSampledSpanToLogEntry() {
     LogEntry logEntry =
         getEnhancedLogEntry(
-            new OpenCensusTraceLoggingEnhancer("my-test-project-4", SpanSelection.NO_SPANS),
-            new TestSpan(
-                SpanContext.create(
-                    TraceId.fromLowerBase16("88ab22b18b97369df065ca830e41cf6a"),
-                    SpanId.fromLowerBase16("8987d372039021fd"),
-                    TraceOptions.builder().setIsSampled(false).build(),
-                    EMPTY_TRACESTATE)));
-    assertContainsNoTracingData(logEntry);
-  }
-
-  @Test
-  public void enhanceLogEntry_DoNotAddNonSampledSpanToLogEntryWithSampledSpans() {
-    LogEntry logEntry =
-        getEnhancedLogEntry(
-            new OpenCensusTraceLoggingEnhancer("my-test-project-5", SpanSelection.SAMPLED_SPANS),
-            new TestSpan(
-                SpanContext.create(
-                    TraceId.fromLowerBase16("7f4703d9bb02f4f2e67fb840103cdd34"),
-                    SpanId.fromLowerBase16("2d7d95a555557434"),
-                    TraceOptions.builder().setIsSampled(false).build(),
-                    EMPTY_TRACESTATE)));
-    assertContainsNoTracingData(logEntry);
-  }
-
-  @Test
-  public void enhanceLogEntry_AddNonSampledSpanToLogEntryWithAllSpans() {
-    LogEntry logEntry =
-        getEnhancedLogEntry(
-            new OpenCensusTraceLoggingEnhancer("my-test-project-6", SpanSelection.ALL_SPANS),
+            new OpenCensusTraceLoggingEnhancer("my-test-project-6"),
             new TestSpan(
                 SpanContext.create(
                     TraceId.fromLowerBase16("72c905c76f99e99974afd84dc053a480"),
@@ -151,11 +91,10 @@ public class OpenCensusTraceLoggingEnhancerTest {
   }
 
   @Test
-  public void enhanceLogEntry_AddBlankSpanToLogEntryWithAllSpans() {
+  public void enhanceLogEntry_AddBlankSpanToLogEntry() {
     LogEntry logEntry =
         getEnhancedLogEntry(
-            new OpenCensusTraceLoggingEnhancer("my-test-project-7", SpanSelection.ALL_SPANS),
-            BlankSpan.INSTANCE);
+            new OpenCensusTraceLoggingEnhancer("my-test-project-7"), BlankSpan.INSTANCE);
     assertThat(logEntry.getLabels().get("opencensusTraceSampled")).isEqualTo("false");
     assertThat(logEntry.getTrace())
         .isEqualTo("projects/my-test-project-7/traces/00000000000000000000000000000000");
@@ -166,7 +105,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
   public void enhanceLogEntry_ConvertNullProjectIdToEmptyString() {
     LogEntry logEntry =
         getEnhancedLogEntry(
-            new OpenCensusTraceLoggingEnhancer(null, SpanSelection.ALL_SPANS),
+            new OpenCensusTraceLoggingEnhancer(null),
             new TestSpan(
                 SpanContext.create(
                     TraceId.fromLowerBase16("bfb4248a24325a905873a1d43001d9a0"),
@@ -187,30 +126,11 @@ public class OpenCensusTraceLoggingEnhancerTest {
     }
   }
 
-  private static void assertContainsNoTracingData(LogEntry logEntry) {
-    assertThat(logEntry.getLabels()).doesNotContainKey("opencensusTraceSampled");
-    assertThat(logEntry.getTrace()).isNull();
-    assertThat(logEntry.getSpanId()).isNull();
-  }
-
-  @Test
-  public void spanSelectionDefaultIsAllSpans() {
-    assertThat(new OpenCensusTraceLoggingEnhancer().getSpanSelection())
-        .isEqualTo(SpanSelection.ALL_SPANS);
-  }
-
   @Test
   @SuppressWarnings("TruthConstantAsserts")
   public void projectIdPropertyName() {
     assertThat(OpenCensusTraceLoggingEnhancer.PROJECT_ID_PROPERTY_NAME)
         .isEqualTo(OpenCensusTraceLoggingEnhancer.class.getName() + ".projectId");
-  }
-
-  @Test
-  @SuppressWarnings("TruthConstantAsserts")
-  public void spanSelectionPropertyName() {
-    assertThat(OpenCensusTraceLoggingEnhancer.SPAN_SELECTION_PROPERTY_NAME)
-        .isEqualTo(OpenCensusTraceLoggingEnhancer.class.getName() + ".spanSelection");
   }
 
   @Test
@@ -241,17 +161,6 @@ public class OpenCensusTraceLoggingEnhancerTest {
   }
 
   @Test
-  public void setSpanSelectionWithSystemProperty() {
-    try {
-      System.setProperty(OpenCensusTraceLoggingEnhancer.SPAN_SELECTION_PROPERTY_NAME, "NO_SPANS");
-      assertThat(new OpenCensusTraceLoggingEnhancer().getSpanSelection())
-          .isEqualTo(SpanSelection.NO_SPANS);
-    } finally {
-      System.clearProperty(OpenCensusTraceLoggingEnhancer.SPAN_SELECTION_PROPERTY_NAME);
-    }
-  }
-
-  @Test
   public void overrideProjectIdWithLoggingProperty() throws IOException {
     try {
       LogManager.getLogManager()
@@ -271,33 +180,19 @@ public class OpenCensusTraceLoggingEnhancerTest {
   }
 
   @Test
-  public void setSpanSelectionWithLoggingProperty() throws IOException {
-    try {
-      LogManager.getLogManager()
-          .readConfiguration(
-              stringToInputStream(
-                  OpenCensusTraceLoggingEnhancer.SPAN_SELECTION_PROPERTY_NAME + "=SAMPLED_SPANS"));
-      assertThat(new OpenCensusTraceLoggingEnhancer().getSpanSelection())
-          .isEqualTo(SpanSelection.SAMPLED_SPANS);
-    } finally {
-      LogManager.getLogManager().reset();
-    }
-  }
-
-  @Test
   public void loggingPropertyTakesPrecedenceOverSystemProperty() throws IOException {
     try {
       LogManager.getLogManager()
           .readConfiguration(
               stringToInputStream(
-                  OpenCensusTraceLoggingEnhancer.SPAN_SELECTION_PROPERTY_NAME + "=NO_SPANS"));
+                  OpenCensusTraceLoggingEnhancer.PROJECT_ID_PROPERTY_NAME + "=logging property"));
       try {
         System.setProperty(
-            OpenCensusTraceLoggingEnhancer.SPAN_SELECTION_PROPERTY_NAME, "SAMPLED_SPANS");
-        assertThat(new OpenCensusTraceLoggingEnhancer().getSpanSelection())
-            .isEqualTo(SpanSelection.NO_SPANS);
+            OpenCensusTraceLoggingEnhancer.PROJECT_ID_PROPERTY_NAME, "system property");
+        assertThat(new OpenCensusTraceLoggingEnhancer().getProjectId())
+            .isEqualTo("logging property");
       } finally {
-        System.clearProperty(OpenCensusTraceLoggingEnhancer.SPAN_SELECTION_PROPERTY_NAME);
+        System.clearProperty(OpenCensusTraceLoggingEnhancer.PROJECT_ID_PROPERTY_NAME);
       }
     } finally {
       LogManager.getLogManager().reset();
@@ -306,18 +201,6 @@ public class OpenCensusTraceLoggingEnhancerTest {
 
   private static InputStream stringToInputStream(String contents) throws IOException {
     return CharSource.wrap(contents).asByteSource(Charsets.UTF_8).openBufferedStream();
-  }
-
-  @Test
-  public void useDefaultValueForInvalidSpanSelection() {
-    try {
-      System.setProperty(
-          OpenCensusTraceLoggingEnhancer.SPAN_SELECTION_PROPERTY_NAME, "INVALID_SPAN_SELECTION");
-      assertThat(new OpenCensusTraceLoggingEnhancer().getSpanSelection())
-          .isEqualTo(SpanSelection.ALL_SPANS);
-    } finally {
-      System.clearProperty(OpenCensusTraceLoggingEnhancer.SPAN_SELECTION_PROPERTY_NAME);
-    }
   }
 
   private static final class TestSpan extends Span {
