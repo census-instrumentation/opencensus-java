@@ -63,6 +63,11 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
     this(lookUpProjectId());
   }
 
+  private OpenCensusTraceLoggingEnhancer(@Nullable String projectId) {
+    this.projectId = projectId == null ? "" : projectId;
+    this.tracePrefix = "projects/" + this.projectId + "/traces/";
+  }
+
   /**
    * Returns a {@code OpenCensusTraceLoggingEnhancer} with the given project ID.
    *
@@ -72,11 +77,6 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
    */
   public static OpenCensusTraceLoggingEnhancer create(@Nullable String projectId) {
     return new OpenCensusTraceLoggingEnhancer(projectId);
-  }
-
-  private OpenCensusTraceLoggingEnhancer(@Nullable String projectId) {
-    this.projectId = projectId == null ? "" : projectId;
-    this.tracePrefix = "projects/" + this.projectId + "/traces/";
   }
 
   private static String lookUpProjectId() {
