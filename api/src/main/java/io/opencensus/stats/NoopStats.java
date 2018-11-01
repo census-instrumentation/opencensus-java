@@ -122,10 +122,9 @@ final class NoopStats {
     }
   }
 
-  @Immutable
   private static final class NoopMeasureMap extends MeasureMap {
     private static final Logger logger = Logger.getLogger(NoopMeasureMap.class.getName());
-    private volatile boolean hasUnsupportedValues;
+    private boolean hasUnsupportedValues;
 
     @Override
     public MeasureMap put(MeasureDouble measure, double value) {
