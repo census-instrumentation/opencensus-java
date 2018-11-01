@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
 import io.opencensus.common.Scope;
-import io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.SpanSelection;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
@@ -45,13 +44,6 @@ public final class OpenCensusTraceContextDataInjectorTest {
   private final Tracer tracer = Tracing.getTracer();
 
   @Test
-  @SuppressWarnings("TruthConstantAsserts")
-  public void spanSelectionPropertyName() {
-    assertThat(OpenCensusTraceContextDataInjector.SPAN_SELECTION_PROPERTY_NAME)
-        .isEqualTo(OpenCensusTraceContextDataInjector.class.getName() + ".spanSelection");
-  }
-
-  @Test
   public void traceIdKey() {
     assertThat(OpenCensusTraceContextDataInjector.TRACE_ID_CONTEXT_KEY).isEqualTo("traceId");
   }
@@ -68,40 +60,9 @@ public final class OpenCensusTraceContextDataInjectorTest {
   }
 
   @Test
-  public void spanSelectionDefaultIsAllSpans() {
-    assertThat(new OpenCensusTraceContextDataInjector().getSpanSelection())
-        .isEqualTo(SpanSelection.ALL_SPANS);
-  }
-
-  @Test
-  public void setSpanSelectionWithSystemProperty() {
-    try {
-      System.setProperty(
-          OpenCensusTraceContextDataInjector.SPAN_SELECTION_PROPERTY_NAME, "NO_SPANS");
-      assertThat(new OpenCensusTraceContextDataInjector().getSpanSelection())
-          .isEqualTo(SpanSelection.NO_SPANS);
-    } finally {
-      System.clearProperty(OpenCensusTraceContextDataInjector.SPAN_SELECTION_PROPERTY_NAME);
-    }
-  }
-
-  @Test
-  public void useDefaultValueForInvalidSpanSelection() {
-    try {
-      System.setProperty(
-          OpenCensusTraceContextDataInjector.SPAN_SELECTION_PROPERTY_NAME,
-          "INVALID_SPAN_SELECTION");
-      assertThat(new OpenCensusTraceContextDataInjector().getSpanSelection())
-          .isEqualTo(SpanSelection.ALL_SPANS);
-    } finally {
-      System.clearProperty(OpenCensusTraceContextDataInjector.SPAN_SELECTION_PROPERTY_NAME);
-    }
-  }
-
-  @Test
   public void insertConfigurationProperties() {
     assertThat(
-            new OpenCensusTraceContextDataInjector(SpanSelection.ALL_SPANS)
+            new OpenCensusTraceContextDataInjector()
                 .injectContextData(
                     Lists.newArrayList(
                         Property.createProperty("property1", "value1"),
@@ -124,14 +85,14 @@ public final class OpenCensusTraceContextDataInjectorTest {
   @Test
   public void handleEmptyConfigurationProperties() {
     assertContainsOnlyDefaultTracingEntries(
-        new OpenCensusTraceContextDataInjector(SpanSelection.ALL_SPANS)
+        new OpenCensusTraceContextDataInjector()
             .injectContextData(Collections.<Property>emptyList(), new SortedArrayStringMap()));
   }
 
   @Test
   public void handleNullConfigurationProperties() {
     assertContainsOnlyDefaultTracingEntries(
-        new OpenCensusTraceContextDataInjector(SpanSelection.ALL_SPANS)
+        new OpenCensusTraceContextDataInjector()
             .injectContextData(null, new SortedArrayStringMap()));
   }
 
@@ -148,8 +109,7 @@ public final class OpenCensusTraceContextDataInjectorTest {
 
   @Test
   public void rawContextDataWithTracingData() {
-    OpenCensusTraceContextDataInjector plugin =
-        new OpenCensusTraceContextDataInjector(SpanSelection.ALL_SPANS);
+    OpenCensusTraceContextDataInjector plugin = new OpenCensusTraceContextDataInjector();
     SpanContext spanContext =
         SpanContext.create(
             TraceId.fromLowerBase16("e17944156660f55b8cae5ce3f45d4a40"),
@@ -171,30 +131,6 @@ public final class OpenCensusTraceContextDataInjectorTest {
                 "fc3d2ba0d283b66a",
                 "traceSampled",
                 "true");
-      } finally {
-        ThreadContext.remove(key);
-      }
-    } finally {
-      scope.close();
-    }
-  }
-
-  @Test
-  public void rawContextDataWithoutTracingData() {
-    OpenCensusTraceContextDataInjector plugin =
-        new OpenCensusTraceContextDataInjector(SpanSelection.NO_SPANS);
-    SpanContext spanContext =
-        SpanContext.create(
-            TraceId.fromLowerBase16("ea236000f6d387fe7c06c5a6d6458b53"),
-            SpanId.fromLowerBase16("f3b39dbbadb73074"),
-            TraceOptions.builder().setIsSampled(true).build(),
-            EMPTY_TRACESTATE);
-    Scope scope = tracer.withSpan(new TestSpan(spanContext));
-    try {
-      String key = "myTestKey";
-      ThreadContext.put(key, "myTestValue");
-      try {
-        assertThat(plugin.rawContextData().toMap()).containsExactly("myTestKey", "myTestValue");
       } finally {
         ThreadContext.remove(key);
       }
