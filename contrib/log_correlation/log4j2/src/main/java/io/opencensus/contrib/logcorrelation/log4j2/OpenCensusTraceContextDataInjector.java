@@ -16,7 +16,6 @@
 
 package io.opencensus.contrib.logcorrelation.log4j2;
 
-import io.opencensus.common.ExperimentalApi;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.logging.log4j.core.ContextDataInjector;
@@ -49,13 +48,10 @@ import org.apache.logging.log4j.util.StringMap;
  *   <li><code>%X{traceSampled}</code>
  * </ul>
  *
- * <p>This feature is currently experimental.
- *
  * @since 0.16
  * @see <a
  *     href="https://logging.apache.org/log4j/2.x/log4j-core/apidocs/org/apache/logging/log4j/core/ContextDataInjector.html">org.apache.logging.log4j.core.ContextDataInjector</a>
  */
-@ExperimentalApi
 public final class OpenCensusTraceContextDataInjector implements ContextDataInjector {
   private static final SpanSelection DEFAULT_SPAN_SELECTION = SpanSelection.ALL_SPANS;
 
