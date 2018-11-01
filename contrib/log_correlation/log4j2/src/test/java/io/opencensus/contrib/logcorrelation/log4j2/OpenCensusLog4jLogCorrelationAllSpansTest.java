@@ -114,7 +114,7 @@ public final class OpenCensusLog4jLogCorrelationAllSpansTest
   public void preserveOtherKeyValuePairs() {
     String log =
         logWithSpanAndLog4jConfiguration(
-            "%X{opencensusTraceId} %X{myTestKey} %-5level - %msg",
+            "%X{traceId} %X{myTestKey} %-5level - %msg",
             SpanContext.create(
                 TraceId.fromLowerBase16("c95329bb6b7de41afbc51a231c128f97"),
                 SpanId.fromLowerBase16("bf22ea74d38eddad"),

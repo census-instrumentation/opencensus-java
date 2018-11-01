@@ -10,6 +10,8 @@
 - Add an util artifact `opencensus-contrib-dropwizard` to translate Dropwizard metrics to
   OpenCensus.
 - Add Gauges (`DoubleGauge`, `LongGauge`, `DerivedDoubleGauge`, `DerivedLongGauge`) APIs.
+- Update `opencensus-contrib-log-correlation-log4j2` to match the
+  [OpenCensus log correlation spec](https://github.com/census-instrumentation/opencensus-specs/blob/master/trace/LogCorrelation.md).
 
 ## 0.16.1 - 2018-09-18
 - Fix ClassCastException in Log4j log correlation
