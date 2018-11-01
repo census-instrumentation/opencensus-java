@@ -19,7 +19,6 @@ package io.opencensus.contrib.logcorrelation.stackdriver;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.logging.LogEntry;
 import com.google.cloud.logging.LoggingEnhancer;
-import io.opencensus.common.ExperimentalApi;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.TraceId;
@@ -30,11 +29,8 @@ import javax.annotation.Nullable;
 /**
  * Stackdriver {@link LoggingEnhancer} that adds OpenCensus tracing data to log entries.
  *
- * <p>This feature is currently experimental.
- *
  * @since 0.15
  */
-@ExperimentalApi
 public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   private static final String SAMPLED_LABEL_KEY = "opencensusTraceSampled";
 

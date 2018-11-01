@@ -10,8 +10,10 @@
 - Add an util artifact `opencensus-contrib-dropwizard` to translate Dropwizard metrics to
   OpenCensus.
 - Add Gauges (`DoubleGauge`, `LongGauge`, `DerivedDoubleGauge`, `DerivedLongGauge`) APIs.
-- Update `opencensus-contrib-log-correlation-log4j2` to match the
-  [OpenCensus log correlation spec](https://github.com/census-instrumentation/opencensus-specs/blob/master/trace/LogCorrelation.md).
+- Update `opencensus-contrib-log-correlation-log4j2` and
+  `opencensus-contrib-log-correlation-stackdriver` to match the
+  [OpenCensus log correlation spec](https://github.com/census-instrumentation/opencensus-specs/blob/master/trace/LogCorrelation.md)
+  and remove all `ExperimentalApi` annotations.
 - The histogram bucket boundaries (`BucketBoundaries`) and values (`Count` and `Sum`) are no longer
   supported for negative values. The Record API drops the negative `value` and logs the warning.
   This could be a breaking change if you are recording negative value for any `measure`.
