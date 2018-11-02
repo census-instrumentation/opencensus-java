@@ -78,7 +78,9 @@ public final class StackdriverTraceExporter {
       checkState(handler == null, "Stackdriver exporter is already registered.");
       Credentials credentials = configuration.getCredentials();
       String projectId = configuration.getProjectId();
-      projectId = projectId != null ? projectId : ServiceOptions.getDefaultProjectId();
+
+      // TODO(sebright): Handle null default project ID.
+      projectId = projectId != null ? projectId : castNonNull(ServiceOptions.getDefaultProjectId());
 
       StackdriverV2ExporterHandler handler;
       TraceServiceStub stub = configuration.getTraceServiceStub();
@@ -93,6 +95,12 @@ public final class StackdriverTraceExporter {
 
       registerInternal(handler);
     }
+  }
+
+  // TODO(sebright): Remove this method.
+  @SuppressWarnings("nullness")
+  private static <T> T castNonNull(@javax.annotation.Nullable T arg) {
+    return arg;
   }
 
   private static void registerInternal(Handler newHandler) {

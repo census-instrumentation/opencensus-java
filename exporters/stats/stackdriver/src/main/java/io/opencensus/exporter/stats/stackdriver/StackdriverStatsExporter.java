@@ -304,7 +304,12 @@ public final class StackdriverStatsExporter {
       @Nullable MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix)
       throws IOException {
-    projectId = projectId == null ? ServiceOptions.getDefaultProjectId() : projectId;
+    projectId =
+        projectId == null
+
+            // TODO(sebright): Handle null default project ID.
+            ? castNonNull(ServiceOptions.getDefaultProjectId())
+            : projectId;
     exportInterval = exportInterval == null ? DEFAULT_INTERVAL : exportInterval;
     monitoredResource = monitoredResource == null ? DEFAULT_RESOURCE : monitoredResource;
     synchronized (monitor) {
@@ -330,6 +335,12 @@ public final class StackdriverStatsExporter {
               metricNamePrefix);
       exporter.workerThread.start();
     }
+  }
+
+  // TODO(sebright): Remove this method.
+  @SuppressWarnings("nullness")
+  private static <T> T castNonNull(@javax.annotation.Nullable T arg) {
+    return arg;
   }
 
   // Resets exporter to null. Used only for unit tests.

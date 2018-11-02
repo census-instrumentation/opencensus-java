@@ -1,0 +1,8 @@
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+package com.google.cloud;
+
+class ServiceOptions<ServiceT extends Service<OptionsT>, OptionsT extends ServiceOptions<ServiceT, OptionsT>> {
+  @Nullable
+  static String getDefaultProjectId();
+}
