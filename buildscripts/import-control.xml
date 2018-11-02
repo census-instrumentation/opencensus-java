@@ -43,6 +43,11 @@ General guidelines on imports:
     <allow pkg="io.opencensus.common"/>
     <allow pkg="io.opencensus.metrics"/>
   </subpackage>
+  <subpackage name="resource">
+    <allow pkg="io.opencensus.common"/>
+    <allow pkg="io.opencensus.internal"/>
+    <allow pkg="io.opencensus.resource"/>
+  </subpackage>
   <subpackage name="stats">
     <allow pkg="io.opencensus.common"/>
     <allow pkg="io.opencensus.internal"/>
