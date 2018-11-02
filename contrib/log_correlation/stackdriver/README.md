@@ -1,10 +1,5 @@
 # OpenCensus Stackdriver Log Correlation
 
-This subproject is currently experimental, so it may be redesigned or removed in the future.  It
-will remain experimental until we have a specification for a log correlation feature in
-[opencensus-specs](https://github.com/census-instrumentation/opencensus-specs/)
-(issue [#123](https://github.com/census-instrumentation/opencensus-specs/issues/123)).
-
 The `opencensus-contrib-log-correlation-stackdriver` artifact provides a
 [Stackdriver Logging](https://cloud.google.com/logging/)
 [`LoggingEnhancer`](http://googlecloudplatform.github.io/google-cloud-java/google-cloud-clients/apidocs/com/google/cloud/logging/LoggingEnhancer.html)
