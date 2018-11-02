@@ -19,8 +19,4 @@ compileTestJava {
 test {
     systemProperties['log4j2.contextDataInjector'] =
         'io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector'
-
-    // Each test class should run in a separate JVM. See the comment in
-    // AbstractOpenCensusLog4jLogCorrelationTest.
-    forkEvery = 1
 }

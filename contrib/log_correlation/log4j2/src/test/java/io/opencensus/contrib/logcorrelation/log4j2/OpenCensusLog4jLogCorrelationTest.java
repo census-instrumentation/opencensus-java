@@ -19,30 +19,73 @@ package io.opencensus.contrib.logcorrelation.log4j2;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Function;
-import io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.SpanSelection;
+import io.opencensus.common.Scope;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracestate;
+import io.opencensus.trace.Tracing;
+import java.io.StringWriter;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.ThreadContext;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Logger;
-import org.junit.BeforeClass;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.StringLayout;
+import org.apache.logging.log4j.core.appender.WriterAppender;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for Log4j log correlation with {@link
- * OpenCensusTraceContextDataInjector#SPAN_SELECTION_PROPERTY_NAME} set to {@link
- * SpanSelection#ALL_SPANS}.
- */
+/** Tests for Log4j log correlation. */
 @RunWith(JUnit4.class)
-public final class OpenCensusLog4jLogCorrelationAllSpansTest
-    extends AbstractOpenCensusLog4jLogCorrelationTest {
+public final class OpenCensusLog4jLogCorrelationTest {
+  private static final Tracer tracer = Tracing.getTracer();
 
-  @BeforeClass
-  public static void setUp() {
-    initializeLog4j(SpanSelection.ALL_SPANS);
+  private static final String TEST_PATTERN =
+      "traceId=%X{traceId} spanId=%X{spanId} sampled=%X{traceSampled} %-5level - %msg";
+
+  private static final Tracestate EMPTY_TRACESTATE = Tracestate.builder().build();
+
+  private static final Logger logger =
+      (Logger) LogManager.getLogger(OpenCensusLog4jLogCorrelationTest.class);
+
+  // Reconfigures Log4j using the given arguments and runs the function with the given SpanContext
+  // in scope.
+  private static String logWithSpanAndLog4jConfiguration(
+      String log4jPattern, SpanContext spanContext, Function<Logger, Void> loggingFunction) {
+    StringWriter output = new StringWriter();
+    StringLayout layout = PatternLayout.newBuilder().withPattern(log4jPattern).build();
+    Appender appender =
+        WriterAppender.newBuilder()
+            .setTarget(output)
+            .setLayout(layout)
+            .setName("TestAppender")
+            .build();
+    ((LoggerContext) LogManager.getContext(false)).updateLoggers();
+    appender.start();
+    logger.addAppender(appender);
+    logger.setLevel(Level.ALL);
+    try {
+      logWithSpan(spanContext, loggingFunction, logger);
+      return output.toString();
+    } finally {
+      logger.removeAppender(appender);
+    }
+  }
+
+  private static void logWithSpan(
+      SpanContext spanContext, Function<Logger, Void> loggingFunction, Logger logger) {
+    Scope scope = tracer.withSpan(new TestSpan(spanContext));
+    try {
+      loggingFunction.apply(logger);
+    } finally {
+      scope.close();
+    }
   }
 
   @Test

@@ -44,21 +44,6 @@ Override Log4j's default `ContextDataInjector` by setting the system property
 `log4j2.contextDataInjector` to the full name of the class,
 `io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector`.
 
-#### Choose when to add tracing data to log events
-
-The following system property controls the decision to add tracing data from the current span to a
-log event:
-
-`io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.spanSelection`
-
-The allowed values are:
-
-* `ALL_SPANS`: adds tracing data to all log events (default)
-
-* `NO_SPANS`: disables the log correlation feature
-
-* `SAMPLED_SPANS`: adds tracing data to log events when the current span is sampled
-
 ### Add the tracing data to log entries
 
 `opencensus-contrib-log-correlation-log4j2` adds the following key-value pairs to the `LogEvent`
