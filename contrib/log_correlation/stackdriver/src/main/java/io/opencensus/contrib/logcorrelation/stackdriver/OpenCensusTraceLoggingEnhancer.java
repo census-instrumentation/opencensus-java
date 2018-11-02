@@ -63,15 +63,20 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
     this(lookUpProjectId());
   }
 
-  /**
-   * Constructs a {@code OpenCensusTraceLoggingEnhancer} with the given project ID.
-   *
-   * @param projectId the project ID for this instance.
-   * @since 0.17
-   */
-  public OpenCensusTraceLoggingEnhancer(@Nullable String projectId) {
+  private OpenCensusTraceLoggingEnhancer(@Nullable String projectId) {
     this.projectId = projectId == null ? "" : projectId;
     this.tracePrefix = "projects/" + this.projectId + "/traces/";
+  }
+
+  /**
+   * Returns a {@code OpenCensusTraceLoggingEnhancer} with the given project ID.
+   *
+   * @param projectId the project ID to be used by the logging enhancer.
+   * @return a {@code OpenCensusTraceLoggingEnhancer} with the given project ID.
+   * @since 0.17
+   */
+  public static OpenCensusTraceLoggingEnhancer create(@Nullable String projectId) {
+    return new OpenCensusTraceLoggingEnhancer(projectId);
   }
 
   private static String lookUpProjectId() {
