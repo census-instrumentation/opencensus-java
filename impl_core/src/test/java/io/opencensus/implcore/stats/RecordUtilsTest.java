@@ -108,8 +108,6 @@ public class RecordUtilsTest {
         (MutableDistribution)
             RecordUtils.createMutableAggregation(
                 Distribution.create(bucketBoundaries), MEASURE_DOUBLE);
-    assertThat(mutableDistribution.getMin()).isPositiveInfinity();
-    assertThat(mutableDistribution.getMax()).isNegativeInfinity();
     assertThat(mutableDistribution.getSumOfSquaredDeviations()).isWithin(EPSILON).of(0);
     assertThat(mutableDistribution.getBucketCounts()).isEqualTo(new long[2]);
   }

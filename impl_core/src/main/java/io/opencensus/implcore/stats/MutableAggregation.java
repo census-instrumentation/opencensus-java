@@ -258,10 +258,6 @@ abstract class MutableAggregation {
     private long count = 0;
     private double sumOfSquaredDeviations = 0.0;
 
-    // Initial "impossible" values, that will get reset as soon as first value is added.
-    private double min = Double.POSITIVE_INFINITY;
-    private double max = Double.NEGATIVE_INFINITY;
-
     private final BucketBoundaries bucketBoundaries;
     private final long[] bucketCounts;
 
@@ -308,13 +304,6 @@ abstract class MutableAggregation {
       double deltaFromMean2 = value - mean;
       sumOfSquaredDeviations += deltaFromMean * deltaFromMean2;
 
-      if (value < min) {
-        min = value;
-      }
-      if (value > max) {
-        max = value;
-      }
-
       int bucket = 0;
       for (; bucket < bucketBoundaries.getBoundaries().size(); bucket++) {
         if (value < bucketBoundaries.getBoundaries().get(bucket)) {
@@ -360,13 +349,6 @@ abstract class MutableAggregation {
       this.sum += mutableDistribution.sum;
       this.mean = this.sum / this.count;
 
-      if (mutableDistribution.min < this.min) {
-        this.min = mutableDistribution.min;
-      }
-      if (mutableDistribution.max > this.max) {
-        this.max = mutableDistribution.max;
-      }
-
       long[] bucketCounts = mutableDistribution.getBucketCounts();
       for (int i = 0; i < bucketCounts.length; i++) {
         this.bucketCounts[i] += bucketCounts[i];
@@ -401,7 +383,7 @@ abstract class MutableAggregation {
         }
       }
       return DistributionData.create(
-          mean, count, min, max, sumOfSquaredDeviations, boxedBucketCounts, exemplarList);
+          mean, count, sumOfSquaredDeviations, boxedBucketCounts, exemplarList);
     }
 
     @Override
@@ -444,14 +426,6 @@ abstract class MutableAggregation {
 
     long getCount() {
       return count;
-    }
-
-    double getMin() {
-      return min;
-    }
-
-    double getMax() {
-      return max;
     }
 
     // Returns the aggregated sum of squared deviations.

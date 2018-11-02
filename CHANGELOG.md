@@ -17,6 +17,7 @@
 - The histogram bucket boundaries (`BucketBoundaries`) and values (`Count` and `Sum`) are no longer
   supported for negative values. The Record API drops the negative `value` and logs the warning.
   This could be a breaking change if you are recording negative value for any `measure`.
+- Remove support for min/max in the stats Distribution to make it compatible with Metrics.
 
 ## 0.16.1 - 2018-09-18
 - Fix ClassCastException in Log4j log correlation

@@ -79,8 +79,6 @@ public class MutableAggregationTest {
     MutableDistribution mutableDistribution = MutableDistribution.create(bucketBoundaries);
     assertThat(mutableDistribution.getMean()).isWithin(TOLERANCE).of(0);
     assertThat(mutableDistribution.getCount()).isEqualTo(0);
-    assertThat(mutableDistribution.getMin()).isPositiveInfinity();
-    assertThat(mutableDistribution.getMax()).isNegativeInfinity();
     assertThat(mutableDistribution.getSumOfSquaredDeviations()).isWithin(TOLERANCE).of(0);
     assertThat(mutableDistribution.getBucketCounts()).isEqualTo(new long[4]);
     assertThat(mutableDistribution.getExemplars()).isEqualTo(new Exemplar[4]);
@@ -99,8 +97,8 @@ public class MutableAggregationTest {
 
   @Test
   public void testNoBoundaries() {
-    List<Double> buckets = Arrays.asList();
-    MutableDistribution noBoundaries = MutableDistribution.create(BucketBoundaries.create(buckets));
+    MutableDistribution noBoundaries =
+        MutableDistribution.create(BucketBoundaries.create(Collections.<Double>emptyList()));
     assertThat(noBoundaries.getBucketCounts().length).isEqualTo(1);
     assertThat(noBoundaries.getBucketCounts()[0]).isEqualTo(0);
   }
@@ -139,7 +137,7 @@ public class MutableAggregationTest {
         TOLERANCE);
     assertAggregationDataEquals(
         aggregations.get(4).toAggregationData(),
-        AggregationData.DistributionData.create(4.0, 5, -5.0, 20.0, 372, Arrays.asList(4L, 1L)),
+        AggregationData.DistributionData.create(4.0, 5, 372, Arrays.asList(4L, 1L)),
         TOLERANCE);
     assertAggregationDataEquals(
         aggregations.get(5).toAggregationData(),
@@ -255,12 +253,12 @@ public class MutableAggregationTest {
     MutableDistribution combined = MutableDistribution.create(BUCKET_BOUNDARIES);
     combined.combine(distribution1, 1.0); // distribution1 will be combined
     combined.combine(distribution2, 0.6); // distribution2 will be ignored
-    verifyMutableDistribution(combined, 0, 2, -5, 5, 50.0, new long[] {2, 0}, TOLERANCE);
+    verifyMutableDistribution(combined, 0, 2, 50.0, new long[] {2, 0});
 
     combined.combine(distribution2, 1.0); // distribution2 will be combined
-    verifyMutableDistribution(combined, 7.5, 4, -5, 20, 325.0, new long[] {2, 2}, TOLERANCE);
+    verifyMutableDistribution(combined, 7.5, 4, 325.0, new long[] {2, 2});
     combined.combine(distribution3, 1.0); // distribution3 will be combined
-    verifyMutableDistribution(combined, 0, 8, -20, 20, 1500.0, new long[] {5, 3}, TOLERANCE);
+    verifyMutableDistribution(combined, 0, 8, 1500.0, new long[] {5, 3});
   }
 
   @Test
@@ -270,14 +268,7 @@ public class MutableAggregationTest {
     assertThat(MutableCount.create().toAggregationData()).isEqualTo(CountData.create(0));
     assertThat(MutableMean.create().toAggregationData()).isEqualTo(MeanData.create(0, 0));
     assertThat(MutableDistribution.create(BUCKET_BOUNDARIES).toAggregationData())
-        .isEqualTo(
-            DistributionData.create(
-                0,
-                0,
-                Double.POSITIVE_INFINITY,
-                Double.NEGATIVE_INFINITY,
-                0,
-                Arrays.asList(0L, 0L)));
+        .isEqualTo(DistributionData.create(0, 0, 0, Arrays.asList(0L, 0L)));
     assertThat(MutableLastValueDouble.create().toAggregationData())
         .isEqualTo(LastValueDataDouble.create(Double.NaN));
     assertThat(MutableLastValueLong.create().toAggregationData())
@@ -312,17 +303,12 @@ public class MutableAggregationTest {
       MutableDistribution mutableDistribution,
       double mean,
       long count,
-      double min,
-      double max,
       double sumOfSquaredDeviations,
-      long[] bucketCounts,
-      double tolerance) {
-    assertThat(mutableDistribution.getMean()).isWithin(tolerance).of(mean);
+      long[] bucketCounts) {
+    assertThat(mutableDistribution.getMean()).isWithin(MutableAggregationTest.TOLERANCE).of(mean);
     assertThat(mutableDistribution.getCount()).isEqualTo(count);
-    assertThat(mutableDistribution.getMin()).isWithin(tolerance).of(min);
-    assertThat(mutableDistribution.getMax()).isWithin(tolerance).of(max);
     assertThat(mutableDistribution.getSumOfSquaredDeviations())
-        .isWithin(tolerance)
+        .isWithin(MutableAggregationTest.TOLERANCE)
         .of(sumOfSquaredDeviations);
     assertThat(mutableDistribution.getBucketCounts()).isEqualTo(bucketCounts);
   }
