@@ -148,9 +148,9 @@ task repl(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
 }
 
-task stackdriverStatsExample(type: CreateStartScripts) {
-    mainClassName = 'io.opencensus.examples.stats.StackdriverExample'
-    applicationName = 'StackdriverExample'
+task stackdriverStatsQuickstart(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.stats.StackdriverQuickstart'
+    applicationName = 'StackdriverQuickstart'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = jar.outputs.files + project.configurations.runtime
 }
@@ -165,6 +165,6 @@ applicationDistribution.into('bin') {
     from(helloWorldServer)
     from(helloWorldClient)
     from(repl)
-    from(stackdriverStatsExample)
+    from(stackdriverStatsQuickstart)
     fileMode = 0755
 }
