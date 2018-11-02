@@ -275,7 +275,10 @@ public abstract class AggregationData {
      * @param exemplars the exemplars associated with histogram buckets.
      * @return a {@code DistributionData}.
      * @since 0.16
+     * @deprecated since 0.17. Use {@link #create(double, long, double, List, List)}
      */
+    @Deprecated
+    @SuppressWarnings("InconsistentOverloads")
     public static DistributionData create(
         double mean,
         long count,
@@ -284,17 +287,34 @@ public abstract class AggregationData {
         double sumOfSquaredDeviations,
         List<Long> bucketCounts,
         List<Exemplar> exemplars) {
-      if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
-        Utils.checkArgument(min <= max, "max should be greater or equal to min.");
+      return create(mean, count, sumOfSquaredDeviations, bucketCounts, exemplars);
+    }
+
+    /**
+     * Creates a {@code DistributionData}.
+     *
+     * @param mean mean value.
+     * @param count count value.
+     * @param sumOfSquaredDeviations sum of squared deviations.
+     * @param bucketCounts histogram bucket counts.
+     * @param exemplars the exemplars associated with histogram buckets.
+     * @return a {@code DistributionData}.
+     * @since 0.17
+     */
+    public static DistributionData create(
+        double mean,
+        long count,
+        double sumOfSquaredDeviations,
+        List<Long> bucketCounts,
+        List<Exemplar> exemplars) {
+      List<Long> bucketCountsCopy =
+          Collections.unmodifiableList(
+              new ArrayList<Long>(Utils.checkNotNull(bucketCounts, "bucketCounts")));
+      for (Long bucketCount : bucketCountsCopy) {
+        Utils.checkNotNull(bucketCount, "bucketCount");
       }
 
-      Utils.checkNotNull(bucketCounts, "bucketCounts");
-      List<Long> bucketCountsCopy = Collections.unmodifiableList(new ArrayList<Long>(bucketCounts));
-      for (Long bucket : bucketCountsCopy) {
-        Utils.checkNotNull(bucket, "bucket");
-      }
-
-      Utils.checkNotNull(exemplars, "exemplar list should not be null.");
+      Utils.checkNotNull(exemplars, "exemplars");
       for (Exemplar exemplar : exemplars) {
         Utils.checkNotNull(exemplar, "exemplar");
       }
@@ -302,8 +322,6 @@ public abstract class AggregationData {
       return new AutoValue_AggregationData_DistributionData(
           mean,
           count,
-          min,
-          max,
           sumOfSquaredDeviations,
           bucketCountsCopy,
           Collections.<Exemplar>unmodifiableList(new ArrayList<Exemplar>(exemplars)));
@@ -320,7 +338,10 @@ public abstract class AggregationData {
      * @param bucketCounts histogram bucket counts.
      * @return a {@code DistributionData}.
      * @since 0.8
+     * @deprecated since 0.17. Use {@link #create(double, long, double, List)}.
      */
+    @Deprecated
+    @SuppressWarnings("InconsistentOverloads")
     public static DistributionData create(
         double mean,
         long count,
@@ -329,13 +350,23 @@ public abstract class AggregationData {
         double sumOfSquaredDeviations,
         List<Long> bucketCounts) {
       return create(
-          mean,
-          count,
-          min,
-          max,
-          sumOfSquaredDeviations,
-          bucketCounts,
-          Collections.<Exemplar>emptyList());
+          mean, count, sumOfSquaredDeviations, bucketCounts, Collections.<Exemplar>emptyList());
+    }
+
+    /**
+     * Creates a {@code DistributionData}.
+     *
+     * @param mean mean value.
+     * @param count count value.
+     * @param sumOfSquaredDeviations sum of squared deviations.
+     * @param bucketCounts histogram bucket counts.
+     * @return a {@code DistributionData}.
+     * @since 0.17
+     */
+    public static DistributionData create(
+        double mean, long count, double sumOfSquaredDeviations, List<Long> bucketCounts) {
+      return create(
+          mean, count, sumOfSquaredDeviations, bucketCounts, Collections.<Exemplar>emptyList());
     }
 
     /**
@@ -359,16 +390,24 @@ public abstract class AggregationData {
      *
      * @return the minimum of the population values.
      * @since 0.8
+     * @deprecated since 0.17. Returns {@code 0}.
      */
-    public abstract double getMin();
+    @Deprecated
+    public double getMin() {
+      return 0;
+    }
 
     /**
      * Returns the maximum of the population values.
      *
      * @return the maximum of the population values.
      * @since 0.8
+     * @deprecated since 0.17. Returns {@code 0}.
      */
-    public abstract double getMax();
+    @Deprecated
+    public double getMax() {
+      return 0;
+    }
 
     /**
      * Returns the aggregated sum of squared deviations.

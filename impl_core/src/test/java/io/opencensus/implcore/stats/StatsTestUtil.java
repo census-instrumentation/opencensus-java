@@ -192,15 +192,6 @@ final class StatsTestUtil {
         .isWithin(tolerance)
         .of(expected.getSumOfSquaredDeviations());
 
-    if (expected.getMax() == Double.NEGATIVE_INFINITY
-        && expected.getMin() == Double.POSITIVE_INFINITY) {
-      assertThat(actual.getMax()).isNegativeInfinity();
-      assertThat(actual.getMin()).isPositiveInfinity();
-    } else {
-      assertThat(actual.getMax()).isWithin(tolerance).of(expected.getMax());
-      assertThat(actual.getMin()).isWithin(tolerance).of(expected.getMin());
-    }
-
     assertThat(removeTrailingZeros((actual).getBucketCounts()))
         .isEqualTo(removeTrailingZeros(expected.getBucketCounts()));
   }
