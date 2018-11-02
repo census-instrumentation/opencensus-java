@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 /**
  * Stackdriver {@link LoggingEnhancer} that adds OpenCensus tracing data to log entries.
  *
- * @since 0.15
+ * @since 0.17
  */
 public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
 
@@ -37,7 +37,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
    * Name of the property that overrides the default project ID (overrides the value returned by
    * {@code com.google.cloud.ServiceOptions.getDefaultProjectId()}). The name is {@value}.
    *
-   * @since 0.15
+   * @since 0.17
    */
   public static final String PROJECT_ID_PROPERTY_NAME =
       "io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.projectId";
@@ -57,7 +57,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
    * can be specified with a {@link java.util.logging} property or a system property, with
    * preference given to the logging property.
    *
-   * @since 0.15
+   * @since 0.17
    */
   public OpenCensusTraceLoggingEnhancer() {
     this(lookUpProjectId());
