@@ -60,9 +60,8 @@ final class OcAgentTraceExporterHandler extends Handler {
    *
    * We should use ManagedChannel.getState() to determine the state of current connection.
    *
-   * 0. For export RPC we hold a reference "exportRequestObserverRef" to a StreamObserver for
-   * request stream, and "exportResponseObserverRef" to a StreamObserver for response stream.
-   * For config RPC we have "configResponseObserverRef" and "configRequestObserverRef".
+   * 0. For export RPC we have ExportRpcHandler which holds references to request and response
+   * observers. For config RPC we have ConfigRpcHandler.
    *
    * Think of the whole process as a Finite State Machine.
    *
@@ -70,38 +69,35 @@ final class OcAgentTraceExporterHandler extends Handler {
    *
    * STATE 1: Unconnected/Disconnected.
    *
-   * 1. First, Exporter will try to establish the streams by calling TraceServiceStub.export and
-   * TraceServiceStub.config in a daemon thread.
+   * 1. First, Exporter will try to establish the streams in a daemon thread.
+   * This is done when ExportRpcHandler and ConfigRpcHandler are created,
+   * by calling TraceServiceStub.export and TraceServiceStub.config.
    *
    *   1-1. If the initial attempt succeeded, Exporter should receive messages from the Agent, and
-   *   we should be able to get references of exportRequestObserver and configResponseObserver.
+   *   ExportRpcHandler and ConfigRpcHandler should be created successfully.
    *
    *   1-2. If the attempt failed, TraceServiceStub.export or TraceServiceStub.config will throw
-   *   an exception. We should catch the exceptions and keep retrying. References of
-   *   exportRequestObserver and configResponseObserverRef should be null in this case.
+   *   an exception. We should catch the exceptions and keep retrying.
+   *   ExportRpcHandler and ConfigRpcHandler will store the exiting RPC status and pass it to a
+   *   Runnable defined by the daemon worker.
    *
-   *   1-3. After each attempt, we should check if the connection succeeded or not with
+   *   1-3. After each attempt, we should check if the connection is established with
    *   ManagedChannel.getState(). (This is done in the daemon thread.)
-   *   If connection succeeded and Exporter has the references to exportRequestObserver and
-   *   currentConfigObserver, we can move forward and start sending/receiving streams
+   *   If connection succeeded, we can move forward and start sending/receiving streams
    *   (move to STATE 2). Otherwise Exporter should retry.
    *
    * STATE 2: Already connected.
    *
-   * 2. Once streams are open, they should be kept alive. Exporter sends spans to Agent by calling
-   * exportRequestObserver.onNext. In addition, in another daemon thread Exporter watches config
-   * updates from Agent.
+   * 2. Once streams are open, they should be kept alive. The daemon worker should be blocked and
+   * watching UpdatedLibraryConfig messages from Agent.
    *
    *   2-1. If for some reason the connection is interrupted or ended, the errors (if any) will be
-   *   caught by the onError method of any stream observer. In that case, we should reset references
-   *   to all the stream observers.
-   *   Then we will create a new channel and stub, try to connect to Agent, and try to get new
-   *   exportRequestObserver and currentConfigObserver from Agent. (Back to STATE 1.)
+   *   caught by ExportRpcHandler and ConfigRpcHandler. They will store the exiting RPC status and
+   *   pass it to a Runnable defined by the daemon worker. At that time the ExportRpcHandler and
+   *   ConfigRpcHandler will be considered completed.
    *
-   *
-   * Therefore we have an invariant throughout the entire process: if the references of
-   * configResponseObserverRef and exportRequestObserverRef are non-null, the streams must still be
-   * open and alive; otherwise streams must be disconnected and we should attempt to re-connect.
+   *   Then we will create a new channel and stub, try to connect to Agent, and try to create new
+   *   ExportRpcHandler and ConfigRpcHandler. (Back to STATE 1.)
    *
    * FYI the method signatures on both sides:
    *
