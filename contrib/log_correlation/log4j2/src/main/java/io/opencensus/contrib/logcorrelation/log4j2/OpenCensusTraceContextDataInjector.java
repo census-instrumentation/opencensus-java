@@ -48,7 +48,7 @@ import org.apache.logging.log4j.util.StringMap;
  *   <li><code>%X{traceSampled}</code>
  * </ul>
  *
- * @since 0.16
+ * @since 0.17
  * @see <a
  *     href="https://logging.apache.org/log4j/2.x/log4j-core/apidocs/org/apache/logging/log4j/core/ContextDataInjector.html">org.apache.logging.log4j.core.ContextDataInjector</a>
  */
@@ -57,28 +57,28 @@ public final class OpenCensusTraceContextDataInjector implements ContextDataInje
   /**
    * Context key for the current trace ID. The name is {@value}.
    *
-   * @since 0.16
+   * @since 0.17
    */
   public static final String TRACE_ID_CONTEXT_KEY = "traceId";
 
   /**
    * Context key for the current span ID. The name is {@value}.
    *
-   * @since 0.16
+   * @since 0.17
    */
   public static final String SPAN_ID_CONTEXT_KEY = "spanId";
 
   /**
    * Context key for the sampling decision of the current span. The name is {@value}.
    *
-   * @since 0.16
+   * @since 0.17
    */
   public static final String TRACE_SAMPLED_CONTEXT_KEY = "traceSampled";
 
   /**
    * Constructor to be called by Log4j.
    *
-   * @since 0.16
+   * @since 0.17
    */
   public OpenCensusTraceContextDataInjector() {}
 
