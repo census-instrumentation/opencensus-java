@@ -1,4 +1,7 @@
 ## Unreleased
+- Add OpenCensus Java OC-Agent Trace Exporter.
+
+## 0.17.0 - 2018-11-02
 - Add `AttributeValueDouble` to `AttributeValue`.
 - Add `createWithSender` to `JaegerTraceExporter` to allow use of `HttpSender`
   with extra configurations.
@@ -6,7 +9,6 @@
 - Migrate to new Stackdriver Kubernetes monitored resource. This could be a breaking change
   if you are using `gke_container` resources. For more info,
   https://cloud.google.com/monitoring/kubernetes-engine/migration#incompatible
-- Add OpenCensus Java OC-Agent Trace Exporter.
 - Add an util artifact `opencensus-contrib-dropwizard` to translate Dropwizard metrics to
   OpenCensus.
 - Add Gauges (`DoubleGauge`, `LongGauge`, `DerivedDoubleGauge`, `DerivedLongGauge`) APIs.
