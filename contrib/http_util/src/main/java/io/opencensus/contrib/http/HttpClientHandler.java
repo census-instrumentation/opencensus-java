@@ -26,6 +26,10 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.propagation.TextFormat;
 import javax.annotation.Nullable;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.NonNull;
+*/
+
 /**
  * This helper class provides routine methods to instrument HTTP clients.
  *
@@ -35,7 +39,9 @@ import javax.annotation.Nullable;
  * @since 0.17
  */
 @ExperimentalApi
-public final class HttpClientHandler<Q, P, C> extends HttpHandler<Q, P> {
+public final class HttpClientHandler<
+        Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @NonNull Object*/>
+    extends HttpHandler<Q, P> {
 
   private final TextFormat.Setter<C> setter;
 

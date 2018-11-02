@@ -26,6 +26,10 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.NonNull;
+*/
+
 /**
  * This helper class provides routine methods to instrument HTTP servers.
  *
@@ -35,7 +39,9 @@ import io.opencensus.trace.propagation.TextFormat;
  * @since 0.17
  */
 @ExperimentalApi
-public class HttpServerHandler<Q, P, C> extends HttpHandler<Q, P> {
+public class HttpServerHandler<
+        Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @NonNull Object*/>
+    extends HttpHandler<Q, P> {
 
   private final TextFormat.Getter<C> getter;
 
