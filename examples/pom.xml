@@ -147,8 +147,8 @@
               <mainClass>io.opencensus.examples.quickstart.Repl</mainClass>
             </program>
             <program>
-              <id>StackdriverExample</id>
-              <mainClass>io.opencensus.examples.stats.StackdriverExample</mainClass>
+              <id>StackdriverQuickstart</id>
+              <mainClass>io.opencensus.examples.stats.StackdriverQuickstart</mainClass>
             </program>
           </programs>
         </configuration>

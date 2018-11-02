@@ -163,8 +163,8 @@ java_binary(
 )
 
 java_binary(
-    name = "StackdriverExample",
-    main_class = "io.opencensus.examples.stats.StackdriverExample",
+    name = "StackdriverQuickstart",
+    main_class = "io.opencensus.examples.stats.StackdriverQuickstart",
     runtime_deps = [
         ":opencensus_examples",
     ],
