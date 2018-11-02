@@ -48,7 +48,7 @@ public class OcAgentNodeUtilsTest {
 
   @Test
   public void testConstants() {
-    assertThat(OC_AGENT_EXPORTER_VERSION).isEqualTo("0.17.0");
+    assertThat(OC_AGENT_EXPORTER_VERSION).isEqualTo("0.17.1-SNAPSHOT");
     assertThat(RESOURCE_TYPE_ATTRIBUTE_KEY).isEqualTo("OPENCENSUS_SOURCE_TYPE");
     assertThat(RESOURCE_LABEL_ATTRIBUTE_KEY).isEqualTo("OPENCENSUS_SOURCE_LABELS");
   }
