@@ -60,7 +60,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
   public void enhanceLogEntry_AddSampledSpanToLogEntry() {
     LogEntry logEntry =
         getEnhancedLogEntry(
-            OpenCensusTraceLoggingEnhancer.create("my-test-project-3"),
+            new OpenCensusTraceLoggingEnhancer("my-test-project-3"),
             new TestSpan(
                 SpanContext.create(
                     TraceId.fromLowerBase16("4c6af40c499951eb7de2777ba1e4fefa"),
@@ -76,7 +76,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
   public void enhanceLogEntry_AddNonSampledSpanToLogEntry() {
     LogEntry logEntry =
         getEnhancedLogEntry(
-            OpenCensusTraceLoggingEnhancer.create("my-test-project-6"),
+            new OpenCensusTraceLoggingEnhancer("my-test-project-6"),
             new TestSpan(
                 SpanContext.create(
                     TraceId.fromLowerBase16("72c905c76f99e99974afd84dc053a480"),
@@ -92,7 +92,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
   public void enhanceLogEntry_AddBlankSpanToLogEntry() {
     LogEntry logEntry =
         getEnhancedLogEntry(
-            OpenCensusTraceLoggingEnhancer.create("my-test-project-7"), BlankSpan.INSTANCE);
+            new OpenCensusTraceLoggingEnhancer("my-test-project-7"), BlankSpan.INSTANCE);
     assertThat(logEntry.getTrace())
         .isEqualTo("projects/my-test-project-7/traces/00000000000000000000000000000000");
     assertThat(logEntry.getSpanId()).isEqualTo("0000000000000000");
@@ -102,7 +102,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
   public void enhanceLogEntry_ConvertNullProjectIdToEmptyString() {
     LogEntry logEntry =
         getEnhancedLogEntry(
-            OpenCensusTraceLoggingEnhancer.create(null),
+            new OpenCensusTraceLoggingEnhancer(null),
             new TestSpan(
                 SpanContext.create(
                     TraceId.fromLowerBase16("bfb4248a24325a905873a1d43001d9a0"),

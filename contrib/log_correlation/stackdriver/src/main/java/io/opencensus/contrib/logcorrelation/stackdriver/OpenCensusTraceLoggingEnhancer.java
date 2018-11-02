@@ -63,20 +63,10 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
     this(lookUpProjectId());
   }
 
-  private OpenCensusTraceLoggingEnhancer(@Nullable String projectId) {
+  // visible for testing
+  OpenCensusTraceLoggingEnhancer(@Nullable String projectId) {
     this.projectId = projectId == null ? "" : projectId;
     this.tracePrefix = "projects/" + this.projectId + "/traces/";
-  }
-
-  /**
-   * Returns a {@code OpenCensusTraceLoggingEnhancer} with the given project ID.
-   *
-   * @param projectId the project ID to be used by the logging enhancer.
-   * @return a {@code OpenCensusTraceLoggingEnhancer} with the given project ID.
-   * @since 0.17
-   */
-  public static OpenCensusTraceLoggingEnhancer create(@Nullable String projectId) {
-    return new OpenCensusTraceLoggingEnhancer(projectId);
   }
 
   private static String lookUpProjectId() {
@@ -94,13 +84,8 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
     return property == null || property.isEmpty() ? System.getProperty(name) : property;
   }
 
-  /**
-   * Returns the project ID setting for this instance.
-   *
-   * @return the project ID setting for this instance.
-   * @since 0.15
-   */
-  public String getProjectId() {
+  // visible for testing
+  String getProjectId() {
     return projectId;
   }
 
