@@ -43,7 +43,7 @@ final class OcAgentNodeUtils {
 
   // The current version of the OpenCensus OC-Agent Exporter.
   @VisibleForTesting
-  static final String OC_AGENT_EXPORTER_VERSION = "0.17.0-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
+  static final String OC_AGENT_EXPORTER_VERSION = "0.17.0"; // CURRENT_OPENCENSUS_VERSION
 
   @VisibleForTesting static final String RESOURCE_TYPE_ATTRIBUTE_KEY = "OPENCENSUS_SOURCE_TYPE";
   @VisibleForTesting static final String RESOURCE_LABEL_ATTRIBUTE_KEY = "OPENCENSUS_SOURCE_LABELS";
