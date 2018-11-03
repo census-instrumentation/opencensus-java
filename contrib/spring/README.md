@@ -18,17 +18,17 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.16.1</version>
+    <version>0.17.0</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-spring</artifactId>
-    <version>0.16.1</version>
+    <version>0.17.0</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.16.1</version>
+    <version>0.17.0</version>
     <scope>runtime</scope>
   </dependency>
   
@@ -45,9 +45,9 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-api:0.16.1'
-compile 'io.opencensus:opencensus-contrib-spring:0.16.1'
-runtime 'io.opencensus:opencensus-impl:0.16.1'
+compile 'io.opencensus:opencensus-api:0.17.0'
+compile 'io.opencensus:opencensus-contrib-spring:0.17.0'
+runtime 'io.opencensus:opencensus-impl:0.17.0'
 runtime 'org.springframework:spring-aspects:SPRING_VERSION'
 ```
 
