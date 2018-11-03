@@ -33,17 +33,17 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.16.1</version>
+    <version>0.17.0</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-exporter-trace-zipkin</artifactId>
-    <version>0.16.1</version>
+    <version>0.17.0</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.16.1</version>
+    <version>0.17.0</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -51,9 +51,9 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.16.1'
-compile 'io.opencensus:opencensus-exporter-trace-zipkin:0.16.1'
-runtime 'io.opencensus:opencensus-impl:0.16.1'
+compile 'io.opencensus:opencensus-api:0.17.0'
+compile 'io.opencensus:opencensus-exporter-trace-zipkin:0.17.0'
+runtime 'io.opencensus:opencensus-impl:0.17.0'
 ```
 
 #### Register the exporter
