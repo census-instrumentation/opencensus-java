@@ -42,7 +42,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   public static final String PROJECT_ID_PROPERTY_NAME =
       "io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.projectId";
 
-  private final String projectId;
+  @Nullable private final String projectId;
 
   // This field caches the prefix used for the LogEntry.trace field and is derived from projectId.
   private final String tracePrefix;
@@ -65,10 +65,11 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
 
   // visible for testing
   OpenCensusTraceLoggingEnhancer(@Nullable String projectId) {
-    this.projectId = projectId == null ? "" : projectId;
-    this.tracePrefix = "projects/" + this.projectId + "/traces/";
+    this.projectId = projectId;
+    this.tracePrefix = "projects/" + (projectId == null ? "" : projectId) + "/traces/";
   }
 
+  @Nullable
   private static String lookUpProjectId() {
     String projectIdProperty = lookUpProperty(PROJECT_ID_PROPERTY_NAME);
     return projectIdProperty == null || projectIdProperty.isEmpty()
@@ -85,6 +86,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   }
 
   // visible for testing
+  @Nullable
   String getProjectId() {
     return projectId;
   }

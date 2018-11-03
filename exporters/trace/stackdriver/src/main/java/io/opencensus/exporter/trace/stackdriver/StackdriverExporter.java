@@ -109,8 +109,16 @@ public final class StackdriverExporter {
     StackdriverTraceExporter.createAndRegister(
         StackdriverTraceConfiguration.builder()
             .setCredentials(GoogleCredentials.getApplicationDefault())
-            .setProjectId(ServiceOptions.getDefaultProjectId())
+
+            // TODO(sebright): Handle null default project ID.
+            .setProjectId(castNonNull(ServiceOptions.getDefaultProjectId()))
             .build());
+  }
+
+  // TODO(sebright): Remove this method.
+  @SuppressWarnings("nullness")
+  private static <T> T castNonNull(@javax.annotation.Nullable T arg) {
+    return arg;
   }
 
   /**
