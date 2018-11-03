@@ -83,6 +83,7 @@ public final class ThreadInstrumentation implements Instrumenter {
      * @see Advice
      */
     @Advice.OnMethodEnter
+    @SuppressWarnings("unused")
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private static void enter(@Advice.This Thread thread) {
       ContextTrampoline.saveContextForThread(thread);
@@ -100,6 +101,7 @@ public final class ThreadInstrumentation implements Instrumenter {
      * @see Advice
      */
     @Advice.OnMethodEnter
+    @SuppressWarnings("unused")
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private static void enter(@Advice.This Thread thread) {
       ContextTrampoline.attachContextForThread(thread);

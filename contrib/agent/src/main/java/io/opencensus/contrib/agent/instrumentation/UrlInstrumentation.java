@@ -81,6 +81,7 @@ public final class UrlInstrumentation implements Instrumenter {
      * @see Advice
      */
     @Advice.OnMethodEnter
+    @SuppressWarnings("unused")
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     @MustBeClosed
     private static Closeable enter(@Advice.Origin("#t\\##m") String classAndMethodName) {
@@ -99,6 +100,7 @@ public final class UrlInstrumentation implements Instrumenter {
      * @see Advice
      */
     @Advice.OnMethodExit(onThrowable = Throwable.class)
+    @SuppressWarnings("unused")
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private static void exit(@Advice.Enter Closeable scope, @Advice.Thrown Throwable throwable) {
       TraceTrampoline.endScope(scope, throwable);

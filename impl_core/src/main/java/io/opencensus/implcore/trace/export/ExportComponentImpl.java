@@ -60,7 +60,7 @@ public final class ExportComponentImpl extends ExportComponent {
    * @return a new {@code ExportComponentImpl}.
    */
   public static ExportComponentImpl createWithInProcessStores(EventQueue eventQueue) {
-    return new ExportComponentImpl(true, eventQueue);
+    return new ExportComponentImpl(/* supportInProcessStores= */ true, eventQueue);
   }
 
   /**
@@ -70,7 +70,7 @@ public final class ExportComponentImpl extends ExportComponent {
    * @return a new {@code ExportComponentImpl}.
    */
   public static ExportComponentImpl createWithoutInProcessStores(EventQueue eventQueue) {
-    return new ExportComponentImpl(false, eventQueue);
+    return new ExportComponentImpl(/* supportInProcessStores= */ false, eventQueue);
   }
 
   /**

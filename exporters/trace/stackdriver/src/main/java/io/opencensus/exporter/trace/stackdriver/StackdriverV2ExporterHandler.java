@@ -25,7 +25,6 @@ import com.google.cloud.trace.v2.TraceServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.devtools.cloudtrace.v2.AttributeValue;
-import com.google.devtools.cloudtrace.v2.AttributeValue.Builder;
 import com.google.devtools.cloudtrace.v2.ProjectName;
 import com.google.devtools.cloudtrace.v2.Span;
 import com.google.devtools.cloudtrace.v2.Span.Attributes;
@@ -110,7 +109,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
       new Function<String, /*@Nullable*/ AttributeValue>() {
         @Override
         public AttributeValue apply(String stringValue) {
-          Builder attributeValueBuilder = AttributeValue.newBuilder();
+          AttributeValue.Builder attributeValueBuilder = AttributeValue.newBuilder();
           attributeValueBuilder.setStringValue(toTruncatableStringProto(stringValue));
           return attributeValueBuilder.build();
         }
@@ -120,7 +119,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           new Function<Boolean, /*@Nullable*/ AttributeValue>() {
             @Override
             public AttributeValue apply(Boolean booleanValue) {
-              Builder attributeValueBuilder = AttributeValue.newBuilder();
+              AttributeValue.Builder attributeValueBuilder = AttributeValue.newBuilder();
               attributeValueBuilder.setBoolValue(booleanValue);
               return attributeValueBuilder.build();
             }
@@ -129,7 +128,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
       new Function<Long, /*@Nullable*/ AttributeValue>() {
         @Override
         public AttributeValue apply(Long longValue) {
-          Builder attributeValueBuilder = AttributeValue.newBuilder();
+          AttributeValue.Builder attributeValueBuilder = AttributeValue.newBuilder();
           attributeValueBuilder.setIntValue(longValue);
           return attributeValueBuilder.build();
         }
@@ -138,7 +137,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
       new Function<Double, /*@Nullable*/ AttributeValue>() {
         @Override
         public AttributeValue apply(Double doubleValue) {
-          Builder attributeValueBuilder = AttributeValue.newBuilder();
+          AttributeValue.Builder attributeValueBuilder = AttributeValue.newBuilder();
           // TODO: set double value if Stackdriver Trace support it in the future.
           attributeValueBuilder.setStringValue(
               toTruncatableStringProto(String.valueOf(doubleValue)));

@@ -19,7 +19,6 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
-import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.MetricDescriptor;
@@ -82,7 +81,6 @@ public class MetricUtilsTest {
           MEAN,
           Collections.singletonList(KEY),
           INTERVAL);
-  private static final Timestamp TIMESTAMP = Timestamp.fromMillis(1000);
 
   @Test
   public void viewToMetricDescriptor() {

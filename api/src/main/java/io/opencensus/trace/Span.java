@@ -80,7 +80,7 @@ public abstract class Span {
             ? DEFAULT_OPTIONS
             : Collections.<Options>unmodifiableSet(EnumSet.copyOf(options));
     Utils.checkArgument(
-        !context.getTraceOptions().isSampled() || (this.options.contains(Options.RECORD_EVENTS)),
+        !context.getTraceOptions().isSampled() || this.options.contains(Options.RECORD_EVENTS),
         "Span is sampled, but does not have RECORD_EVENTS set.");
   }
 

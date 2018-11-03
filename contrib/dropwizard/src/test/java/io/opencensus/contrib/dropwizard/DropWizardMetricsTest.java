@@ -51,7 +51,7 @@ public class DropWizardMetricsTest {
   @Before
   public void setUp() throws Exception {
     metricRegistry = new com.codahale.metrics.MetricRegistry();
-    dropWizardMetrics = new DropWizardMetrics(Collections.singletonList((metricRegistry)));
+    dropWizardMetrics = new DropWizardMetrics(Collections.singletonList(metricRegistry));
   }
 
   @Test
