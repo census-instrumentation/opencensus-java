@@ -53,6 +53,12 @@ public class TraceIdTest {
   }
 
   @Test
+  public void getLowerLong() {
+    assertThat(first.getLowerLong()).isEqualTo(0);
+    assertThat(second.getLowerLong()).isEqualTo(-0xFF00000000000000L);
+  }
+
+  @Test
   public void fromLowerBase16() {
     assertThat(TraceId.fromLowerBase16("00000000000000000000000000000000"))
         .isEqualTo(TraceId.INVALID);
