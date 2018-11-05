@@ -18,7 +18,6 @@ package io.opencensus.trace;
 
 import io.opencensus.common.Internal;
 import io.opencensus.internal.Utils;
-import java.util.Arrays;
 import java.util.Random;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -218,8 +217,11 @@ public final class TraceId implements Comparable<TraceId> {
 
   @Override
   public int hashCode() {
-    // TODO: Use Objects.hashCode when switch to java17.
-    return Arrays.hashCode(new Long[] {idHi, idLo});
+    // Copied from Arrays.hashCode(long[])
+    int result = 1;
+    result = 31 * result + ((int) (idHi ^ (idHi >>> 32)));
+    result = 31 * result + ((int) (idLo ^ (idLo >>> 32)));
+    return result;
   }
 
   @Override
