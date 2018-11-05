@@ -81,7 +81,8 @@ public class DropWizardMetrics extends MetricProducer {
    * @return a {@code Metric}.
    */
   @SuppressWarnings("rawtypes")
-  private @Nullable Metric collectGauge(String dropwizardName, Gauge gauge) {
+  @Nullable
+  private Metric collectGauge(String dropwizardName, Gauge gauge) {
     String metricName = DropWizardUtils.generateFullMetricName(dropwizardName, "gauge");
     String metricDescription = DropWizardUtils.generateFullMetricDescription(dropwizardName, gauge);
 

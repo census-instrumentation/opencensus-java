@@ -33,7 +33,6 @@ import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
-import com.google.monitoring.v3.TypedValue.Builder;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
@@ -84,7 +83,7 @@ final class StackdriverExportUtils {
       new Function<Double, TypedValue>() {
         @Override
         public TypedValue apply(Double arg) {
-          Builder builder = TypedValue.newBuilder();
+          TypedValue.Builder builder = TypedValue.newBuilder();
           builder.setDoubleValue(arg);
           return builder.build();
         }
@@ -93,7 +92,7 @@ final class StackdriverExportUtils {
       new Function<Long, TypedValue>() {
         @Override
         public TypedValue apply(Long arg) {
-          Builder builder = TypedValue.newBuilder();
+          TypedValue.Builder builder = TypedValue.newBuilder();
           builder.setInt64Value(arg);
           return builder.build();
         }
@@ -113,7 +112,7 @@ final class StackdriverExportUtils {
         public TypedValue apply(Summary arg) {
           // StackDriver doesn't handle Summary value.
           // TODO(mayurkale): decide what to do with Summary value.
-          Builder builder = TypedValue.newBuilder();
+          TypedValue.Builder builder = TypedValue.newBuilder();
           return builder.build();
         }
       };

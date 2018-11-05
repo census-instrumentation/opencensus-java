@@ -80,6 +80,10 @@ subprojects {
             if (JavaVersion.current().isJava8Compatible()) {
                 it.options.compilerArgs += ["-XepAllDisabledChecksAsWarnings", "-XepDisableWarningsInGeneratedCode"]
 
+                // -XepDisableWarningsInGeneratedCode doesn't suppress all warnings in generated
+                // protocol buffer code.
+                it.options.compilerArgs += ["-XepExcludedPaths:.*/gen_gradle/.*"]
+
                 // MutableMethodReturnType can suggest returning Guava types from
                 // API methods (https://github.com/google/error-prone/issues/982).
                 it.options.compilerArgs += ["-Xep:MutableMethodReturnType:OFF"]
@@ -89,6 +93,19 @@ subprojects {
 
                 // OpenCensus doesn't currently use Var annotations.
                 it.options.compilerArgs += ["-Xep:Var:OFF"]
+
+                // ImmutableRefactoring suggests using com.google.errorprone.annotations.Immutable,
+                // but OpenCensus currently uses javax.annotation.concurrent.Immutable
+                it.options.compilerArgs += ["-Xep:ImmutableRefactoring:OFF"]
+
+                // This check causes a NullPointerException
+                // (https://github.com/google/error-prone/issues/1138).
+                it.options.compilerArgs += ["-Xep:NullableDereference:OFF"]
+
+                // ExpectedExceptionRefactoring and TestExceptionRefactoring suggest using
+                // assertThrows, but assertThrows only works well with lambdas.
+                it.options.compilerArgs += ["-Xep:ExpectedExceptionRefactoring:OFF"]
+                it.options.compilerArgs += ["-Xep:TestExceptionRefactoring:OFF"]
             }
         }
         if (useCheckerFramework) {
@@ -153,7 +170,7 @@ subprojects {
         autoValueVersion = '1.4'
         findBugsAnnotationsVersion = '3.0.1'
         findBugsJsr305Version = '3.0.2'
-        errorProneVersion = '2.3.1'
+        errorProneVersion = '2.3.2'
         grpcVersion = '1.14.0'
         guavaVersion = '20.0'
         googleAuthVersion = '0.11.0'

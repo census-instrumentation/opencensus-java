@@ -80,7 +80,6 @@ public class ServerStatsEncodingTest {
   @Test
   public void negativeLbLatencyValueTest() throws ServerStatsDeserializationException {
     ServerStats serverStatsToBeEncoded = null;
-    ServerStats serverStatsDecoded = null;
     byte[] serialized = null;
 
     serverStatsToBeEncoded = ServerStats.create(31, 22, (byte) 1);
@@ -101,7 +100,6 @@ public class ServerStatsEncodingTest {
   @Test
   public void negativeServerLatencyValueTest() throws ServerStatsDeserializationException {
     ServerStats serverStatsToBeEncoded = null;
-    ServerStats serverStatsDecoded = null;
     byte[] serialized = null;
 
     serverStatsToBeEncoded = ServerStats.create(31, 22, (byte) 1);

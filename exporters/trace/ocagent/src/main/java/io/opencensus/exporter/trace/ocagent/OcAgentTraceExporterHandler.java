@@ -25,9 +25,9 @@ import javax.annotation.Nullable;
 /** Exporting handler for OC-Agent Tracing. */
 final class OcAgentTraceExporterHandler extends Handler {
 
-  private static final String DEFAULT_END_POINT = "localhost:55678";
-  private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
-  private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
+  // private static final String DEFAULT_END_POINT = "localhost:55678";
+  // private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
+  // private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
 
   OcAgentTraceExporterHandler() {
     this(null, null, null, null, /* enableConfig= */ true);

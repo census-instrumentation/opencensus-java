@@ -89,8 +89,6 @@ public class StackdriverExporterWorkerTest {
 
   private static final Metric METRIC =
       Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR, CUMULATIVE_TIME_SERIES);
-  private static final Metric METRIC_2 =
-      Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_2, CUMULATIVE_TIME_SERIES);
 
   private static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();

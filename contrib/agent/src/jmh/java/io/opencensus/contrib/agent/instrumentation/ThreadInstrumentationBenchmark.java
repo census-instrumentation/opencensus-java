@@ -67,7 +67,7 @@ public class ThreadInstrumentationBenchmark {
   @OutputTimeUnit(TimeUnit.MICROSECONDS)
   @Fork
   public void manual(Blackhole blackhole) throws InterruptedException {
-    Thread t = new Thread((Context.current().wrap(new MyRunnable(blackhole))));
+    Thread t = new Thread(Context.current().wrap(new MyRunnable(blackhole)));
     t.start();
     t.join();
   }

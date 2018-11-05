@@ -192,7 +192,7 @@ final class StatsTestUtil {
         .isWithin(tolerance)
         .of(expected.getSumOfSquaredDeviations());
 
-    assertThat(removeTrailingZeros((actual).getBucketCounts()))
+    assertThat(removeTrailingZeros(actual.getBucketCounts()))
         .isEqualTo(removeTrailingZeros(expected.getBucketCounts()));
   }
 

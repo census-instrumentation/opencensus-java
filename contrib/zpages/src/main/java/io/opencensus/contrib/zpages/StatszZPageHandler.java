@@ -66,7 +66,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /** HTML page formatter for all exported {@link View}s. */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({
+  "deprecation",
+
+  // This library is not supposed to be Android or Java 7 compatible.
+  "AndroidJdkLibsChecker",
+  "Java7ApiChecker"
+})
 final class StatszZPageHandler extends ZPageHandler {
 
   private static final Object monitor = new Object();

@@ -99,7 +99,7 @@ public final class ExecutorInstrumentation implements Instrumenter {
      * @see Advice
      */
     @Advice.OnMethodEnter
-    @SuppressWarnings(value = "UnusedAssignment")
+    @SuppressWarnings({"UnusedAssignment", "unused"})
     @SuppressFBWarnings(value = {"DLS_DEAD_LOCAL_STORE", "UPM_UNCALLED_PRIVATE_METHOD"})
     private static void enter(@Advice.Argument(value = 0, readOnly = false) Runnable runnable) {
       runnable = ContextTrampoline.wrapInCurrentContext(runnable);

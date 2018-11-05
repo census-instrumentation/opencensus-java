@@ -33,7 +33,6 @@ public final class HttpMeasureConstants {
 
   private HttpMeasureConstants() {}
 
-  private static final String UNIT_COUNT = "1";
   private static final String UNIT_SIZE_BYTE = "By";
   private static final String UNIT_LATENCY_MS = "ms";
 

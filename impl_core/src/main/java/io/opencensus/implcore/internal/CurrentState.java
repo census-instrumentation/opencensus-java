@@ -36,16 +36,16 @@ public final class CurrentState {
 
   private enum InternalState {
     // Enabled and not read.
-    ENABLED_NOT_READ(State.ENABLED, false),
+    ENABLED_NOT_READ(State.ENABLED, /*isRead=*/ false),
 
     // Enabled and read.
-    ENABLED_READ(State.ENABLED, true),
+    ENABLED_READ(State.ENABLED, /*isRead=*/ true),
 
     // Disable and not read.
-    DISABLED_NOT_READ(State.DISABLED, false),
+    DISABLED_NOT_READ(State.DISABLED, /*isRead=*/ false),
 
     // Disable and read.
-    DISABLED_READ(State.DISABLED, true);
+    DISABLED_READ(State.DISABLED, /*isRead=*/ true);
 
     private final State state;
     private final boolean isRead;

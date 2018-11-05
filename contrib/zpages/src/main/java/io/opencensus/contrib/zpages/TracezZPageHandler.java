@@ -222,7 +222,7 @@ final class TracezZPageHandler extends ZPageHandler {
               new ArrayList<>(
                   runningSpanStore.getRunningSpans(RunningSpanStore.Filter.create(spanName, 0)));
           // Sort active spans incremental.
-          Collections.sort(spans, new SpanDataComparator(true));
+          Collections.sort(spans, new SpanDataComparator(/* incremental= */ true));
         } else {
           String subtypeStr = queryMap.get(HEADER_SAMPLES_SUB_TYPE);
           if (subtypeStr != null) {
@@ -252,7 +252,7 @@ final class TracezZPageHandler extends ZPageHandler {
                               latencyBucketBoundaries.getLatencyUpperNs(),
                               0)));
               // Sort sampled spans decremental.
-              Collections.sort(spans, new SpanDataComparator(false));
+              Collections.sort(spans, new SpanDataComparator(/* incremental= */ false));
             }
           }
         }
@@ -296,14 +296,14 @@ final class TracezZPageHandler extends ZPageHandler {
                               .encode(span.getContext().getSpanId().getBytes())))
                   .build());
 
-      emitSingleSpan(out, formatter, span);
+      emitSingleSpan(formatter, span);
     }
     out.write("</pre>\n");
   }
 
   // Emits the internal html for a single {@link SpanData}.
   @SuppressWarnings("deprecation")
-  private static void emitSingleSpan(PrintWriter out, Formatter formatter, SpanData span) {
+  private static void emitSingleSpan(Formatter formatter, SpanData span) {
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(span.getStartTimestamp().getSeconds()));
     long microsField = TimeUnit.NANOSECONDS.toMicros(span.getStartTimestamp().getNanos());

@@ -102,18 +102,12 @@ public final class DisruptorEventQueue implements EventQueue {
 
   // The event queue is built on this {@link Disruptor}.
   private final Disruptor<DisruptorEvent> disruptor;
-  // Ring Buffer for the {@link Disruptor} that underlies the queue.
-  private final RingBuffer<DisruptorEvent> ringBuffer;
 
   private volatile DisruptorEnqueuer enqueuer;
 
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
-  private DisruptorEventQueue(
-      Disruptor<DisruptorEvent> disruptor,
-      RingBuffer<DisruptorEvent> ringBuffer,
-      DisruptorEnqueuer enqueuer) {
+  private DisruptorEventQueue(Disruptor<DisruptorEvent> disruptor, DisruptorEnqueuer enqueuer) {
     this.disruptor = disruptor;
-    this.ringBuffer = ringBuffer;
     this.enqueuer = enqueuer;
   }
 
@@ -146,7 +140,7 @@ public final class DisruptorEventQueue implements EventQueue {
             }
           }
         };
-    return new DisruptorEventQueue(disruptor, ringBuffer, enqueuer);
+    return new DisruptorEventQueue(disruptor, enqueuer);
   }
 
   /**
