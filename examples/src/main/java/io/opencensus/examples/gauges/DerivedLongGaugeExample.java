@@ -54,11 +54,7 @@ public class DerivedLongGaugeExample {
     // Your code here.
   }
 
-  /**
-   * Main method.
-   *
-   * @param args the main arguments.
-   */
+  /** Main launcher for the DerivedLongGaugeExample. */
   public static void main(String[] args) {
     // Derived Long Gauge metric is used to report instantaneous measurement of an int64 value.
     // This is more convenient form when you want to define a gauge by executing a

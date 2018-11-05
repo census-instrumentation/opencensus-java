@@ -54,11 +54,7 @@ public class DerivedDoubleGaugeExample {
     // Your code here.
   }
 
-  /**
-   * Main method.
-   *
-   * @param args the main arguments.
-   */
+  /** Main launcher for the DerivedDoubleGaugeExample. */
   public static void main(String[] args) {
     // Derived Double Gauge metric is used to report instantaneous measurement of a double value.
     // This is more convenient form when you want to define a gauge by executing a

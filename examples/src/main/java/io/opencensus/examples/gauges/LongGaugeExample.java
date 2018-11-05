@@ -57,11 +57,7 @@ public class LongGaugeExample {
     pendingJobs.add(-1);
   }
 
-  /**
-   * Main method.
-   *
-   * @param args the main arguments.
-   */
+  /** Main launcher for the LongGaugeExample. */
   public static void main(String[] args) {
     // Long Gauge metric is used to report instantaneous measurement of an int64 value. This is
     // more convenient form when you want to manually increase and decrease values as per your
