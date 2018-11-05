@@ -27,6 +27,34 @@ import javax.annotation.Nullable;
  */
 @ExperimentalApi
 public final class HttpTraceUtil {
+  private static final int STATUS_200 = 200;
+  private static final int STATUS_100 = 100;
+  private static final int STATUS_101 = 101;
+  private static final int STATUS_400 = 400;
+  private static final int STATUS_401 = 401;
+  private static final int STATUS_402 = 402;
+  private static final int STATUS_403 = 403;
+  private static final int STATUS_404 = 404;
+  private static final int STATUS_405 = 405;
+  private static final int STATUS_406 = 406;
+  private static final int STATUS_407 = 407;
+  private static final int STATUS_408 = 408;
+  private static final int STATUS_409 = 409;
+  private static final int STATUS_410 = 410;
+  private static final int STATUS_411 = 411;
+  private static final int STATUS_412 = 412;
+  private static final int STATUS_413 = 413;
+  private static final int STATUS_414 = 414;
+  private static final int STATUS_415 = 415;
+  private static final int STATUS_416 = 416;
+  private static final int STATUS_417 = 417;
+  private static final int STATUS_429 = 429;
+  private static final int STATUS_500 = 500;
+  private static final int STATUS_501 = 501;
+  private static final int STATUS_502 = 502;
+  private static final int STATUS_503 = 503;
+  private static final int STATUS_504 = 504;
+  private static final int STATUS_505 = 505;
 
   private HttpTraceUtil() {}
 
@@ -59,64 +87,64 @@ public final class HttpTraceUtil {
     if (statusCode == 0) {
       return Status.UNKNOWN.withDescription(message);
     } else {
-      if (statusCode >= 200 && statusCode < 400) {
+      if (statusCode >= STATUS_200 && statusCode < STATUS_400) {
         return Status.OK;
       } else {
         // error code, try parse it
         switch (statusCode) {
-          case 100:
+          case STATUS_100:
             return Status.UNKNOWN.withDescription("Continue");
-          case 101:
+          case STATUS_101:
             return Status.UNKNOWN.withDescription("Switching Protocols");
-          case 400:
+          case STATUS_400:
             return Status.INVALID_ARGUMENT.withDescription(message);
-          case 401:
+          case STATUS_401:
             return Status.UNAUTHENTICATED.withDescription(message);
-          case 402:
+          case STATUS_402:
             return Status.UNKNOWN.withDescription("Payment Required");
-          case 403:
+          case STATUS_403:
             return Status.PERMISSION_DENIED.withDescription(message);
-          case 404:
+          case STATUS_404:
             return Status.NOT_FOUND.withDescription(message);
-          case 405:
+          case STATUS_405:
             return Status.UNKNOWN.withDescription("Method Not Allowed");
-          case 406:
+          case STATUS_406:
             return Status.UNKNOWN.withDescription("Not Acceptable");
-          case 407:
+          case STATUS_407:
             return Status.UNKNOWN.withDescription("Proxy Authentication Required");
-          case 408:
+          case STATUS_408:
             return Status.UNKNOWN.withDescription("Request Time-out");
-          case 409:
+          case STATUS_409:
             return Status.UNKNOWN.withDescription("Conflict");
-          case 410:
+          case STATUS_410:
             return Status.UNKNOWN.withDescription("Gone");
-          case 411:
+          case STATUS_411:
             return Status.UNKNOWN.withDescription("Length Required");
-          case 412:
+          case STATUS_412:
             return Status.UNKNOWN.withDescription("Precondition Failed");
-          case 413:
+          case STATUS_413:
             return Status.UNKNOWN.withDescription("Request Entity Too Large");
-          case 414:
+          case STATUS_414:
             return Status.UNKNOWN.withDescription("Request-URI Too Large");
-          case 415:
+          case STATUS_415:
             return Status.UNKNOWN.withDescription("Unsupported Media Type");
-          case 416:
+          case STATUS_416:
             return Status.UNKNOWN.withDescription("Requested range not satisfiable");
-          case 417:
+          case STATUS_417:
             return Status.UNKNOWN.withDescription("Expectation Failed");
-          case 429:
+          case STATUS_429:
             return Status.RESOURCE_EXHAUSTED.withDescription(message);
-          case 500:
+          case STATUS_500:
             return Status.UNKNOWN.withDescription("Internal Server Error");
-          case 501:
+          case STATUS_501:
             return Status.UNIMPLEMENTED.withDescription(message);
-          case 502:
+          case STATUS_502:
             return Status.UNKNOWN.withDescription("Bad Gateway");
-          case 503:
+          case STATUS_503:
             return Status.UNAVAILABLE.withDescription(message);
-          case 504:
+          case STATUS_504:
             return Status.DEADLINE_EXCEEDED.withDescription(message);
-          case 505:
+          case STATUS_505:
             return Status.UNKNOWN.withDescription("HTTP Version not supported");
           default:
             return Status.UNKNOWN.withDescription(message);
