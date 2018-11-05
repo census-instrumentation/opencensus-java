@@ -35,30 +35,28 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link HttpHandler}. */
+/** Unit tests for {@link AbstractHttpHandler}. */
 @RunWith(JUnit4.class)
-public class HttpHandlerTest {
-
-  @Mock private Span span;
-  @Mock private HttpExtractor<Object, Object> extractor;
-  private HttpHandler<Object, Object> handler;
-
-  private final Object response = new Object();
-  private final Exception error = new Exception("test");
-  @Captor private ArgumentCaptor<MessageEvent> captor;
+public class AbstractHttpHandlerTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
+  private final Object response = new Object();
+  private final Exception error = new Exception("test");
+  @Mock private Span span;
+  @Mock private HttpExtractor<Object, Object> extractor;
+  private AbstractHttpHandler<Object, Object> handler;
+  @Captor private ArgumentCaptor<MessageEvent> captor;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    handler = new HttpHandler<Object, Object>(extractor) {};
+    handler = new AbstractHttpHandler<Object, Object>(extractor) {};
   }
 
   @Test
   public void constructorDisallowNullExtractor() {
     thrown.expect(NullPointerException.class);
-    new HttpHandler<Object, Object>(null) {};
+    new AbstractHttpHandler<Object, Object>(null) {};
   }
 
   @Test
@@ -94,17 +92,17 @@ public class HttpHandlerTest {
   @Test
   public void handleEndDisallowNullSpan() {
     thrown.expect(NullPointerException.class);
-    handler.handleEnd(response, error, /*span=*/ null);
+    handler.handleEnd(null, response, error);
   }
 
   @Test
   public void handleEndAllowNullResponseAndError() {
-    handler.handleEnd(/*response=*/ null, /*error=*/ null, span);
+    handler.handleEnd(span, /*response=*/ null, /*error=*/ null);
   }
 
   @Test
   public void handleEndShouldEndSpan() {
-    handler.handleEnd(response, error, span);
+    handler.handleEnd(span, response, error);
     verify(span).end(any(EndSpanOptions.class));
   }
 }

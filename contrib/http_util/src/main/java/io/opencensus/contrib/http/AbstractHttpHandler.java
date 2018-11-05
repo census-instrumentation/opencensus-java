@@ -35,13 +35,13 @@ import javax.annotation.Nullable;
  * @since 0.18
  */
 @ExperimentalApi
-public abstract class HttpHandler<Q, P> {
+abstract class AbstractHttpHandler<Q, P> {
 
   /** The {@link HttpExtractor} used to extract information from request/response. */
   @VisibleForTesting final HttpExtractor<Q, P> extractor;
 
   /** Constructor to allow access from same package subclasses only. */
-  HttpHandler(HttpExtractor<Q, P> extractor) {
+  AbstractHttpHandler(HttpExtractor<Q, P> extractor) {
     checkNotNull(extractor, "extractor");
     this.extractor = extractor;
   }
@@ -76,6 +76,7 @@ public abstract class HttpHandler<Q, P> {
    */
   public final void handleMessageSent(Span span, long messageId, long messageSize) {
     checkNotNull(span, "span");
+    // record compressed size
     recordMessageEvent(span, messageId, Type.SENT, messageSize, 0L);
   }
 
@@ -89,7 +90,7 @@ public abstract class HttpHandler<Q, P> {
    */
   public final void handleMessageReceived(Span span, long messageId, long messageSize) {
     checkNotNull(span, "span");
-    // record message size
+    // record compressed size
     recordMessageEvent(span, messageId, Type.RECEIVED, messageSize, 0L);
   }
 
@@ -103,7 +104,7 @@ public abstract class HttpHandler<Q, P> {
    * @param span the span.
    * @since 0.18
    */
-  public void handleEnd(@Nullable P response, @Nullable Throwable error, Span span) {
+  public void handleEnd(Span span, @Nullable P response, @Nullable Throwable error) {
     checkNotNull(span, "span");
     int statusCode = extractor.getStatusCode(response);
     span.putAttribute("http.status_code", AttributeValue.longAttributeValue(statusCode));

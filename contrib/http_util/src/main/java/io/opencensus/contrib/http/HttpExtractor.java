@@ -30,17 +30,37 @@ import javax.annotation.Nullable;
  *
  * @param <Q> the HTTP request entity.
  * @param <P> the HTTP response entity.
- * @since 0.17
+ * @since 0.18
  */
 @ExperimentalApi
 public abstract class HttpExtractor<Q, P> {
+
+  /**
+   * Returns the request route.
+   *
+   * @param request the HTTP request.
+   * @return the request route.
+   * @since 0.18
+   */
+  @Nullable
+  public abstract String getRoute(Q request);
+
+  /**
+   * Returns the request URL.
+   *
+   * @param request the HTTP request.
+   * @return the request URL.
+   * @since 0.18
+   */
+  @Nullable
+  public abstract String getUrl(Q request);
 
   /**
    * Returns the request URL host.
    *
    * @param request the HTTP request.
    * @return the request URL host.
-   * @since 0.17
+   * @since 0.18
    */
   @Nullable
   public abstract String getHost(Q request);
@@ -50,7 +70,7 @@ public abstract class HttpExtractor<Q, P> {
    *
    * @param request the HTTP request.
    * @return the request method.
-   * @since 0.17
+   * @since 0.18
    */
   @Nullable
   public abstract String getMethod(Q request);
@@ -60,7 +80,7 @@ public abstract class HttpExtractor<Q, P> {
    *
    * @param request the HTTP request.
    * @return the request URL path.
-   * @since 0.17
+   * @since 0.18
    */
   @Nullable
   public abstract String getPath(Q request);
@@ -70,7 +90,7 @@ public abstract class HttpExtractor<Q, P> {
    *
    * @param request the HTTP request.
    * @return the request user agent.
-   * @since 0.17
+   * @since 0.18
    */
   @Nullable
   public abstract String getUserAgent(Q request);
@@ -80,7 +100,7 @@ public abstract class HttpExtractor<Q, P> {
    *
    * @param response the HTTP response.
    * @return the response status code.
-   * @since 0.17
+   * @since 0.18
    */
   public abstract int getStatusCode(@Nullable P response);
 }
