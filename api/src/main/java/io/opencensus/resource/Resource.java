@@ -23,9 +23,8 @@ import io.opencensus.internal.StringUtils;
 import io.opencensus.internal.Utils;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -44,8 +43,8 @@ public abstract class Resource {
   @DefaultVisibilityForTesting static final int MAX_LENGTH = 255;
   private static final String OC_RESOURCE_TYPE_ENV = "OC_RESOURCE_TYPE";
   private static final String OC_RESOURCE_LABELS_ENV = "OC_RESOURCE_LABELS";
-  private static final Pattern LABEL_REGEX =
-      Pattern.compile("\\s*([a-zA-Z0-9-_./]+)=(?:(\".*?\")|([^\\s=\"]+))\\s*,");
+  private static final String LABEL_LIST_SPLITTER = ",";
+  private static final String LABEL_KEY_VALUE_SPLITTER = "=";
   private static final String ERROR_MESSAGE_INVALID_CHARS =
       " should be a ASCII string with a length no greater than " + MAX_LENGTH + " characters.";
 
@@ -82,7 +81,7 @@ public abstract class Resource {
    * @since 0.18
    */
   public static Resource create() {
-    return create(ENV_TYPE, ENV_LABEL_MAP);
+    return createInternal(ENV_TYPE, ENV_LABEL_MAP);
   }
 
   /**
@@ -97,7 +96,13 @@ public abstract class Resource {
    * @since 0.18
    */
   public static Resource create(@Nullable String type, Map<String, String> labels) {
-    Utils.checkNotNull(labels, "labels");
+    return createInternal(
+        type,
+        Collections.unmodifiableMap(
+            new LinkedHashMap<String, String>(Utils.checkNotNull(labels, "labels"))));
+  }
+
+  private static Resource createInternal(@Nullable String type, Map<String, String> labels) {
     return new AutoValue_Resource(type, labels);
   }
 
@@ -129,28 +134,19 @@ public abstract class Resource {
       return Collections.<String, String>emptyMap();
     } else {
       Map<String, String> labels = new HashMap<String, String>();
-      String envLabels = rawEnvLabels.trim();
-      // Ensure a trailing comma, which allows us to keep the regex simpler
-      if (envLabels.charAt(envLabels.length() - 1) != ',') {
-        envLabels = envLabels.trim() + ',';
-      }
-
-      Matcher matcher = LABEL_REGEX.matcher(envLabels);
-      while (matcher.find()) {
-        String match = matcher.group(0);
-        if (match != null && match.length() > 0) {
-          String key = matcher.group(1);
-          String value = matcher.group(2);
-
-          value = value == null ? matcher.group(3) : value.replaceAll("^\"|\"$", "");
-          if (key != null && value != null) {
-            Utils.checkArgument(isValid(key), "Label key" + ERROR_MESSAGE_INVALID_CHARS);
-            Utils.checkArgument(isValid(value), "Label value" + ERROR_MESSAGE_INVALID_CHARS);
-            labels.put(key, value);
-          }
+      String[] rawLabels = rawEnvLabels.split(LABEL_LIST_SPLITTER, -1);
+      for (String rawLabel : rawLabels) {
+        String[] keyValuePair = rawLabel.split(LABEL_KEY_VALUE_SPLITTER, -1);
+        if (keyValuePair.length != 2) {
+          continue;
         }
+        String key = keyValuePair[0].trim();
+        String value = keyValuePair[1].trim().replaceAll("^\"|\"$", "");
+        Utils.checkArgument(isValid(key), "Label key" + ERROR_MESSAGE_INVALID_CHARS);
+        Utils.checkArgument(isValid(value), "Label value" + ERROR_MESSAGE_INVALID_CHARS);
+        labels.put(key, value);
       }
-      return labels;
+      return Collections.unmodifiableMap(labels);
     }
   }
 
@@ -164,6 +160,7 @@ public abstract class Resource {
     return !name.isEmpty() && name.length() <= MAX_LENGTH && StringUtils.isPrintableString(name);
   }
 
-  // TODO(mayurkale): Add detector interface as per
+  // TODO(mayurkale): Add detector interface as per specs:
   // https://github.com/census-instrumentation/opencensus-specs/blob/master/resource/Resource.md.
+
 }
