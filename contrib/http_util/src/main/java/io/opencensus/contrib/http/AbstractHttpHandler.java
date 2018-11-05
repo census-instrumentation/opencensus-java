@@ -19,7 +19,6 @@ package io.opencensus.contrib.http;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.common.ExperimentalApi;
 import io.opencensus.contrib.http.util.HttpTraceUtil;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.MessageEvent;
@@ -27,14 +26,7 @@ import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
 import javax.annotation.Nullable;
 
-/**
- * Base class for handling request on http client and server.
- *
- * @param <Q> the HTTP request entity.
- * @param <P> the HTTP response entity.
- * @since 0.18
- */
-@ExperimentalApi
+/** Base class for handling request on http client and server. */
 abstract class AbstractHttpHandler<Q, P> {
 
   /** The {@link HttpExtractor} used to extract information from request/response. */
