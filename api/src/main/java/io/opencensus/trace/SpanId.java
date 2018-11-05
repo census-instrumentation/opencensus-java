@@ -17,7 +17,6 @@
 package io.opencensus.trace;
 
 import io.opencensus.internal.Utils;
-import java.util.Arrays;
 import java.util.Random;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -37,20 +36,21 @@ public final class SpanId implements Comparable<SpanId> {
    */
   public static final int SIZE = 8;
 
-  private static final int HEX_SIZE = 2 * SIZE;
-
   /**
    * The invalid {@code SpanId}. All bytes are 0.
    *
    * @since 0.5
    */
-  public static final SpanId INVALID = new SpanId(new byte[SIZE]);
+  public static final SpanId INVALID = new SpanId(0);
+
+  private static final int HEX_SIZE = 2 * SIZE;
+  private static final long INVALID_ID = 0;
 
   // The internal representation of the SpanId.
-  private final byte[] bytes;
+  private final long id;
 
-  private SpanId(byte[] bytes) {
-    this.bytes = bytes;
+  private SpanId(long id) {
+    this.id = id;
   }
 
   /**
@@ -72,8 +72,7 @@ public final class SpanId implements Comparable<SpanId> {
     Utils.checkNotNull(buffer, "buffer");
     Utils.checkArgument(
         buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
-    byte[] bytesCopied = Arrays.copyOf(buffer, SIZE);
-    return new SpanId(bytesCopied);
+    return new SpanId(BigendianEncoding.longFromByteArray(buffer, 0));
   }
 
   /**
@@ -90,9 +89,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.5
    */
   public static SpanId fromBytes(byte[] src, int srcOffset) {
-    byte[] bytes = new byte[SIZE];
-    System.arraycopy(src, srcOffset, bytes, 0, SIZE);
-    return new SpanId(bytes);
+    return new SpanId(BigendianEncoding.longFromByteArray(src, srcOffset));
   }
 
   /**
@@ -108,7 +105,7 @@ public final class SpanId implements Comparable<SpanId> {
   public static SpanId fromLowerBase16(CharSequence src) {
     Utils.checkArgument(
         src.length() == HEX_SIZE, "Invalid size: expected %s, got %s", HEX_SIZE, src.length());
-    return new SpanId(LowerCaseBase16Encoding.decodeToBytes(src));
+    return fromBytes(LowerCaseBase16Encoding.decodeToBytes(src));
   }
 
   /**
@@ -119,11 +116,11 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.5
    */
   public static SpanId generateRandomId(Random random) {
-    byte[] bytes = new byte[SIZE];
+    long id;
     do {
-      random.nextBytes(bytes);
-    } while (Arrays.equals(bytes, INVALID.bytes));
-    return new SpanId(bytes);
+      id = random.nextLong();
+    } while (id == INVALID_ID);
+    return new SpanId(id);
   }
 
   /**
@@ -133,7 +130,9 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.5
    */
   public byte[] getBytes() {
-    return Arrays.copyOf(bytes, SIZE);
+    byte[] bytes = new byte[SIZE];
+    BigendianEncoding.longToByteArray(id, bytes, 0);
+    return bytes;
   }
 
   /**
@@ -154,7 +153,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.5
    */
   public void copyBytesTo(byte[] dest, int destOffset) {
-    System.arraycopy(bytes, 0, dest, destOffset, SIZE);
+    BigendianEncoding.longToByteArray(id, dest, destOffset);
   }
 
   /**
@@ -165,7 +164,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.5
    */
   public boolean isValid() {
-    return !Arrays.equals(bytes, INVALID.bytes);
+    return id != INVALID_ID;
   }
 
   /**
@@ -175,7 +174,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.11
    */
   public String toLowerBase16() {
-    return LowerCaseBase16Encoding.encodeToString(bytes);
+    return LowerCaseBase16Encoding.encodeToString(getBytes());
   }
 
   @Override
@@ -189,12 +188,13 @@ public final class SpanId implements Comparable<SpanId> {
     }
 
     SpanId that = (SpanId) obj;
-    return Arrays.equals(bytes, that.bytes);
+    return id == that.id;
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(bytes);
+    // Copied from Long.hashCode in java8.
+    return (int) (id ^ (id >>> 32));
   }
 
   @Override
@@ -204,11 +204,7 @@ public final class SpanId implements Comparable<SpanId> {
 
   @Override
   public int compareTo(SpanId that) {
-    for (int i = 0; i < SIZE; i++) {
-      if (bytes[i] != that.bytes[i]) {
-        return bytes[i] < that.bytes[i] ? -1 : 1;
-      }
-    }
-    return 0;
+    // Copied from Long.compare in java8.
+    return (id < that.id) ? -1 : ((id == that.id) ? 0 : 1);
   }
 }

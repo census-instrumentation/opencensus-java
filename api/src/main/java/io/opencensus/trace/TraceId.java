@@ -39,19 +39,22 @@ public final class TraceId implements Comparable<TraceId> {
   public static final int SIZE = 16;
 
   private static final int HEX_SIZE = 32;
+  private static final long INVALID_ID = 0;
 
   /**
    * The invalid {@code TraceId}. All bytes are '\0'.
    *
    * @since 0.5
    */
-  public static final TraceId INVALID = new TraceId(new byte[SIZE]);
+  public static final TraceId INVALID = new TraceId(INVALID_ID, INVALID_ID);
 
   // The internal representation of the TraceId.
-  private final byte[] bytes;
+  private final long idHi;
+  private final long idLo;
 
-  private TraceId(byte[] bytes) {
-    this.bytes = bytes;
+  private TraceId(long idHi, long idLo) {
+    this.idHi = idHi;
+    this.idLo = idLo;
   }
 
   /**
@@ -73,8 +76,9 @@ public final class TraceId implements Comparable<TraceId> {
     Utils.checkNotNull(buffer, "buffer");
     Utils.checkArgument(
         buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
-    byte[] bytesCopied = Arrays.copyOf(buffer, SIZE);
-    return new TraceId(bytesCopied);
+    return new TraceId(
+        BigendianEncoding.longFromByteArray(buffer, 0),
+        BigendianEncoding.longFromByteArray(buffer, BigendianEncoding.LONG_BYTES));
   }
 
   /**
@@ -91,9 +95,9 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.5
    */
   public static TraceId fromBytes(byte[] src, int srcOffset) {
-    byte[] bytes = new byte[SIZE];
-    System.arraycopy(src, srcOffset, bytes, 0, SIZE);
-    return new TraceId(bytes);
+    return new TraceId(
+        BigendianEncoding.longFromByteArray(src, srcOffset),
+        BigendianEncoding.longFromByteArray(src, srcOffset + BigendianEncoding.LONG_BYTES));
   }
 
   /**
@@ -109,7 +113,7 @@ public final class TraceId implements Comparable<TraceId> {
   public static TraceId fromLowerBase16(CharSequence src) {
     Utils.checkArgument(
         src.length() == HEX_SIZE, "Invalid size: expected %s, got %s", HEX_SIZE, src.length());
-    return new TraceId(LowerCaseBase16Encoding.decodeToBytes(src));
+    return fromBytes(LowerCaseBase16Encoding.decodeToBytes(src));
   }
 
   /**
@@ -120,11 +124,13 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.5
    */
   public static TraceId generateRandomId(Random random) {
-    byte[] bytes = new byte[SIZE];
+    long idHi;
+    long idLo;
     do {
-      random.nextBytes(bytes);
-    } while (Arrays.equals(bytes, INVALID.bytes));
-    return new TraceId(bytes);
+      idHi = random.nextLong();
+      idLo = random.nextLong();
+    } while (idHi == INVALID_ID && idLo == INVALID_ID);
+    return new TraceId(idHi, idLo);
   }
 
   /**
@@ -134,7 +140,10 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.5
    */
   public byte[] getBytes() {
-    return Arrays.copyOf(bytes, SIZE);
+    byte[] bytes = new byte[SIZE];
+    BigendianEncoding.longToByteArray(idHi, bytes, 0);
+    BigendianEncoding.longToByteArray(idLo, bytes, BigendianEncoding.LONG_BYTES);
+    return bytes;
   }
 
   /**
@@ -155,7 +164,8 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.5
    */
   public void copyBytesTo(byte[] dest, int destOffset) {
-    System.arraycopy(bytes, 0, dest, destOffset, SIZE);
+    BigendianEncoding.longToByteArray(idHi, dest, destOffset);
+    BigendianEncoding.longToByteArray(idLo, dest, destOffset + BigendianEncoding.LONG_BYTES);
   }
 
   /**
@@ -166,7 +176,7 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.5
    */
   public boolean isValid() {
-    return !Arrays.equals(bytes, INVALID.bytes);
+    return idHi != INVALID_ID || idLo != INVALID_ID;
   }
 
   /**
@@ -176,7 +186,7 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.11
    */
   public String toLowerBase16() {
-    return LowerCaseBase16Encoding.encodeToString(bytes);
+    return LowerCaseBase16Encoding.encodeToString(getBytes());
   }
 
   /**
@@ -189,15 +199,7 @@ public final class TraceId implements Comparable<TraceId> {
    */
   @Internal
   public long getLowerLong() {
-    long result = 0;
-    for (int i = 0; i < Long.SIZE / Byte.SIZE; i++) {
-      result <<= Byte.SIZE;
-      result |= (bytes[i] & 0xff);
-    }
-    if (result < 0) {
-      return -result;
-    }
-    return result;
+    return (idHi < 0) ? -idHi : idHi;
   }
 
   @Override
@@ -211,12 +213,13 @@ public final class TraceId implements Comparable<TraceId> {
     }
 
     TraceId that = (TraceId) obj;
-    return Arrays.equals(bytes, that.bytes);
+    return idHi == that.idHi && idLo == that.idLo;
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(bytes);
+    // TODO: Use Objects.hashCode when switch to java17.
+    return Arrays.hashCode(new Long[] {idHi, idLo});
   }
 
   @Override
@@ -226,11 +229,12 @@ public final class TraceId implements Comparable<TraceId> {
 
   @Override
   public int compareTo(TraceId that) {
-    for (int i = 0; i < SIZE; i++) {
-      if (bytes[i] != that.bytes[i]) {
-        return bytes[i] < that.bytes[i] ? -1 : 1;
+    if (idHi == that.idHi) {
+      if (idLo == that.idLo) {
+        return 0;
       }
+      return idLo < that.idLo ? -1 : 1;
     }
-    return 0;
+    return idHi < that.idHi ? -1 : 1;
   }
 }
