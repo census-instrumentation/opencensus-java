@@ -169,3 +169,35 @@ java_binary(
         ":opencensus_examples",
     ],
 )
+
+java_binary(
+    name = "DerivedDoubleGaugeQuickstart",
+    main_class = "io.opencensus.examples.gauges.DerivedDoubleGaugeQuickstart",
+    runtime_deps = [
+        ":opencensus_examples",
+    ],
+)
+
+java_binary(
+    name = "DerivedLongGaugeQuickstart",
+    main_class = "io.opencensus.examples.gauges.DerivedLongGaugeQuickstart",
+    runtime_deps = [
+        ":opencensus_examples",
+    ],
+)
+
+java_binary(
+    name = "DoubleGaugeQuickstart",
+    main_class = "io.opencensus.examples.gauges.DoubleGaugeQuickstart",
+    runtime_deps = [
+        ":opencensus_examples",
+    ],
+)
+
+java_binary(
+    name = "LongGaugeQuickstart",
+    main_class = "io.opencensus.examples.gauges.LongGaugeQuickstart",
+    runtime_deps = [
+        ":opencensus_examples",
+    ],
+)

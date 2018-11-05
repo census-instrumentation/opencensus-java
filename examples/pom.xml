@@ -150,6 +150,22 @@
               <id>StackdriverQuickstart</id>
               <mainClass>io.opencensus.examples.stats.StackdriverQuickstart</mainClass>
             </program>
+            <program>
+              <id>DerivedDoubleGaugeQuickstart</id>
+              <mainClass>io.opencensus.examples.gauges.DerivedDoubleGaugeQuickstart</mainClass>
+            </program>
+            <program>
+              <id>DerivedLongGaugeQuickstart</id>
+              <mainClass>io.opencensus.examples.gauges.DerivedLongGaugeQuickstart</mainClass>
+            </program>
+            <program>
+              <id>DoubleGaugeQuickstart</id>
+              <mainClass>io.opencensus.examples.gauges.DoubleGaugeQuickstart</mainClass>
+            </program>
+            <program>
+              <id>LongGaugeQuickstart</id>
+              <mainClass>io.opencensus.examples.gauges.LongGaugeQuickstart</mainClass>
+            </program>
           </programs>
         </configuration>
       </plugin>

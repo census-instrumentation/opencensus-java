@@ -16,17 +16,18 @@
 
 package io.opencensus.examples.gauges;
 
+import io.opencensus.common.ToDoubleFunction;
+import io.opencensus.metrics.DerivedDoubleGauge;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
-import io.opencensus.metrics.LongGauge;
-import io.opencensus.metrics.LongGauge.LongPoint;
 import io.opencensus.metrics.MetricRegistry;
 import io.opencensus.metrics.Metrics;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
-/** Example showing how to create a {@link LongGauge} and manually set or add value of the gauge. */
-public class LongGaugeExample {
+/** Example showing how to create a {@link DerivedDoubleGauge}. */
+public class DerivedDoubleGaugeQuickstart {
   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
 
   // The label keys and values are used to uniquely identify timeseries.
@@ -35,33 +36,29 @@ public class LongGaugeExample {
   private static final List<LabelValue> labelValues =
       Collections.singletonList(LabelValue.create("Inbound"));
 
-  private static final LongGauge longGauge =
-      metricRegistry.addLongGauge("queue_size", "Pending jobs", "1", labelKeys);
-  // It is recommended to keep a reference of a point for manual operations.
-  private static final LongPoint pendingJobs = longGauge.getOrCreateTimeSeries(labelValues);
+  private static final DerivedDoubleGauge derivedDoubleGauge =
+      metricRegistry.addDerivedDoubleGauge("queue_size", "Pending jobs", "1", labelKeys);
 
-  // Tracks the number of pending jobs in the queue.
+  // To instrument a queue's depth.
   private static void doWork() {
-    addJob();
+    derivedDoubleGauge.createTimeSeries(
+        labelValues,
+        new LinkedBlockingQueue(),
+        new ToDoubleFunction<LinkedBlockingQueue>() {
+          @Override
+          public double applyAsDouble(LinkedBlockingQueue queue) {
+            return queue.size();
+          }
+        });
+
     // Your code here.
-    removeJob();
   }
 
-  private static void addJob() {
-    pendingJobs.add(1);
-    // Your code here.
-  }
-
-  private static void removeJob() {
-    // Your code here.
-    pendingJobs.add(-1);
-  }
-
-  /** Main launcher for the LongGaugeExample. */
+  /** Main launcher for the DerivedDoubleGaugeQuickstart. */
   public static void main(String[] args) {
-    // Long Gauge metric is used to report instantaneous measurement of an int64 value. This is
-    // more convenient form when you want to manually increase and decrease values as per your
-    // service requirements.
+    // Derived Double Gauge metric is used to report instantaneous measurement of a double value.
+    // This is more convenient form when you want to define a gauge by executing a
+    // {@link ToDoubleFunction} on an object.
 
     doWork();
   }
