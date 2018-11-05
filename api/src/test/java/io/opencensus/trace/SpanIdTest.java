@@ -65,14 +65,14 @@ public class SpanIdTest {
   }
 
   @Test
-  public void traceId_CompareTo() {
+  public void spanId_CompareTo() {
     assertThat(first.compareTo(second)).isGreaterThan(0);
     assertThat(second.compareTo(first)).isLessThan(0);
     assertThat(first.compareTo(SpanId.fromBytes(firstBytes))).isEqualTo(0);
   }
 
   @Test
-  public void traceId_EqualsAndHashCode() {
+  public void spanId_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(SpanId.INVALID, SpanId.INVALID);
     tester.addEqualityGroup(first, SpanId.fromBytes(Arrays.copyOf(firstBytes, firstBytes.length)));
@@ -82,7 +82,7 @@ public class SpanIdTest {
   }
 
   @Test
-  public void traceId_ToString() {
+  public void spanId_ToString() {
     assertThat(SpanId.INVALID.toString()).contains("0000000000000000");
     assertThat(first.toString()).contains("0000000000000061");
     assertThat(second.toString()).contains("ff00000000000041");
