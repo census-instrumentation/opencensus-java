@@ -64,7 +64,7 @@ public final class HttpTraceUtil {
    * Specs</a>.
    *
    * @param statusCode the HTTP response status code. {@code 0} means invalid response.
-   * @param error the error occured during response transmission (optional).
+   * @param error the error occurred during response transmission (optional).
    * @return the corresponding OpenCensus {@code Status}.
    * @since 0.18
    */
