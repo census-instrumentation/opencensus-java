@@ -32,8 +32,8 @@ public final class UtilsTest {
   private static final String TEST_MESSAGE = "test message";
   private static final String TEST_MESSAGE_TEMPLATE = "I ate %s eggs.";
   private static final int TEST_MESSAGE_VALUE = 2;
-  private static final String FORMATED_SIMPLE_TEST_MESSAGE = "I ate 2 eggs.";
-  private static final String FORMATED_COMPLEX_TEST_MESSAGE = "I ate 2 eggs. [2]";
+  private static final String FORMATTED_SIMPLE_TEST_MESSAGE = "I ate 2 eggs.";
+  private static final String FORMATTED_COMPLEX_TEST_MESSAGE = "I ate 2 eggs. [2]";
 
   @Rule public ExpectedException thrown = ExpectedException.none();
 
@@ -55,14 +55,14 @@ public final class UtilsTest {
   @Test
   public void checkArgument_WithSimpleFormat() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(FORMATED_SIMPLE_TEST_MESSAGE);
+    thrown.expectMessage(FORMATTED_SIMPLE_TEST_MESSAGE);
     Utils.checkArgument(false, TEST_MESSAGE_TEMPLATE, TEST_MESSAGE_VALUE);
   }
 
   @Test
   public void checkArgument_WithComplexFormat() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(FORMATED_COMPLEX_TEST_MESSAGE);
+    thrown.expectMessage(FORMATTED_COMPLEX_TEST_MESSAGE);
     Utils.checkArgument(false, TEST_MESSAGE_TEMPLATE, TEST_MESSAGE_VALUE, TEST_MESSAGE_VALUE);
   }
 
