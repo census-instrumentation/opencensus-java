@@ -155,6 +155,34 @@ task stackdriverStatsQuickstart(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
 }
 
+task derivedDoubleGaugeQuickstart(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.gauges.DerivedDoubleGaugeQuickstart'
+    applicationName = 'DerivedDoubleGaugeQuickstart'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task derivedLongGaugeQuickstart(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.gauges.DerivedLongGaugeQuickstart'
+    applicationName = 'DerivedLongGaugeQuickstart'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task doubleGaugeQuickstart(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.gauges.DoubleGaugeQuickstart'
+    applicationName = 'DoubleGaugeQuickstart'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task longGaugeQuickstart(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.gauges.LongGaugeQuickstart'
+    applicationName = 'LongGaugeQuickstart'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
 applicationDistribution.into('bin') {
     from(multiSpansTracing)
     from(multiSpansScopedTracing)
@@ -166,5 +194,9 @@ applicationDistribution.into('bin') {
     from(helloWorldClient)
     from(repl)
     from(stackdriverStatsQuickstart)
+    from(derivedDoubleGaugeQuickstart)
+    from(derivedLongGaugeQuickstart)
+    from(doubleGaugeQuickstart)
+    from(longGaugeQuickstart)
     fileMode = 0755
 }
