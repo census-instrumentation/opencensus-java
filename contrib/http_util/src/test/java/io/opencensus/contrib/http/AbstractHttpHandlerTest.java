@@ -18,12 +18,18 @@ package io.opencensus.contrib.http;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,17 +46,26 @@ import org.mockito.MockitoAnnotations;
 public class AbstractHttpHandlerTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
+  private final Object request = new Object();
   private final Object response = new Object();
   private final Exception error = new Exception("test");
   @Mock private Span span;
   @Mock private HttpExtractor<Object, Object> extractor;
   private AbstractHttpHandler<Object, Object> handler;
   @Captor private ArgumentCaptor<MessageEvent> captor;
+  @Captor private ArgumentCaptor<AttributeValue> attributeCaptor;
+  Map<String, String> attributeMap = new HashMap<String, String>();
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     handler = new AbstractHttpHandler<Object, Object>(extractor) {};
+    attributeMap.put("http.host", "example.com");
+    attributeMap.put("http.route", "/get/:name");
+    attributeMap.put("http.path", "/get/helloworld");
+    attributeMap.put("http.method", "GET");
+    attributeMap.put("http.user_agent", "test 1.0");
+    attributeMap.put("http.url", "http://example.com/get/helloworld");
   }
 
   @Test
@@ -104,5 +119,34 @@ public class AbstractHttpHandlerTest {
   public void handleEndShouldEndSpan() {
     handler.handleEnd(span, response, error);
     verify(span).end(any(EndSpanOptions.class));
+  }
+
+  @Test
+  public void testSpanName() {
+    String spanName = handler.getSpanName(request, extractor);
+    assertThat(spanName).isNotNull();
+  }
+
+  private void verifyAttributes(String key) {
+    verify(span).putAttribute(eq(key), attributeCaptor.capture());
+    AttributeValue attribute = attributeCaptor.getValue();
+    assertThat(attribute.toString()).contains(attributeMap.get(key));
+  }
+
+  @Test
+  public void testSpanRequestAttributes() {
+
+    when(extractor.getRoute(any(Object.class))).thenReturn(attributeMap.get("http.route"));
+    when(extractor.getHost(any(Object.class))).thenReturn(attributeMap.get("http.host"));
+    when(extractor.getPath(any(Object.class))).thenReturn(attributeMap.get("http.path"));
+    when(extractor.getMethod(any(Object.class))).thenReturn(attributeMap.get("http.method"));
+    when(extractor.getUserAgent(any(Object.class))).thenReturn(attributeMap.get("http.user_agent"));
+    when(extractor.getUrl(any(Object.class))).thenReturn(attributeMap.get("http.url"));
+
+    handler.addSpanRequestAttributes(span, request, extractor);
+
+    for (Entry<String, String> entry : attributeMap.entrySet()) {
+      verifyAttributes(entry.getKey());
+    }
   }
 }

@@ -103,4 +103,31 @@ abstract class AbstractHttpHandler<Q, P> {
     span.setStatus(HttpTraceUtil.parseResponseStatus(statusCode, error));
     span.end();
   }
+
+  String getSpanName(Q request, HttpExtractor<Q, P> extractor) {
+    // default span name
+    String path = extractor.getPath(request);
+    if (path == null) {
+      path = "/";
+    }
+    if (!path.startsWith("/")) {
+      path = "/" + path;
+    }
+    return path;
+  }
+
+  private static void putAttributeIfNotEmptyOrNull(Span span, String key, @Nullable String value) {
+    if (value != null && !value.isEmpty()) {
+      span.putAttribute(key, AttributeValue.stringAttributeValue(value));
+    }
+  }
+
+  void addSpanRequestAttributes(Span span, Q request, HttpExtractor<Q, P> extractor) {
+    putAttributeIfNotEmptyOrNull(span, "http.user_agent", extractor.getUserAgent(request));
+    putAttributeIfNotEmptyOrNull(span, "http.host", extractor.getHost(request));
+    putAttributeIfNotEmptyOrNull(span, "http.method", extractor.getMethod(request));
+    putAttributeIfNotEmptyOrNull(span, "http.path", extractor.getPath(request));
+    putAttributeIfNotEmptyOrNull(span, "http.route", extractor.getRoute(request));
+    putAttributeIfNotEmptyOrNull(span, "http.url", extractor.getUrl(request));
+  }
 }
