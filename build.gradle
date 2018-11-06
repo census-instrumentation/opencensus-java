@@ -185,7 +185,7 @@ subprojects {
         protobufVersion = '3.5.1'
         zipkinReporterVersion = '2.3.2'
         jaegerReporterVersion = '0.27.0'
-        opencensusProtoVersion = '0.0.2'
+        opencensusProtoVersion = '0.1.0'
         dropwizardVersion = '3.1.2'
 
         libraries = [
