@@ -88,11 +88,13 @@ General guidelines on imports:
       <allow pkg="io.opencensus.stats"/>
       <allow pkg="io.opencensus.tags"/>
     </subpackage>
-    <subpackage name="http.util">
+    <subpackage name="http">
+      <allow pkg="io.opencensus.contrib.http"/>
       <allow pkg="io.opencensus.contrib.http.util"/>
       <allow pkg="io.opencensus.stats"/>
       <allow pkg="io.opencensus.tags"/>
       <allow pkg="io.opencensus.trace"/>
+      <allow pkg="io.opencensus.trace.propagation"/>
     </subpackage>
     <subpackage name="logcorrelation.log4j2">
       <allow pkg="io.opencensus.contrib.logcorrelation.log4j2"/>
