@@ -38,12 +38,13 @@ public class DerivedDoubleGaugeQuickstart {
 
   private static final DerivedDoubleGauge derivedDoubleGauge =
       metricRegistry.addDerivedDoubleGauge("queue_size", "Pending jobs", "1", labelKeys);
+  private static final LinkedBlockingQueue blockingQueue = new LinkedBlockingQueue();
 
   // To instrument a queue's depth.
   private static void doWork() {
     derivedDoubleGauge.createTimeSeries(
         labelValues,
-        new LinkedBlockingQueue(),
+        blockingQueue,
         new ToDoubleFunction<LinkedBlockingQueue>() {
           @Override
           public double applyAsDouble(LinkedBlockingQueue queue) {

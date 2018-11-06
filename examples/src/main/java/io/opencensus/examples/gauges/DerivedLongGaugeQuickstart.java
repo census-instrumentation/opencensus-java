@@ -38,12 +38,13 @@ public class DerivedLongGaugeQuickstart {
 
   private static final DerivedLongGauge derivedLongGauge =
       metricRegistry.addDerivedLongGauge("queue_size", "Pending jobs", "1", labelKeys);
+  private static final LinkedBlockingQueue blockingQueue = new LinkedBlockingQueue();
 
   // To instrument a queue's depth.
   private static void doWork() {
     derivedLongGauge.createTimeSeries(
         labelValues,
-        new LinkedBlockingQueue(),
+        blockingQueue,
         new ToLongFunction<LinkedBlockingQueue>() {
           @Override
           public long applyAsLong(LinkedBlockingQueue queue) {
