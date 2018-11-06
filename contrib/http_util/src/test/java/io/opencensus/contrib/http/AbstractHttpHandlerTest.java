@@ -22,14 +22,22 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.opencensus.contrib.http.util.testing.FakeSpan;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
+import io.opencensus.trace.Span.Options;
+import io.opencensus.trace.SpanContext;
+import io.opencensus.trace.SpanId;
+import io.opencensus.trace.TraceId;
+import io.opencensus.trace.TraceOptions;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +48,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /** Unit tests for {@link AbstractHttpHandler}. */
 @RunWith(JUnit4.class)
@@ -49,23 +58,36 @@ public class AbstractHttpHandlerTest {
   private final Object request = new Object();
   private final Object response = new Object();
   private final Exception error = new Exception("test");
+  private final Random random = new Random();
+  private final SpanContext spanContext =
+      SpanContext.create(
+          TraceId.generateRandomId(random),
+          SpanId.generateRandomId(random),
+          TraceOptions.DEFAULT,
+          null);
+  Map<String, String> attributeMap = new HashMap<String, String>();
   @Mock private Span span;
   @Mock private HttpExtractor<Object, Object> extractor;
   private AbstractHttpHandler<Object, Object> handler;
   @Captor private ArgumentCaptor<MessageEvent> captor;
   @Captor private ArgumentCaptor<AttributeValue> attributeCaptor;
-  Map<String, String> attributeMap = new HashMap<String, String>();
+  @Captor private ArgumentCaptor<EndSpanOptions> optionsCaptor;
+  @Spy private FakeSpan fakeSpan = new FakeSpan(spanContext, null);
+
+  @Spy
+  private FakeSpan fakeSpanWithRecordEvents =
+      new FakeSpan(spanContext, EnumSet.of(Options.RECORD_EVENTS));
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     handler = new AbstractHttpHandler<Object, Object>(extractor) {};
-    attributeMap.put("http.host", "example.com");
-    attributeMap.put("http.route", "/get/:name");
-    attributeMap.put("http.path", "/get/helloworld");
-    attributeMap.put("http.method", "GET");
-    attributeMap.put("http.user_agent", "test 1.0");
-    attributeMap.put("http.url", "http://example.com/get/helloworld");
+    attributeMap.put(AbstractHttpHandler.HTTP_HOST, "example.com");
+    attributeMap.put(AbstractHttpHandler.HTTP_ROUTE, "/get/:name");
+    attributeMap.put(AbstractHttpHandler.HTTP_PATH, "/get/helloworld");
+    attributeMap.put(AbstractHttpHandler.HTTP_METHOD, "GET");
+    attributeMap.put(AbstractHttpHandler.HTTP_USER_AGENT, "test 1.0");
+    attributeMap.put(AbstractHttpHandler.HTTP_URL, "http://example.com/get/helloworld");
   }
 
   @Test
@@ -112,13 +134,27 @@ public class AbstractHttpHandlerTest {
 
   @Test
   public void handleEndAllowNullResponseAndError() {
-    handler.handleEnd(span, /*response=*/ null, /*error=*/ null);
+    handler.handleEnd(fakeSpan, /*response=*/ null, /*error=*/ null);
   }
 
   @Test
   public void handleEndShouldEndSpan() {
-    handler.handleEnd(span, response, error);
-    verify(span).end(any(EndSpanOptions.class));
+    when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
+
+    handler.handleEnd(fakeSpan, response, error);
+    verify(fakeSpan).end(optionsCaptor.capture());
+    EndSpanOptions options = optionsCaptor.getValue();
+    assertThat(options).isEqualTo(EndSpanOptions.DEFAULT);
+  }
+
+  @Test
+  public void handleEndWithRecordEvents() {
+    when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
+    handler.handleEnd(fakeSpanWithRecordEvents, response, error);
+    verify(fakeSpanWithRecordEvents)
+        .putAttribute(eq(AbstractHttpHandler.HTTP_STATUS_CODE), attributeCaptor.capture());
+    AttributeValue attribute = attributeCaptor.getValue();
+    assertThat(attribute).isEqualTo(AttributeValue.longAttributeValue(0));
   }
 
   @Test
@@ -135,13 +171,18 @@ public class AbstractHttpHandlerTest {
 
   @Test
   public void testSpanRequestAttributes() {
-
-    when(extractor.getRoute(any(Object.class))).thenReturn(attributeMap.get("http.route"));
-    when(extractor.getHost(any(Object.class))).thenReturn(attributeMap.get("http.host"));
-    when(extractor.getPath(any(Object.class))).thenReturn(attributeMap.get("http.path"));
-    when(extractor.getMethod(any(Object.class))).thenReturn(attributeMap.get("http.method"));
-    when(extractor.getUserAgent(any(Object.class))).thenReturn(attributeMap.get("http.user_agent"));
-    when(extractor.getUrl(any(Object.class))).thenReturn(attributeMap.get("http.url"));
+    when(extractor.getRoute(any(Object.class)))
+        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_ROUTE));
+    when(extractor.getHost(any(Object.class)))
+        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_HOST));
+    when(extractor.getPath(any(Object.class)))
+        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_PATH));
+    when(extractor.getMethod(any(Object.class)))
+        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_METHOD));
+    when(extractor.getUserAgent(any(Object.class)))
+        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_USER_AGENT));
+    when(extractor.getUrl(any(Object.class)))
+        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_URL));
 
     handler.addSpanRequestAttributes(span, request, extractor);
 

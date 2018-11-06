@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.trace.Span;
+import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.Tracer;
@@ -97,7 +98,9 @@ public final class HttpClientHandler<
     SpanBuilder builder = tracer.spanBuilderWithExplicitParent(spanName, parent);
     Span span = builder.startSpan();
 
-    addSpanRequestAttributes(span, request, extractor);
+    if (span.getOptions().contains(Options.RECORD_EVENTS)) {
+      addSpanRequestAttributes(span, request, extractor);
+    }
 
     // inject propagation header
     SpanContext spanContext = span.getContext();

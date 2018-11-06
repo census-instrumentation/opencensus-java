@@ -45,24 +45,24 @@ import org.mockito.Spy;
 @RunWith(JUnit4.class)
 public class HttpClientHandlerTest {
 
+  @Rule public final ExpectedException thrown = ExpectedException.none();
+  private final Random random = new Random();
+  private final SpanContext spanContext =
+      SpanContext.create(
+          TraceId.generateRandomId(random),
+          SpanId.generateRandomId(random),
+          TraceOptions.DEFAULT,
+          null);
+  private final Object request = new Object();
+  private final Object carrier = new Object();
   @Mock private SpanBuilder spanBuilder;
   @Mock private Tracer tracer;
   @Mock private TextFormat textFormat;
   @Mock private TextFormat.Setter<Object> textFormatSetter;
   @Mock private HttpExtractor<Object, Object> extractor;
-
-  @Rule public final ExpectedException thrown = ExpectedException.none();
-
   private HttpClientHandler<Object, Object, Object> handler;
-
-  private final Random random = new Random();
-  private final SpanContext spanContext =
-      SpanContext.create(
-          TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
-  private final Object request = new Object();
-  private final Object carrier = new Object();
-  @Spy private FakeSpan parentSpan = new FakeSpan(spanContext);
-  private final FakeSpan childSpan = new FakeSpan(parentSpan.getContext());
+  @Spy private FakeSpan parentSpan = new FakeSpan(spanContext, null);
+  private final FakeSpan childSpan = new FakeSpan(parentSpan.getContext(), null);
 
   @Before
   public void setUp() {

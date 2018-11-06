@@ -25,13 +25,14 @@ import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.Status;
+import java.util.EnumSet;
 import java.util.Map;
 
 /** A fake {@link Span} which allows user to set {@link SpanContext} upon initialization. */
 @Internal
 public class FakeSpan extends Span {
-  public FakeSpan(SpanContext context) {
-    super(context, null);
+  public FakeSpan(SpanContext context, EnumSet<Options> options) {
+    super(context, options);
   }
 
   @Override

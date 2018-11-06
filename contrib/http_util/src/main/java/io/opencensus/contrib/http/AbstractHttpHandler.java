@@ -24,10 +24,18 @@ import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
+import io.opencensus.trace.Span.Options;
 import javax.annotation.Nullable;
 
 /** Base class for handling request on http client and server. */
 abstract class AbstractHttpHandler<Q, P> {
+  static final String HTTP_HOST = "http.host";
+  static final String HTTP_ROUTE = "http.route";
+  static final String HTTP_PATH = "http.path";
+  static final String HTTP_METHOD = "http.method";
+  static final String HTTP_USER_AGENT = "http.user_agent";
+  static final String HTTP_URL = "http.url";
+  static final String HTTP_STATUS_CODE = "http.status_code";
 
   /** The {@link HttpExtractor} used to extract information from request/response. */
   @VisibleForTesting final HttpExtractor<Q, P> extractor;
@@ -99,12 +107,14 @@ abstract class AbstractHttpHandler<Q, P> {
   public void handleEnd(Span span, @Nullable P response, @Nullable Throwable error) {
     checkNotNull(span, "span");
     int statusCode = extractor.getStatusCode(response);
-    span.putAttribute("http.status_code", AttributeValue.longAttributeValue(statusCode));
+    if (span.getOptions().contains(Options.RECORD_EVENTS)) {
+      span.putAttribute(HTTP_STATUS_CODE, AttributeValue.longAttributeValue(statusCode));
+    }
     span.setStatus(HttpTraceUtil.parseResponseStatus(statusCode, error));
     span.end();
   }
 
-  String getSpanName(Q request, HttpExtractor<Q, P> extractor) {
+  final String getSpanName(Q request, HttpExtractor<Q, P> extractor) {
     // default span name
     String path = extractor.getPath(request);
     if (path == null) {
@@ -122,12 +132,12 @@ abstract class AbstractHttpHandler<Q, P> {
     }
   }
 
-  void addSpanRequestAttributes(Span span, Q request, HttpExtractor<Q, P> extractor) {
-    putAttributeIfNotEmptyOrNull(span, "http.user_agent", extractor.getUserAgent(request));
-    putAttributeIfNotEmptyOrNull(span, "http.host", extractor.getHost(request));
-    putAttributeIfNotEmptyOrNull(span, "http.method", extractor.getMethod(request));
-    putAttributeIfNotEmptyOrNull(span, "http.path", extractor.getPath(request));
-    putAttributeIfNotEmptyOrNull(span, "http.route", extractor.getRoute(request));
-    putAttributeIfNotEmptyOrNull(span, "http.url", extractor.getUrl(request));
+  final void addSpanRequestAttributes(Span span, Q request, HttpExtractor<Q, P> extractor) {
+    putAttributeIfNotEmptyOrNull(span, HTTP_USER_AGENT, extractor.getUserAgent(request));
+    putAttributeIfNotEmptyOrNull(span, HTTP_HOST, extractor.getHost(request));
+    putAttributeIfNotEmptyOrNull(span, HTTP_METHOD, extractor.getMethod(request));
+    putAttributeIfNotEmptyOrNull(span, HTTP_PATH, extractor.getPath(request));
+    putAttributeIfNotEmptyOrNull(span, HTTP_ROUTE, extractor.getRoute(request));
+    putAttributeIfNotEmptyOrNull(span, HTTP_URL, extractor.getUrl(request));
   }
 }
