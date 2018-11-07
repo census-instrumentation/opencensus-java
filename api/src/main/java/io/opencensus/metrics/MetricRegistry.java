@@ -39,6 +39,7 @@ public abstract class MetricRegistry {
    * @param description the description of the metric.
    * @param unit the unit of the metric.
    * @param labelKeys the list of the label keys.
+   * @return a {@code LongGauge}.
    * @throws NullPointerException if {@code labelKeys} is null OR any element of {@code labelKeys}
    *     is null OR {@code name}, {@code description}, {@code unit} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
@@ -56,6 +57,7 @@ public abstract class MetricRegistry {
    * @param description the description of the metric.
    * @param unit the unit of the metric.
    * @param labelKeys the list of the label keys.
+   * @return a {@code DoubleGauge}.
    * @throws NullPointerException if {@code labelKeys} is null OR any element of {@code labelKeys}
    *     is null OR {@code name}, {@code description}, {@code unit} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
@@ -73,6 +75,7 @@ public abstract class MetricRegistry {
    * @param description the description of the metric.
    * @param unit the unit of the metric.
    * @param labelKeys the list of the label keys.
+   * @return a {@code DerivedLongGauge}.
    * @throws NullPointerException if {@code labelKeys} is null OR any element of {@code labelKeys}
    *     is null OR {@code name}, {@code description}, {@code unit} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
@@ -90,6 +93,7 @@ public abstract class MetricRegistry {
    * @param description the description of the metric.
    * @param unit the unit of the metric.
    * @param labelKeys the list of the label keys.
+   * @return a {@code DerivedDoubleGauge}.
    * @throws NullPointerException if {@code labelKeys} is null OR any element of {@code labelKeys}
    *     is null OR {@code name}, {@code description}, {@code unit} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.

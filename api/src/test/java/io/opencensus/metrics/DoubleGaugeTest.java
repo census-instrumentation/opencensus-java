@@ -42,8 +42,6 @@ public class DoubleGaugeTest {
   private static final List<LabelKey> EMPTY_LABEL_KEYS = new ArrayList<LabelKey>();
   private static final List<LabelValue> EMPTY_LABEL_VALUES = new ArrayList<LabelValue>();
 
-  // TODO(mayurkale): Add more tests, once DoubleGauge plugs-in into the registry.
-
   @Test
   public void noopGetOrCreateTimeSeries_WithNullLabelValues() {
     DoubleGauge doubleGauge =

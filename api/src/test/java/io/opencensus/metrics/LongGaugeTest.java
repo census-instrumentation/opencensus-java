@@ -42,8 +42,6 @@ public class LongGaugeTest {
   private static final List<LabelKey> EMPTY_LABEL_KEYS = new ArrayList<LabelKey>();
   private static final List<LabelValue> EMPTY_LABEL_VALUES = new ArrayList<LabelValue>();
 
-  // TODO(mayurkale): Add more tests, once LongGauge plugs-in into the registry.
-
   @Test
   public void noopGetOrCreateTimeSeries_WithNullLabelValues() {
     LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, EMPTY_LABEL_KEYS);
