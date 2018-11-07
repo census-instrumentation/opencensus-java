@@ -46,7 +46,11 @@ public abstract class Resource {
   private static final String LABEL_LIST_SPLITTER = ",";
   private static final String LABEL_KEY_VALUE_SPLITTER = "=";
   private static final String ERROR_MESSAGE_INVALID_CHARS =
-      " should be a ASCII string with a length no greater than " + MAX_LENGTH + " characters.";
+      " should be a ASCII string with a length greater than 0 and not exceed "
+          + MAX_LENGTH
+          + " characters.";
+  private static final String ERROR_MESSAGE_INVALID_VALUE =
+      " should be a ASCII string with a length not exceed " + MAX_LENGTH + " characters.";
 
   @Nullable
   private static final String ENV_TYPE = parseResourceType(System.getenv(OC_RESOURCE_TYPE_ENV));
@@ -115,7 +119,7 @@ public abstract class Resource {
   @Nullable
   static String parseResourceType(@Nullable String rawEnvType) {
     if (rawEnvType != null && !rawEnvType.isEmpty()) {
-      Utils.checkArgument(isValid(rawEnvType), "Type" + ERROR_MESSAGE_INVALID_CHARS);
+      Utils.checkArgument(isValidAndNotEmpty(rawEnvType), "Type" + ERROR_MESSAGE_INVALID_CHARS);
       return rawEnvType.trim();
     }
     return rawEnvType;
@@ -142,8 +146,8 @@ public abstract class Resource {
         }
         String key = keyValuePair[0].trim();
         String value = keyValuePair[1].trim().replaceAll("^\"|\"$", "");
-        Utils.checkArgument(isValid(key), "Label key" + ERROR_MESSAGE_INVALID_CHARS);
-        Utils.checkArgument(isValid(value), "Label value" + ERROR_MESSAGE_INVALID_CHARS);
+        Utils.checkArgument(isValidAndNotEmpty(key), "Label key" + ERROR_MESSAGE_INVALID_CHARS);
+        Utils.checkArgument(isValid(value), "Label value" + ERROR_MESSAGE_INVALID_VALUE);
         labels.put(key, value);
       }
       return Collections.unmodifiableMap(labels);
@@ -151,16 +155,27 @@ public abstract class Resource {
   }
 
   /**
-   * Determines whether the given {@code String} is a valid printable ASCII string.
+   * Determines whether the given {@code String} is a valid printable ASCII string with a length not
+   * exceed {@link #MAX_LENGTH} characters.
    *
    * @param name the name to be validated.
    * @return whether the name is valid.
    */
   static boolean isValid(String name) {
-    return !name.isEmpty() && name.length() <= MAX_LENGTH && StringUtils.isPrintableString(name);
+    return name.length() <= MAX_LENGTH && StringUtils.isPrintableString(name);
+  }
+
+  /**
+   * Determines whether the given {@code String} is a valid printable ASCII string with a length
+   * greater than 0 and not exceed {@link #MAX_LENGTH} characters.
+   *
+   * @param name the name to be validated.
+   * @return whether the name is valid.
+   */
+  static boolean isValidAndNotEmpty(String name) {
+    return !name.isEmpty() && isValid(name);
   }
 
   // TODO(mayurkale): Add detector interface as per specs:
   // https://github.com/census-instrumentation/opencensus-specs/blob/master/resource/Resource.md.
-
 }

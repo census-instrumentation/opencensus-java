@@ -58,7 +58,8 @@ public class ResourceTest {
   public void testParseResourceType_DisallowUnprintableChars() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(
-        "Type should be a ASCII string with a length no greater than 255 characters.");
+        "Type should be a ASCII string with a length greater than 0 and not exceed "
+            + "255 characters.");
     Resource.parseResourceType("\2ab\3cd");
   }
 
@@ -69,7 +70,8 @@ public class ResourceTest {
     String type = new String(chars);
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(
-        "Type should be a ASCII string with a length no greater than 255 characters.");
+        "Type should be a ASCII string with a length greater than 0 and not exceed "
+            + "255 characters.");
     Resource.parseResourceType(type);
   }
 
@@ -123,7 +125,7 @@ public class ResourceTest {
     String rawEnvLabels = "example.org/test-1=\2ab\3cd";
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(
-        "Label value should be a ASCII string with a length no greater than 255 characters.");
+        "Label value should be a ASCII string with a length not exceed 255 characters.");
     Resource.parseResourceLabels(rawEnvLabels);
   }
 
@@ -134,7 +136,8 @@ public class ResourceTest {
     String rawEnvLabels = new String(chars) + "=test-1";
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(
-        "Label key should be a ASCII string with a length no greater than 255 characters.");
+        "Label key should be a ASCII string with a length greater than 0 and not exceed "
+            + "255 characters.");
     Resource.parseResourceLabels(rawEnvLabels);
   }
 
@@ -145,7 +148,7 @@ public class ResourceTest {
     String rawEnvLabels = "example.org/test-1=" + new String(chars);
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(
-        "Label value should be a ASCII string with a length no greater than 255 characters.");
+        "Label value should be a ASCII string with a length not exceed 255 characters.");
     Resource.parseResourceLabels(rawEnvLabels);
   }
 

@@ -31,6 +31,11 @@
  *       e.g. “key1=val1,key2=val2”. The allowed character set is appropriately constrained.
  * </ul>
  *
+ * <p>Type, label keys, and label values MUST contain only printable ASCII (codes between 32 and
+ * 126, inclusive) and less than 256 characters. Type and label keys MUST have a length greater than
+ * zero. They SHOULD start with a domain name and separate hierarchies with / characters, e.g.
+ * k8s.io/namespace/name.
+ *
  * <p>WARNING: Currently all the public classes under this package are marked as {@link
  * io.opencensus.common.ExperimentalApi}. DO NOT USE except for experimental purposes.
  *
