@@ -91,6 +91,14 @@ public class RpcViewsTest {
         .containsExactlyElementsIn(RpcViews.GRPC_SERVER_VIEWS_SET);
   }
 
+  @Test
+  public void registerRealTimeMetricsViews() {
+    FakeViewManager fakeViewManager = new FakeViewManager();
+    RpcViews.registerRealTimeMetricsViews(fakeViewManager);
+    assertThat(fakeViewManager.getRegisteredViews())
+        .containsExactlyElementsIn(RpcViews.RPC_REAL_TIME_METRICS_VIEWS_SET);
+  }
+
   // TODO(bdrutu): Test with reflection that all defined gRPC views are registered.
 
   private static final class FakeViewManager extends ViewManager {

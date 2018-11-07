@@ -255,6 +255,48 @@ public final class RpcMeasureConstants {
           BYTE);
 
   /**
+   * {@link Measure} for total bytes sent per method, recorded real-time as bytes are sent.
+   *
+   * @since 0.18
+   */
+  public static final MeasureDouble GRPC_CLIENT_SENT_BYTES_PER_METHOD =
+      Measure.MeasureDouble.create(
+          "grpc.io/client/sent_bytes_per_method",
+          "Total bytes sent per method, recorded real-time as bytes are sent.",
+          BYTE);
+
+  /**
+   * {@link Measure} for total bytes received per method, recorded real-time as bytes are received.
+   *
+   * @since 0.18
+   */
+  public static final MeasureDouble GRPC_CLIENT_RECEIVED_BYTES_PER_METHOD =
+      Measure.MeasureDouble.create(
+          "grpc.io/client/received_bytes_per_method",
+          "Total bytes received per method, recorded real-time as bytes are received.",
+          BYTE);
+
+  /**
+   * {@link Measure} for total client sent messages.
+   *
+   * @since 0.18
+   */
+  public static final MeasureLong GRPC_CLIENT_SENT_MESSAGES_PER_METHOD =
+      Measure.MeasureLong.create(
+          "grpc.io/client/sent_messages_per_method", "Total messages sent per method.", COUNT);
+
+  /**
+   * {@link Measure} for total client received messages.
+   *
+   * @since 0.18
+   */
+  public static final MeasureLong GRPC_CLIENT_RECEIVED_MESSAGES_PER_METHOD =
+      Measure.MeasureLong.create(
+          "grpc.io/client/received_messages_per_method",
+          "Total messages received per method.",
+          COUNT);
+
+  /**
    * {@link Measure} for gRPC client roundtrip latency in milliseconds.
    *
    * @since 0.13
@@ -448,6 +490,48 @@ public final class RpcMeasureConstants {
           "grpc.io/server/received_bytes_per_rpc",
           "Total bytes received across all messages per RPC",
           BYTE);
+
+  /**
+   * {@link Measure} for total bytes sent per method, recorded real-time as bytes are sent.
+   *
+   * @since 0.18
+   */
+  public static final MeasureDouble GRPC_SERVER_SENT_BYTES_PER_METHOD =
+      Measure.MeasureDouble.create(
+          "grpc.io/server/sent_bytes_per_method",
+          "Total bytes sent per method, recorded real-time as bytes are sent.",
+          BYTE);
+
+  /**
+   * {@link Measure} for total bytes received per method, recorded real-time as bytes are received.
+   *
+   * @since 0.18
+   */
+  public static final MeasureDouble GRPC_SERVER_RECEIVED_BYTES_PER_METHOD =
+      Measure.MeasureDouble.create(
+          "grpc.io/server/received_bytes_per_method",
+          "Total bytes received per method, recorded real-time as bytes are received.",
+          BYTE);
+
+  /**
+   * {@link Measure} for total server sent messages.
+   *
+   * @since 0.18
+   */
+  public static final MeasureLong GRPC_SERVER_SENT_MESSAGES_PER_METHOD =
+      Measure.MeasureLong.create(
+          "grpc.io/server/sent_messages_per_method", "Total messages sent per method.", COUNT);
+
+  /**
+   * {@link Measure} for total server received messages.
+   *
+   * @since 0.18
+   */
+  public static final MeasureLong GRPC_SERVER_RECEIVED_MESSAGES_PER_METHOD =
+      Measure.MeasureLong.create(
+          "grpc.io/server/received_messages_per_method",
+          "Total messages received per method.",
+          COUNT);
 
   /**
    * {@link Measure} for number of messages sent in each RPC.
