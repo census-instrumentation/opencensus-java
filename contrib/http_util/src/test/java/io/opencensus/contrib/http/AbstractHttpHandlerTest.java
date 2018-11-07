@@ -72,11 +72,8 @@ public class AbstractHttpHandlerTest {
   @Captor private ArgumentCaptor<MessageEvent> captor;
   @Captor private ArgumentCaptor<AttributeValue> attributeCaptor;
   @Captor private ArgumentCaptor<EndSpanOptions> optionsCaptor;
-  @Spy private FakeSpan fakeSpan = new FakeSpan(spanContext, null);
 
-  @Spy
-  private FakeSpan fakeSpanWithRecordEvents =
-      new FakeSpan(spanContext, EnumSet.of(Options.RECORD_EVENTS));
+  @Spy private FakeSpan fakeSpan = new FakeSpan(spanContext, EnumSet.of(Options.RECORD_EVENTS));
 
   @Before
   public void setUp() {
@@ -101,8 +98,8 @@ public class AbstractHttpHandlerTest {
     Type type = Type.SENT;
     long id = 123L;
     long uncompressed = 456L;
-    handler.handleMessageSent(span, id, uncompressed);
-    verify(span).addMessageEvent(captor.capture());
+    handler.handleMessageSent(fakeSpan, id, uncompressed);
+    verify(fakeSpan).addMessageEvent(captor.capture());
 
     MessageEvent messageEvent = captor.getValue();
     assertThat(messageEvent.getType()).isEqualTo(type);
@@ -116,8 +113,8 @@ public class AbstractHttpHandlerTest {
     Type type = Type.RECEIVED;
     long id = 123L;
     long uncompressed = 456L;
-    handler.handleMessageReceived(span, id, uncompressed);
-    verify(span).addMessageEvent(captor.capture());
+    handler.handleMessageReceived(fakeSpan, id, uncompressed);
+    verify(fakeSpan).addMessageEvent(captor.capture());
 
     MessageEvent messageEvent = captor.getValue();
     assertThat(messageEvent.getType()).isEqualTo(type);
@@ -150,8 +147,8 @@ public class AbstractHttpHandlerTest {
   @Test
   public void handleEndWithRecordEvents() {
     when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
-    handler.handleEnd(fakeSpanWithRecordEvents, response, error);
-    verify(fakeSpanWithRecordEvents)
+    handler.handleEnd(fakeSpan, response, error);
+    verify(fakeSpan)
         .putAttribute(eq(AbstractHttpHandler.HTTP_STATUS_CODE), attributeCaptor.capture());
     AttributeValue attribute = attributeCaptor.getValue();
     assertThat(attribute).isEqualTo(AttributeValue.longAttributeValue(0));

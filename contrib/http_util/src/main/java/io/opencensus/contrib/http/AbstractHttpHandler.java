@@ -76,8 +76,10 @@ abstract class AbstractHttpHandler<Q, P> {
    */
   public final void handleMessageSent(Span span, long messageId, long messageSize) {
     checkNotNull(span, "span");
-    // record compressed size
-    recordMessageEvent(span, messageId, Type.SENT, messageSize, 0L);
+    if (span.getOptions().contains(Options.RECORD_EVENTS)) {
+      // record compressed size
+      recordMessageEvent(span, messageId, Type.SENT, messageSize, 0L);
+    }
   }
 
   /**
@@ -90,8 +92,10 @@ abstract class AbstractHttpHandler<Q, P> {
    */
   public final void handleMessageReceived(Span span, long messageId, long messageSize) {
     checkNotNull(span, "span");
-    // record compressed size
-    recordMessageEvent(span, messageId, Type.RECEIVED, messageSize, 0L);
+    if (span.getOptions().contains(Options.RECORD_EVENTS)) {
+      // record compressed size
+      recordMessageEvent(span, messageId, Type.RECEIVED, messageSize, 0L);
+    }
   }
 
   /**
