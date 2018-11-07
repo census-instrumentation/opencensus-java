@@ -27,7 +27,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link DerivedLongGauge}. */
-// TODO(mayurkale): Add more tests, once DerivedLongGauge plugs-in into the registry.
 @RunWith(JUnit4.class)
 public class DerivedLongGaugeTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
