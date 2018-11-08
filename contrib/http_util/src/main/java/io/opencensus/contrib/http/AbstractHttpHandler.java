@@ -97,17 +97,7 @@ abstract class AbstractHttpHandler<Q, P> {
     }
   }
 
-  /**
-   * Close an HTTP span.
-   *
-   * <p>This method will set status of the span and end it.
-   *
-   * @param response the HTTP response entity. {@code null} means invalid response.
-   * @param error the error occurs when processing the response.
-   * @param span the span.
-   * @since 0.18
-   */
-  public void handleEnd(Span span, @Nullable P response, @Nullable Throwable error) {
+  void spanEnd(Span span, @Nullable P response, @Nullable Throwable error) {
     checkNotNull(span, "span");
     int statusCode = extractor.getStatusCode(response);
     if (span.getOptions().contains(Options.RECORD_EVENTS)) {
