@@ -23,13 +23,17 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
-/** Interface to detect resource information. */
+/**
+ * Interface to detect resource information.
+ *
+ * @since 0.18
+ */
 @ExperimentalApi
 public interface ResourceDetector {
 
   /**
    * Returns a {@link Resource} that runs all input resources sequentially and merges their results.
-   * In case a type of label key is already set, the first set value is takes precedence. If the
+   * In case a type of label key is already set, the first set value takes precedence. If the
    * detector cannot find resource information, the returned resource is null.
    *
    * @param resources a list of resources.
