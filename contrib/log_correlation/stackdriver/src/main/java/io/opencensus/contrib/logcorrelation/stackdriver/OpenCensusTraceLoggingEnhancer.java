@@ -106,8 +106,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
       String tracePrefix, SpanContext span, LogEntry.Builder builder) {
     builder.setTrace(formatTraceId(tracePrefix, span.getTraceId()));
     builder.setSpanId(span.getSpanId().toLowerBase16());
-
-    // TODO(sebright): Add the sampling decision once google-cloud-logging supports it.
+    builder.setTraceSampled(span.getTraceOptions().isSampled());
   }
 
   private static String formatTraceId(String tracePrefix, TraceId traceId) {
