@@ -37,7 +37,7 @@ public final class TraceId implements Comparable<TraceId> {
    */
   public static final int SIZE = 16;
 
-  private static final int HEX_SIZE = 32;
+  private static final int BASE16_SIZE = 2 * BigendianEncoding.LONG_BASE16;
   private static final long INVALID_ID = 0;
 
   /**
@@ -111,8 +111,13 @@ public final class TraceId implements Comparable<TraceId> {
    */
   public static TraceId fromLowerBase16(CharSequence src) {
     Utils.checkArgument(
-        src.length() == HEX_SIZE, "Invalid size: expected %s, got %s", HEX_SIZE, src.length());
-    return fromBytes(LowerCaseBase16Encoding.decodeToBytes(src));
+        src.length() == BASE16_SIZE,
+        "Invalid size: expected %s, got %s",
+        BASE16_SIZE,
+        src.length());
+    return new TraceId(
+        BigendianEncoding.longFromBase16String(src, 0),
+        BigendianEncoding.longFromBase16String(src, BigendianEncoding.LONG_BASE16));
   }
 
   /**
@@ -185,7 +190,10 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.11
    */
   public String toLowerBase16() {
-    return LowerCaseBase16Encoding.encodeToString(getBytes());
+    StringBuilder stringBuilder = new StringBuilder(BASE16_SIZE);
+    BigendianEncoding.longToBase16String(idHi, stringBuilder);
+    BigendianEncoding.longToBase16String(idLo, stringBuilder);
+    return stringBuilder.toString();
   }
 
   /**

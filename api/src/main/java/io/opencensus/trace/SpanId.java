@@ -43,7 +43,7 @@ public final class SpanId implements Comparable<SpanId> {
    */
   public static final SpanId INVALID = new SpanId(0);
 
-  private static final int HEX_SIZE = 2 * SIZE;
+  private static final int BASE16_SIZE = 2 * SIZE;
   private static final long INVALID_ID = 0;
 
   // The internal representation of the SpanId.
@@ -104,8 +104,11 @@ public final class SpanId implements Comparable<SpanId> {
    */
   public static SpanId fromLowerBase16(CharSequence src) {
     Utils.checkArgument(
-        src.length() == HEX_SIZE, "Invalid size: expected %s, got %s", HEX_SIZE, src.length());
-    return fromBytes(LowerCaseBase16Encoding.decodeToBytes(src));
+        src.length() == BASE16_SIZE,
+        "Invalid size: expected %s, got %s",
+        BASE16_SIZE,
+        src.length());
+    return new SpanId(BigendianEncoding.longFromBase16String(src, 0));
   }
 
   /**
@@ -174,7 +177,9 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.11
    */
   public String toLowerBase16() {
-    return LowerCaseBase16Encoding.encodeToString(getBytes());
+    StringBuilder stringBuilder = new StringBuilder(BASE16_SIZE);
+    BigendianEncoding.longToBase16String(id, stringBuilder);
+    return stringBuilder.toString();
   }
 
   @Override

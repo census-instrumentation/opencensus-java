@@ -17,9 +17,34 @@
 package io.opencensus.trace;
 
 import io.opencensus.internal.Utils;
+import java.util.Arrays;
 
 final class BigendianEncoding {
   static final int LONG_BYTES = Long.SIZE / Byte.SIZE;
+  static final int LONG_BASE16 = 2 * LONG_BYTES;
+  private static final String ALPHABET = "0123456789abcdef";
+  private static final int ASCII_CHARACTERS = 128;
+  private static final char[] ENCODING = buildEncodingArray();
+  private static final byte[] DECODING = buildDecodingArray();
+
+  private static char[] buildEncodingArray() {
+    char[] encoding = new char[512];
+    for (int i = 0; i < 256; ++i) {
+      encoding[i] = ALPHABET.charAt(i >>> 4);
+      encoding[i | 0x100] = ALPHABET.charAt(i & 0xF);
+    }
+    return encoding;
+  }
+
+  private static byte[] buildDecodingArray() {
+    byte[] decoding = new byte[ASCII_CHARACTERS];
+    Arrays.fill(decoding, (byte) -1);
+    for (int i = 0; i < ALPHABET.length(); i++) {
+      char c = ALPHABET.charAt(i);
+      decoding[c] = (byte) i;
+    }
+    return decoding;
+  }
 
   /**
    * Returns the {@code long} value whose big-endian representation is stored in the first 8 bytes
@@ -60,6 +85,55 @@ final class BigendianEncoding {
     dest[destOffset + 2] = (byte) (value >> 40 & 0xFFL);
     dest[destOffset + 1] = (byte) (value >> 48 & 0xFFL);
     dest[destOffset] = (byte) (value >> 56 & 0xFFL);
+  }
+
+  /**
+   * Returns the {@code long} value whose base16 representation is stored in the first 16 chars of
+   * {@code chars} starting from the {@code offset}.
+   *
+   * @param chars the base16 representation of the {@code long}.
+   * @param offset the starting offset in the {@code CharSequence}.
+   */
+  static long longFromBase16String(CharSequence chars, int offset) {
+    Utils.checkArgument(chars.length() >= offset + LONG_BASE16, "chars too small");
+    return (decodeByte(chars.charAt(offset), chars.charAt(offset + 1)) & 0xFFL) << 56
+        | (decodeByte(chars.charAt(offset + 2), chars.charAt(offset + 3)) & 0xFFL) << 48
+        | (decodeByte(chars.charAt(offset + 4), chars.charAt(offset + 5)) & 0xFFL) << 40
+        | (decodeByte(chars.charAt(offset + 6), chars.charAt(offset + 7)) & 0xFFL) << 32
+        | (decodeByte(chars.charAt(offset + 8), chars.charAt(offset + 9)) & 0xFFL) << 24
+        | (decodeByte(chars.charAt(offset + 10), chars.charAt(offset + 11)) & 0xFFL) << 16
+        | (decodeByte(chars.charAt(offset + 12), chars.charAt(offset + 13)) & 0xFFL) << 8
+        | (decodeByte(chars.charAt(offset + 14), chars.charAt(offset + 15)) & 0xFFL);
+  }
+
+  /**
+   * Appends the base16 encoding of the specified {@code value} to the {@code dest}.
+   *
+   * @param value the long to be encoded.
+   * @param dest the destination {@link StringBuilder}.
+   */
+  static void longToBase16String(long value, StringBuilder dest) {
+    byteToBase16((byte) (value >> 56 & 0xFFL), dest);
+    byteToBase16((byte) (value >> 48 & 0xFFL), dest);
+    byteToBase16((byte) (value >> 40 & 0xFFL), dest);
+    byteToBase16((byte) (value >> 32 & 0xFFL), dest);
+    byteToBase16((byte) (value >> 24 & 0xFFL), dest);
+    byteToBase16((byte) (value >> 16 & 0xFFL), dest);
+    byteToBase16((byte) (value >> 8 & 0xFFL), dest);
+    byteToBase16((byte) (value & 0xFFL), dest);
+  }
+
+  private static byte decodeByte(char hi, char lo) {
+    Utils.checkArgument(lo < ASCII_CHARACTERS && DECODING[lo] != -1, "invalid character " + lo);
+    Utils.checkArgument(hi < ASCII_CHARACTERS && DECODING[hi] != -1, "invalid character " + hi);
+    int decoded = DECODING[hi] << 4 | DECODING[lo];
+    return (byte) decoded;
+  }
+
+  private static void byteToBase16(byte value, StringBuilder dest) {
+    int b = value & 0xFF;
+    dest.append(ENCODING[b]);
+    dest.append(ENCODING[b | 0x100]);
   }
 
   private BigendianEncoding() {}
