@@ -161,7 +161,7 @@ public abstract class Resource {
    * @param name the name to be validated.
    * @return whether the name is valid.
    */
-  static boolean isValid(String name) {
+  private static boolean isValid(String name) {
     return name.length() <= MAX_LENGTH && StringUtils.isPrintableString(name);
   }
 
@@ -172,10 +172,7 @@ public abstract class Resource {
    * @param name the name to be validated.
    * @return whether the name is valid.
    */
-  static boolean isValidAndNotEmpty(String name) {
+  private static boolean isValidAndNotEmpty(String name) {
     return !name.isEmpty() && isValid(name);
   }
-
-  // TODO(mayurkale): Add detector interface as per specs:
-  // https://github.com/census-instrumentation/opencensus-specs/blob/master/resource/Resource.md.
 }
