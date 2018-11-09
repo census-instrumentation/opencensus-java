@@ -39,11 +39,13 @@ import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.MessageEvent;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.export.SpanData;
 import java.util.List;
 import org.junit.Test;
@@ -72,6 +74,7 @@ public class JaegerExporterHandlerTest {
             SpanId.fromBytes(new byte[] {(byte) 0x7F, FF, FF, FF, FF, FF, FF, FF}),
             true,
             "test",
+            Kind.SERVER,
             Timestamp.fromMillis(startTime),
             SpanData.Attributes.create(sampleAttributes(), 0),
             SpanData.TimedEvents.create(singletonList(sampleAnnotation()), 0),
@@ -98,26 +101,36 @@ public class JaegerExporterHandlerTest {
     assertThat(span.startTime).isEqualTo(MILLISECONDS.toMicros(startTime));
     assertThat(span.duration).isEqualTo(MILLISECONDS.toMicros(endTime - startTime));
 
-    assertThat(span.tags.size()).isEqualTo(3);
+    assertThat(span.tags.size()).isEqualTo(4);
     assertThat(span.tags)
         .containsExactly(
             new Tag("BOOL", TagType.BOOL).setVBool(false),
             new Tag("LONG", TagType.LONG).setVLong(Long.MAX_VALUE),
+            new Tag("span.kind", TagType.STRING).setVStr("server"),
             new Tag("STRING", TagType.STRING)
                 .setVStr(
                     "Judge of a man by his questions rather than by his answers. -- Voltaire"));
 
-    assertThat(span.logs.size()).isEqualTo(1);
+    assertThat(span.logs.size()).isEqualTo(2);
     Log log = span.logs.get(0);
     assertThat(log.timestamp).isEqualTo(1519629872987654L);
     assertThat(log.fields.size()).isEqualTo(4);
     assertThat(log.fields)
         .containsExactly(
-            new Tag("description", TagType.STRING).setVStr("annotation #1"),
+            new Tag("message", TagType.STRING).setVStr("annotation #1"),
             new Tag("bool", TagType.BOOL).setVBool(true),
             new Tag("long", TagType.LONG).setVLong(1337L),
             new Tag("string", TagType.STRING)
                 .setVStr("Kind words do not cost much. Yet they accomplish much. -- Pascal"));
+    log = span.logs.get(1);
+    assertThat(log.timestamp).isEqualTo(1519629871123456L);
+    assertThat(log.fields.size()).isEqualTo(4);
+    assertThat(log.fields)
+        .containsExactly(
+            new Tag("message", TagType.STRING).setVStr("sent message"),
+            new Tag("id", TagType.LONG).setVLong(42L),
+            new Tag("compressed_size", TagType.LONG).setVLong(69),
+            new Tag("uncompressed_size", TagType.LONG).setVLong(96));
 
     assertThat(span.references.size()).isEqualTo(1);
     SpanRef reference = span.references.get(0);
@@ -131,7 +144,8 @@ public class JaegerExporterHandlerTest {
     return SpanContext.create(
         TraceId.fromBytes(new byte[] {FF, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}),
         SpanId.fromBytes(new byte[] {0, 0, 0, 0, 0, 0, 1, 0}),
-        TraceOptions.builder().setIsSampled(true).build());
+        TraceOptions.builder().setIsSampled(true).build(),
+        Tracestate.builder().build());
   }
 
   private static ImmutableMap<String, AttributeValue> sampleAttributes() {
@@ -159,7 +173,10 @@ public class JaegerExporterHandlerTest {
   private static SpanData.TimedEvent<MessageEvent> sampleMessageEvent() {
     return SpanData.TimedEvent.create(
         Timestamp.create(1519629871L, 123456789),
-        MessageEvent.builder(MessageEvent.Type.SENT, 42L).build());
+        MessageEvent.builder(MessageEvent.Type.SENT, 42L)
+            .setCompressedMessageSize(69)
+            .setUncompressedMessageSize(96)
+            .build());
   }
 
   private static List<Link> sampleLinks() {
@@ -169,7 +186,8 @@ public class JaegerExporterHandlerTest {
                 TraceId.fromBytes(
                     new byte[] {FF, FF, FF, FF, FF, FF, FF, FF, FF, FF, FF, FF, FF, FF, FF, 0}),
                 SpanId.fromBytes(new byte[] {0, 0, 0, 0, 0, 0, 2, 0}),
-                TraceOptions.builder().setIsSampled(false).build()),
+                TraceOptions.builder().setIsSampled(false).build(),
+                Tracestate.builder().build()),
             Link.Type.CHILD_LINKED_SPAN,
             ImmutableMap.of(
                 "Bool", AttributeValue.booleanAttributeValue(true),
