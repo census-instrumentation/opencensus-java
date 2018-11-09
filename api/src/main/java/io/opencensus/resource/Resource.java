@@ -63,7 +63,7 @@ public abstract class Resource {
   private static final Map<String, String> ENV_LABEL_MAP =
       parseResourceLabels(System.getenv(OC_RESOURCE_LABELS_ENV));
 
-  Resource() {}
+  protected Resource() {}
 
   /**
    * Returns the type identifier for the resource.
@@ -89,7 +89,7 @@ public abstract class Resource {
    * @return a {@code Resource}.
    * @since 0.18
    */
-  public static Resource create() {
+  public static Resource createFromEnvironmentVariables() {
     return createInternal(ENV_TYPE, ENV_LABEL_MAP);
   }
 
@@ -104,6 +104,9 @@ public abstract class Resource {
    *     ASCII string or exceed {@link #MAX_LENGTH} characters.
    * @since 0.18
    */
+  // TODO(mayurkale): Use this method while creating resource information from GCP, AWS etc.
+  // Counterpart :
+  // https://github.com/census-ecosystem/opencensus-go-resource/blob/master/aws/aws.go#L35-L41
   public static Resource create(/*@Nullable*/ String type, Map<String, String> labels) {
     return createInternal(
         type,
