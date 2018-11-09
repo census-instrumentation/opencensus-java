@@ -17,6 +17,15 @@
 package io.opencensus.exporter.trace.ocagent;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.grpc.ConnectivityState;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.opencensus.proto.agent.common.v1.Node;
+import io.opencensus.proto.agent.trace.v1.ExportTraceServiceRequest;
+import io.opencensus.proto.agent.trace.v1.TraceServiceGrpc;
+import io.opencensus.trace.Tracing;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Daemon worker thread that tries to connect to OC-Agent at a configured time interval
@@ -96,11 +105,17 @@ final class OcAgentTraceServiceConnectionWorker extends Thread {
    * }
    */
 
-  // private final String endPoint;
-  // private final boolean useInsecure;
-  // private final Node node;
+  private final String endPoint;
+  private final boolean useInsecure;
+  private final Node node;
   private final long retryIntervalMillis;
-  // private final boolean enableConfig;
+  private final boolean enableConfig;
+
+  private static final Logger logger =
+      Logger.getLogger(OcAgentTraceServiceConnectionWorker.class.getName());
+
+  @javax.annotation.Nullable
+  private static OcAgentTraceServiceExportRpcHandler exportRpcHandler; // Thread-safe
 
   @VisibleForTesting
   OcAgentTraceServiceConnectionWorker(
@@ -109,24 +124,26 @@ final class OcAgentTraceServiceConnectionWorker extends Thread {
       String serviceName,
       long retryIntervalMillis,
       boolean enableConfig) {
-    // this.endPoint = endPoint;
-    // this.useInsecure = useInsecure;
-    // this.node = OcAgentNodeUtils.getNodeInfo(serviceName);
+    this.endPoint = endPoint;
+    this.useInsecure = useInsecure;
+    this.node = OcAgentNodeUtils.getNodeInfo(serviceName);
     this.retryIntervalMillis = retryIntervalMillis;
-    // this.enableConfig = enableConfig;
+    this.enableConfig = enableConfig;
     setDaemon(true);
     setName("OcAgentTraceServiceConnectionWorker");
   }
 
-  static void startThread(
+  static OcAgentTraceServiceConnectionWorker startThread(
       String endPoint,
       boolean useInsecure,
       String serviceName,
       long retryIntervalMillis,
       boolean enableConfig) {
-    new OcAgentTraceServiceConnectionWorker(
-            endPoint, useInsecure, serviceName, retryIntervalMillis, enableConfig)
-        .start();
+    OcAgentTraceServiceConnectionWorker worker =
+        new OcAgentTraceServiceConnectionWorker(
+            endPoint, useInsecure, serviceName, retryIntervalMillis, enableConfig);
+    worker.start();
+    return worker;
   }
 
   @Override
@@ -135,14 +152,89 @@ final class OcAgentTraceServiceConnectionWorker extends Thread {
       // Infinite outer loop to keep this thread alive.
       // This thread should never exit unless interrupted.
       while (true) {
-
-        // TODO(songya): implement this.
+        connect(endPoint, useInsecure, node, retryIntervalMillis, enableConfig);
 
         // Retry connection after the configured time interval.
         Thread.sleep(retryIntervalMillis);
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
+    }
+  }
+
+  // Tries to establish connections to Agent at the given endPoint. If succeeded, keep
+  // checking the ConnectivityState of channel. If failed/disconnected, this method will exit and
+  // be invoked again after the configured time interval.
+  private static void connect(
+      String endPoint,
+      boolean useInsecure,
+      Node node,
+      long retryIntervalMillis,
+      boolean enableConfig)
+      throws InterruptedException {
+    ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forTarget(endPoint);
+    if (useInsecure) {
+      channelBuilder.usePlaintext();
+    }
+    ManagedChannel channel = channelBuilder.build();
+    TraceServiceGrpc.TraceServiceStub stub = TraceServiceGrpc.newStub(channel);
+
+    exportRpcHandler = OcAgentTraceServiceExportRpcHandler.create(stub);
+    // First message must have Node set.
+    ExportTraceServiceRequest firstExportReq =
+        ExportTraceServiceRequest.newBuilder().setNode(node).build();
+    exportRpcHandler.onExport(firstExportReq);
+
+    OcAgentTraceServiceConfigRpcHandler configRpcHandler = null;
+    if (enableConfig) {
+      io.opencensus.trace.config.TraceConfig traceConfig = Tracing.getTraceConfig();
+      configRpcHandler = OcAgentTraceServiceConfigRpcHandler.create(stub, traceConfig);
+      configRpcHandler.sendInitialMessage(node);
+    }
+
+    while (true) {
+      ConnectivityState state = channel.getState(/*requestConnection=*/ false);
+      if (state == ConnectivityState.SHUTDOWN) {
+        if (configRpcHandler != null && configRpcHandler.getTerminateStatus() != null) {
+          TerminateStatusRunnable runnable =
+              new TerminateStatusRunnable(configRpcHandler.getTerminateStatus(), "Config");
+          new Thread(runnable).start();
+        }
+
+        if (exportRpcHandler != null && exportRpcHandler.getTerminateStatus() != null) {
+          TerminateStatusRunnable runnable =
+              new TerminateStatusRunnable(exportRpcHandler.getTerminateStatus(), "Export");
+          new Thread(runnable).start();
+        }
+
+        break;
+      } else {
+        Thread.sleep(retryIntervalMillis);
+      }
+    }
+  }
+
+  static void export(ExportTraceServiceRequest request) {
+    if (exportRpcHandler == null) {
+      return;
+    }
+    exportRpcHandler.onExport(request);
+  }
+
+  private static final class TerminateStatusRunnable implements Runnable {
+
+    private final io.grpc.Status status;
+    private final String rpcName;
+
+    TerminateStatusRunnable(io.grpc.Status status, String rpcName) {
+      this.status = status;
+      this.rpcName = rpcName;
+    }
+
+    @Override
+    public void run() {
+      // TODO: consider exporting/recording the status
+      logger.log(Level.INFO, "RPC " + rpcName + " terminated with Status ", status);
     }
   }
 }
