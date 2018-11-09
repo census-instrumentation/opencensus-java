@@ -365,7 +365,8 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
     return tag;
   }
 
-  private static @Nullable Tag spanKindToTag(@Nullable final io.opencensus.trace.Span.Kind kind) {
+  @Nullable
+  private static Tag spanKindToTag(@Nullable final io.opencensus.trace.Span.Kind kind) {
     if (kind == null) {
       return null;
     }
