@@ -19,6 +19,7 @@ package io.opencensus.contrib.http;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.contrib.http.util.HttpTraceAttributeConstants;
 import io.opencensus.contrib.http.util.HttpTraceUtil;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.MessageEvent;
@@ -29,14 +30,6 @@ import javax.annotation.Nullable;
 
 /** Base class for handling request on http client and server. */
 abstract class AbstractHttpHandler<Q, P> {
-  static final String HTTP_HOST = "http.host";
-  static final String HTTP_ROUTE = "http.route";
-  static final String HTTP_PATH = "http.path";
-  static final String HTTP_METHOD = "http.method";
-  static final String HTTP_USER_AGENT = "http.user_agent";
-  static final String HTTP_URL = "http.url";
-  static final String HTTP_STATUS_CODE = "http.status_code";
-
   /** The {@link HttpExtractor} used to extract information from request/response. */
   @VisibleForTesting final HttpExtractor<Q, P> extractor;
 
@@ -64,6 +57,12 @@ abstract class AbstractHttpHandler<Q, P> {
             .setCompressedMessageSize(compressedMessageSize)
             .build();
     span.addMessageEvent(messageEvent);
+  }
+
+  private static void putAttributeIfNotEmptyOrNull(Span span, String key, @Nullable String value) {
+    if (value != null && !value.isEmpty()) {
+      span.putAttribute(key, AttributeValue.stringAttributeValue(value));
+    }
   }
 
   /**
@@ -112,7 +111,9 @@ abstract class AbstractHttpHandler<Q, P> {
     checkNotNull(span, "span");
     int statusCode = extractor.getStatusCode(response);
     if (span.getOptions().contains(Options.RECORD_EVENTS)) {
-      span.putAttribute(HTTP_STATUS_CODE, AttributeValue.longAttributeValue(statusCode));
+      span.putAttribute(
+          HttpTraceAttributeConstants.HTTP_STATUS_CODE,
+          AttributeValue.longAttributeValue(statusCode));
     }
     span.setStatus(HttpTraceUtil.parseResponseStatus(statusCode, error));
     span.end();
@@ -130,18 +131,18 @@ abstract class AbstractHttpHandler<Q, P> {
     return path;
   }
 
-  private static void putAttributeIfNotEmptyOrNull(Span span, String key, @Nullable String value) {
-    if (value != null && !value.isEmpty()) {
-      span.putAttribute(key, AttributeValue.stringAttributeValue(value));
-    }
-  }
-
   final void addSpanRequestAttributes(Span span, Q request, HttpExtractor<Q, P> extractor) {
-    putAttributeIfNotEmptyOrNull(span, HTTP_USER_AGENT, extractor.getUserAgent(request));
-    putAttributeIfNotEmptyOrNull(span, HTTP_HOST, extractor.getHost(request));
-    putAttributeIfNotEmptyOrNull(span, HTTP_METHOD, extractor.getMethod(request));
-    putAttributeIfNotEmptyOrNull(span, HTTP_PATH, extractor.getPath(request));
-    putAttributeIfNotEmptyOrNull(span, HTTP_ROUTE, extractor.getRoute(request));
-    putAttributeIfNotEmptyOrNull(span, HTTP_URL, extractor.getUrl(request));
+    putAttributeIfNotEmptyOrNull(
+        span, HttpTraceAttributeConstants.HTTP_USER_AGENT, extractor.getUserAgent(request));
+    putAttributeIfNotEmptyOrNull(
+        span, HttpTraceAttributeConstants.HTTP_HOST, extractor.getHost(request));
+    putAttributeIfNotEmptyOrNull(
+        span, HttpTraceAttributeConstants.HTTP_METHOD, extractor.getMethod(request));
+    putAttributeIfNotEmptyOrNull(
+        span, HttpTraceAttributeConstants.HTTP_PATH, extractor.getPath(request));
+    putAttributeIfNotEmptyOrNull(
+        span, HttpTraceAttributeConstants.HTTP_ROUTE, extractor.getRoute(request));
+    putAttributeIfNotEmptyOrNull(
+        span, HttpTraceAttributeConstants.HTTP_URL, extractor.getUrl(request));
   }
 }

@@ -22,6 +22,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.opencensus.contrib.http.util.HttpTraceAttributeConstants;
 import io.opencensus.contrib.http.util.testing.FakeSpan;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;
@@ -79,12 +80,12 @@ public class AbstractHttpHandlerTest {
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     handler = new AbstractHttpHandler<Object, Object>(extractor) {};
-    attributeMap.put(AbstractHttpHandler.HTTP_HOST, "example.com");
-    attributeMap.put(AbstractHttpHandler.HTTP_ROUTE, "/get/:name");
-    attributeMap.put(AbstractHttpHandler.HTTP_PATH, "/get/helloworld");
-    attributeMap.put(AbstractHttpHandler.HTTP_METHOD, "GET");
-    attributeMap.put(AbstractHttpHandler.HTTP_USER_AGENT, "test 1.0");
-    attributeMap.put(AbstractHttpHandler.HTTP_URL, "http://example.com/get/helloworld");
+    attributeMap.put(HttpTraceAttributeConstants.HTTP_HOST, "example.com");
+    attributeMap.put(HttpTraceAttributeConstants.HTTP_ROUTE, "/get/:name");
+    attributeMap.put(HttpTraceAttributeConstants.HTTP_PATH, "/get/helloworld");
+    attributeMap.put(HttpTraceAttributeConstants.HTTP_METHOD, "GET");
+    attributeMap.put(HttpTraceAttributeConstants.HTTP_USER_AGENT, "test 1.0");
+    attributeMap.put(HttpTraceAttributeConstants.HTTP_URL, "http://example.com/get/helloworld");
   }
 
   @Test
@@ -149,7 +150,7 @@ public class AbstractHttpHandlerTest {
     when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
     handler.handleEnd(fakeSpan, response, error);
     verify(fakeSpan)
-        .putAttribute(eq(AbstractHttpHandler.HTTP_STATUS_CODE), attributeCaptor.capture());
+        .putAttribute(eq(HttpTraceAttributeConstants.HTTP_STATUS_CODE), attributeCaptor.capture());
     AttributeValue attribute = attributeCaptor.getValue();
     assertThat(attribute).isEqualTo(AttributeValue.longAttributeValue(0));
   }
@@ -169,17 +170,17 @@ public class AbstractHttpHandlerTest {
   @Test
   public void testSpanRequestAttributes() {
     when(extractor.getRoute(any(Object.class)))
-        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_ROUTE));
+        .thenReturn(attributeMap.get(HttpTraceAttributeConstants.HTTP_ROUTE));
     when(extractor.getHost(any(Object.class)))
-        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_HOST));
+        .thenReturn(attributeMap.get(HttpTraceAttributeConstants.HTTP_HOST));
     when(extractor.getPath(any(Object.class)))
-        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_PATH));
+        .thenReturn(attributeMap.get(HttpTraceAttributeConstants.HTTP_PATH));
     when(extractor.getMethod(any(Object.class)))
-        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_METHOD));
+        .thenReturn(attributeMap.get(HttpTraceAttributeConstants.HTTP_METHOD));
     when(extractor.getUserAgent(any(Object.class)))
-        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_USER_AGENT));
+        .thenReturn(attributeMap.get(HttpTraceAttributeConstants.HTTP_USER_AGENT));
     when(extractor.getUrl(any(Object.class)))
-        .thenReturn(attributeMap.get(AbstractHttpHandler.HTTP_URL));
+        .thenReturn(attributeMap.get(HttpTraceAttributeConstants.HTTP_URL));
 
     handler.addSpanRequestAttributes(span, request, extractor);
 
