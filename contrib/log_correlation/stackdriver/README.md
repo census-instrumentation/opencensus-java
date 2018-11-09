@@ -4,9 +4,9 @@ The `opencensus-contrib-log-correlation-stackdriver` artifact provides a
 [Stackdriver Logging](https://cloud.google.com/logging/)
 [`LoggingEnhancer`](http://googlecloudplatform.github.io/google-cloud-java/google-cloud-clients/apidocs/com/google/cloud/logging/LoggingEnhancer.html)
 that automatically adds tracing data to log entries. The class name is
-`OpenCensusTraceLoggingEnhancer`. `OpenCensusTraceLoggingEnhancer` adds the current trace and span
-ID to each log entry, which allows Stackdriver to display the log entries associated with each
-trace, or filter logs based on trace or span ID.
+`OpenCensusTraceLoggingEnhancer`. `OpenCensusTraceLoggingEnhancer` adds the current trace ID, span
+ID, and sampling decision to each log entry, which allows Stackdriver to display the log entries
+associated with each trace, or filter logs based on trace or span ID.
 
 ## Instructions
 

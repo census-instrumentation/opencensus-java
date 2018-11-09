@@ -17,6 +17,8 @@
 package io.opencensus.contrib.logcorrelation.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.google.cloud.logging.LogEntry;
 import com.google.cloud.logging.LoggingEnhancer;
@@ -67,6 +69,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
                     SpanId.fromLowerBase16("de52e84d13dd232d"),
                     TraceOptions.builder().setIsSampled(true).build(),
                     EMPTY_TRACESTATE)));
+    assertTrue(logEntry.getTraceSampled());
     assertThat(logEntry.getTrace())
         .isEqualTo("projects/my-test-project-3/traces/4c6af40c499951eb7de2777ba1e4fefa");
     assertThat(logEntry.getSpanId()).isEqualTo("de52e84d13dd232d");
@@ -83,6 +86,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
                     SpanId.fromLowerBase16("731e102335b7a5a0"),
                     TraceOptions.builder().setIsSampled(false).build(),
                     EMPTY_TRACESTATE)));
+    assertFalse(logEntry.getTraceSampled());
     assertThat(logEntry.getTrace())
         .isEqualTo("projects/my-test-project-6/traces/72c905c76f99e99974afd84dc053a480");
     assertThat(logEntry.getSpanId()).isEqualTo("731e102335b7a5a0");
@@ -93,6 +97,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
     LogEntry logEntry =
         getEnhancedLogEntry(
             new OpenCensusTraceLoggingEnhancer("my-test-project-7"), BlankSpan.INSTANCE);
+    assertFalse(logEntry.getTraceSampled());
     assertThat(logEntry.getTrace())
         .isEqualTo("projects/my-test-project-7/traces/00000000000000000000000000000000");
     assertThat(logEntry.getSpanId()).isEqualTo("0000000000000000");
