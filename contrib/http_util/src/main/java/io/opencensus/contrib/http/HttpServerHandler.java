@@ -38,7 +38,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @param <Q> the HTTP request entity.
  * @param <P> the HTTP response entity.
  * @param <C> the type of the carrier.
- * @since 0.17
+ * @since 0.18
  */
 @ExperimentalApi
 public class HttpServerHandler<
@@ -60,7 +60,7 @@ public class HttpServerHandler<
    * @param getter the getter used when extracting information from the {@code carrier}.
    * @param publicEndpoint set to true for publicly accessible HTTP(S) server. If true then incoming
    *     tracecontext will be added as a link instead of as a parent.
-   * @since 0.17
+   * @since 0.18
    */
   public HttpServerHandler(
       Tracer tracer,
@@ -92,7 +92,7 @@ public class HttpServerHandler<
    * @param carrier the entity that holds the HTTP information.
    * @param request the request entity.
    * @return a span that represents the response handling process.
-   * @since 0.17
+   * @since 0.18
    */
   public Span handleStart(C carrier, Q request) {
     checkNotNull(carrier, "carrier");
@@ -103,15 +103,14 @@ public class HttpServerHandler<
     SpanContext spanContext = null;
     try {
       spanContext = textFormat.extract(carrier, getter);
-      if (publicEndpoint) {
-        spanBuilder = tracer.spanBuilder(spanName);
-      } else {
-        spanBuilder = tracer.spanBuilderWithRemoteParent(spanName, spanContext);
-      }
     } catch (SpanContextParseException e) {
       // TODO: Currently we cannot distinguish between context parse error and missing context.
       // Logging would be annoying so we just ignore this error and do not even log a message.
+    }
+    if (spanContext == null || publicEndpoint) {
       spanBuilder = tracer.spanBuilder(spanName);
+    } else {
+      spanBuilder = tracer.spanBuilderWithRemoteParent(spanName, spanContext);
     }
 
     Span span = spanBuilder.startSpan();
