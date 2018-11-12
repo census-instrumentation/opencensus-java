@@ -21,14 +21,14 @@ buildscript {
 // Also see https://github.com/ben-manes/gradle-versions-plugin.
 apply plugin: 'com.github.ben-manes.versions'
 
-// Don't use the Checker Framework by default, since it interferes with Error Prone.
-def useCheckerFramework = rootProject.hasProperty('checkerFramework')
-def useErrorProne = !useCheckerFramework
-
 subprojects {
     // OC-Agent exporter depends on grpc-core which depends on errorprone annotations, and it
     // doesn't work with checker framework.
-    def mustUseErrorprone = project.name == "opencensus-exporter-trace-ocagent"
+    def projectsDependOnGrpcCore = ["opencensus-exporter-trace-ocagent"]
+
+    // Don't use the Checker Framework by default, since it interferes with Error Prone.
+    def useCheckerFramework = rootProject.hasProperty('checkerFramework') && !(project.name in projectsDependOnGrpcCore)
+    def useErrorProne = !useCheckerFramework
 
     apply plugin: "checkstyle"
     apply plugin: 'maven'
@@ -46,7 +46,7 @@ subprojects {
     apply plugin: "io.morethan.jmhreport"
     // Plugins that require java8
     if (JavaVersion.current().isJava8Compatible()) {
-        if (useErrorProne || mustUseErrorprone) {
+        if (useErrorProne) {
             apply plugin: "net.ltgt.errorprone"
         }
         apply plugin: 'com.github.sherter.google-java-format'
@@ -63,7 +63,7 @@ subprojects {
         mavenLocal()
     }
 
-    if (useCheckerFramework && !mustUseErrorprone) {
+    if (useCheckerFramework) {
         configurations {
             checkerFrameworkJavac {
                 description = 'a customization of the Open JDK javac compiler with additional support for type annotations'
@@ -80,7 +80,7 @@ subprojects {
         // We suppress the "processing" warning as suggested in
         // https://groups.google.com/forum/#!topic/bazel-discuss/_R3A9TJSoPM
         it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-processing"]
-        if (useErrorProne || mustUseErrorprone) {
+        if (useErrorProne) {
             if (JavaVersion.current().isJava8Compatible()) {
                 it.options.compilerArgs += ["-XepAllDisabledChecksAsWarnings", "-XepDisableWarningsInGeneratedCode"]
 
@@ -112,7 +112,7 @@ subprojects {
                 it.options.compilerArgs += ["-Xep:TestExceptionRefactoring:OFF"]
             }
         }
-        if (useCheckerFramework && !mustUseErrorprone) {
+        if (useCheckerFramework) {
             it.options.compilerArgs += [
                     '-processor',
                     'com.google.auto.value.processor.AutoValueProcessor,org.checkerframework.checker.nullness.NullnessChecker',
@@ -123,7 +123,7 @@ subprojects {
         // Protobuf-generated code produces some warnings.
         // https://github.com/google/protobuf/issues/2718
         it.options.compilerArgs += ["-Xlint:-cast"]
-        if (!JavaVersion.current().isJava9() && !mustUseErrorprone) {
+        if (!JavaVersion.current().isJava9() && !useErrorProne) {
             // TODO(sebright): Enable -Werror for Java 9 once we upgrade AutoValue (issue #1017).
             it.options.compilerArgs += ["-Werror"]
         }
@@ -251,7 +251,7 @@ subprojects {
     }
 
     dependencies {
-        if (useCheckerFramework && !mustUseErrorprone) {
+        if (useCheckerFramework) {
             ext.checkerFrameworkVersion = '2.5.6'
 
             // 2.4.0 is the last version of the Checker Framework compiler that supports annotations
@@ -276,7 +276,7 @@ subprojects {
                 libraries.mockito,
                 libraries.truth
 
-        if ((useErrorProne || mustUseErrorprone) && JavaVersion.current().isJava8Compatible()) {
+        if (useErrorProne && JavaVersion.current().isJava8Compatible()) {
             // The ErrorProne plugin defaults to the latest, which would break our
             // build if error prone releases a new version with a new check
             errorprone "com.google.errorprone:error_prone_core:${errorProneVersion}"
@@ -480,7 +480,7 @@ subprojects {
         maxHeapSize = '1500m'
     }
 
-    if (useCheckerFramework && !mustUseErrorprone) {
+    if (useCheckerFramework) {
         allprojects {
             tasks.withType(JavaCompile).all { JavaCompile compile ->
                 compile.doFirst {
