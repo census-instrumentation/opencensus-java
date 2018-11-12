@@ -27,6 +27,7 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
+import javax.annotation.Nullable;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -118,5 +119,19 @@ public class HttpServerHandler<
       span.addLink(Link.fromSpanContext(spanContext, Type.PARENT_LINKED_SPAN));
     }
     return span;
+  }
+
+  /**
+   * Close an HTTP span.
+   *
+   * <p>This method will set status of the span and end it.
+   *
+   * @param response the HTTP response entity. {@code null} means invalid response.
+   * @param error the error occurs when processing the response.
+   * @param span the span.
+   * @since 0.18
+   */
+  public void handleEnd(Span span, @Nullable P response, @Nullable Throwable error) {
+    spanEnd(span, response, error);
   }
 }

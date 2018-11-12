@@ -127,19 +127,19 @@ public class AbstractHttpHandlerTest {
   @Test
   public void handleEndDisallowNullSpan() {
     thrown.expect(NullPointerException.class);
-    handler.handleEnd(null, response, error);
+    handler.spanEnd(null, response, error);
   }
 
   @Test
   public void handleEndAllowNullResponseAndError() {
-    handler.handleEnd(fakeSpan, /*response=*/ null, /*error=*/ null);
+    handler.spanEnd(fakeSpan, /*response=*/ null, /*error=*/ null);
   }
 
   @Test
   public void handleEndShouldEndSpan() {
     when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
 
-    handler.handleEnd(fakeSpan, response, error);
+    handler.spanEnd(fakeSpan, response, error);
     verify(fakeSpan).end(optionsCaptor.capture());
     EndSpanOptions options = optionsCaptor.getValue();
     assertThat(options).isEqualTo(EndSpanOptions.DEFAULT);
@@ -148,7 +148,7 @@ public class AbstractHttpHandlerTest {
   @Test
   public void handleEndWithRecordEvents() {
     when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
-    handler.handleEnd(fakeSpan, response, error);
+    handler.spanEnd(fakeSpan, response, error);
     verify(fakeSpan)
         .putAttribute(eq(HttpTraceAttributeConstants.HTTP_STATUS_CODE), attributeCaptor.capture());
     AttributeValue attribute = attributeCaptor.getValue();

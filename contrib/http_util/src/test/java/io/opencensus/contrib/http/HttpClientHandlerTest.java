@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.http;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import io.opencensus.common.Scope;
 import io.opencensus.contrib.http.util.testing.FakeSpan;
+import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -37,6 +39,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
@@ -63,6 +67,7 @@ public class HttpClientHandlerTest {
   private HttpClientHandler<Object, Object, Object> handler;
   @Spy private FakeSpan parentSpan = new FakeSpan(spanContext, null);
   private final FakeSpan childSpan = new FakeSpan(parentSpan.getContext(), null);
+  @Captor private ArgumentCaptor<EndSpanOptions> optionsCaptor;
 
   @Before
   public void setUp() {
@@ -115,5 +120,15 @@ public class HttpClientHandlerTest {
   public void handleStartShouldInjectCarrier() {
     handler.handleStart(parentSpan, carrier, request);
     verify(textFormat).inject(same(spanContext), same(carrier), same(textFormatSetter));
+  }
+
+  @Test
+  public void handleEndShouldEndSpan() {
+    when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
+
+    handler.spanEnd(parentSpan, carrier, null);
+    verify(parentSpan).end(optionsCaptor.capture());
+    EndSpanOptions options = optionsCaptor.getValue();
+    assertThat(options).isEqualTo(EndSpanOptions.DEFAULT);
   }
 }
