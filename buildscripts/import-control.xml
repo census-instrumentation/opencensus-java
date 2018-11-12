@@ -100,6 +100,14 @@ General guidelines on imports:
       <allow pkg="io.opencensus.trace"/>
       <allow pkg="org.eclipse.jetty.client"/>
     </subpackage>
+    <subpackage name="http.servlet">
+      <allow pkg="io.opencensus.contrib.http"/>
+      <allow pkg="io.opencensus.contrib.http.servlet"/>
+      <allow pkg="io.opencensus.contrib.http.util"/>
+      <allow pkg="io.opencensus.trace"/>
+      <allow pkg="javax.servlet"/>
+      <allow pkg="org.eclipse.jetty.server"/>
+    </subpackage>
     <subpackage name="http">
       <allow pkg="io.opencensus.contrib.http"/>
       <allow pkg="io.opencensus.contrib.http.util"/>
@@ -107,13 +115,6 @@ General guidelines on imports:
       <allow pkg="io.opencensus.tags"/>
       <allow pkg="io.opencensus.trace"/>
       <allow pkg="io.opencensus.trace.propagation"/>
-    </subpackage>
-    <subpackage name="http.servlet">
-      <allow pkg="io.opencensus.contrib.http"/>
-      <allow pkg="io.opencensus.contrib.http.servlet"/>
-      <allow pkg="io.opencensus.contrib.http.util"/>
-      <allow pkg="io.opencensus.trace"/>
-      <allow pkg="javax.servlet"/>
     </subpackage>
     <subpackage name="logcorrelation.log4j2">
       <allow pkg="io.opencensus.contrib.logcorrelation.log4j2"/>
