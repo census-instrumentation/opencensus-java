@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.opencensus.contrib.http.util.testing.FakeSpan;
+import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.Link.Type;
 import io.opencensus.trace.Span;
@@ -74,6 +75,7 @@ public class HttpServerHandlerTest {
   @Mock private TextFormat.Getter<Object> textFormatGetter;
   @Mock private HttpExtractor<Object, Object> extractor;
   @Captor private ArgumentCaptor<Link> captor;
+  @Captor private ArgumentCaptor<EndSpanOptions> optionsCaptor;
   private HttpServerHandler<Object, Object, Object> handler;
   private HttpServerHandler<Object, Object, Object> handlerForPublicEndpoint;
   // TODO(hailongwen): use `MockableSpan` instead.
@@ -148,5 +150,15 @@ public class HttpServerHandlerTest {
     assertThat(link.getSpanId()).isEqualTo(spanContextRemote.getSpanId());
     assertThat(link.getTraceId()).isEqualTo(spanContextRemote.getTraceId());
     assertThat(link.getType()).isEqualTo(Type.PARENT_LINKED_SPAN);
+  }
+
+  @Test
+  public void handleEndShouldEndSpan() {
+    when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
+
+    handler.spanEnd(spanWithLocalParent, carrier, null);
+    verify(spanWithLocalParent).end(optionsCaptor.capture());
+    EndSpanOptions options = optionsCaptor.getValue();
+    assertThat(options).isEqualTo(EndSpanOptions.DEFAULT);
   }
 }
