@@ -387,11 +387,6 @@ subprojects {
 
     tasks.jmh.finalizedBy tasks.jmhReport
 
-// TODO[rghetia]: remove this in next PR when there are public apis for http servlet.
-    tasks.javadoc.onlyIf {
-       project.name != 'opencensus-contrib-http-servlet'
-    }
-
     uploadArchives {
         repositories {
             mavenDeployer {
