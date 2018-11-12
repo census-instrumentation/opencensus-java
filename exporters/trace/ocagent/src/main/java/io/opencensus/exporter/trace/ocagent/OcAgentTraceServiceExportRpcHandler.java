@@ -63,7 +63,7 @@ final class OcAgentTraceServiceExportRpcHandler {
       StreamObserver<ExportTraceServiceRequest> exportRequestObserver =
           stub.export(exportResponseObserver);
       exportRpcHandler.setExportRequestObserver(exportRequestObserver);
-    } catch (Exception e) {
+    } catch (StatusRuntimeException e) {
       exportRpcHandler.onComplete(e);
     }
     return exportRpcHandler;
