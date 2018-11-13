@@ -40,7 +40,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @since 0.18
  */
 @ExperimentalApi
-public final class HttpClientHandler<
+public class HttpClientHandler<
         Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @NonNull Object*/>
     extends AbstractHttpHandler<Q, P> {
 
