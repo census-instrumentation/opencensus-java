@@ -72,7 +72,7 @@ final class OcAgentTraceServiceConfigRpcHandler {
       StreamObserver<CurrentLibraryConfig> currentConfigObserver =
           stub.config(updatedLibraryConfigObserver);
       configRpcHandler.setCurrentConfigObserver(currentConfigObserver);
-    } catch (Exception e) {
+    } catch (StatusRuntimeException e) {
       configRpcHandler.onComplete(e);
     }
     return configRpcHandler;
