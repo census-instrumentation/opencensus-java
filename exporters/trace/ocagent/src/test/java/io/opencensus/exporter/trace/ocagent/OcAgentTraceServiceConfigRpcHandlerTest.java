@@ -102,7 +102,7 @@ public class OcAgentTraceServiceConfigRpcHandlerTest {
     verify(mockChannel, times(1)).newCall(METHOD_DESCRIPTOR, stub.getCallOptions());
     verify(mockTraceConfig, times(0)).getActiveTraceParams();
     assertThat(configRpcHandler.isCompleted()).isTrue();
-    assertThat(configRpcHandler.getEndStatus()).isEqualTo(Status.PERMISSION_DENIED);
+    assertThat(configRpcHandler.getTerminateStatus()).isEqualTo(Status.PERMISSION_DENIED);
   }
 
   @Test
@@ -121,7 +121,7 @@ public class OcAgentTraceServiceConfigRpcHandlerTest {
             .build();
     configRpcHandler.sendInitialMessage(node);
     assertThat(configRpcHandler.isCompleted()).isTrue();
-    assertThat(configRpcHandler.getEndStatus()).isEqualTo(Status.UNAVAILABLE);
+    assertThat(configRpcHandler.getTerminateStatus()).isEqualTo(Status.UNAVAILABLE);
   }
 
   @Test
@@ -135,6 +135,6 @@ public class OcAgentTraceServiceConfigRpcHandlerTest {
     assertThat(configRpcHandler.isCompleted()).isFalse();
     configRpcHandler.onComplete(new InterruptedException());
     assertThat(configRpcHandler.isCompleted()).isTrue();
-    assertThat(configRpcHandler.getEndStatus()).isEqualTo(Status.UNKNOWN);
+    assertThat(configRpcHandler.getTerminateStatus()).isEqualTo(Status.UNKNOWN);
   }
 }

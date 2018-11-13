@@ -83,7 +83,7 @@ public class OcAgentTraceServiceExportRpcHandlerTest {
         OcAgentTraceServiceExportRpcHandler.create(stub);
     verify(mockChannel, times(1)).newCall(METHOD_DESCRIPTOR, stub.getCallOptions());
     assertThat(exportRpcHandler.isCompleted()).isTrue();
-    assertThat(exportRpcHandler.getEndStatus()).isEqualTo(Status.PERMISSION_DENIED);
+    assertThat(exportRpcHandler.getTerminateStatus()).isEqualTo(Status.PERMISSION_DENIED);
   }
 
   @Test
@@ -99,7 +99,7 @@ public class OcAgentTraceServiceExportRpcHandlerTest {
     ExportTraceServiceRequest request = ExportTraceServiceRequest.newBuilder().build();
     exportRpcHandler.onExport(request);
     assertThat(exportRpcHandler.isCompleted()).isTrue();
-    assertThat(exportRpcHandler.getEndStatus()).isEqualTo(Status.UNAVAILABLE);
+    assertThat(exportRpcHandler.getTerminateStatus()).isEqualTo(Status.UNAVAILABLE);
   }
 
   @Test
@@ -113,6 +113,6 @@ public class OcAgentTraceServiceExportRpcHandlerTest {
     assertThat(exportRpcHandler.isCompleted()).isFalse();
     exportRpcHandler.onComplete(new InterruptedException());
     assertThat(exportRpcHandler.isCompleted()).isTrue();
-    assertThat(exportRpcHandler.getEndStatus()).isEqualTo(Status.UNKNOWN);
+    assertThat(exportRpcHandler.getTerminateStatus()).isEqualTo(Status.UNKNOWN);
   }
 }
