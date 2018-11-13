@@ -201,7 +201,7 @@ public abstract class Resource {
     for (Entry<String, String> entry : resource.getLabels().entrySet()) {
       mergedLabelMap.put(entry.getKey(), entry.getValue());
     }
-    return new AutoValue_Resource(mergedType, Collections.unmodifiableMap(mergedLabelMap));
+    return createInternal(mergedType, Collections.unmodifiableMap(mergedLabelMap));
   }
 
   /**
