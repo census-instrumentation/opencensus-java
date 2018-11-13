@@ -60,7 +60,7 @@ final class OcAgentTraceServiceConfigRpcHandler {
     this.currentConfigObserver = currentConfigObserver;
   }
 
-  // Creates an OcAgentTraceServiceConfigRpcHandler. Tries to initiate the export stream with the
+  // Creates an OcAgentTraceServiceConfigRpcHandler. Tries to initiate the config stream with the
   // given TraceServiceStub.
   static OcAgentTraceServiceConfigRpcHandler create(
       TraceServiceStub stub, TraceConfig traceConfig) {
