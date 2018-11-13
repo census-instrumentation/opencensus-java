@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
  * This class extracts attributes from {@link HttpServletRequest} and {@link HttpServletResponse}.
  */
 @ExperimentalApi
-final class OcHttpServletExtractor extends HttpExtractor<HttpServletRequest, HttpServletResponse> {
+class OcHttpServletExtractor extends HttpExtractor<HttpServletRequest, HttpServletResponse> {
   @Override
   public String getHost(HttpServletRequest request) {
     return request.getServerName();
