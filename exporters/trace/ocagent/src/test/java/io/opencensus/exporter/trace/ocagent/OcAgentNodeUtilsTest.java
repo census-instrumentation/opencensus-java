@@ -18,8 +18,6 @@ package io.opencensus.exporter.trace.ocagent;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.exporter.trace.ocagent.OcAgentNodeUtils.OC_AGENT_EXPORTER_VERSION;
-import static io.opencensus.exporter.trace.ocagent.OcAgentNodeUtils.RESOURCE_LABEL_ATTRIBUTE_KEY;
-import static io.opencensus.exporter.trace.ocagent.OcAgentNodeUtils.RESOURCE_TYPE_ATTRIBUTE_KEY;
 
 import io.opencensus.common.Timestamp;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
@@ -29,7 +27,7 @@ import io.opencensus.proto.agent.common.v1.LibraryInfo;
 import io.opencensus.proto.agent.common.v1.LibraryInfo.Language;
 import io.opencensus.proto.agent.common.v1.ProcessIdentifier;
 import io.opencensus.proto.agent.common.v1.ServiceInfo;
-import java.util.Map;
+import io.opencensus.proto.resource.v1.Resource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -49,8 +47,6 @@ public class OcAgentNodeUtilsTest {
   @Test
   public void testConstants() {
     assertThat(OC_AGENT_EXPORTER_VERSION).isEqualTo("0.18.0-SNAPSHOT");
-    assertThat(RESOURCE_TYPE_ATTRIBUTE_KEY).isEqualTo("OPENCENSUS_SOURCE_TYPE");
-    assertThat(RESOURCE_LABEL_ATTRIBUTE_KEY).isEqualTo("OPENCENSUS_SOURCE_LABELS");
   }
 
   @Test
@@ -81,42 +77,43 @@ public class OcAgentNodeUtilsTest {
   }
 
   @Test
-  public void getAttributeMap_Null() {
-    Map<String, String> attributeMap = OcAgentNodeUtils.getAttributeMap(null);
-    assertThat(attributeMap).isEmpty();
+  public void toResourceProto_Null() {
+    Resource resourceProto = OcAgentNodeUtils.toResourceProto(null);
+    assertThat(resourceProto).isNull();
   }
 
   @Test
-  public void getAttributeMap_AwsEc2Resource() {
-    Map<String, String> attributeMap = OcAgentNodeUtils.getAttributeMap(AWS_RESOURCE);
-    assertThat(attributeMap)
+  public void toResourceProto_AwsEc2Resource() {
+    Resource resourceProto = OcAgentNodeUtils.toResourceProto(AWS_RESOURCE);
+    assertThat(resourceProto.getType()).isEqualTo("AWS_EC2_INSTANCE");
+    assertThat(resourceProto.getLabelsMap())
         .containsExactly(
-            RESOURCE_TYPE_ATTRIBUTE_KEY,
-            "AWS_EC2_INSTANCE",
-            RESOURCE_LABEL_ATTRIBUTE_KEY,
-            "aws_account=account1,instance_id=instance1,region=us-east-2");
+            "aws_account", "account1", "instance_id", "instance1", "region", "us-east-2");
   }
 
   @Test
-  public void getAttributeMap_GceResource() {
-    Map<String, String> attributeMap = OcAgentNodeUtils.getAttributeMap(GCE_RESOURCE);
-    assertThat(attributeMap)
-        .containsExactly(
-            RESOURCE_TYPE_ATTRIBUTE_KEY,
-            "GCP_GCE_INSTANCE",
-            RESOURCE_LABEL_ATTRIBUTE_KEY,
-            "gcp_account=account2,instance_id=instance2,zone=us-west2");
+  public void toResourceProto_GceResource() {
+    Resource resourceProto = OcAgentNodeUtils.toResourceProto(GCE_RESOURCE);
+    assertThat(resourceProto.getType()).isEqualTo("GCP_GCE_INSTANCE");
+    assertThat(resourceProto.getLabelsMap())
+        .containsExactly("gcp_account", "account2", "instance_id", "instance2", "zone", "us-west2");
   }
 
   @Test
-  public void getAttributeMap_GkeResource() {
-    Map<String, String> attributeMap = OcAgentNodeUtils.getAttributeMap(GKE_RESOURCE);
-    assertThat(attributeMap)
+  public void toResourceProto_GkeResource() {
+    Resource resourceProto = OcAgentNodeUtils.toResourceProto(GKE_RESOURCE);
+    assertThat(resourceProto.getType()).isEqualTo("GCP_GKE_CONTAINER");
+    assertThat(resourceProto.getLabelsMap())
         .containsExactly(
-            RESOURCE_TYPE_ATTRIBUTE_KEY,
-            "GCP_GKE_CONTAINER",
-            RESOURCE_LABEL_ATTRIBUTE_KEY,
-            "gcp_account=account3,instance_id=instance3,location=us-west4,"
-                + "cluster_name=cluster,container_name=container");
+            "gcp_account",
+            "account3",
+            "instance_id",
+            "instance3",
+            "location",
+            "us-west4",
+            "cluster_name",
+            "cluster",
+            "container_name",
+            "container");
   }
 }
