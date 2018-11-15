@@ -63,7 +63,7 @@ public abstract class Resource {
   private static final Map<String, String> ENV_LABEL_MAP =
       parseResourceLabels(System.getenv(OC_RESOURCE_LABELS_ENV));
 
-  protected Resource() {}
+  Resource() {}
 
   /**
    * Returns the type identifier for the resource.
@@ -104,9 +104,6 @@ public abstract class Resource {
    *     ASCII string or exceed {@link #MAX_LENGTH} characters.
    * @since 0.18
    */
-  // TODO(mayurkale): Use this method while creating resource information from GCP, AWS etc.
-  // Counterpart :
-  // https://github.com/census-ecosystem/opencensus-go-resource/blob/master/aws/aws.go#L35-L41
   public static Resource create(/*@Nullable*/ String type, Map<String, String> labels) {
     return createInternal(
         type,
@@ -123,8 +120,8 @@ public abstract class Resource {
    * @since 0.18
    */
   @javax.annotation.Nullable
-  public Resource multiDetector(List</*@Nullable*/ Resource> resources) {
-    Resource currentResource = this;
+  public static Resource mergeResources(List</*@Nullable*/ Resource> resources) {
+    Resource currentResource = null;
     for (Resource resource : resources) {
       currentResource = merge(currentResource, resource);
     }
@@ -141,7 +138,7 @@ public abstract class Resource {
    * <p>OC_RESOURCE_TYPE: A string that describes the type of the resource prefixed by a domain
    * namespace, e.g. “kubernetes.io/container”.
    */
-  /*@Nullable*/
+  @javax.annotation.Nullable
   static String parseResourceType(/*@Nullable*/ String rawEnvType) {
     if (rawEnvType != null && !rawEnvType.isEmpty()) {
       Utils.checkArgument(isValidAndNotEmpty(rawEnvType), "Type" + ERROR_MESSAGE_INVALID_CHARS);

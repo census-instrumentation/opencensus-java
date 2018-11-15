@@ -206,59 +206,61 @@ public class ResourceTest {
   }
 
   @Test
-  public void testMultiDetector() {
+  public void testMergeResources() {
     Map<String, String> expectedLabelMap = new HashMap<String, String>();
     expectedLabelMap.put("a", "1");
     expectedLabelMap.put("b", "2");
     expectedLabelMap.put("c", "4");
 
-    Resource resource = DEFAULT_RESOURCE.multiDetector(Arrays.asList(resource1, resource2));
+    Resource resource =
+        Resource.mergeResources(Arrays.asList(DEFAULT_RESOURCE, resource1, resource2));
     assertThat(resource.getType()).isEqualTo("t1");
     assertThat(resource.getLabels()).isEqualTo(expectedLabelMap);
   }
 
   @Test
-  public void testMultiDetector_SingletonList() {
+  public void testMergeResources_Resource1() {
     Map<String, String> expectedLabelMap = new HashMap<String, String>();
     expectedLabelMap.put("a", "1");
     expectedLabelMap.put("b", "2");
 
-    Resource resource = DEFAULT_RESOURCE.multiDetector(Collections.singletonList(resource1));
+    Resource resource = Resource.mergeResources(Arrays.asList(DEFAULT_RESOURCE, resource1));
     assertThat(resource.getType()).isEqualTo("t1");
     assertThat(resource.getLabels()).isEqualTo(expectedLabelMap);
   }
 
   @Test
-  public void testMultiDetector_Resource1_Null() {
+  public void testMergeResources_Resource1_Null() {
     Map<String, String> expectedLabelMap = new HashMap<String, String>();
     expectedLabelMap.put("a", "1");
     expectedLabelMap.put("b", "3");
     expectedLabelMap.put("c", "4");
 
-    Resource resource = DEFAULT_RESOURCE.multiDetector(Arrays.asList(null, resource2));
+    Resource resource = Resource.mergeResources(Arrays.asList(DEFAULT_RESOURCE, null, resource2));
     assertThat(resource.getType()).isEqualTo("t2");
     assertThat(resource.getLabels()).isEqualTo(expectedLabelMap);
   }
 
   @Test
-  public void testMultiDetector_Resource2_Null() {
+  public void testMergeResources_Resource2_Null() {
     Map<String, String> expectedLabelMap = new HashMap<String, String>();
     expectedLabelMap.put("a", "1");
     expectedLabelMap.put("b", "2");
 
-    Resource resource = DEFAULT_RESOURCE.multiDetector(Arrays.asList(resource1, null));
+    Resource resource = Resource.mergeResources(Arrays.asList(DEFAULT_RESOURCE, resource1, null));
     assertThat(resource.getType()).isEqualTo("t1");
     assertThat(resource.getLabels()).isEqualTo(expectedLabelMap);
   }
 
   @Test
-  public void testMultiDetector_DefaultResource() {
+  public void testMergeResources_DefaultResource() {
     Map<String, String> expectedLabelMap = new HashMap<String, String>();
     expectedLabelMap.put("a", "100");
     expectedLabelMap.put("b", "2");
     expectedLabelMap.put("c", "4");
 
-    Resource resource = DEFAULT_RESOURCE_1.multiDetector(Arrays.asList(resource1, resource2));
+    Resource resource =
+        Resource.mergeResources(Arrays.asList(DEFAULT_RESOURCE_1, resource1, resource2));
     assertThat(resource.getType()).isEqualTo("default");
     assertThat(resource.getLabels()).isEqualTo(expectedLabelMap);
   }
