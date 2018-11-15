@@ -18,9 +18,12 @@ package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.api.gax.core.GoogleCredentialsProvider;
+import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.monitoring.v3.MetricServiceClient;
 import io.opencensus.common.Duration;
 import java.io.IOException;
 import java.util.Date;
@@ -125,5 +128,39 @@ public class StackdriverStatsExporterTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("monitoredResource");
     StackdriverStatsExporter.createAndRegisterWithMonitoredResource(ONE_SECOND, null);
+  }
+
+  @Test
+  public void createMetricServiceClient() throws IOException {
+    MetricServiceClient client;
+    synchronized (StackdriverStatsExporter.monitor) {
+      client = StackdriverStatsExporter.createMetricServiceClient(FAKE_CREDENTIALS);
+    }
+    assertThat(client.getSettings().getCredentialsProvider().getCredentials())
+        .isEqualTo(FAKE_CREDENTIALS);
+    assertThat(client.getSettings().getTransportChannelProvider())
+        .isInstanceOf(InstantiatingGrpcChannelProvider.class);
+    // There's no way to get HeaderProvider from TransportChannelProvider.
+    assertThat(client.getSettings().getTransportChannelProvider().needsHeaders()).isFalse();
+  }
+
+  @Test
+  public void createMetricServiceClient_WithoutCredentials() {
+    try {
+      MetricServiceClient client;
+      synchronized (StackdriverStatsExporter.monitor) {
+        client = StackdriverStatsExporter.createMetricServiceClient(null);
+      }
+      assertThat(client.getSettings().getCredentialsProvider())
+          .isInstanceOf(GoogleCredentialsProvider.class);
+      assertThat(client.getSettings().getTransportChannelProvider())
+          .isInstanceOf(InstantiatingGrpcChannelProvider.class);
+      // There's no way to get HeaderProvider from TransportChannelProvider.
+      assertThat(client.getSettings().getTransportChannelProvider().needsHeaders()).isFalse();
+    } catch (IOException e) {
+      // This test depends on the Application Default Credentials settings (environment variable
+      // GOOGLE_APPLICATION_CREDENTIALS). Some hosts may not have the expected environment settings
+      // and this test should be skipped in that case.
+    }
   }
 }
