@@ -424,7 +424,7 @@ final class StackdriverExportUtils {
 
   private static Map<String, String> getGcpResourceLabelsMappings() {
     Map<String, String> resourceLabels = new LinkedHashMap<String, String>();
-    resourceLabels.put("project_id", ResourceKeyConstants.GCP_ACCOUNT_ID_KEY);
+    resourceLabels.put(PROJECT_ID_LABEL_KEY, ResourceKeyConstants.GCP_ACCOUNT_ID_KEY);
     resourceLabels.put("instance_id", ResourceKeyConstants.GCP_INSTANCE_ID_KEY);
     resourceLabels.put("zone", ResourceKeyConstants.GCP_ZONE_KEY);
     return resourceLabels;
@@ -432,7 +432,7 @@ final class StackdriverExportUtils {
 
   private static Map<String, String> getGkeResourceLabelsMappings() {
     Map<String, String> resourceLabels = new LinkedHashMap<String, String>();
-    resourceLabels.put("project_id", ResourceKeyConstants.GCP_ACCOUNT_ID_KEY);
+    resourceLabels.put(PROJECT_ID_LABEL_KEY, ResourceKeyConstants.GCP_ACCOUNT_ID_KEY);
     resourceLabels.put("location", ResourceKeyConstants.GCP_GKE_ZONE_KEY);
     resourceLabels.put("cluster_name", ResourceKeyConstants.GCP_GKE_CLUSTER_KEY);
     resourceLabels.put("namespace_name", ResourceKeyConstants.GCP_GKE_NAMESPACE_ID_KEY);

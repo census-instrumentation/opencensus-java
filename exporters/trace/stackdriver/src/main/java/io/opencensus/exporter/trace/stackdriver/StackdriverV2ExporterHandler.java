@@ -98,7 +98,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           .put("http.status_code", "/http/status_code")
           .build();
 
-  @javax.annotation.Nullable
+  @Deprecated @javax.annotation.Nullable
   private static final MonitoredResource RESOURCE = MonitoredResourceUtils.getDefaultResource();
 
   // Only initialize once.

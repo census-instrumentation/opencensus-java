@@ -38,7 +38,9 @@ public final class MonitoredResourceUtils {
    *
    * @return a {@code MonitoredResource}.
    * @since 0.13
+   * @deprecated since 0.18, use {@link #detectResource()} instead.
    */
+  @Deprecated
   @Nullable
   public static MonitoredResource getDefaultResource() {
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
