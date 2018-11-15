@@ -121,7 +121,7 @@ public abstract class Resource {
    * @since 0.18
    */
   @javax.annotation.Nullable
-  public static Resource mergeResources(List</*@Nullable*/ Resource> resources) {
+  public static Resource mergeResources(List<Resource> resources) {
     Resource currentResource = null;
     for (Resource resource : resources) {
       currentResource = merge(currentResource, resource);

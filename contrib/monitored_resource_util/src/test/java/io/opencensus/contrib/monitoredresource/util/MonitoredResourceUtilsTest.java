@@ -18,6 +18,7 @@ package io.opencensus.contrib.monitoredresource.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.resource.Resource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -37,6 +38,22 @@ public class MonitoredResourceUtilsTest {
       assertThat(resource.getResourceType()).isEqualTo(ResourceType.AWS_EC2_INSTANCE);
     } else {
       assertThat(resource).isNull();
+    }
+  }
+
+  @Test
+  public void testDetectResource() {
+    Resource resource = MonitoredResourceUtils.detectResource();
+    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
+      assertThat(resource.getType()).isEqualTo(ResourceKeyConstants.GCP_GKE_INSTANCE_TYPE);
+    } else if (GcpMetadataConfig.getInstanceId() != null) {
+      assertThat(resource.getType()).isEqualTo(ResourceKeyConstants.GCP_GCE_INSTANCE_TYPE);
+    } else if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
+      assertThat(resource.getType()).isEqualTo(ResourceKeyConstants.AWS_EC2_INSTANCE_TYPE);
+    } else {
+      assertThat(resource).isNotNull();
+      assertThat(resource.getType()).isNull();
+      assertThat(resource.getLabels()).isEmpty();
     }
   }
 }

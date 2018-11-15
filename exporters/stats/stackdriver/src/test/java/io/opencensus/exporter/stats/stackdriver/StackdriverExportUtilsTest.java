@@ -32,6 +32,7 @@ import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
 import io.opencensus.common.Timestamp;
+import io.opencensus.contrib.monitoredresource.util.ResourceKeyConstants;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Distribution.Bucket;
@@ -41,11 +42,14 @@ import io.opencensus.metrics.export.Summary;
 import io.opencensus.metrics.export.Summary.Snapshot;
 import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
 import io.opencensus.metrics.export.Value;
+import io.opencensus.resource.Resource;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -451,5 +455,30 @@ public class StackdriverExportUtilsTest {
                 .setResource(resource)
                 .addPoints(StackdriverExportUtils.createPoint(POINT, TIMESTAMP_2))
                 .build());
+  }
+
+  @Test
+  public void setResourceForBuilder() {
+    MonitoredResource.Builder builder = MonitoredResource.newBuilder();
+    Map<String, String> resourceLabels = new HashMap<String, String>();
+    resourceLabels.put(ResourceKeyConstants.GCP_ACCOUNT_ID_KEY, "proj1");
+    resourceLabels.put(ResourceKeyConstants.GCP_INSTANCE_ID_KEY, "inst1");
+    resourceLabels.put(ResourceKeyConstants.GCP_ZONE_KEY, "zone1");
+    resourceLabels.put("extra_key", "must be ignored");
+
+    Map<String, String> expectedResourceLabels = new HashMap<String, String>();
+    expectedResourceLabels.put("project_id", "proj1");
+    expectedResourceLabels.put("instance_id", "inst1");
+    expectedResourceLabels.put("zone", "zone1");
+
+    Resource resource = Resource.create(ResourceKeyConstants.GCP_GCE_INSTANCE_TYPE, resourceLabels);
+
+    StackdriverExportUtils.setResourceForBuilder(builder, resource);
+
+    assertThat(builder.getType()).isNotNull();
+    assertThat(builder.getLabelsMap()).isNotEmpty();
+    assertThat(builder.getType()).isEqualTo("gce_instance");
+    assertThat(builder.getLabelsMap().size()).isEqualTo(3);
+    assertThat(builder.getLabelsMap()).containsExactlyEntriesIn(expectedResourceLabels);
   }
 }
