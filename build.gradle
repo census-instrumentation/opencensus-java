@@ -504,7 +504,7 @@ subprojects {
         }
     }
 
-// TODO[rghetia]: remove this in next PR when there are public apis for http servlet.
+// TODO[rghetia]: remove this in a differnt PR when the artifact http-jetty-client is ready.
     tasks.javadoc.onlyIf {
        project.name != 'opencensus-contrib-http-jetty-client'
     }
