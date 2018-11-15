@@ -24,9 +24,14 @@ import io.opencensus.internal.Utils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 /**
  * {@link Resource} represents a resource, which capture identifying information about the entities
@@ -52,7 +57,7 @@ public abstract class Resource {
   private static final String ERROR_MESSAGE_INVALID_VALUE =
       " should be a ASCII string with a length not exceed " + MAX_LENGTH + " characters.";
 
-  @Nullable
+  @javax.annotation.Nullable
   private static final String ENV_TYPE = parseResourceType(System.getenv(OC_RESOURCE_TYPE_ENV));
 
   private static final Map<String, String> ENV_LABEL_MAP =
@@ -66,7 +71,7 @@ public abstract class Resource {
    * @return the type identifier for the resource.
    * @since 0.18
    */
-  @Nullable
+  @javax.annotation.Nullable
   public abstract String getType();
 
   /**
@@ -84,7 +89,7 @@ public abstract class Resource {
    * @return a {@code Resource}.
    * @since 0.18
    */
-  public static Resource create() {
+  public static Resource createFromEnvironmentVariables() {
     return createInternal(ENV_TYPE, ENV_LABEL_MAP);
   }
 
@@ -99,14 +104,31 @@ public abstract class Resource {
    *     ASCII string or exceed {@link #MAX_LENGTH} characters.
    * @since 0.18
    */
-  public static Resource create(@Nullable String type, Map<String, String> labels) {
+  public static Resource create(/*@Nullable*/ String type, Map<String, String> labels) {
     return createInternal(
         type,
         Collections.unmodifiableMap(
             new LinkedHashMap<String, String>(Utils.checkNotNull(labels, "labels"))));
   }
 
-  private static Resource createInternal(@Nullable String type, Map<String, String> labels) {
+  /**
+   * Returns a {@link Resource} that runs all input resources sequentially and merges their results.
+   * In case a type of label key is already set, the first set value takes precedence.
+   *
+   * @param resources a list of resources.
+   * @return a {@code Resource}.
+   * @since 0.18
+   */
+  @javax.annotation.Nullable
+  public static Resource mergeResources(List</*@Nullable*/ Resource> resources) {
+    Resource currentResource = null;
+    for (Resource resource : resources) {
+      currentResource = merge(currentResource, resource);
+    }
+    return currentResource;
+  }
+
+  private static Resource createInternal(/*@Nullable*/ String type, Map<String, String> labels) {
     return new AutoValue_Resource(type, labels);
   }
 
@@ -116,8 +138,8 @@ public abstract class Resource {
    * <p>OC_RESOURCE_TYPE: A string that describes the type of the resource prefixed by a domain
    * namespace, e.g. “kubernetes.io/container”.
    */
-  @Nullable
-  static String parseResourceType(@Nullable String rawEnvType) {
+  @javax.annotation.Nullable
+  static String parseResourceType(/*@Nullable*/ String rawEnvType) {
     if (rawEnvType != null && !rawEnvType.isEmpty()) {
       Utils.checkArgument(isValidAndNotEmpty(rawEnvType), "Type" + ERROR_MESSAGE_INVALID_CHARS);
       return rawEnvType.trim();
@@ -133,7 +155,7 @@ public abstract class Resource {
    * quoted or unquoted in general. If a value contains whitespaces, =, or " characters, it must
    * always be quoted.
    */
-  static Map<String, String> parseResourceLabels(@Nullable String rawEnvLabels) {
+  static Map<String, String> parseResourceLabels(/*@Nullable*/ String rawEnvLabels) {
     if (rawEnvLabels == null) {
       return Collections.<String, String>emptyMap();
     } else {
@@ -155,13 +177,38 @@ public abstract class Resource {
   }
 
   /**
+   * Returns a new, merged {@link Resource} by merging two resources. In case of a collision, first
+   * resource takes precedence.
+   */
+  /*@Nullable*/
+  private static Resource merge(
+      /*@Nullable*/ Resource resource, /*@Nullable*/ Resource otherResource) {
+    if (otherResource == null) {
+      return resource;
+    }
+    if (resource == null) {
+      return otherResource;
+    }
+
+    String mergedType = resource.getType() != null ? resource.getType() : otherResource.getType();
+    Map<String, String> mergedLabelMap =
+        new LinkedHashMap<String, String>(otherResource.getLabels());
+
+    // Labels from resource overwrite labels from otherResource.
+    for (Entry<String, String> entry : resource.getLabels().entrySet()) {
+      mergedLabelMap.put(entry.getKey(), entry.getValue());
+    }
+    return createInternal(mergedType, Collections.unmodifiableMap(mergedLabelMap));
+  }
+
+  /**
    * Determines whether the given {@code String} is a valid printable ASCII string with a length not
    * exceed {@link #MAX_LENGTH} characters.
    *
    * @param name the name to be validated.
    * @return whether the name is valid.
    */
-  static boolean isValid(String name) {
+  private static boolean isValid(String name) {
     return name.length() <= MAX_LENGTH && StringUtils.isPrintableString(name);
   }
 
@@ -172,10 +219,7 @@ public abstract class Resource {
    * @param name the name to be validated.
    * @return whether the name is valid.
    */
-  static boolean isValidAndNotEmpty(String name) {
+  private static boolean isValidAndNotEmpty(String name) {
     return !name.isEmpty() && isValid(name);
   }
-
-  // TODO(mayurkale): Add detector interface as per specs:
-  // https://github.com/census-instrumentation/opencensus-specs/blob/master/resource/Resource.md.
 }

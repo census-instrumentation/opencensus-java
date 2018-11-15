@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,6 +35,25 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ResourceTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
+  private static final Resource DEFAULT_RESOURCE =
+      Resource.create(null, Collections.<String, String>emptyMap());
+  private static final Resource DEFAULT_RESOURCE_1 =
+      Resource.create("default", Collections.singletonMap("a", "100"));
+  private Resource resource1;
+  private Resource resource2;
+
+  @Before
+  public void setUp() {
+    Map<String, String> labelMap1 = new HashMap<String, String>();
+    labelMap1.put("a", "1");
+    labelMap1.put("b", "2");
+    Map<String, String> labelMap2 = new HashMap<String, String>();
+    labelMap2.put("a", "1");
+    labelMap2.put("b", "3");
+    labelMap2.put("c", "4");
+    resource1 = Resource.create("t1", labelMap1);
+    resource2 = Resource.create("t2", labelMap2);
+  }
 
   @Test
   public void testMaxLength() {
@@ -183,5 +203,65 @@ public class ResourceTest {
         .addEqualityGroup(Resource.create("t1", labelMap1), Resource.create("t1", labelMap1))
         .addEqualityGroup(Resource.create("t2", labelMap2))
         .testEquals();
+  }
+
+  @Test
+  public void testMergeResources() {
+    Map<String, String> expectedLabelMap = new HashMap<String, String>();
+    expectedLabelMap.put("a", "1");
+    expectedLabelMap.put("b", "2");
+    expectedLabelMap.put("c", "4");
+
+    Resource resource =
+        Resource.mergeResources(Arrays.asList(DEFAULT_RESOURCE, resource1, resource2));
+    assertThat(resource.getType()).isEqualTo("t1");
+    assertThat(resource.getLabels()).isEqualTo(expectedLabelMap);
+  }
+
+  @Test
+  public void testMergeResources_Resource1() {
+    Map<String, String> expectedLabelMap = new HashMap<String, String>();
+    expectedLabelMap.put("a", "1");
+    expectedLabelMap.put("b", "2");
+
+    Resource resource = Resource.mergeResources(Arrays.asList(DEFAULT_RESOURCE, resource1));
+    assertThat(resource.getType()).isEqualTo("t1");
+    assertThat(resource.getLabels()).isEqualTo(expectedLabelMap);
+  }
+
+  @Test
+  public void testMergeResources_Resource1_Null() {
+    Map<String, String> expectedLabelMap = new HashMap<String, String>();
+    expectedLabelMap.put("a", "1");
+    expectedLabelMap.put("b", "3");
+    expectedLabelMap.put("c", "4");
+
+    Resource resource = Resource.mergeResources(Arrays.asList(DEFAULT_RESOURCE, null, resource2));
+    assertThat(resource.getType()).isEqualTo("t2");
+    assertThat(resource.getLabels()).isEqualTo(expectedLabelMap);
+  }
+
+  @Test
+  public void testMergeResources_Resource2_Null() {
+    Map<String, String> expectedLabelMap = new HashMap<String, String>();
+    expectedLabelMap.put("a", "1");
+    expectedLabelMap.put("b", "2");
+
+    Resource resource = Resource.mergeResources(Arrays.asList(DEFAULT_RESOURCE, resource1, null));
+    assertThat(resource.getType()).isEqualTo("t1");
+    assertThat(resource.getLabels()).isEqualTo(expectedLabelMap);
+  }
+
+  @Test
+  public void testMergeResources_DefaultResource() {
+    Map<String, String> expectedLabelMap = new HashMap<String, String>();
+    expectedLabelMap.put("a", "100");
+    expectedLabelMap.put("b", "2");
+    expectedLabelMap.put("c", "4");
+
+    Resource resource =
+        Resource.mergeResources(Arrays.asList(DEFAULT_RESOURCE_1, resource1, resource2));
+    assertThat(resource.getType()).isEqualTo("default");
+    assertThat(resource.getLabels()).isEqualTo(expectedLabelMap);
   }
 }
