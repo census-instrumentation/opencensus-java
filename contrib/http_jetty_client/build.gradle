@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+description = 'OpenCensus Http Jetty Client Plugin'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.6
+    it.targetCompatibility = 1.6
+}
+
+def opencensusVersion = "0.18.0-SNAPSHOT"
+
+// TODO[rghetia]: jetty 9.3+ requires jdk 8. Http2.0 is supported in jetty 9.3
+// May require creating separate artifact for jetty 9.3 and above.
+//def jettyVersion = "9.4.12.v20180830"
+def jettyVersion = "9.2.25.v20180606"
+
+dependencies {
+    compile project(':opencensus-api')
+    compile project(':opencensus-contrib-http-util')
+
+    compile "org.eclipse.jetty:jetty-client:${jettyVersion}"
+
+    signature "org.codehaus.mojo.signature:java17:1.0@signature"
+    signature "net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature"
+}

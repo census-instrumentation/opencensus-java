@@ -93,6 +93,13 @@ General guidelines on imports:
       <allow pkg="io.opencensus.stats"/>
       <allow pkg="io.opencensus.tags"/>
     </subpackage>
+    <subpackage name="http.jetty.client">
+      <allow pkg="io.opencensus.contrib.http"/>
+      <allow pkg="io.opencensus.contrib.http.jetty.client"/>
+      <allow pkg="io.opencensus.contrib.http.util"/>
+      <allow pkg="io.opencensus.trace"/>
+      <allow pkg="org.eclipse.jetty.client"/>
+    </subpackage>
     <subpackage name="http">
       <allow pkg="io.opencensus.contrib.http"/>
       <allow pkg="io.opencensus.contrib.http.util"/>

@@ -1,4 +1,10 @@
 ## Unreleased
+- Add an artifact `opencensus-contrib-http-jetty-client` for instrumenting jetty http client.
+  Add extractor for Jetty Client.
+- Add an artifact `opencensus-contrib-http-servlets` for instrumenting http servlets.
+  Add extractor for Http Servlets.
+- Add support generic http server handler.
+- Add support for generic http client handler.
 - Add OpenCensus Java OC-Agent Trace Exporter.
 - Set the
   [`trace_sampled` field](https://github.com/googleapis/googleapis/blob/8027f17420d5a323c7dfef1ae0e57d82f3b97430/google/logging/v2/log_entry.proto#L143-L149)
