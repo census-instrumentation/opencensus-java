@@ -451,6 +451,7 @@ subprojects {
                  'opencensus-contrib-exemplar-util',
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
+                 'opencensus-contrib-http-jetty-client',
                  'opencensus-contrib-http-servlet',
                  'opencensus-contrib-http-util',
                  'opencensus-contrib-log-correlation-log4j2',
@@ -501,6 +502,11 @@ subprojects {
                 }
             }
         }
+    }
+
+// TODO[rghetia]: remove this in a differnt PR when the artifact http-jetty-client is ready.
+    tasks.javadoc.onlyIf {
+       project.name != 'opencensus-contrib-http-jetty-client'
     }
 
     // For projects that depend on gRPC during test execution, make sure to
