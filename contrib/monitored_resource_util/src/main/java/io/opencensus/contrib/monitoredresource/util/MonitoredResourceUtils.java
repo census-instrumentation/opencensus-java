@@ -57,7 +57,7 @@ public final class MonitoredResourceUtils {
 
   /**
    * Returns a {@code Resource}. Detector sequentially runs resource detection from environment
-   * variables, GKE, GCP and AWS.
+   * variables, K8S, GCE and AWS.
    *
    * @return a {@code Resource}.
    * @since 0.18
