@@ -104,7 +104,8 @@ public abstract class Resource {
    *     ASCII string or exceed {@link #MAX_LENGTH} characters.
    * @since 0.18
    */
-  public static Resource create(/*@Nullable*/ String type, Map<String, String> labels) {
+  public static Resource create(
+      @javax.annotation.Nullable String type, Map<String, String> labels) {
     return createInternal(
         type,
         Collections.unmodifiableMap(
@@ -128,7 +129,8 @@ public abstract class Resource {
     return currentResource;
   }
 
-  private static Resource createInternal(/*@Nullable*/ String type, Map<String, String> labels) {
+  private static Resource createInternal(
+      @javax.annotation.Nullable String type, Map<String, String> labels) {
     return new AutoValue_Resource(type, labels);
   }
 
@@ -139,7 +141,7 @@ public abstract class Resource {
    * namespace, e.g. “kubernetes.io/container”.
    */
   @javax.annotation.Nullable
-  static String parseResourceType(/*@Nullable*/ String rawEnvType) {
+  static String parseResourceType(@javax.annotation.Nullable String rawEnvType) {
     if (rawEnvType != null && !rawEnvType.isEmpty()) {
       Utils.checkArgument(isValidAndNotEmpty(rawEnvType), "Type" + ERROR_MESSAGE_INVALID_CHARS);
       return rawEnvType.trim();
@@ -155,7 +157,7 @@ public abstract class Resource {
    * quoted or unquoted in general. If a value contains whitespaces, =, or " characters, it must
    * always be quoted.
    */
-  static Map<String, String> parseResourceLabels(/*@Nullable*/ String rawEnvLabels) {
+  static Map<String, String> parseResourceLabels(@javax.annotation.Nullable String rawEnvLabels) {
     if (rawEnvLabels == null) {
       return Collections.<String, String>emptyMap();
     } else {
@@ -180,9 +182,10 @@ public abstract class Resource {
    * Returns a new, merged {@link Resource} by merging two resources. In case of a collision, first
    * resource takes precedence.
    */
-  /*@Nullable*/
+  @javax.annotation.Nullable
   private static Resource merge(
-      /*@Nullable*/ Resource resource, /*@Nullable*/ Resource otherResource) {
+      @javax.annotation.Nullable Resource resource,
+      @javax.annotation.Nullable Resource otherResource) {
     if (otherResource == null) {
       return resource;
     }
