@@ -37,14 +37,18 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 /** Fake implementation of {@link TraceServiceGrpc}. */
+@ThreadSafe
 final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServiceImplBase {
 
   private static final Logger logger =
       Logger.getLogger(FakeOcAgentTraceServiceGrpcImpl.class.getName());
 
   // Default updatedLibraryConfig uses an always sampler.
+  @GuardedBy("this")
   private UpdatedLibraryConfig updatedLibraryConfig =
       UpdatedLibraryConfig.newBuilder()
           .setConfig(
@@ -53,23 +57,23 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
                   .build())
           .build();
 
+  @GuardedBy("this")
   private final List<CurrentLibraryConfig> currentLibraryConfigs = new ArrayList<>();
+
+  @GuardedBy("this")
   private final List<ExportTraceServiceRequest> exportTraceServiceRequests = new ArrayList<>();
 
+  @GuardedBy("this")
   private final AtomicReference<StreamObserver<UpdatedLibraryConfig>> updatedConfigObserverRef =
       new AtomicReference<>();
 
+  @GuardedBy("this")
   private final StreamObserver<CurrentLibraryConfig> currentConfigObserver =
       new StreamObserver<CurrentLibraryConfig>() {
         @Override
         public void onNext(CurrentLibraryConfig value) {
-          currentLibraryConfigs.add(value);
-          @Nullable
-          StreamObserver<UpdatedLibraryConfig> updatedConfigObserver =
-              updatedConfigObserverRef.get();
-          if (updatedConfigObserver != null) {
-            updatedConfigObserver.onNext(updatedLibraryConfig);
-          }
+          addCurrentLibraryConfig(value);
+          sendUpdatedLibraryConfig();
         }
 
         @Override
@@ -81,11 +85,12 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
         public void onCompleted() {}
       };
 
+  @GuardedBy("this")
   private final StreamObserver<ExportTraceServiceRequest> exportRequestObserver =
       new StreamObserver<ExportTraceServiceRequest>() {
         @Override
         public void onNext(ExportTraceServiceRequest value) {
-          exportTraceServiceRequests.add(value);
+          addExportRequest(value);
         }
 
         @Override
@@ -98,36 +103,63 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
       };
 
   @Override
-  public StreamObserver<CurrentLibraryConfig> config(
+  public synchronized StreamObserver<CurrentLibraryConfig> config(
       StreamObserver<UpdatedLibraryConfig> updatedLibraryConfigStreamObserver) {
     updatedConfigObserverRef.set(updatedLibraryConfigStreamObserver);
     return currentConfigObserver;
   }
 
   @Override
-  public StreamObserver<ExportTraceServiceRequest> export(
+  public synchronized StreamObserver<ExportTraceServiceRequest> export(
       StreamObserver<ExportTraceServiceResponse> exportTraceServiceResponseStreamObserver) {
     return exportRequestObserver;
   }
 
+  private synchronized void addCurrentLibraryConfig(CurrentLibraryConfig currentLibraryConfig) {
+    currentLibraryConfigs.add(currentLibraryConfig);
+  }
+
+  private synchronized void addExportRequest(ExportTraceServiceRequest request) {
+    exportTraceServiceRequests.add(request);
+  }
+
   // Returns the stored CurrentLibraryConfigs.
-  List<CurrentLibraryConfig> getCurrentLibraryConfigs() {
+  synchronized List<CurrentLibraryConfig> getCurrentLibraryConfigs() {
     return Collections.unmodifiableList(currentLibraryConfigs);
   }
 
   // Returns the stored ExportTraceServiceRequests.
-  List<ExportTraceServiceRequest> getExportTraceServiceRequests() {
+  synchronized List<ExportTraceServiceRequest> getExportTraceServiceRequests() {
     return Collections.unmodifiableList(exportTraceServiceRequests);
   }
 
   // Sets the UpdatedLibraryConfig that will be passed to client.
-  void setUpdatedLibraryConfig(UpdatedLibraryConfig updatedLibraryConfig) {
+  synchronized void setUpdatedLibraryConfig(UpdatedLibraryConfig updatedLibraryConfig) {
     this.updatedLibraryConfig = updatedLibraryConfig;
   }
 
   // Gets the UpdatedLibraryConfig that will be passed to client.
-  UpdatedLibraryConfig getUpdatedLibraryConfig() {
+  synchronized UpdatedLibraryConfig getUpdatedLibraryConfig() {
     return updatedLibraryConfig;
+  }
+
+  private synchronized void sendUpdatedLibraryConfig() {
+    @Nullable
+    StreamObserver<UpdatedLibraryConfig> updatedConfigObserver = updatedConfigObserverRef.get();
+    if (updatedConfigObserver != null) {
+      updatedConfigObserver.onNext(updatedLibraryConfig);
+    }
+  }
+
+  // Closes config stream and resets the reference to updatedConfigObserver.
+  synchronized void closeConfigStream() {
+    currentConfigObserver.onCompleted();
+    @Nullable
+    StreamObserver<UpdatedLibraryConfig> updatedConfigObserver = updatedConfigObserverRef.get();
+    if (updatedConfigObserver != null) {
+      updatedConfigObserver.onCompleted();
+      updatedConfigObserverRef.set(null);
+    }
   }
 
   static void startServer(String endPoint) throws IOException {
