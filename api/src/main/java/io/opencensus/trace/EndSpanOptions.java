@@ -53,10 +53,6 @@ public abstract class EndSpanOptions {
    * io.opencensus.trace.export.SampledSpanStore#registerSpanNamesForCollection(Collection)} in
    * advance for this span name.
    *
-   * <p>It is strongly recommended to use the {@link
-   * io.opencensus.trace.export.SampledSpanStore#registerSpanNamesForCollection(Collection)} API
-   * instead.
-   *
    * @return {@code true} if the name of the {@code Span} should be registered to the {@code
    *     io.opencensus.trace.export.SampledSpanStore}.
    * @since 0.8

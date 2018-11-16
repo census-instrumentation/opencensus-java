@@ -32,6 +32,7 @@ import io.opencensus.common.Scope;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricProducer;
 import io.opencensus.metrics.export.MetricProducerManager;
+import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
@@ -40,7 +41,6 @@ import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +74,11 @@ final class StackdriverExporterWorker implements Runnable {
   @VisibleForTesting
   static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "opencensus/";
 
+  private static final String EXPORT_STATS_TO_STACKDRIVER_MONITORING =
+      "ExportStatsToStackdriverMonitoring";
+  private static final EndSpanOptions END_SPAN_OPTIONS =
+      EndSpanOptions.builder().setSampleToLocalSpanStore(true).build();
+
   private final long scheduleDelayMillis;
   private final String projectId;
   private final ProjectName projectName;
@@ -103,11 +108,6 @@ final class StackdriverExporterWorker implements Runnable {
     this.monitoredResource = monitoredResource;
     this.domain = getDomain(metricNamePrefix);
     this.displayNamePrefix = getDisplayNamePrefix(metricNamePrefix);
-
-    Tracing.getExportComponent()
-        .getSampledSpanStore()
-        .registerSpanNamesForCollection(
-            Collections.singletonList("ExportStatsToStackdriverMonitoring"));
   }
 
   // Returns true if the given metricDescriptor is successfully registered to Stackdriver
@@ -217,7 +217,7 @@ final class StackdriverExporterWorker implements Runnable {
     while (true) {
       Span span =
           tracer
-              .spanBuilder("ExportStatsToStackdriverMonitoring")
+              .spanBuilder(EXPORT_STATS_TO_STACKDRIVER_MONITORING)
               .setRecordEvents(true)
               .setSampler(probabilitySampler)
               .startSpan();
@@ -231,7 +231,7 @@ final class StackdriverExporterWorker implements Runnable {
                 "Exception from Stackdriver Exporter: " + exceptionMessage(e)));
       } finally {
         scope.close();
-        span.end();
+        span.end(END_SPAN_OPTIONS);
       }
       try {
         Thread.sleep(scheduleDelayMillis);
