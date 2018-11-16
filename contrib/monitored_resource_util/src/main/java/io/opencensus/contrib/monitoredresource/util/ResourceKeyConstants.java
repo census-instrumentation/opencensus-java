@@ -28,28 +28,28 @@ public final class ResourceKeyConstants {
    *
    * @since 0.18
    */
-  public static final String AWS_EC2_INSTANCE_TYPE = "aws_ec2_instance";
+  public static final String AWS_EC2_INSTANCE_TYPE = "aws.com/ec2/instance";
 
   /**
    * AWS key that represents a region for the VM.
    *
    * @since 0.18
    */
-  public static final String AWS_REGION_KEY = "region";
+  public static final String AWS_REGION_KEY = "aws.com/ec2/region";
 
   /**
    * AWS key that represents the AWS account number for the VM.
    *
    * @since 0.18
    */
-  public static final String AWS_ACCOUNT_KEY = "aws_account";
+  public static final String AWS_ACCOUNT_KEY = "aws.com/ec2/account_id";
 
   /**
    * AWS key that represents the VM instance identifier assigned by AWS.
    *
    * @since 0.18
    */
-  public static final String AWS_INSTANCE_ID_KEY = "instance_id";
+  public static final String AWS_INSTANCE_ID_KEY = "aws.com/ec2/instance_id";
 
   /**
    * AWS key that represents a prefix for region value.
@@ -63,70 +63,65 @@ public final class ResourceKeyConstants {
    *
    * @since 0.18
    */
-  public static final String GCP_GCE_INSTANCE_TYPE = "gce_instance";
+  public static final String GCP_GCE_INSTANCE_TYPE = "cloud.google.com/gce/instance";
 
   /**
    * GCP GCE key that represents the GCP account number for the instance.
    *
    * @since 0.18
    */
-  public static final String GCP_ACCOUNT_ID_KEY = "gcp_account";
+  public static final String GCP_ACCOUNT_ID_KEY = "cloud.google.com/gce/project_id";
 
   /**
    * GCP GCE key that represents the numeric VM instance identifier assigned by GCE.
    *
    * @since 0.18
    */
-  public static final String GCP_INSTANCE_ID_KEY = "instance_id";
+  public static final String GCP_INSTANCE_ID_KEY = "cloud.google.com/gce/instance_id";
 
   /**
    * GCP GCE key that represents the GCE zone in which the VM is running.
    *
    * @since 0.18
    */
-  public static final String GCP_ZONE_KEY = "zone";
+  public static final String GCP_ZONE_KEY = "cloud.google.com/gce/zone";
 
   /**
-   * GCP GKE key that represents a type of the resource.
+   * Kubernetes resources key that represents a type of the resource.
    *
    * @since 0.18
    */
-  public static final String GCP_GKE_INSTANCE_TYPE = "k8s_container";
+  public static final String K8S_CONTAINER_TYPE = "k8s.io/container";
 
   /**
-   * GCP GKE key that represents the name for the cluster the container is running in.
+   * Kubernetes resources key that represents the name for the cluster the container is running in.
    *
    * @since 0.18
    */
-  public static final String GCP_GKE_CLUSTER_KEY = "cluster_name";
+  public static final String K8S_CLUSTER_NAME_KEY = "k8s.io/cluster/name";
 
   /**
-   * GCP GKE key that represents the name of the container.
+   * Kubernetes resources key that represents the name of the container.
    *
    * @since 0.18
    */
-  public static final String GCP_GKE_CONTAINER_KEY = "container_name";
+  public static final String K8S_CONTAINER_NAME_KEY = "k8s.io/container/name";
 
   /**
-   * GCP GKE key that represents the identifier for the GCE instance the container is running in.
+   * Kubernetes resources key that represents the identifier for the GCE instance the container is
+   * running in.
    *
    * @since 0.18
    */
-  public static final String GCP_GKE_NAMESPACE_ID_KEY = "namespace_id";
+  public static final String K8S_NAMESPACE_NAME_KEY = "k8s.io/namespace/name";
 
   /**
-   * GCP GKE key that represents the identifier for the pod the container is running in.
+   * Kubernetes resources key that represents the identifier for the pod the container is running
+   * in.
    *
    * @since 0.18
    */
-  public static final String GCP_GKE_POD_ID_KEY = "pod_id";
-
-  /**
-   * GCP GKE key that represents the GCE location in which the VM is running.
-   *
-   * @since 0.18
-   */
-  public static final String GCP_GKE_ZONE_KEY = "zone";
+  public static final String K8S_POD_NAME_KEY = "k8s.io/pod/name";
 
   private ResourceKeyConstants() {}
 }

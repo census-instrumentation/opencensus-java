@@ -324,12 +324,12 @@ public abstract class MonitoredResource {
     static Resource createResource() {
       Map<String, String> labels = new LinkedHashMap<String, String>();
       labels.put(ResourceKeyConstants.GCP_ACCOUNT_ID_KEY, GCP_ACCOUNT_ID);
-      labels.put(ResourceKeyConstants.GCP_GKE_CLUSTER_KEY, GCP_CLUSTER_NAME);
-      labels.put(ResourceKeyConstants.GCP_GKE_CONTAINER_KEY, GCP_CONTAINER_NAME);
-      labels.put(ResourceKeyConstants.GCP_GKE_NAMESPACE_ID_KEY, GCP_NAMESPACE_ID);
-      labels.put(ResourceKeyConstants.GCP_GKE_POD_ID_KEY, GCP_POD_ID);
-      labels.put(ResourceKeyConstants.GCP_GKE_ZONE_KEY, GCP_ZONE);
-      return Resource.create(ResourceKeyConstants.GCP_GCE_INSTANCE_TYPE, labels);
+      labels.put(ResourceKeyConstants.GCP_ZONE_KEY, GCP_ZONE);
+      labels.put(ResourceKeyConstants.K8S_CLUSTER_NAME_KEY, GCP_CLUSTER_NAME);
+      labels.put(ResourceKeyConstants.K8S_CONTAINER_NAME_KEY, GCP_CONTAINER_NAME);
+      labels.put(ResourceKeyConstants.K8S_NAMESPACE_NAME_KEY, GCP_NAMESPACE_ID);
+      labels.put(ResourceKeyConstants.K8S_POD_NAME_KEY, GCP_POD_ID);
+      return Resource.create(ResourceKeyConstants.K8S_CONTAINER_TYPE, labels);
     }
   }
 }

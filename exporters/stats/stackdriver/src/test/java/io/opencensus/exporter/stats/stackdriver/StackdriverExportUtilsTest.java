@@ -17,6 +17,7 @@
 package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.STACKDRIVER_PROJECT_ID_KEY;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.CUSTOM_OPENCENSUS_DOMAIN;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.DEFAULT_DISPLAY_NAME_PREFIX;
 
@@ -102,6 +103,9 @@ public class StackdriverExportUtilsTest {
   private static final String PROJECT_ID = "id";
   private static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
+  private static final MonitoredResource.Builder DEFAULT_RESOURCE_WITH_PROJECT_ID =
+      MonitoredResource.newBuilder().putLabels(STACKDRIVER_PROJECT_ID_KEY, "proj1");
+
   private static final String DEFAULT_TASK_VALUE =
       "java-" + ManagementFactory.getRuntimeMXBean().getName();
 
@@ -458,27 +462,81 @@ public class StackdriverExportUtilsTest {
   }
 
   @Test
-  public void setResourceForBuilder() {
-    MonitoredResource.Builder builder = MonitoredResource.newBuilder();
+  public void setResourceForBuilder_GcpInstanceType() {
+    MonitoredResource.Builder monitoredResourceBuilder = DEFAULT_RESOURCE_WITH_PROJECT_ID.clone();
     Map<String, String> resourceLabels = new HashMap<String, String>();
     resourceLabels.put(ResourceKeyConstants.GCP_ACCOUNT_ID_KEY, "proj1");
     resourceLabels.put(ResourceKeyConstants.GCP_INSTANCE_ID_KEY, "inst1");
     resourceLabels.put(ResourceKeyConstants.GCP_ZONE_KEY, "zone1");
     resourceLabels.put("extra_key", "must be ignored");
-
     Map<String, String> expectedResourceLabels = new HashMap<String, String>();
     expectedResourceLabels.put("project_id", "proj1");
     expectedResourceLabels.put("instance_id", "inst1");
     expectedResourceLabels.put("zone", "zone1");
-
     Resource resource = Resource.create(ResourceKeyConstants.GCP_GCE_INSTANCE_TYPE, resourceLabels);
 
-    StackdriverExportUtils.setResourceForBuilder(builder, resource);
+    StackdriverExportUtils.setResourceForBuilder(monitoredResourceBuilder, resource);
 
-    assertThat(builder.getType()).isNotNull();
-    assertThat(builder.getLabelsMap()).isNotEmpty();
-    assertThat(builder.getType()).isEqualTo("gce_instance");
-    assertThat(builder.getLabelsMap().size()).isEqualTo(3);
-    assertThat(builder.getLabelsMap()).containsExactlyEntriesIn(expectedResourceLabels);
+    assertThat(monitoredResourceBuilder.getType()).isNotNull();
+    assertThat(monitoredResourceBuilder.getLabelsMap()).isNotEmpty();
+    assertThat(monitoredResourceBuilder.getType()).isEqualTo("gce_instance");
+    assertThat(monitoredResourceBuilder.getLabelsMap().size()).isEqualTo(3);
+    assertThat(monitoredResourceBuilder.getLabelsMap())
+        .containsExactlyEntriesIn(expectedResourceLabels);
+  }
+
+  @Test
+  public void setResourceForBuilder_K8sInstanceType() {
+    MonitoredResource.Builder monitoredResourceBuilder = DEFAULT_RESOURCE_WITH_PROJECT_ID.clone();
+    Map<String, String> resourceLabels = new HashMap<String, String>();
+    resourceLabels.put(ResourceKeyConstants.GCP_ZONE_KEY, "zone1");
+    resourceLabels.put(ResourceKeyConstants.K8S_CLUSTER_NAME_KEY, "cluster1");
+    resourceLabels.put(ResourceKeyConstants.K8S_CONTAINER_NAME_KEY, "container1");
+    resourceLabels.put(ResourceKeyConstants.K8S_NAMESPACE_NAME_KEY, "namespace1");
+    resourceLabels.put(ResourceKeyConstants.K8S_POD_NAME_KEY, "pod1");
+    resourceLabels.put("extra_key", "must be ignored");
+    Map<String, String> expectedResourceLabels = new HashMap<String, String>();
+    expectedResourceLabels.put("project_id", "proj1");
+    expectedResourceLabels.put("location", "zone1");
+    expectedResourceLabels.put("cluster_name", "cluster1");
+    expectedResourceLabels.put("namespace_name", "namespace1");
+    expectedResourceLabels.put("pod_name", "pod1");
+    expectedResourceLabels.put("container_name", "container1");
+    Resource resource = Resource.create(ResourceKeyConstants.K8S_CONTAINER_TYPE, resourceLabels);
+
+    StackdriverExportUtils.setResourceForBuilder(monitoredResourceBuilder, resource);
+
+    assertThat(monitoredResourceBuilder.getType()).isNotNull();
+    assertThat(monitoredResourceBuilder.getLabelsMap()).isNotEmpty();
+    assertThat(monitoredResourceBuilder.getType()).isEqualTo("k8s_container");
+    assertThat(monitoredResourceBuilder.getLabelsMap().size()).isEqualTo(6);
+    assertThat(monitoredResourceBuilder.getLabelsMap())
+        .containsExactlyEntriesIn(expectedResourceLabels);
+  }
+
+  @Test
+  public void setResourceForBuilder_AwsInstanceType() {
+    MonitoredResource.Builder monitoredResourceBuilder = DEFAULT_RESOURCE_WITH_PROJECT_ID.clone();
+    Map<String, String> resourceLabels = new HashMap<String, String>();
+    resourceLabels.put(ResourceKeyConstants.AWS_REGION_KEY, "region1");
+    resourceLabels.put(ResourceKeyConstants.AWS_ACCOUNT_KEY, "account1");
+    resourceLabels.put(ResourceKeyConstants.AWS_INSTANCE_ID_KEY, "instance1");
+    resourceLabels.put("extra_key", "must be ignored");
+    Map<String, String> expectedResourceLabels = new HashMap<String, String>();
+    expectedResourceLabels.put("project_id", "proj1");
+    expectedResourceLabels.put("instance_id", "instance1");
+    expectedResourceLabels.put("region", "region1");
+    expectedResourceLabels.put("aws_account", "account1");
+
+    Resource resource = Resource.create(ResourceKeyConstants.AWS_EC2_INSTANCE_TYPE, resourceLabels);
+
+    StackdriverExportUtils.setResourceForBuilder(monitoredResourceBuilder, resource);
+
+    assertThat(monitoredResourceBuilder.getType()).isNotNull();
+    assertThat(monitoredResourceBuilder.getLabelsMap()).isNotEmpty();
+    assertThat(monitoredResourceBuilder.getType()).isEqualTo("aws_ec2_instance");
+    assertThat(monitoredResourceBuilder.getLabelsMap().size()).isEqualTo(4);
+    assertThat(monitoredResourceBuilder.getLabelsMap())
+        .containsExactlyEntriesIn(expectedResourceLabels);
   }
 }

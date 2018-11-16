@@ -45,7 +45,7 @@ public class MonitoredResourceUtilsTest {
   public void testDetectResource() {
     Resource resource = MonitoredResourceUtils.detectResource();
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      assertThat(resource.getType()).isEqualTo(ResourceKeyConstants.GCP_GKE_INSTANCE_TYPE);
+      assertThat(resource.getType()).isEqualTo(ResourceKeyConstants.K8S_CONTAINER_TYPE);
     } else if (GcpMetadataConfig.getInstanceId() != null) {
       assertThat(resource.getType()).isEqualTo(ResourceKeyConstants.GCP_GCE_INSTANCE_TYPE);
     } else if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
