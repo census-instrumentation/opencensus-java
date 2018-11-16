@@ -73,6 +73,7 @@ public final class OcJettyHttpClient extends HttpClient {
         new HttpRequestListener(tracer.getCurrentSpan(), handler, reqId.addAndGet(1L));
     request.listener(listener);
     request.onComplete((Response.CompleteListener) listener);
+    request.onResponseContent((Response.ContentListener) listener);
     return request;
   }
 }

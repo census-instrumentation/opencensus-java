@@ -28,13 +28,15 @@ import org.eclipse.jetty.client.api.Result;
 
 /** This class extracts attributes from Http Client Request and Response. */
 @ExperimentalApi
-public final class HttpRequestListener implements Request.Listener, Response.CompleteListener {
+public final class HttpRequestListener
+    implements Request.Listener, Response.ContentListener, Response.CompleteListener {
 
   private final Span parent;
   private final HttpClientHandler<Request, Response, Request> handler;
   @VisibleForTesting Span span = BlankSpan.INSTANCE;
   private final long reqId;
   @VisibleForTesting long recvMessageSize = 0L;
+  @VisibleForTesting long sendMessageSize = 0L;
 
   HttpRequestListener(
       Span parent, HttpClientHandler<Request, Response, Request> handler, long reqId) {
@@ -45,7 +47,7 @@ public final class HttpRequestListener implements Request.Listener, Response.Com
 
   @Override
   public void onComplete(Result result) {
-    handler.handleMessageSent(span, reqId, result.getRequest().getContent().getLength());
+    handler.handleMessageSent(span, reqId, sendMessageSize);
     handler.handleMessageReceived(span, reqId, recvMessageSize);
     handler.handleEnd(span, result.getResponse(), result.getFailure());
   }
@@ -56,12 +58,17 @@ public final class HttpRequestListener implements Request.Listener, Response.Com
   }
 
   @Override
-  public void onCommit(Request request) {}
+  public void onContent(Request request, ByteBuffer content) {
+    sendMessageSize += content.capacity();
+  }
 
   @Override
-  public void onContent(Request request, ByteBuffer content) {
-    recvMessageSize += content.remaining();
+  public void onContent(Response response, ByteBuffer content) {
+    recvMessageSize += content.capacity();
   }
+
+  @Override
+  public void onCommit(Request request) {}
 
   @Override
   public void onFailure(Request request, Throwable failure) {}

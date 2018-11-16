@@ -41,6 +41,7 @@ import org.mockito.MockitoAnnotations;
 @RunWith(JUnit4.class)
 public class HttpRequestListenerTest {
   @Mock private Request mockRequest;
+  @Mock private Response mockResponse;
   @Mock private Result mockResult;
   @Mock private HttpClientHandler<Request, Response, Request> mockHandler;
   private static final long REQ_ID = 1L;
@@ -66,17 +67,12 @@ public class HttpRequestListenerTest {
     listener.onBegin(mockRequest);
     verify(mockHandler).handleStart(any(Span.class), any(Request.class), any(Request.class));
 
-    when(mockResult.getRequest()).thenReturn(mockRequest);
-    when(mockRequest.getContent()).thenReturn(mockContent);
-    when(mockContent.getLength()).thenReturn(0L);
     listener.onComplete(mockResult);
     verify(mockHandler).handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
-    verify(mockRequest).getContent();
-    verify(mockContent).getLength();
   }
 
   @Test
-  public void testOnContent() {
+  public void testRequestOnContent() {
     HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
     when(mockHandler.handleStart(any(Span.class), any(Request.class), any(Request.class)))
         .thenReturn(realSpan);
@@ -85,8 +81,23 @@ public class HttpRequestListenerTest {
         .handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
 
     listener.onContent(mockRequest, buf);
-    assertThat(listener.recvMessageSize).isEqualTo(2L);
+    assertThat(listener.sendMessageSize).isEqualTo(2L);
     listener.onContent(mockRequest, buf);
+    assertThat(listener.sendMessageSize).isEqualTo(4L);
+  }
+
+  @Test
+  public void testResponseOnContent() {
+    HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
+    when(mockHandler.handleStart(any(Span.class), any(Request.class), any(Request.class)))
+        .thenReturn(realSpan);
+    doNothing()
+        .when(mockHandler)
+        .handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
+
+    listener.onContent(mockResponse, buf);
+    assertThat(listener.recvMessageSize).isEqualTo(2L);
+    listener.onContent(mockResponse, buf);
     assertThat(listener.recvMessageSize).isEqualTo(4L);
   }
 }
