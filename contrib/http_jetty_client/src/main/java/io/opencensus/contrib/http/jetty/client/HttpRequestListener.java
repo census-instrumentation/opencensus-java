@@ -19,9 +19,9 @@ package io.opencensus.contrib.http.jetty.client;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.contrib.http.HttpClientHandler;
+import io.opencensus.trace.BlankSpan;
 import io.opencensus.trace.Span;
 import java.nio.ByteBuffer;
-import javax.annotation.Nullable;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.api.Result;
@@ -32,18 +32,22 @@ public final class HttpRequestListener implements Request.Listener, Response.Com
 
   private final Span parent;
   private final HttpClientHandler<Request, Response, Request> handler;
-  @Nullable @VisibleForTesting Span span = null;
+  @VisibleForTesting Span span = BlankSpan.INSTANCE;
+  private final long reqId;
+  @VisibleForTesting long recvMessageSize = 0L;
 
-  HttpRequestListener(Span parent, HttpClientHandler<Request, Response, Request> handler) {
+  HttpRequestListener(
+      Span parent, HttpClientHandler<Request, Response, Request> handler, long reqId) {
     this.parent = parent;
     this.handler = handler;
+    this.reqId = reqId;
   }
 
   @Override
   public void onComplete(Result result) {
-    if (span != null) {
-      handler.handleEnd(span, result.getResponse(), result.getFailure());
-    }
+    handler.handleMessageSent(span, reqId, result.getRequest().getContent().getLength());
+    handler.handleMessageReceived(span, reqId, recvMessageSize);
+    handler.handleEnd(span, result.getResponse(), result.getFailure());
   }
 
   @Override
@@ -55,7 +59,9 @@ public final class HttpRequestListener implements Request.Listener, Response.Com
   public void onCommit(Request request) {}
 
   @Override
-  public void onContent(Request request, ByteBuffer content) {}
+  public void onContent(Request request, ByteBuffer content) {
+    recvMessageSize += content.remaining();
+  }
 
   @Override
   public void onFailure(Request request, Throwable failure) {}

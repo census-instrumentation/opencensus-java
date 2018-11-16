@@ -23,6 +23,7 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.propagation.TextFormat.Setter;
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicLong;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
@@ -41,6 +42,8 @@ public final class OcJettyHttpClient extends HttpClient {
           carrier.header(key, value);
         }
       };
+
+  private final AtomicLong reqId = new AtomicLong();
 
   private static final Tracer tracer = Tracing.getTracer();
   @VisibleForTesting private final HttpClientHandler<Request, Response, Request> handler;
@@ -66,7 +69,8 @@ public final class OcJettyHttpClient extends HttpClient {
   @Override
   public Request newRequest(URI uri) {
     Request request = super.newRequest(uri);
-    Request.Listener listener = new HttpRequestListener(tracer.getCurrentSpan(), handler);
+    Request.Listener listener =
+        new HttpRequestListener(tracer.getCurrentSpan(), handler, reqId.addAndGet(1L));
     request.listener(listener);
     request.onComplete((Response.CompleteListener) listener);
     return request;

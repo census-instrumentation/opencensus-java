@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.http.jetty.client;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -23,6 +24,9 @@ import static org.mockito.Mockito.when;
 
 import io.opencensus.contrib.http.HttpClientHandler;
 import io.opencensus.trace.Span;
+import io.opencensus.trace.Tracing;
+import java.nio.ByteBuffer;
+import org.eclipse.jetty.client.api.ContentProvider;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.api.Result;
@@ -36,29 +40,53 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link HttpRequestListener}. */
 @RunWith(JUnit4.class)
 public class HttpRequestListenerTest {
-  @Mock private Span mockSpan;
   @Mock private Request mockRequest;
   @Mock private Result mockResult;
   @Mock private HttpClientHandler<Request, Response, Request> mockHandler;
+  private static final long REQ_ID = 1L;
+  @Mock private ContentProvider mockContent;
+  private Span realSpan;
+  private final byte[] bytes = new byte[2];
+  private final ByteBuffer buf = ByteBuffer.wrap(bytes);
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
+    realSpan = Tracing.getTracer().spanBuilder("testSpan").startSpan();
   }
 
   @Test
   public void testListener() {
-    HttpRequestListener listener = new HttpRequestListener(mockSpan, mockHandler);
+    HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
     when(mockHandler.handleStart(any(Span.class), any(Request.class), any(Request.class)))
-        .thenReturn(mockSpan);
+        .thenReturn(realSpan);
+    doNothing()
+        .when(mockHandler)
+        .handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
+    listener.onBegin(mockRequest);
+    verify(mockHandler).handleStart(any(Span.class), any(Request.class), any(Request.class));
+
+    when(mockResult.getRequest()).thenReturn(mockRequest);
+    when(mockRequest.getContent()).thenReturn(mockContent);
+    when(mockContent.getLength()).thenReturn(0L);
+    listener.onComplete(mockResult);
+    verify(mockHandler).handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
+    verify(mockRequest).getContent();
+    verify(mockContent).getLength();
+  }
+
+  @Test
+  public void testOnContent() {
+    HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
+    when(mockHandler.handleStart(any(Span.class), any(Request.class), any(Request.class)))
+        .thenReturn(realSpan);
     doNothing()
         .when(mockHandler)
         .handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
 
-    listener.onBegin(mockRequest);
-    verify(mockHandler).handleStart(any(Span.class), any(Request.class), any(Request.class));
-
-    listener.onComplete(mockResult);
-    verify(mockHandler).handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
+    listener.onContent(mockRequest, buf);
+    assertThat(listener.recvMessageSize).isEqualTo(2L);
+    listener.onContent(mockRequest, buf);
+    assertThat(listener.recvMessageSize).isEqualTo(4L);
   }
 }
