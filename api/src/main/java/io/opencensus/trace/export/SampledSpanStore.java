@@ -18,6 +18,7 @@ package io.opencensus.trace.export;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.internal.Utils;
+import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Status.CanonicalCode;
@@ -106,7 +107,9 @@ public abstract class SampledSpanStore {
    *
    * @param spanNames list of span names for which the library will collect samples.
    * @since 0.5
+   * @deprecated since 0.18. Use {@link EndSpanOptions#getSampleToLocalSpanStore()}.
    */
+  @Deprecated
   public abstract void registerSpanNamesForCollection(Collection<String> spanNames);
 
   /**
@@ -118,7 +121,10 @@ public abstract class SampledSpanStore {
    *
    * @param spanNames list of span names for which the library will no longer collect samples.
    * @since 0.5
+   * @deprecated since 0.18. The need of controlling the registration the span name will be removed
+   *     soon.
    */
+  @Deprecated
   public abstract void unregisterSpanNamesForCollection(Collection<String> spanNames);
 
   /**

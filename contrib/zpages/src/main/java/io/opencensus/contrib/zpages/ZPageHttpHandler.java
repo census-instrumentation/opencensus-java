@@ -22,11 +22,12 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.AttributeValue;
+import io.opencensus.trace.EndSpanOptions;
+import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,8 +35,11 @@ import java.util.Map;
 
 /** An {@link HttpHandler} that can be used to render HTML pages using any {@code ZPageHandler}. */
 final class ZPageHttpHandler implements HttpHandler {
+
   private static final Tracer tracer = Tracing.getTracer();
   private static final String HTTP_SERVER = "HttpServer";
+  private static final EndSpanOptions END_SPAN_OPTIONS =
+      EndSpanOptions.builder().setSampleToLocalSpanStore(true).build();
   private final ZPageHandler zpageHandler;
   private final String httpServerSpanName;
 
@@ -43,28 +47,24 @@ final class ZPageHttpHandler implements HttpHandler {
   ZPageHttpHandler(ZPageHandler zpageHandler) {
     this.zpageHandler = zpageHandler;
     this.httpServerSpanName = HTTP_SERVER + zpageHandler.getUrlPath();
-    Tracing.getExportComponent()
-        .getSampledSpanStore()
-        .registerSpanNamesForCollection(Arrays.asList(httpServerSpanName));
   }
 
   @Override
   public final void handle(HttpExchange httpExchange) throws IOException {
-    try (Scope ss =
+    Span span =
         tracer
             .spanBuilderWithExplicitParent(httpServerSpanName, null)
             .setRecordEvents(true)
-            .startScopedSpan()) {
-      tracer
-          .getCurrentSpan()
-          .putAttribute(
-              "/http/method ",
-              AttributeValue.stringAttributeValue(httpExchange.getRequestMethod()));
+            .startSpan();
+    try (Scope ss = tracer.withSpan(span)) {
+      span.putAttribute(
+          "/http/method ", AttributeValue.stringAttributeValue(httpExchange.getRequestMethod()));
       httpExchange.sendResponseHeaders(200, 0);
       zpageHandler.emitHtml(
           uriQueryToMap(httpExchange.getRequestURI()), httpExchange.getResponseBody());
     } finally {
       httpExchange.close();
+      span.end(END_SPAN_OPTIONS);
     }
   }
 

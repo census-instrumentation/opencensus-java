@@ -49,6 +49,7 @@ import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeCont
 import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
 import io.opencensus.contrib.monitoredresource.util.ResourceType;
 import io.opencensus.trace.Annotation;
+import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span.Kind;
@@ -144,6 +145,9 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           return attributeValueBuilder.build();
         }
       };
+  private static final String EXPORT_STACKDRIVER_TRACES = "ExportStackdriverTraces";
+  private static final EndSpanOptions END_SPAN_OPTIONS =
+      EndSpanOptions.builder().setSampleToLocalSpanStore(true).build();
 
   private final String projectId;
   private final TraceServiceClient traceServiceClient;
@@ -154,10 +158,6 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     this.projectId = checkNotNull(projectId, "projectId");
     this.traceServiceClient = traceServiceClient;
     projectName = ProjectName.of(this.projectId);
-
-    Tracing.getExportComponent()
-        .getSampledSpanStore()
-        .registerSpanNamesForCollection(Collections.singletonList("ExportStackdriverTraces"));
   }
 
   static StackdriverV2ExporterHandler createWithCredentials(
@@ -483,12 +483,13 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
     // sets the default sampler to always sample and we get the gRPC span of the stackdriver
     // export call always sampled and go to an infinite loop.
-    Scope scope =
+    io.opencensus.trace.Span span =
         tracer
-            .spanBuilder("ExportStackdriverTraces")
+            .spanBuilder(EXPORT_STACKDRIVER_TRACES)
             .setSampler(probabilitySampler)
             .setRecordEvents(true)
-            .startScopedSpan();
+            .startSpan();
+    Scope scope = tracer.withSpan(span);
     try {
       List<Span> spans = new ArrayList<>(spanDataList.size());
       for (SpanData spanData : spanDataList) {
@@ -499,6 +500,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
       traceServiceClient.batchWriteSpans(projectName, spans);
     } finally {
       scope.close();
+      span.end(END_SPAN_OPTIONS);
     }
   }
 }

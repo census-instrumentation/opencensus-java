@@ -58,9 +58,11 @@ public abstract class SampledSpanStoreImpl extends SampledSpanStore {
     public void considerForSampling(RecordEventsSpanImpl span) {}
 
     @Override
+    @SuppressWarnings("deprecation")
     public void registerSpanNamesForCollection(Collection<String> spanNames) {}
 
     @Override
+    @SuppressWarnings("deprecation")
     public void unregisterSpanNamesForCollection(Collection<String> spanNames) {}
 
     @Override
