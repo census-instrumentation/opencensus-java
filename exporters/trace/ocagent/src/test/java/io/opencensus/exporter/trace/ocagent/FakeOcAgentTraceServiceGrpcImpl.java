@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -73,16 +74,25 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
         @Override
         public void onNext(CurrentLibraryConfig value) {
           addCurrentLibraryConfig(value);
+          try {
+            // Do not send UpdatedLibraryConfigs too frequently.
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            logger.log(Level.WARNING, "Thread interrupted.", e);
+          }
           sendUpdatedLibraryConfig();
         }
 
         @Override
         public void onError(Throwable t) {
           logger.warning("Exception thrown for config stream: " + t);
+          resetUpdatedConfigObserverRef();
         }
 
         @Override
-        public void onCompleted() {}
+        public void onCompleted() {
+          resetUpdatedConfigObserverRef();
+        }
       };
 
   @GuardedBy("this")
@@ -154,12 +164,10 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
   // Closes config stream and resets the reference to updatedConfigObserver.
   synchronized void closeConfigStream() {
     currentConfigObserver.onCompleted();
-    @Nullable
-    StreamObserver<UpdatedLibraryConfig> updatedConfigObserver = updatedConfigObserverRef.get();
-    if (updatedConfigObserver != null) {
-      updatedConfigObserver.onCompleted();
-      updatedConfigObserverRef.set(null);
-    }
+  }
+
+  private synchronized void resetUpdatedConfigObserverRef() {
+    updatedConfigObserverRef.set(null);
   }
 
   static void startServer(String endPoint) throws IOException {

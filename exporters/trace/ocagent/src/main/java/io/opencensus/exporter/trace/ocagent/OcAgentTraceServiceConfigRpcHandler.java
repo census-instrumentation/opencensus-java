@@ -79,6 +79,8 @@ final class OcAgentTraceServiceConfigRpcHandler {
   }
 
   // Sends the initial config message with Node to Agent.
+  // Once the initial config message is sent, the current thread will be blocked watching for
+  // subsequent updated library configs, unless the stream is interrupted.
   synchronized void sendInitialMessage(Node node) {
     io.opencensus.proto.trace.v1.TraceConfig currentTraceConfigProto =
         TraceProtoUtils.getCurrentTraceConfig(traceConfig);
@@ -89,7 +91,7 @@ final class OcAgentTraceServiceConfigRpcHandler {
   }
 
   // Follow up after applying the updated library config.
-  synchronized void sendCurrentConfig() {
+  private synchronized void sendCurrentConfig() {
     // Bouncing back CurrentLibraryConfig to Agent.
     io.opencensus.proto.trace.v1.TraceConfig currentTraceConfigProto =
         TraceProtoUtils.getCurrentTraceConfig(traceConfig);
@@ -117,6 +119,7 @@ final class OcAgentTraceServiceConfigRpcHandler {
     if (isCompleted()) {
       return;
     }
+    currentConfigObserver = null;
     // TODO(songya): add Runnable
     Status status;
     if (error == null) {
