@@ -78,9 +78,9 @@ final class StackdriverExportUtils {
   private static final String PROJECT_ID_LABEL_KEY = "project_id";
 
   // Mappings for the well-known OC resources to applicable Stackdriver resources.
-  private static final Map<String, String> gcpResourceMappings = getGcpResourceLabelsMappings();
-  private static final Map<String, String> gkeResourceMappings = getGkeResourceLabelsMappings();
-  private static final Map<String, String> awsResourceMappings = getAwsResourceLabelsMappings();
+  private static final Map<String, String> GCP_RESOURCE_MAPPING = getGcpResourceLabelsMappings();
+  private static final Map<String, String> GKE_RESOURCE_MAPPING = getGkeResourceLabelsMappings();
+  private static final Map<String, String> AWS_RESOURCE_MAPPING = getAwsResourceLabelsMappings();
 
   // Constant functions for TypedValue.
   private static final Function<Double, TypedValue> typedValueDoubleFunction =
@@ -394,15 +394,15 @@ final class StackdriverExportUtils {
     switch (type) {
       case ResourceKeyConstants.GCP_GCE_INSTANCE_TYPE:
         builder.setType(GCP_GCE_INSTANCE);
-        mappings = gcpResourceMappings;
+        mappings = GCP_RESOURCE_MAPPING;
         break;
       case ResourceKeyConstants.GCP_GKE_INSTANCE_TYPE:
         builder.setType(GCP_GKE_CONTAINER);
-        mappings = gkeResourceMappings;
+        mappings = GKE_RESOURCE_MAPPING;
         break;
       case ResourceKeyConstants.AWS_EC2_INSTANCE_TYPE:
         builder.setType(AWS_EC2_INSTANCE);
-        mappings = awsResourceMappings;
+        mappings = AWS_RESOURCE_MAPPING;
         break;
       default:
         builder.setType(GLOBAL);
