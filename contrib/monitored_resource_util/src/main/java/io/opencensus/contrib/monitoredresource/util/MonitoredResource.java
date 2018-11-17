@@ -17,6 +17,9 @@
 package io.opencensus.contrib.monitoredresource.util;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.resource.Resource;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -120,6 +123,14 @@ public abstract class MonitoredResource {
     static AwsEc2InstanceMonitoredResource create() {
       return create(AWS_ACCOUNT, AWS_INSTANCE_ID, AWS_REGION);
     }
+
+    static Resource createResource() {
+      Map<String, String> labels = new LinkedHashMap<String, String>();
+      labels.put(ResourceKeyConstants.AWS_REGION_KEY, AWS_REGION);
+      labels.put(ResourceKeyConstants.AWS_ACCOUNT_KEY, AWS_ACCOUNT);
+      labels.put(ResourceKeyConstants.AWS_INSTANCE_ID_KEY, AWS_INSTANCE_ID);
+      return Resource.create(ResourceKeyConstants.AWS_EC2_INSTANCE_TYPE, labels);
+    }
   }
 
   /**
@@ -182,6 +193,14 @@ public abstract class MonitoredResource {
 
     static GcpGceInstanceMonitoredResource create() {
       return create(GCP_ACCOUNT_ID, GCP_INSTANCE_ID, GCP_ZONE);
+    }
+
+    static Resource createResource() {
+      Map<String, String> labels = new LinkedHashMap<String, String>();
+      labels.put(ResourceKeyConstants.GCP_ACCOUNT_ID_KEY, GCP_ACCOUNT_ID);
+      labels.put(ResourceKeyConstants.GCP_INSTANCE_ID_KEY, GCP_INSTANCE_ID);
+      labels.put(ResourceKeyConstants.GCP_ZONE_KEY, GCP_ZONE);
+      return Resource.create(ResourceKeyConstants.GCP_GCE_INSTANCE_TYPE, labels);
     }
   }
 
@@ -300,6 +319,17 @@ public abstract class MonitoredResource {
           GCP_INSTANCE_ID,
           GCP_POD_ID,
           GCP_ZONE);
+    }
+
+    static Resource createResource() {
+      Map<String, String> labels = new LinkedHashMap<String, String>();
+      labels.put(ResourceKeyConstants.GCP_ACCOUNT_ID_KEY, GCP_ACCOUNT_ID);
+      labels.put(ResourceKeyConstants.GCP_ZONE_KEY, GCP_ZONE);
+      labels.put(ResourceKeyConstants.K8S_CLUSTER_NAME_KEY, GCP_CLUSTER_NAME);
+      labels.put(ResourceKeyConstants.K8S_CONTAINER_NAME_KEY, GCP_CONTAINER_NAME);
+      labels.put(ResourceKeyConstants.K8S_NAMESPACE_NAME_KEY, GCP_NAMESPACE_ID);
+      labels.put(ResourceKeyConstants.K8S_POD_NAME_KEY, GCP_POD_ID);
+      return Resource.create(ResourceKeyConstants.K8S_CONTAINER_TYPE, labels);
     }
   }
 }

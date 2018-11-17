@@ -36,11 +36,8 @@ import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
-import io.opencensus.contrib.monitoredresource.util.ResourceType;
+import io.opencensus.contrib.monitoredresource.util.ResourceKeyConstants;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Distribution.Bucket;
@@ -48,11 +45,14 @@ import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.metrics.export.Summary;
 import io.opencensus.metrics.export.Value;
+import io.opencensus.resource.Resource;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -69,6 +69,7 @@ final class StackdriverExportUtils {
   // TODO(songya): do we want these constants to be customizable?
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
+  @VisibleForTesting static final String STACKDRIVER_PROJECT_ID_KEY = "project_id";
   private static final String GCP_GKE_CONTAINER = "k8s_container";
   private static final String GCP_GCE_INSTANCE = "gce_instance";
   private static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
@@ -76,7 +77,11 @@ final class StackdriverExportUtils {
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
   private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
-  private static final String PROJECT_ID_LABEL_KEY = "project_id";
+
+  // Mappings for the well-known OC resources to applicable Stackdriver resources.
+  private static final Map<String, String> GCP_RESOURCE_MAPPING = getGcpResourceLabelsMappings();
+  private static final Map<String, String> K8S_RESOURCE_MAPPING = getK8sResourceLabelsMappings();
+  private static final Map<String, String> AWS_RESOURCE_MAPPING = getAwsResourceLabelsMappings();
 
   // Constant functions for TypedValue.
   private static final Function<Double, TypedValue> typedValueDoubleFunction =
@@ -363,64 +368,89 @@ final class StackdriverExportUtils {
   /* Return a self-configured StackDriver monitored resource. */
   static MonitoredResource getDefaultResource() {
     MonitoredResource.Builder builder = MonitoredResource.newBuilder();
-    io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource =
-        MonitoredResourceUtils.getDefaultResource();
-    if (autoDetectedResource == null) {
+    // Populate internal resource label for defaulting project_id label.
+    // This allows stats from other projects (e.g from GAE running in another project) to be
+    // collected.
+    if (MetadataConfig.getProjectId() != null) {
+      builder.putLabels(STACKDRIVER_PROJECT_ID_KEY, MetadataConfig.getProjectId());
+    }
+
+    Resource autoDetectedResource = MonitoredResourceUtils.detectResource();
+    if (autoDetectedResource == null || autoDetectedResource.getType() == null) {
       builder.setType(GLOBAL);
-      if (MetadataConfig.getProjectId() != null) {
-        // For default global resource, always use the project id from MetadataConfig. This allows
-        // stats from other projects (e.g from GAE running in another project) to be collected.
-        builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
-      }
       return builder.build();
     }
-    builder.setType(mapToStackdriverResourceType(autoDetectedResource.getResourceType()));
-    setMonitoredResourceLabelsForBuilder(builder, autoDetectedResource);
+
+    setResourceForBuilder(builder, autoDetectedResource);
     return builder.build();
   }
 
-  private static String mapToStackdriverResourceType(ResourceType resourceType) {
-    switch (resourceType) {
-      case GCP_GCE_INSTANCE:
-        return GCP_GCE_INSTANCE;
-      case GCP_GKE_CONTAINER:
-        return GCP_GKE_CONTAINER;
-      case AWS_EC2_INSTANCE:
-        return AWS_EC2_INSTANCE;
+  @VisibleForTesting
+  static void setResourceForBuilder(
+      MonitoredResource.Builder builder, Resource autoDetectedResource) {
+    String type = autoDetectedResource.getType();
+    if (type == null) {
+      return;
     }
-    throw new IllegalArgumentException("Unknown resource type.");
+
+    Map<String, String> mappings = null;
+    switch (type) {
+      case ResourceKeyConstants.GCP_GCE_INSTANCE_TYPE:
+        builder.setType(GCP_GCE_INSTANCE);
+        mappings = GCP_RESOURCE_MAPPING;
+        break;
+      case ResourceKeyConstants.K8S_CONTAINER_TYPE:
+        builder.setType(GCP_GKE_CONTAINER);
+        mappings = K8S_RESOURCE_MAPPING;
+        break;
+      case ResourceKeyConstants.AWS_EC2_INSTANCE_TYPE:
+        builder.setType(AWS_EC2_INSTANCE);
+        mappings = AWS_RESOURCE_MAPPING;
+        break;
+      default:
+        builder.setType(GLOBAL);
+        return;
+    }
+
+    if (mappings != null) {
+      Map<String, String> resLabels = autoDetectedResource.getLabels();
+      for (Map.Entry<String, String> entry : mappings.entrySet()) {
+        if (entry.getValue() != null && resLabels.containsKey(entry.getValue())) {
+          builder.putLabels(entry.getKey(), resLabels.get(entry.getValue()));
+        }
+      }
+      return;
+    }
+
+    throw new IllegalArgumentException("Unknown subclass of MonitoredResource.");
   }
 
-  private static void setMonitoredResourceLabelsForBuilder(
-      MonitoredResource.Builder builder,
-      io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource) {
-    switch (autoDetectedResource.getResourceType()) {
-      case GCP_GCE_INSTANCE:
-        GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
-            (GcpGceInstanceMonitoredResource) autoDetectedResource;
-        builder.putLabels(PROJECT_ID_LABEL_KEY, gcpGceInstanceMonitoredResource.getAccount());
-        builder.putLabels("instance_id", gcpGceInstanceMonitoredResource.getInstanceId());
-        builder.putLabels("zone", gcpGceInstanceMonitoredResource.getZone());
-        return;
-      case GCP_GKE_CONTAINER:
-        GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
-            (GcpGkeContainerMonitoredResource) autoDetectedResource;
-        builder.putLabels(PROJECT_ID_LABEL_KEY, gcpGkeContainerMonitoredResource.getAccount());
-        builder.putLabels("cluster_name", gcpGkeContainerMonitoredResource.getClusterName());
-        builder.putLabels("container_name", gcpGkeContainerMonitoredResource.getContainerName());
-        builder.putLabels("namespace_name", gcpGkeContainerMonitoredResource.getNamespaceId());
-        builder.putLabels("pod_name", gcpGkeContainerMonitoredResource.getPodId());
-        builder.putLabels("location", gcpGkeContainerMonitoredResource.getZone());
-        return;
-      case AWS_EC2_INSTANCE:
-        AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
-            (AwsEc2InstanceMonitoredResource) autoDetectedResource;
-        builder.putLabels("aws_account", awsEc2InstanceMonitoredResource.getAccount());
-        builder.putLabels("instance_id", awsEc2InstanceMonitoredResource.getInstanceId());
-        builder.putLabels("region", "aws:" + awsEc2InstanceMonitoredResource.getRegion());
-        return;
-    }
-    throw new IllegalArgumentException("Unknown subclass of MonitoredResource.");
+  private static Map<String, String> getGcpResourceLabelsMappings() {
+    Map<String, String> resourceLabels = new LinkedHashMap<String, String>();
+    resourceLabels.put("project_id", STACKDRIVER_PROJECT_ID_KEY);
+    resourceLabels.put("instance_id", ResourceKeyConstants.GCP_INSTANCE_ID_KEY);
+    resourceLabels.put("zone", ResourceKeyConstants.GCP_ZONE_KEY);
+    return Collections.unmodifiableMap(resourceLabels);
+  }
+
+  private static Map<String, String> getK8sResourceLabelsMappings() {
+    Map<String, String> resourceLabels = new LinkedHashMap<String, String>();
+    resourceLabels.put("project_id", STACKDRIVER_PROJECT_ID_KEY);
+    resourceLabels.put("location", ResourceKeyConstants.GCP_ZONE_KEY);
+    resourceLabels.put("cluster_name", ResourceKeyConstants.K8S_CLUSTER_NAME_KEY);
+    resourceLabels.put("namespace_name", ResourceKeyConstants.K8S_NAMESPACE_NAME_KEY);
+    resourceLabels.put("pod_name", ResourceKeyConstants.K8S_POD_NAME_KEY);
+    resourceLabels.put("container_name", ResourceKeyConstants.K8S_CONTAINER_NAME_KEY);
+    return Collections.unmodifiableMap(resourceLabels);
+  }
+
+  private static Map<String, String> getAwsResourceLabelsMappings() {
+    Map<String, String> resourceLabels = new LinkedHashMap<String, String>();
+    resourceLabels.put("project_id", STACKDRIVER_PROJECT_ID_KEY);
+    resourceLabels.put("instance_id", ResourceKeyConstants.AWS_INSTANCE_ID_KEY);
+    resourceLabels.put("region", ResourceKeyConstants.AWS_REGION_KEY);
+    resourceLabels.put("aws_account", ResourceKeyConstants.AWS_ACCOUNT_KEY);
+    return Collections.unmodifiableMap(resourceLabels);
   }
 
   private StackdriverExportUtils() {}

@@ -19,6 +19,9 @@ package io.opencensus.contrib.monitoredresource.util;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
+import io.opencensus.resource.Resource;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 
 /**
@@ -35,7 +38,9 @@ public final class MonitoredResourceUtils {
    *
    * @return a {@code MonitoredResource}.
    * @since 0.13
+   * @deprecated since 0.18, use {@link #detectResource()} instead.
    */
+  @Deprecated
   @Nullable
   public static MonitoredResource getDefaultResource() {
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
@@ -48,6 +53,30 @@ public final class MonitoredResourceUtils {
       return AwsEc2InstanceMonitoredResource.create();
     }
     return null;
+  }
+
+  /**
+   * Returns a {@code Resource}. Detector sequentially runs resource detection from environment
+   * variables, K8S, GCE and AWS.
+   *
+   * @return a {@code Resource}.
+   * @since 0.18
+   */
+  @Nullable
+  public static Resource detectResource() {
+    List<Resource> resourceList = new ArrayList<Resource>();
+    resourceList.add(Resource.createFromEnvironmentVariables());
+
+    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
+      resourceList.add(GcpGkeContainerMonitoredResource.createResource());
+    } else if (GcpMetadataConfig.getInstanceId() != null) {
+      resourceList.add(GcpGceInstanceMonitoredResource.createResource());
+    }
+
+    if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
+      resourceList.add(AwsEc2InstanceMonitoredResource.createResource());
+    }
+    return Resource.mergeResources(resourceList);
   }
 
   private MonitoredResourceUtils() {}

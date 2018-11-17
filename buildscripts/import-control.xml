@@ -154,6 +154,7 @@ General guidelines on imports:
     </subpackage>
     <subpackage name="monitoredresource.util">
       <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
+      <allow pkg="io.opencensus.resource"/>
     </subpackage>
     <subpackage name="dropwizard">
       <allow pkg="io.opencensus.contrib.dropwizard"/>
@@ -183,6 +184,7 @@ General guidelines on imports:
         <allow pkg="io.opencensus.exporter.stats.stackdriver"/>
         <allow pkg="io.opencensus.trace"/>
         <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
+        <allow pkg="io.opencensus.resource"/>
       </subpackage>
     </subpackage>
     <subpackage name="trace">
