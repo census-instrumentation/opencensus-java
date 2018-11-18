@@ -43,6 +43,8 @@ public final class TraceOptions {
    */
   public static final int SIZE = 1;
 
+  private static final int BASE16_SIZE = 2 * SIZE;
+
   /**
    * The default {@code TraceOptions}.
    *
@@ -115,6 +117,22 @@ public final class TraceOptions {
   }
 
   /**
+   * Returns a {@code TraceOption} built from a lowercase base16 representation.
+   *
+   * @param src the lowercase base16 representation.
+   * @param srcOffset the offset in the buffer where the representation of the {@code TraceOptions}
+   *     begins.
+   * @return a {@code TraceOption} built from a lowercase base16 representation.
+   * @throws NullPointerException if {@code src} is null.
+   * @throws IllegalArgumentException if {@code src.length} is not {@code 2 * TraceOption.SIZE} OR
+   *     if the {@code str} has invalid characters.
+   * @since 0.18
+   */
+  public static TraceOptions fromLowerBase16(CharSequence src, int srcOffset) {
+    return new TraceOptions(BigendianEncoding.byteFromBase16String(src, srcOffset));
+  }
+
+  /**
    * Returns the one byte representation of the {@code TraceOptions}.
    *
    * @return the one byte representation of the {@code TraceOptions}.
@@ -158,6 +176,32 @@ public final class TraceOptions {
   public void copyBytesTo(byte[] dest, int destOffset) {
     Utils.checkIndex(destOffset, dest.length);
     dest[destOffset] = options;
+  }
+
+  /**
+   * Copies the lowercase base16 representations of the {@code TraceId} into the {@code dest}
+   * beginning at the {@code destOffset} offset.
+   *
+   * @param dest the destination buffer.
+   * @param destOffset the starting offset in the destination buffer.
+   * @throws IndexOutOfBoundsException if {@code destOffset + 2} is greater than {@code
+   *     dest.length}.
+   * @since 0.18
+   */
+  public void copyLowerBase16To(char[] dest, int destOffset) {
+    BigendianEncoding.byteToBase16String(options, dest, destOffset);
+  }
+
+  /**
+   * Returns the lowercase base16 encoding of this {@code TraceOptions}.
+   *
+   * @return the lowercase base16 encoding of this {@code TraceOptions}.
+   * @since 0.18
+   */
+  public String toLowerBase16() {
+    char[] chars = new char[BASE16_SIZE];
+    copyLowerBase16To(chars, 0);
+    return new String(chars);
   }
 
   /**

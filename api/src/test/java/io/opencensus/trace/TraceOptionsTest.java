@@ -56,6 +56,13 @@ public class TraceOptionsTest {
   }
 
   @Test
+  public void toFromBase16() {
+    assertThat(TraceOptions.fromLowerBase16("ff", 0).toLowerBase16()).isEqualTo("ff");
+    assertThat(TraceOptions.fromLowerBase16("01", 0).toLowerBase16()).isEqualTo("01");
+    assertThat(TraceOptions.fromLowerBase16("06", 0).toLowerBase16()).isEqualTo("06");
+  }
+
+  @Test
   @SuppressWarnings("deprecation")
   public void deprecated_fromBytes() {
     assertThat(TraceOptions.fromBytes(new byte[] {FIRST_BYTE}).getByte()).isEqualTo(FIRST_BYTE);
