@@ -23,6 +23,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.opencensus.contrib.http.util.testing.FakeSpan;
+import io.opencensus.tags.TagContext;
+import io.opencensus.tags.Tags;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.Link.Type;
@@ -67,6 +69,7 @@ public class HttpServerHandlerTest {
           TraceOptions.DEFAULT,
           null);
   private final Object request = new Object();
+  private final Object response = new Object();
   private final Object carrier = new Object();
   @Mock private SpanBuilder spanBuilderWithRemoteParent;
   @Mock private SpanBuilder spanBuilderWithLocalParent;
@@ -81,6 +84,9 @@ public class HttpServerHandlerTest {
   // TODO(hailongwen): use `MockableSpan` instead.
   @Spy private FakeSpan spanWithLocalParent = new FakeSpan(spanContextLocal, null);
   @Spy private FakeSpan spanWithRemoteParent = new FakeSpan(spanContextRemote, null);
+  private final TagContext tagContext = Tags.getTagger().getCurrentTagContext();
+  private final HttpRequestContext context =
+      new HttpRequestContext(spanWithLocalParent, tagContext);
 
   @Before
   public void setUp() throws SpanContextParseException {
@@ -122,16 +128,18 @@ public class HttpServerHandlerTest {
 
   @Test
   public void handleStartShouldCreateChildSpanUnderParent() throws SpanContextParseException {
-    handler.handleStart(carrier, request);
+    HttpRequestContext context = handler.handleStart(carrier, request);
     verify(tracer).spanBuilderWithRemoteParent(any(String.class), same(spanContextRemote));
+    assertThat(context.span).isEqualTo(spanWithRemoteParent);
   }
 
   @Test
   public void handleStartShouldIgnoreContextParseException() throws Exception {
     when(textFormat.extract(same(carrier), same(textFormatGetter)))
         .thenThrow(new SpanContextParseException("test"));
-    handler.handleStart(carrier, request);
+    HttpRequestContext context = handler.handleStart(carrier, request);
     verify(tracer).spanBuilderWithExplicitParent(any(String.class), any(Span.class));
+    assertThat(context.span).isEqualTo(spanWithLocalParent);
   }
 
   @Test
@@ -153,10 +161,17 @@ public class HttpServerHandlerTest {
   }
 
   @Test
+  public void handleEndDisallowNullRequest() {
+    thrown.expect(NullPointerException.class);
+    handler.handleEnd(context, null, response, null);
+  }
+
+  @Test
   public void handleEndShouldEndSpan() {
+    HttpRequestContext context = new HttpRequestContext(spanWithLocalParent, tagContext);
     when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
 
-    handler.spanEnd(spanWithLocalParent, carrier, null);
+    handler.handleEnd(context, carrier, response, null);
     verify(spanWithLocalParent).end(optionsCaptor.capture());
     EndSpanOptions options = optionsCaptor.getValue();
     assertThat(options).isEqualTo(EndSpanOptions.DEFAULT);

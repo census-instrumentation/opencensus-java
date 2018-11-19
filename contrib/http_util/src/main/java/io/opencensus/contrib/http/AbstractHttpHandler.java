@@ -67,10 +67,11 @@ abstract class AbstractHttpHandler<Q, P> {
   }
 
   /**
-   * Instrument an HTTP span after a message is sent. Typically called when last chunk of request or
+   * Instrument an HTTP span after a message is sent. Typically called for every chunk of request or
    * response is sent.
    *
    * @param context request specific {@link HttpRequestContext}
+   * @param bytes bytes sent.
    * @since 0.19
    */
   public final void handleMessageSent(HttpRequestContext context, long bytes) {
@@ -83,10 +84,11 @@ abstract class AbstractHttpHandler<Q, P> {
   }
 
   /**
-   * Instrument an HTTP span after a message is received. Typically called when last chunk of
+   * Instrument an HTTP span after a message is received. Typically called for every chunk of
    * request or response is received.
    *
    * @param context request specific {@link HttpRequestContext}
+   * @param bytes bytes received.
    * @since 0.19
    */
   public final void handleMessageReceived(HttpRequestContext context, long bytes) {
