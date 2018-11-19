@@ -56,23 +56,17 @@ public final class SpanId implements Comparable<SpanId> {
   /**
    * Returns a {@code SpanId} built from a byte representation.
    *
-   * <p>Equivalent with:
-   *
-   * <pre>{@code
-   * SpanId.fromBytes(buffer, 0);
-   * }</pre>
-   *
-   * @param buffer the representation of the {@code SpanId}.
-   * @return a {@code SpanId} whose representation is given by the {@code buffer} parameter.
-   * @throws NullPointerException if {@code buffer} is null.
-   * @throws IllegalArgumentException if {@code buffer.length} is not {@link SpanId#SIZE}.
+   * @param src the representation of the {@code SpanId}.
+   * @return a {@code SpanId} whose representation is given by the {@code src} parameter.
+   * @throws NullPointerException if {@code src} is null.
+   * @throws IllegalArgumentException if {@code src.length} is not {@link SpanId#SIZE}.
    * @since 0.5
    */
-  public static SpanId fromBytes(byte[] buffer) {
-    Utils.checkNotNull(buffer, "buffer");
-    Utils.checkArgument(
-        buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
-    return new SpanId(BigendianEncoding.longFromByteArray(buffer, 0));
+  public static SpanId fromBytes(byte[] src) {
+    Utils.checkNotNull(src, "src");
+    // TODO: Remove this extra condition.
+    Utils.checkArgument(src.length == SIZE, "Invalid size: expected %s, got %s", SIZE, src.length);
+    return fromBytes(src, 0);
   }
 
   /**
@@ -89,6 +83,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.5
    */
   public static SpanId fromBytes(byte[] src, int srcOffset) {
+    Utils.checkNotNull(src, "src");
     return new SpanId(BigendianEncoding.longFromByteArray(src, srcOffset));
   }
 
@@ -103,12 +98,31 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.11
    */
   public static SpanId fromLowerBase16(CharSequence src) {
+    Utils.checkNotNull(src, "src");
+    // TODO: Remove this extra condition.
     Utils.checkArgument(
         src.length() == BASE16_SIZE,
         "Invalid size: expected %s, got %s",
         BASE16_SIZE,
         src.length());
-    return new SpanId(BigendianEncoding.longFromBase16String(src, 0));
+    return fromLowerBase16(src, 0);
+  }
+
+  /**
+   * Returns a {@code SpanId} built from a lowercase base16 representation.
+   *
+   * @param src the lowercase base16 representation.
+   * @param srcOffset the offset in the buffer where the representation of the {@code SpanId}
+   *     begins.
+   * @return a {@code SpanId} built from a lowercase base16 representation.
+   * @throws NullPointerException if {@code src} is null.
+   * @throws IllegalArgumentException if not enough characters in the {@code src} from the {@code
+   *     srcOffset}.
+   * @since 0.11
+   */
+  public static SpanId fromLowerBase16(CharSequence src, int srcOffset) {
+    Utils.checkNotNull(src, "src");
+    return new SpanId(BigendianEncoding.longFromBase16String(src, srcOffset));
   }
 
   /**
@@ -142,12 +156,6 @@ public final class SpanId implements Comparable<SpanId> {
    * Copies the byte array representations of the {@code SpanId} into the {@code dest} beginning at
    * the {@code destOffset} offset.
    *
-   * <p>Equivalent with (but faster because it avoids any new allocations):
-   *
-   * <pre>{@code
-   * System.arraycopy(getBytes(), 0, dest, destOffset, SpanId.SIZE);
-   * }</pre>
-   *
    * @param dest the destination buffer.
    * @param destOffset the starting offset in the destination buffer.
    * @throws NullPointerException if {@code dest} is null.
@@ -157,6 +165,20 @@ public final class SpanId implements Comparable<SpanId> {
    */
   public void copyBytesTo(byte[] dest, int destOffset) {
     BigendianEncoding.longToByteArray(id, dest, destOffset);
+  }
+
+  /**
+   * Copies the lowercase base16 representations of the {@code SpanId} into the {@code dest}
+   * beginning at the {@code destOffset} offset.
+   *
+   * @param dest the destination buffer.
+   * @param destOffset the starting offset in the destination buffer.
+   * @throws IndexOutOfBoundsException if {@code destOffset + 2 * SpanId.SIZE} is greater than
+   *     {@code dest.length}.
+   * @since 0.18
+   */
+  public void copyLowerBase16To(char[] dest, int destOffset) {
+    BigendianEncoding.longToBase16String(id, dest, destOffset);
   }
 
   /**
@@ -177,9 +199,9 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.11
    */
   public String toLowerBase16() {
-    StringBuilder stringBuilder = new StringBuilder(BASE16_SIZE);
-    BigendianEncoding.longToBase16String(id, stringBuilder);
-    return stringBuilder.toString();
+    char[] chars = new char[BASE16_SIZE];
+    copyLowerBase16To(chars, 0);
+    return new String(chars);
   }
 
   @Override

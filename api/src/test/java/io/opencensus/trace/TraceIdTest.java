@@ -67,6 +67,15 @@ public class TraceIdTest {
   }
 
   @Test
+  public void fromLowerBase16_WithOffset() {
+    assertThat(TraceId.fromLowerBase16("XX00000000000000000000000000000000CC", 2))
+        .isEqualTo(TraceId.INVALID);
+    assertThat(TraceId.fromLowerBase16("YY00000000000000000000000000000061AA", 2)).isEqualTo(first);
+    assertThat(TraceId.fromLowerBase16("ZZff000000000000000000000000000041BB", 2))
+        .isEqualTo(second);
+  }
+
+  @Test
   public void toLowerBase16() {
     assertThat(TraceId.INVALID.toLowerBase16()).isEqualTo("00000000000000000000000000000000");
     assertThat(first.toLowerBase16()).isEqualTo("00000000000000000000000000000061");

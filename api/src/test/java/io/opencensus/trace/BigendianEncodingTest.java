@@ -123,18 +123,18 @@ public class BigendianEncodingTest {
 
   @Test
   public void longToBase16String() {
-    StringBuilder result1 = new StringBuilder(BigendianEncoding.LONG_BASE16);
-    BigendianEncoding.longToBase16String(FIRST_LONG, result1);
-    assertThat(result1.toString()).isEqualTo(new String(FIRST_CHAR_ARRAY));
+    char[] chars1 = new char[BigendianEncoding.LONG_BASE16];
+    BigendianEncoding.longToBase16String(FIRST_LONG, chars1, 0);
+    assertThat(chars1).isEqualTo(FIRST_CHAR_ARRAY);
 
-    StringBuilder result2 = new StringBuilder(BigendianEncoding.LONG_BASE16);
-    BigendianEncoding.longToBase16String(SECOND_LONG, result2);
-    assertThat(result2.toString()).isEqualTo(new String(SECOND_CHAR_ARRAY));
+    char[] chars2 = new char[BigendianEncoding.LONG_BASE16];
+    BigendianEncoding.longToBase16String(SECOND_LONG, chars2, 0);
+    assertThat(chars2).isEqualTo(SECOND_CHAR_ARRAY);
 
-    StringBuilder result3 = new StringBuilder(2 * BigendianEncoding.LONG_BASE16);
-    BigendianEncoding.longToBase16String(FIRST_LONG, result3);
-    BigendianEncoding.longToBase16String(SECOND_LONG, result3);
-    assertThat(result3.toString()).isEqualTo(new String(BOTH_CHAR_ARRAY));
+    char[] chars3 = new char[2 * BigendianEncoding.LONG_BASE16];
+    BigendianEncoding.longToBase16String(FIRST_LONG, chars3, 0);
+    BigendianEncoding.longToBase16String(SECOND_LONG, chars3, BigendianEncoding.LONG_BASE16);
+    assertThat(chars3).isEqualTo(BOTH_CHAR_ARRAY);
   }
 
   @Test
@@ -187,8 +187,8 @@ public class BigendianEncodingTest {
   }
 
   private static void toFromBase16StringValidate(long value) {
-    StringBuilder dest = new StringBuilder(BigendianEncoding.LONG_BASE16);
-    BigendianEncoding.longToBase16String(value, dest);
-    assertThat(BigendianEncoding.longFromBase16String(dest.toString(), 0)).isEqualTo(value);
+    char[] dest = new char[BigendianEncoding.LONG_BASE16];
+    BigendianEncoding.longToBase16String(value, dest, 0);
+    assertThat(BigendianEncoding.longFromBase16String(CharBuffer.wrap(dest), 0)).isEqualTo(value);
   }
 }

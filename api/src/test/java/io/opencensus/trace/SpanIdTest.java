@@ -52,6 +52,13 @@ public class SpanIdTest {
   }
 
   @Test
+  public void fromLowerBase16_WithOffset() {
+    assertThat(SpanId.fromLowerBase16("XX0000000000000000AA", 2)).isEqualTo(SpanId.INVALID);
+    assertThat(SpanId.fromLowerBase16("YY0000000000000061BB", 2)).isEqualTo(first);
+    assertThat(SpanId.fromLowerBase16("ZZff00000000000041CC", 2)).isEqualTo(second);
+  }
+
+  @Test
   public void toLowerBase16() {
     assertThat(SpanId.INVALID.toLowerBase16()).isEqualTo("0000000000000000");
     assertThat(first.toLowerBase16()).isEqualTo("0000000000000061");
