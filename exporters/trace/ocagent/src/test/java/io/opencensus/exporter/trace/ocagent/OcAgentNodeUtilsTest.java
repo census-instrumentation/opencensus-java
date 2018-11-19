@@ -77,7 +77,7 @@ public class OcAgentNodeUtilsTest {
   }
 
   @Test
-  public void toResourceProto_AwsEc2Resource() {
+  public void toResourceProto() {
     Resource resourceProto = OcAgentNodeUtils.toResourceProto(CUSTOM_RESOURCE);
     assertThat(resourceProto.getType()).isEqualTo("some environment");
     assertThat(resourceProto.getLabelsMap()).containsExactly("k1", "v1");
