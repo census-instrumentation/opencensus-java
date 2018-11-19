@@ -37,4 +37,9 @@ public class PropagationComponentImplTest {
   public void implementationOfB3Format() {
     assertThat(propagationComponent.getB3Format()).isInstanceOf(B3Format.class);
   }
+
+  @Test
+  public void implementationOfTraceContextFormat() {
+    assertThat(propagationComponent.getTraceContextFormat()).isInstanceOf(TraceContextFormat.class);
+  }
 }

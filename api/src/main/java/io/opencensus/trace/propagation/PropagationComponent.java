@@ -44,10 +44,21 @@ public abstract class PropagationComponent {
    * no implementation is provided then no-op implementation will be used.
    *
    * @since 0.11.0
-   * @return the B3 {@code TextFormat} implementation for B3.
+   * @return the B3 {@code TextFormat} implementation.
    */
   @ExperimentalApi
   public abstract TextFormat getB3Format();
+
+  /**
+   * Returns the TraceContext {@link TextFormat} with the provided implementations. See <a
+   * href="https://github.com/w3c/distributed-tracing">w3c/distributed-tracing</a> for more
+   * information. If no implementation is provided then no-op implementation will be used.
+   *
+   * @since 0.16.0
+   * @return the TraceContext {@code TextFormat} implementation.
+   */
+  @ExperimentalApi
+  public abstract TextFormat getTraceContextFormat();
 
   /**
    * Returns an instance that contains no-op implementations for all the instances.
@@ -67,6 +78,11 @@ public abstract class PropagationComponent {
 
     @Override
     public TextFormat getB3Format() {
+      return TextFormat.getNoopTextFormat();
+    }
+
+    @Override
+    public TextFormat getTraceContextFormat() {
       return TextFormat.getNoopTextFormat();
     }
   }
