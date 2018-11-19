@@ -41,7 +41,7 @@ final class OcAgentNodeUtils {
   static final String OC_AGENT_EXPORTER_VERSION = "0.18.0-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
 
   @Nullable
-  private static final io.opencensus.resource.Resource RESOURCE =
+  private static final io.opencensus.resource.Resource AUTO_DETECTED_RESOURCE =
       MonitoredResourceUtils.detectResource();
 
   // Creates a Node with information from the OpenCensus library and environment variables.
@@ -105,8 +105,8 @@ final class OcAgentNodeUtils {
   }
 
   @Nullable
-  static Resource getDefaultResourceProto() {
-    return toResourceProto(RESOURCE);
+  static Resource getAutoDetectedResourceProto() {
+    return toResourceProto(AUTO_DETECTED_RESOURCE);
   }
 
   // Converts a MonitoredResource to a Resource proto.
