@@ -3,6 +3,7 @@
 - Set the
   [`trace_sampled` field](https://github.com/googleapis/googleapis/blob/8027f17420d5a323c7dfef1ae0e57d82f3b97430/google/logging/v2/log_entry.proto#L143-L149)
   in the Stackdriver `LogEntry` protocol buffer in `opencensus-contrib-log-correlation-stackdriver`.
+- Add support for w3c/distributed-tracing propagation format.
 
 ## 0.17.0 - 2018-11-02
 - Add `AttributeValueDouble` to `AttributeValue`.
