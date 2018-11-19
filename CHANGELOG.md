@@ -1,8 +1,6 @@
 ## Unreleased
-- Add an artifact `opencensus-contrib-http-jetty-client` for instrumenting jetty http client.
-  Add extractor for Jetty Client.
-- Add an artifact `opencensus-contrib-http-servlets` for instrumenting http servlets.
-  Add extractor for Http Servlets.
+- Add an artifact `opencensus-contrib-http-jetty-client` for instrumenting jetty http client. Add extractor for Jetty Client.
+- Add an artifact `opencensus-contrib-http-servlets` for instrumenting http servlets. Add extractor for Http Servlets.
 - Add support generic http server handler.
 - Add support for generic http client handler.
 - Add OpenCensus Java OC-Agent Trace Exporter.
