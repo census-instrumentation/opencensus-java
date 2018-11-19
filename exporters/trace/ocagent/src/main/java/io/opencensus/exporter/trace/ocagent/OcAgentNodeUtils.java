@@ -109,7 +109,7 @@ final class OcAgentNodeUtils {
     return toResourceProto(AUTO_DETECTED_RESOURCE);
   }
 
-  // Converts a MonitoredResource to a Resource proto.
+  // Converts a Java Resource object to a Resource proto.
   @Nullable
   @VisibleForTesting
   static Resource toResourceProto(@Nullable io.opencensus.resource.Resource resource) {
@@ -118,28 +118,11 @@ final class OcAgentNodeUtils {
     } else {
       Resource.Builder resourceProtoBuilder = Resource.newBuilder();
       resourceProtoBuilder.setType(resource.getType());
-      putResourceLabels(resource, resourceProtoBuilder);
+      for (Entry<String, String> keyValuePairs : resource.getLabels().entrySet()) {
+        resourceProtoBuilder.putLabels(keyValuePairs.getKey(), keyValuePairs.getValue());
+      }
       return resourceProtoBuilder.build();
     }
-  }
-
-  // Puts the attributes of MonitoredResource to ResourceProto.
-  private static void putResourceLabels(
-      io.opencensus.resource.Resource resource, Resource.Builder resourceProtoBuilder) {
-    for (Entry<String, String> keyValuePairs : resource.getLabels().entrySet()) {
-      putIntoBuilderIfHasValue(
-          resourceProtoBuilder, keyValuePairs.getKey(), keyValuePairs.getValue());
-    }
-  }
-
-  // If the given resourceValue is not empty, put it into the given resourceProtoBuilder.
-  // Otherwise skip the value.
-  private static void putIntoBuilderIfHasValue(
-      Resource.Builder resourceProtoBuilder, String resourceKey, String resourceValue) {
-    if (resourceValue.isEmpty()) {
-      return;
-    }
-    resourceProtoBuilder.putLabels(resourceKey, resourceValue);
   }
 
   private OcAgentNodeUtils() {}
