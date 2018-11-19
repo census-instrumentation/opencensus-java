@@ -19,10 +19,6 @@ package io.opencensus.exporter.trace.ocagent;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.common.Timestamp;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
 import io.opencensus.proto.agent.common.v1.LibraryInfo;
 import io.opencensus.proto.agent.common.v1.LibraryInfo.Language;
@@ -34,6 +30,7 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 /** Utilities for detecting and creating {@link Node}. */
@@ -44,7 +41,8 @@ final class OcAgentNodeUtils {
   static final String OC_AGENT_EXPORTER_VERSION = "0.18.0-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
 
   @Nullable
-  private static final MonitoredResource RESOURCE = MonitoredResourceUtils.getDefaultResource();
+  private static final io.opencensus.resource.Resource RESOURCE =
+      MonitoredResourceUtils.detectResource();
 
   // Creates a Node with information from the OpenCensus library and environment variables.
   static Node getNodeInfo(String serviceName) {
@@ -112,15 +110,14 @@ final class OcAgentNodeUtils {
   }
 
   // Converts a MonitoredResource to a Resource proto.
-  // TODO: update this method to use the Java Resource API once auto-detection is implemented.
   @Nullable
   @VisibleForTesting
-  static Resource toResourceProto(@Nullable MonitoredResource resource) {
-    if (resource == null) {
+  static Resource toResourceProto(@Nullable io.opencensus.resource.Resource resource) {
+    if (resource == null || resource.getType() == null) {
       return null;
     } else {
       Resource.Builder resourceProtoBuilder = Resource.newBuilder();
-      resourceProtoBuilder.setType(resource.getResourceType().name());
+      resourceProtoBuilder.setType(resource.getType());
       putResourceLabels(resource, resourceProtoBuilder);
       return resourceProtoBuilder.build();
     }
@@ -128,28 +125,10 @@ final class OcAgentNodeUtils {
 
   // Puts the attributes of MonitoredResource to ResourceProto.
   private static void putResourceLabels(
-      MonitoredResource resource, Resource.Builder resourceProtoBuilder) {
-    if (resource instanceof AwsEc2InstanceMonitoredResource) {
-      AwsEc2InstanceMonitoredResource awsEc2Resource = (AwsEc2InstanceMonitoredResource) resource;
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "aws_account", awsEc2Resource.getAccount());
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "instance_id", awsEc2Resource.getInstanceId());
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "region", awsEc2Resource.getRegion());
-    } else if (resource instanceof GcpGceInstanceMonitoredResource) {
-      GcpGceInstanceMonitoredResource gceResource = (GcpGceInstanceMonitoredResource) resource;
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "gcp_account", gceResource.getAccount());
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "instance_id", gceResource.getInstanceId());
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "zone", gceResource.getZone());
-    } else if (resource instanceof GcpGkeContainerMonitoredResource) {
-      GcpGkeContainerMonitoredResource gkeResource = (GcpGkeContainerMonitoredResource) resource;
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "gcp_account", gkeResource.getAccount());
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "instance_id", gkeResource.getInstanceId());
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "location", gkeResource.getZone());
+      io.opencensus.resource.Resource resource, Resource.Builder resourceProtoBuilder) {
+    for (Entry<String, String> keyValuePairs : resource.getLabels().entrySet()) {
       putIntoBuilderIfHasValue(
-          resourceProtoBuilder, "namespace_name", gkeResource.getNamespaceId());
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "cluster_name", gkeResource.getClusterName());
-      putIntoBuilderIfHasValue(
-          resourceProtoBuilder, "container_name", gkeResource.getContainerName());
-      putIntoBuilderIfHasValue(resourceProtoBuilder, "pod_name", gkeResource.getPodId());
+          resourceProtoBuilder, keyValuePairs.getKey(), keyValuePairs.getValue());
     }
   }
 
