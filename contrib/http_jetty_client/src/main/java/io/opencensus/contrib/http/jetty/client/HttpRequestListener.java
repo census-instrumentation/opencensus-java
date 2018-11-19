@@ -49,7 +49,11 @@ public final class HttpRequestListener
   public void onComplete(Result result) {
     handler.handleMessageSent(span, reqId, sendMessageSize);
     handler.handleMessageReceived(span, reqId, recvMessageSize);
-    handler.handleEnd(span, result.getResponse(), result.getFailure());
+    if (result != null) {
+      handler.handleEnd(span, result.getResponse(), result.getFailure());
+    } else {
+      handler.handleEnd(span, null, null);
+    }
   }
 
   @Override

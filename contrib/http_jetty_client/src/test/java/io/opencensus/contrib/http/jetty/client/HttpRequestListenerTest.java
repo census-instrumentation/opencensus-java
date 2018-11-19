@@ -18,6 +18,7 @@ package io.opencensus.contrib.http.jetty.client;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -99,5 +100,26 @@ public class HttpRequestListenerTest {
     assertThat(listener.recvMessageSize).isEqualTo(2L);
     listener.onContent(mockResponse, buf);
     assertThat(listener.recvMessageSize).isEqualTo(4L);
+  }
+
+  @Test
+  public void testResponseOnComplete() {
+    HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
+    doNothing()
+        .when(mockHandler)
+        .handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
+    when(mockResult.getRequest()).thenReturn(mockRequest);
+    when(mockResult.getResponse()).thenReturn(mockResponse);
+    listener.onComplete(mockResult);
+    verify(mockHandler).handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
+  }
+
+  @Test
+  public void testResponseOnCompleteWithNullResult() {
+    HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
+    doCallRealMethod().when(mockHandler).handleEnd(realSpan, null, null);
+
+    listener.onComplete(null);
+    verify(mockHandler).handleEnd(realSpan, null, null);
   }
 }
