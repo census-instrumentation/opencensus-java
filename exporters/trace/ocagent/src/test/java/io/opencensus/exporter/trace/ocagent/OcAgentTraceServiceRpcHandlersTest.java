@@ -36,6 +36,7 @@ import io.opencensus.proto.agent.trace.v1.TraceServiceGrpc.TraceServiceStub;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,10 +109,10 @@ public class OcAgentTraceServiceRpcHandlersTest {
     configThread.setName("TestConfigRpcHandlerThread");
     configThread.start();
 
-    while (traceServiceGrpc.getCurrentLibraryConfigs().isEmpty()) {
-      // Wait until fake agent received the first message.
-      Thread.sleep(1500);
-    }
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    traceServiceGrpc.setCountDownLatch(countDownLatch);
+    // Wait until fake agent received the first message.
+    countDownLatch.await();
     traceServiceGrpc.closeConfigStream();
 
     // Verify fake Agent (server) received the expected CurrentLibraryConfig.

@@ -16,6 +16,7 @@
 
 package io.opencensus.exporter.trace.ocagent;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -33,6 +34,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -65,11 +67,11 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
   private final List<ExportTraceServiceRequest> exportTraceServiceRequests = new ArrayList<>();
 
   @GuardedBy("this")
-  private final AtomicReference<StreamObserver<UpdatedLibraryConfig>> updatedConfigObserverRef =
+  private final AtomicReference<StreamObserver<UpdatedLibraryConfig>> configRequestObserverRef =
       new AtomicReference<>();
 
   @GuardedBy("this")
-  private final StreamObserver<CurrentLibraryConfig> currentConfigObserver =
+  private final StreamObserver<CurrentLibraryConfig> configResponseObserver =
       new StreamObserver<CurrentLibraryConfig>() {
         @Override
         public void onNext(CurrentLibraryConfig value) {
@@ -86,12 +88,12 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
         @Override
         public void onError(Throwable t) {
           logger.warning("Exception thrown for config stream: " + t);
-          resetUpdatedConfigObserverRef();
+          resetConfigRequestObserverRef();
         }
 
         @Override
         public void onCompleted() {
-          resetUpdatedConfigObserverRef();
+          resetConfigRequestObserverRef();
         }
       };
 
@@ -112,11 +114,14 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
         public void onCompleted() {}
       };
 
+  @GuardedBy("this")
+  private CountDownLatch countDownLatch;
+
   @Override
   public synchronized StreamObserver<CurrentLibraryConfig> config(
       StreamObserver<UpdatedLibraryConfig> updatedLibraryConfigStreamObserver) {
-    updatedConfigObserverRef.set(updatedLibraryConfigStreamObserver);
-    return currentConfigObserver;
+    configRequestObserverRef.set(updatedLibraryConfigStreamObserver);
+    return configResponseObserver;
   }
 
   @Override
@@ -155,19 +160,27 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
 
   private synchronized void sendUpdatedLibraryConfig() {
     @Nullable
-    StreamObserver<UpdatedLibraryConfig> updatedConfigObserver = updatedConfigObserverRef.get();
-    if (updatedConfigObserver != null) {
-      updatedConfigObserver.onNext(updatedLibraryConfig);
+    StreamObserver<UpdatedLibraryConfig> configRequestObserver = configRequestObserverRef.get();
+    if (configRequestObserver != null) {
+      configRequestObserver.onNext(updatedLibraryConfig);
+    }
+    if (countDownLatch != null) {
+      countDownLatch.countDown();
     }
   }
 
-  // Closes config stream and resets the reference to updatedConfigObserver.
+  // Closes config stream and resets the reference to configRequestObserver.
   synchronized void closeConfigStream() {
-    currentConfigObserver.onCompleted();
+    configResponseObserver.onCompleted();
   }
 
-  private synchronized void resetUpdatedConfigObserverRef() {
-    updatedConfigObserverRef.set(null);
+  private synchronized void resetConfigRequestObserverRef() {
+    configRequestObserverRef.set(null);
+  }
+
+  @VisibleForTesting
+  synchronized void setCountDownLatch(CountDownLatch countDownLatch) {
+    this.countDownLatch = countDownLatch;
   }
 
   static void startServer(String endPoint) throws IOException {
