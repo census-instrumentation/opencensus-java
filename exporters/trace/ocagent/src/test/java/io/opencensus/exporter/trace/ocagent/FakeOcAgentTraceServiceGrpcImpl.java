@@ -131,6 +131,9 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
   }
 
   private synchronized void addCurrentLibraryConfig(CurrentLibraryConfig currentLibraryConfig) {
+    if (countDownLatch != null && countDownLatch.getCount() == 0) {
+      return;
+    }
     currentLibraryConfigs.add(currentLibraryConfig);
   }
 

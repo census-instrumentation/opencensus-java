@@ -91,6 +91,9 @@ public class OcAgentTraceServiceRpcHandlersTest {
 
   @Test
   public void config_CreateAndSend() throws InterruptedException {
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    traceServiceGrpc.setCountDownLatch(countDownLatch);
+
     // Config RPC handler needs to be running in another thread.
     Runnable configRunnable =
         new Runnable() {
@@ -109,8 +112,6 @@ public class OcAgentTraceServiceRpcHandlersTest {
     configThread.setName("TestConfigRpcHandlerThread");
     configThread.start();
 
-    CountDownLatch countDownLatch = new CountDownLatch(1);
-    traceServiceGrpc.setCountDownLatch(countDownLatch);
     // Wait until fake agent received the first message.
     countDownLatch.await();
     traceServiceGrpc.closeConfigStream();
@@ -121,9 +122,7 @@ public class OcAgentTraceServiceRpcHandlersTest {
             .setNode(NODE)
             .setConfig(TRACE_CONFIG_DEFAULT_PROTO)
             .build();
-    // Fake Agent may receive more that one CurrentLibraryConfigs since
-    // ConfigRpcHandler is not rate-limited.
-    assertThat(traceServiceGrpc.getCurrentLibraryConfigs()).contains(expectedCurrentConfig);
+    assertThat(traceServiceGrpc.getCurrentLibraryConfigs()).containsExactly(expectedCurrentConfig);
 
     // Verify ConfigRpcHandler (client) received the expected UpdatedLibraryConfig.
     TraceParams expectedParams =
