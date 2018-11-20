@@ -53,6 +53,8 @@ matrix:
 
   # Work around https://github.com/travis-ci/travis-ci/issues/2317
   - env: TASK=BUILD
+    # Set the java version to 1.8 until we fix the build for java10.
+    osx_image: xcode9.3
     os: osx
 
   allow_failures:
