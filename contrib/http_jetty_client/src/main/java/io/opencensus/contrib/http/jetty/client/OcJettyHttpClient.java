@@ -55,8 +55,7 @@ public final class OcJettyHttpClient extends HttpClient {
         new HttpClientHandler<Request, Response, Request>(
             Tracing.getTracer(),
             new OcJettyHttpClientExtractor(),
-            // TODO: Replace B3 with TraceContext when available.
-            Tracing.getPropagationComponent().getB3Format(),
+            Tracing.getPropagationComponent().getTraceContextFormat(),
             setter);
   }
 
