@@ -126,6 +126,18 @@ public final class RpcViews {
           RpcViewConstants.RPC_SERVER_STARTED_COUNT_HOUR_VIEW,
           RpcViewConstants.RPC_SERVER_FINISHED_COUNT_HOUR_VIEW);
 
+  @VisibleForTesting
+  static final ImmutableSet<View> RPC_REAL_TIME_METRICS_VIEWS_SET =
+      ImmutableSet.of(
+          RpcViewConstants.GRPC_CLIENT_SENT_BYTES_PER_METHOD_VIEW,
+          RpcViewConstants.GRPC_CLIENT_RECEIVED_BYTES_PER_METHOD_VIEW,
+          RpcViewConstants.GRPC_CLIENT_SENT_MESSAGES_PER_METHOD_VIEW,
+          RpcViewConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_METHOD_VIEW,
+          RpcViewConstants.GRPC_SERVER_SENT_BYTES_PER_METHOD_VIEW,
+          RpcViewConstants.GRPC_SERVER_RECEIVED_BYTES_PER_METHOD_VIEW,
+          RpcViewConstants.GRPC_SERVER_SENT_MESSAGES_PER_METHOD_VIEW,
+          RpcViewConstants.GRPC_SERVER_RECEIVED_MESSAGES_PER_METHOD_VIEW);
+
   /**
    * Registers all standard gRPC views.
    *
@@ -244,6 +256,22 @@ public final class RpcViews {
   static void registerAllViews(ViewManager viewManager) {
     registerAllCumulativeViews(viewManager);
     registerAllIntervalViews(viewManager);
+  }
+
+  /**
+   * Registers views for real time metrics reporting for streaming RPCs.
+   *
+   * @since 0.18
+   */
+  public static void registerRealTimeMetricsViews() {
+    registerRealTimeMetricsViews(Stats.getViewManager());
+  }
+
+  @VisibleForTesting
+  static void registerRealTimeMetricsViews(ViewManager viewManager) {
+    for (View view : RPC_REAL_TIME_METRICS_VIEWS_SET) {
+      viewManager.registerView(view);
+    }
   }
 
   private RpcViews() {}
