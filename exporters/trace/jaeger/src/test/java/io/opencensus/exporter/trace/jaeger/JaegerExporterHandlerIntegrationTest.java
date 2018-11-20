@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
@@ -52,7 +53,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 
 public class JaegerExporterHandlerIntegrationTest {
-  private static final String JAEGER_IMAGE = "jaegertracing/all-in-one:1.3";
+  private static final String JAEGER_IMAGE = "jaegertracing/all-in-one:1.6";
   private static final int JAEGER_HTTP_PORT = 16686;
   private static final int JAEGER_HTTP_PORT_THRIFT = 14268;
   private static final String SERVICE_NAME = "test";
@@ -96,9 +97,10 @@ public class JaegerExporterHandlerIntegrationTest {
   }
 
   @Test
-  public void exportToJaeger() throws InterruptedException, IOException {
+  public void exportToJaeger() throws IOException, InterruptedException {
     Tracer tracer = Tracing.getTracer();
-    final long startTimeInMillis = currentTimeMillis();
+    final long startTimeInMicros = MILLISECONDS.toMicros(currentTimeMillis());
+    final long startNanoTime = System.nanoTime();
 
     SpanBuilder spanBuilder =
         tracer.spanBuilder(SPAN_NAME).setRecordEvents(true).setSampler(Samplers.alwaysSample());
@@ -118,12 +120,17 @@ public class JaegerExporterHandlerIntegrationTest {
       scopedSpan.close();
     }
 
-    logger.info("Wait longer than the reporting duration...");
-    // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
-    long timeWaitingForSpansToBeExportedInMillis = 5100L;
-    Thread.sleep(timeWaitingForSpansToBeExportedInMillis);
+    final long durationInMicros = NANOSECONDS.toMicros(System.nanoTime() - startNanoTime);
+    final long endTimeInMicros = startTimeInMicros + durationInMicros;
+
+    // Shutdown the export component to force a flush. This will cause problems if multiple tests
+    // are added in this class, but this is not the case for the moment.
+    Tracing.getExportComponent().shutdown();
     JaegerTraceExporter.unregister();
-    final long endTimeInMillis = currentTimeMillis();
+
+    logger.info("Wait for Jaeger to process the span...");
+    long timeWaitingForSpansToBeExportedInMillis = 1100L;
+    Thread.sleep(timeWaitingForSpansToBeExportedInMillis);
 
     // Get traces recorded by Jaeger:
     HttpRequest request =
@@ -159,14 +166,11 @@ public class JaegerExporterHandlerIntegrationTest {
     assertThat(span.get("flags").getAsInt()).isEqualTo(1);
     assertThat(span.get("operationName").getAsString()).isEqualTo(SPAN_NAME);
     assertThat(span.get("references").getAsJsonArray()).isEmpty();
-    assertThat(span.get("startTime").getAsLong())
-        .isAtLeast(MILLISECONDS.toMicros(startTimeInMillis));
-    assertThat(span.get("startTime").getAsLong()).isAtMost(MILLISECONDS.toMicros(endTimeInMillis));
+    assertThat(span.get("startTime").getAsLong()).isAtLeast(startTimeInMicros);
+    assertThat(span.get("startTime").getAsLong()).isAtMost(endTimeInMicros);
     assertThat(span.get("duration").getAsLong())
         .isAtLeast(MILLISECONDS.toMicros(spanDurationInMillis));
-    assertThat(span.get("duration").getAsLong())
-        .isAtMost(
-            MILLISECONDS.toMicros(spanDurationInMillis + timeWaitingForSpansToBeExportedInMillis));
+    assertThat(span.get("duration").getAsLong()).isAtMost(durationInMicros);
 
     JsonArray tags = span.get("tags").getAsJsonArray();
     assertThat(tags.size()).isEqualTo(1);
@@ -180,8 +184,8 @@ public class JaegerExporterHandlerIntegrationTest {
 
     JsonObject log1 = logs.get(0).getAsJsonObject();
     long ts1 = log1.get("timestamp").getAsLong();
-    assertThat(ts1).isAtLeast(MILLISECONDS.toMicros(startTimeInMillis));
-    assertThat(ts1).isAtMost(MILLISECONDS.toMicros(endTimeInMillis));
+    assertThat(ts1).isAtLeast(startTimeInMicros);
+    assertThat(ts1).isAtMost(endTimeInMicros);
     JsonArray fields1 = log1.get("fields").getAsJsonArray();
     assertThat(fields1.size()).isEqualTo(1);
     JsonObject field1 = fields1.get(0).getAsJsonObject();
@@ -191,8 +195,8 @@ public class JaegerExporterHandlerIntegrationTest {
 
     JsonObject log2 = logs.get(1).getAsJsonObject();
     long ts2 = log2.get("timestamp").getAsLong();
-    assertThat(ts2).isAtLeast(MILLISECONDS.toMicros(startTimeInMillis));
-    assertThat(ts2).isAtMost(MILLISECONDS.toMicros(endTimeInMillis));
+    assertThat(ts2).isAtLeast(startTimeInMicros);
+    assertThat(ts2).isAtMost(endTimeInMicros);
     assertThat(ts2).isAtLeast(ts1);
     JsonArray fields2 = log2.get("fields").getAsJsonArray();
     assertThat(fields2.size()).isEqualTo(1);
