@@ -9,8 +9,6 @@ description = 'OpenCensus Http Jetty Client Plugin'
     it.targetCompatibility = 1.6
 }
 
-def opencensusVersion = "0.18.0-SNAPSHOT"
-
 // TODO[rghetia]: jetty 9.3+ requires jdk 8. Http2.0 is supported in jetty 9.3
 // May require creating separate artifact for jetty 9.3 and above.
 //def jettyVersion = "9.4.12.v20180830"
