@@ -12,8 +12,7 @@ def subprojects = [
         project(':opencensus-contrib-exemplar-util'),
         project(':opencensus-contrib-grpc-util'),
         project(':opencensus-contrib-grpc-metrics'),
-//[TODO:rghetia] add this back after 0.18 is released.
-//        project(':opencensus-contrib-http-jetty-client'),
+        project(':opencensus-contrib-http-jetty-client'),
         project(':opencensus-contrib-http-servlet'),
         project(':opencensus-contrib-http-util'),
         project(':opencensus-contrib-log-correlation-log4j2'),
@@ -43,6 +42,7 @@ def subprojects_javadoc = [
         project(':opencensus-contrib-exemplar-util'),
         project(':opencensus-contrib-grpc-util'),
         project(':opencensus-contrib-grpc-metrics'),
+        project(':opencensus-contrib-http-jetty-client'),
         project(':opencensus-contrib-http-util'),
         project(':opencensus-contrib-log-correlation-log4j2'),
         project(':opencensus-contrib-log-correlation-stackdriver'),

@@ -23,7 +23,6 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.propagation.TextFormat.Setter;
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicLong;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
@@ -31,6 +30,8 @@ import org.eclipse.jetty.client.api.Response;
 /**
  * This class is a wrapper to {@link HttpClient}. It enables tracing for all {@link Request} created
  * using this client.
+ *
+ * @since 0.19
  */
 @ExperimentalApi
 public final class OcJettyHttpClient extends HttpClient {
@@ -43,18 +44,18 @@ public final class OcJettyHttpClient extends HttpClient {
         }
       };
 
-  private final AtomicLong reqId = new AtomicLong();
-
   private static final Tracer tracer = Tracing.getTracer();
   @VisibleForTesting private final HttpClientHandler<Request, Response, Request> handler;
 
   /** Create a new {@code OcJettyHttpClient}. */
   public OcJettyHttpClient() {
     super();
+    OcJettyHttpClientExtractor extractor = new OcJettyHttpClientExtractor();
+
     handler =
         new HttpClientHandler<Request, Response, Request>(
             Tracing.getTracer(),
-            new OcJettyHttpClientExtractor(),
+            extractor,
             Tracing.getPropagationComponent().getTraceContextFormat(),
             setter);
   }
@@ -68,8 +69,7 @@ public final class OcJettyHttpClient extends HttpClient {
   @Override
   public Request newRequest(URI uri) {
     Request request = super.newRequest(uri);
-    Request.Listener listener =
-        new HttpRequestListener(tracer.getCurrentSpan(), handler, reqId.addAndGet(1L));
+    Request.Listener listener = new HttpRequestListener(tracer.getCurrentSpan(), handler);
     request.listener(listener);
     request.onComplete((Response.CompleteListener) listener);
     request.onResponseContent((Response.ContentListener) listener);
