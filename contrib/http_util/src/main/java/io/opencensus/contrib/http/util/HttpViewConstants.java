@@ -17,15 +17,14 @@
 package io.opencensus.contrib.http.util;
 
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_METHOD;
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_PATH;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_SENT_BYTES;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_STATUS;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_LATENCY;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_METHOD;
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_PATH;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_RECEIVED_BYTES;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_ROUTE;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_SENT_BYTES;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_STATUS;
 
@@ -95,7 +94,7 @@ public final class HttpViewConstants {
           "Count of client-side HTTP requests completed",
           HTTP_CLIENT_ROUNDTRIP_LATENCY,
           COUNT,
-          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_PATH));
+          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
 
   /**
    * {@link View} for size distribution of client-side HTTP request body.
@@ -108,7 +107,7 @@ public final class HttpViewConstants {
           "Size distribution of client-side HTTP request body",
           HTTP_CLIENT_SENT_BYTES,
           SIZE_DISTRIBUTION,
-          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_PATH));
+          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
 
   /**
    * {@link View} for size distribution of client-side HTTP response body.
@@ -121,7 +120,7 @@ public final class HttpViewConstants {
           "Size distribution of client-side HTTP response body",
           HTTP_CLIENT_RECEIVED_BYTES,
           SIZE_DISTRIBUTION,
-          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_PATH));
+          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
 
   /**
    * {@link View} for roundtrip latency distribution of client-side HTTP requests.
@@ -134,7 +133,7 @@ public final class HttpViewConstants {
           "Roundtrip latency distribution of client-side HTTP requests",
           HTTP_CLIENT_ROUNDTRIP_LATENCY,
           LATENCY_DISTRIBUTION,
-          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_PATH, HTTP_CLIENT_STATUS));
+          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
 
   /**
    * {@link View} for count of server-side HTTP requests serving completed.
@@ -147,7 +146,7 @@ public final class HttpViewConstants {
           "Count of HTTP server-side requests serving completed",
           HTTP_SERVER_LATENCY,
           COUNT,
-          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_PATH));
+          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_ROUTE, HTTP_SERVER_STATUS));
 
   /**
    * {@link View} for size distribution of server-side HTTP request body.
@@ -160,7 +159,7 @@ public final class HttpViewConstants {
           "Size distribution of server-side HTTP request body",
           HTTP_SERVER_RECEIVED_BYTES,
           SIZE_DISTRIBUTION,
-          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_PATH));
+          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_ROUTE, HTTP_SERVER_STATUS));
 
   /**
    * {@link View} for size distribution of server-side HTTP response body.
@@ -173,7 +172,7 @@ public final class HttpViewConstants {
           "Size distribution of server-side HTTP response body",
           HTTP_SERVER_SENT_BYTES,
           SIZE_DISTRIBUTION,
-          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_PATH));
+          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_ROUTE, HTTP_SERVER_STATUS));
 
   /**
    * {@link View} for latency distribution of server-side HTTP requests serving.
@@ -186,5 +185,5 @@ public final class HttpViewConstants {
           "Latency distribution of server-side HTTP requests serving",
           HTTP_SERVER_LATENCY,
           LATENCY_DISTRIBUTION,
-          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_PATH, HTTP_SERVER_STATUS));
+          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_ROUTE, HTTP_SERVER_STATUS));
 }

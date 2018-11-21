@@ -171,4 +171,12 @@ public final class HttpMeasureConstants {
    * @since 0.13
    */
   public static final TagKey HTTP_SERVER_METHOD = TagKey.create("http_server_method");
+
+  /**
+   * {@link TagKey} for the server-side logical route, a pattern that matched the URL, of a handler
+   * that processed the request.
+   *
+   * @since 0.19
+   */
+  public static final TagKey HTTP_SERVER_ROUTE = TagKey.create("http_server_route");
 }
