@@ -122,7 +122,7 @@ public final class DisruptorEventQueue implements EventQueue {
             DISRUPTOR_BUFFER_SIZE,
             new DaemonThreadFactory("OpenCensus.Disruptor"),
             ProducerType.MULTI,
-            new SleepingWaitStrategy());
+            new SleepingWaitStrategy(0, 1000 * 1000));
     disruptor.handleEventsWith(new DisruptorEventHandler[] {DisruptorEventHandler.INSTANCE});
     disruptor.start();
     final RingBuffer<DisruptorEvent> ringBuffer = disruptor.getRingBuffer();
