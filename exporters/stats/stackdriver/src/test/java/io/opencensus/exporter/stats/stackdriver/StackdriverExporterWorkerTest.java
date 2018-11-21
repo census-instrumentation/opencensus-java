@@ -19,10 +19,6 @@ package io.opencensus.exporter.stats.stackdriver;
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.CUSTOM_OPENCENSUS_DOMAIN;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.DEFAULT_DISPLAY_NAME_PREFIX;
-import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.PERCENTILE_LABEL_KEY;
-import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.SNAPSHOT_SUFFIX_PERCENTILE;
-import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.SUMMARY_SUFFIX_COUNT;
-import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.SUMMARY_SUFFIX_SUM;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -49,13 +45,8 @@ import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.metrics.export.MetricProducer;
 import io.opencensus.metrics.export.MetricProducerManager;
 import io.opencensus.metrics.export.Point;
-import io.opencensus.metrics.export.Summary;
-import io.opencensus.metrics.export.Summary.Snapshot;
-import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
 import io.opencensus.metrics.export.Value;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -98,47 +89,6 @@ public class StackdriverExporterWorkerTest {
 
   private static final Metric METRIC =
       Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR, CUMULATIVE_TIME_SERIES);
-
-  private static final Summary SUMMARY =
-      Summary.create(
-          22L,
-          74.8,
-          Snapshot.create(
-              10L,
-              87.07,
-              Arrays.asList(
-                  ValueAtPercentile.create(50, 6),
-                  ValueAtPercentile.create(75, 10.2),
-                  ValueAtPercentile.create(98, 4.6),
-                  ValueAtPercentile.create(99, 1.2))));
-  private static final Value SUMMARY_VALUE = Value.summaryValue(SUMMARY);
-  private static final Point SUMMARY_POINT = Point.create(SUMMARY_VALUE, TIMESTAMP);
-  private static final Summary SUMMARY_NULL_SUM =
-      Summary.create(
-          22L,
-          null,
-          Snapshot.create(10L, 87.07, Collections.singletonList(ValueAtPercentile.create(50, 6))));
-  private static final Value SUMMARY_VALUE_NULL_SUM = Value.summaryValue(SUMMARY_NULL_SUM);
-  private static final Point SUMMARY_POINT_NULL_SUM =
-      Point.create(SUMMARY_VALUE_NULL_SUM, TIMESTAMP);
-
-  private static final io.opencensus.metrics.export.MetricDescriptor SUMMARY_METRIC_DESCRIPTOR =
-      io.opencensus.metrics.export.MetricDescriptor.create(
-          METRIC_NAME,
-          METRIC_DESCRIPTION,
-          METRIC_UNIT,
-          io.opencensus.metrics.export.MetricDescriptor.Type.SUMMARY,
-          LABEL_KEY);
-  private static final io.opencensus.metrics.export.TimeSeries SUMMARY_TIME_SERIES =
-      io.opencensus.metrics.export.TimeSeries.createWithOnePoint(LABEL_VALUE, SUMMARY_POINT, null);
-
-  private static final io.opencensus.metrics.export.TimeSeries SUMMARY_TIME_SERIES_NULL_SUM =
-      io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
-          LABEL_VALUE, SUMMARY_POINT_NULL_SUM, null);
-  private static final Metric SUMMARY_METRIC =
-      Metric.createWithOneTimeSeries(SUMMARY_METRIC_DESCRIPTOR, SUMMARY_TIME_SERIES);
-  private static final Metric SUMMARY_METRIC_NULL_SUM =
-      Metric.createWithOneTimeSeries(SUMMARY_METRIC_DESCRIPTOR, SUMMARY_TIME_SERIES_NULL_SUM);
 
   private static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
@@ -323,121 +273,6 @@ public class StackdriverExporterWorkerTest {
             StackdriverExporterWorker.getDisplayNamePrefix("external.googleapis.com/prometheus/"))
         .isEqualTo("external.googleapis.com/prometheus/");
     assertThat(StackdriverExporterWorker.getDisplayNamePrefix("myorg")).isEqualTo("myorg/");
-  }
-
-  @Test
-  public void summaryMetricToDoubleGaugeMetric() {
-    io.opencensus.metrics.export.MetricDescriptor expectedMetricDescriptor1 =
-        io.opencensus.metrics.export.MetricDescriptor.create(
-            METRIC_NAME + SUMMARY_SUFFIX_COUNT,
-            METRIC_DESCRIPTION,
-            METRIC_UNIT,
-            Type.CUMULATIVE_INT64,
-            LABEL_KEY);
-    io.opencensus.metrics.export.MetricDescriptor expectedMetricDescriptor2 =
-        io.opencensus.metrics.export.MetricDescriptor.create(
-            METRIC_NAME + SUMMARY_SUFFIX_SUM,
-            METRIC_DESCRIPTION,
-            METRIC_UNIT,
-            Type.CUMULATIVE_DOUBLE,
-            LABEL_KEY);
-    List<LabelKey> labelKeys = new ArrayList<>(LABEL_KEY);
-    labelKeys.add(PERCENTILE_LABEL_KEY);
-    io.opencensus.metrics.export.MetricDescriptor expectedMetricDescriptor3 =
-        io.opencensus.metrics.export.MetricDescriptor.create(
-            METRIC_NAME + SNAPSHOT_SUFFIX_PERCENTILE,
-            METRIC_DESCRIPTION,
-            METRIC_UNIT,
-            Type.GAUGE_DOUBLE,
-            labelKeys);
-    List<io.opencensus.metrics.export.TimeSeries> expectedTimeSeries1 =
-        Collections.singletonList(
-            io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
-                LABEL_VALUE, Point.create(Value.longValue(22), TIMESTAMP), null));
-    List<io.opencensus.metrics.export.TimeSeries> expectedTimeSeries2 =
-        Collections.singletonList(
-            io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
-                LABEL_VALUE, Point.create(Value.doubleValue(74.8), TIMESTAMP), null));
-    LabelValue existingLabelValues = LABEL_VALUE.get(0);
-    List<io.opencensus.metrics.export.TimeSeries> expectedTimeSeries3 =
-        Arrays.asList(
-            io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
-                Arrays.asList(existingLabelValues, LabelValue.create("50.0")),
-                Point.create(Value.doubleValue(6), TIMESTAMP),
-                null),
-            io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
-                Arrays.asList(existingLabelValues, LabelValue.create("75.0")),
-                Point.create(Value.doubleValue(10.2), TIMESTAMP),
-                null),
-            io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
-                Arrays.asList(existingLabelValues, LabelValue.create("98.0")),
-                Point.create(Value.doubleValue(4.6), TIMESTAMP),
-                null),
-            io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
-                Arrays.asList(existingLabelValues, LabelValue.create("99.0")),
-                Point.create(Value.doubleValue(1.2), TIMESTAMP),
-                null));
-    List<Metric> metrics =
-        StackdriverExporterWorker.summaryMetricToDoubleGaugeMetric(SUMMARY_METRIC);
-
-    assertThat(metrics).isNotEmpty();
-    assertThat(metrics.size()).isEqualTo(3);
-    assertThat(metrics.get(0).getMetricDescriptor()).isEqualTo(expectedMetricDescriptor1);
-    assertThat(metrics.get(0).getTimeSeriesList()).isNotEmpty();
-    assertThat(metrics.get(0).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(0).getTimeSeriesList()).containsExactlyElementsIn(expectedTimeSeries1);
-    assertThat(metrics.get(1).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(1).getTimeSeriesList()).containsExactlyElementsIn(expectedTimeSeries2);
-    assertThat(metrics.get(1).getTimeSeriesList()).isNotEmpty();
-    assertThat(metrics.get(1).getMetricDescriptor()).isEqualTo(expectedMetricDescriptor2);
-    assertThat(metrics.get(2).getTimeSeriesList()).isNotEmpty();
-    assertThat(metrics.get(2).getMetricDescriptor()).isEqualTo(expectedMetricDescriptor3);
-    assertThat(metrics.get(2).getTimeSeriesList().size()).isEqualTo(4);
-    assertThat(metrics.get(2).getTimeSeriesList()).containsExactlyElementsIn(expectedTimeSeries3);
-  }
-
-  @Test
-  public void summaryMetricToDoubleGaugeMetricWithNullSum() {
-    io.opencensus.metrics.export.MetricDescriptor expectedMetricDescriptor1 =
-        io.opencensus.metrics.export.MetricDescriptor.create(
-            METRIC_NAME + SUMMARY_SUFFIX_COUNT,
-            METRIC_DESCRIPTION,
-            METRIC_UNIT,
-            Type.CUMULATIVE_INT64,
-            LABEL_KEY);
-    List<LabelKey> labelKeys = new ArrayList<>(LABEL_KEY);
-    labelKeys.add(PERCENTILE_LABEL_KEY);
-    io.opencensus.metrics.export.MetricDescriptor expectedMetricDescriptor2 =
-        io.opencensus.metrics.export.MetricDescriptor.create(
-            METRIC_NAME + SNAPSHOT_SUFFIX_PERCENTILE,
-            METRIC_DESCRIPTION,
-            METRIC_UNIT,
-            Type.GAUGE_DOUBLE,
-            labelKeys);
-    List<io.opencensus.metrics.export.TimeSeries> expectedTimeSeries1 =
-        Collections.singletonList(
-            io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
-                LABEL_VALUE, Point.create(Value.longValue(22), TIMESTAMP), null));
-    LabelValue existingLabelValues = LABEL_VALUE.get(0);
-    List<io.opencensus.metrics.export.TimeSeries> expectedTimeSeries2 =
-        Collections.singletonList(
-            io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
-                Arrays.asList(existingLabelValues, LabelValue.create("50.0")),
-                Point.create(Value.doubleValue(6), TIMESTAMP),
-                null));
-    List<Metric> metrics =
-        StackdriverExporterWorker.summaryMetricToDoubleGaugeMetric(SUMMARY_METRIC_NULL_SUM);
-
-    assertThat(metrics).isNotEmpty();
-    assertThat(metrics.size()).isEqualTo(2);
-    assertThat(metrics.get(0).getMetricDescriptor()).isEqualTo(expectedMetricDescriptor1);
-    assertThat(metrics.get(0).getTimeSeriesList()).isNotEmpty();
-    assertThat(metrics.get(0).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(0).getTimeSeriesList()).containsExactlyElementsIn(expectedTimeSeries1);
-    assertThat(metrics.get(1).getTimeSeriesList()).isNotEmpty();
-    assertThat(metrics.get(1).getMetricDescriptor()).isEqualTo(expectedMetricDescriptor2);
-    assertThat(metrics.get(1).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(1).getTimeSeriesList()).containsExactlyElementsIn(expectedTimeSeries2);
   }
 
   /*
