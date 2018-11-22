@@ -16,7 +16,7 @@
 
 package io.opencensus.contrib.dropwizard;
 
-import com.codahale.metrics.Metric;
+import io.dropwizard.metrics5.Metric;
 
 /** Util methods for generating the metric name(unique) and description. */
 final class DropWizardUtils {

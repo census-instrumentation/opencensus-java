@@ -18,7 +18,7 @@ package io.opencensus.contrib.dropwizard;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.codahale.metrics.Counter;
+import io.dropwizard.metrics5.Counter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

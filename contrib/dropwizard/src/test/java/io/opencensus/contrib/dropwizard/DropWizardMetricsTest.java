@@ -16,16 +16,11 @@
 
 package io.opencensus.contrib.dropwizard;
 
-import static com.google.common.truth.Truth.assertThat;
-import static io.opencensus.contrib.dropwizard.DropWizardMetrics.DEFAULT_UNIT;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.Timer;
+import io.dropwizard.metrics5.*;
+import io.dropwizard.metrics5.Timer;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -33,24 +28,26 @@ import io.opencensus.metrics.export.Summary;
 import io.opencensus.metrics.export.Summary.Snapshot;
 import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
 import io.opencensus.metrics.export.Value;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.*;
+
+import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.contrib.dropwizard.DropWizardMetrics.DEFAULT_UNIT;
+
 /** Unit tests for {@link DropWizardMetrics}. */
 @RunWith(JUnit4.class)
 public class DropWizardMetricsTest {
 
-  private com.codahale.metrics.MetricRegistry metricRegistry;
+  private io.dropwizard.metrics5.MetricRegistry metricRegistry;
   DropWizardMetrics dropWizardMetrics;
 
   @Before
   public void setUp() throws Exception {
-    metricRegistry = new com.codahale.metrics.MetricRegistry();
+    metricRegistry = new io.dropwizard.metrics5.MetricRegistry();
     dropWizardMetrics = new DropWizardMetrics(Collections.singletonList(metricRegistry));
   }
 
@@ -58,99 +55,73 @@ public class DropWizardMetricsTest {
   public void collect() throws InterruptedException {
 
     // create dropwizard metrics
-    Counter evictions = metricRegistry.counter("cache_evictions");
+    Map<String, String> tags = new HashMap<>();
+    tags.put("tag1", "value1");
+    tags.put("tag1", "value1");
+    tags.put("tag2", "value2");
+    List<LabelKey> labelKeys = new ArrayList<>();
+    List<LabelValue> labelValues = new ArrayList<>();
+    for (Map.Entry<String, String> e : tags.entrySet()) {
+      labelKeys.add(LabelKey.create(e.getKey(), e.getKey()));
+      labelValues.add(LabelValue.create(e.getValue()));
+    }
+    Counter evictions = metricRegistry.counter(new MetricName("cache_evictions", tags));
     evictions.inc();
     evictions.inc(3);
     evictions.dec();
     evictions.dec(2);
+    metricRegistry.gauge(new MetricName("boolean_gauge", tags), BooleanGauge::new);
+    metricRegistry.gauge(new MetricName("double_gauge", tags), DoubleGauge::new);
+    metricRegistry.gauge(new MetricName("float_gauge", tags), FloatGauge::new);
+    metricRegistry.gauge(new MetricName("integer_gauge", tags), IntegerGauge::new);
+    metricRegistry.gauge(new MetricName("long_gauge", tags), LongGauge::new);
+    metricRegistry.gauge(new MetricName("notags_boolean_gauge", Collections.emptyMap()), BooleanGauge::new);
 
-    Gauge<Integer> integerGauge =
-        new Gauge<Integer>() {
-          @Override
-          public Integer getValue() {
-            return 1234;
-          }
-        };
-    metricRegistry.register("integer_gauge", integerGauge);
-
-    Gauge<Double> doubleGauge =
-        new Gauge<Double>() {
-          @Override
-          public Double getValue() {
-            return 1.234D;
-          }
-        };
-    metricRegistry.register("double_gauge", doubleGauge);
-
-    Gauge<Long> longGauge =
-        new Gauge<Long>() {
-          @Override
-          public Long getValue() {
-            return 1234L;
-          }
-        };
-    metricRegistry.register("long_gauge", longGauge);
-
-    Gauge<Float> floatGauge =
-        new Gauge<Float>() {
-          @Override
-          public Float getValue() {
-            return 0.1234F;
-          }
-        };
-    metricRegistry.register("float_gauge", floatGauge);
-
-    Gauge<Boolean> boolGauge =
-        new Gauge<Boolean>() {
-          @Override
-          public Boolean getValue() {
-            return Boolean.TRUE;
-          }
-        };
-    metricRegistry.register("boolean_gauge", boolGauge);
-
-    Meter getRequests = metricRegistry.meter("get_requests");
+    Meter getRequests = metricRegistry.meter(new MetricName("get_requests", tags));
     getRequests.mark();
     getRequests.mark();
 
-    Histogram resultCounts = metricRegistry.histogram("result");
+    Histogram resultCounts = metricRegistry.histogram(new MetricName("result", tags));
     resultCounts.update(200);
 
-    Timer timer = metricRegistry.timer("requests");
+    Timer timer = metricRegistry.timer(new MetricName("requests", tags));
     Timer.Context context = timer.time();
     Thread.sleep(1L);
     context.stop();
 
-    ArrayList<Metric> metrics = new ArrayList<Metric>(dropWizardMetrics.getMetrics());
-    assertThat(metrics.size()).isEqualTo(9);
+    ArrayList<Metric> metrics = new ArrayList<>(dropWizardMetrics.getMetrics());
+    assertThat(metrics.size()).isEqualTo(10);
 
     assertThat(metrics.get(0).getMetricDescriptor())
         .isEqualTo(
             MetricDescriptor.create(
                 "codahale_cache_evictions_counter",
                 "Collected from codahale (metric=cache_evictions, "
-                    + "type=com.codahale.metrics.Counter)",
+                    + "type=io.dropwizard.metrics5.Counter)",
                 DEFAULT_UNIT,
                 Type.GAUGE_INT64,
-                Collections.<LabelKey>emptyList()));
+                labelKeys));
     assertThat(metrics.get(0).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(0).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
+    assertThat(metrics.get(0).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(tags.size());
+    assertThat(metrics.get(0).getTimeSeriesList().get(0).getLabelValues().equals(labelValues));
     assertThat(metrics.get(0).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
     assertThat(metrics.get(0).getTimeSeriesList().get(0).getPoints().get(0).getValue())
         .isEqualTo(Value.longValue(1));
     assertThat(metrics.get(0).getTimeSeriesList().get(0).getStartTimestamp()).isEqualTo(null);
 
+    //boolean gauge with tags
     assertThat(metrics.get(1).getMetricDescriptor())
         .isEqualTo(
             MetricDescriptor.create(
                 "codahale_boolean_gauge_gauge",
                 "Collected from codahale (metric=boolean_gauge, "
-                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$5)",
+                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$BooleanGauge)",
                 DEFAULT_UNIT,
                 Type.GAUGE_INT64,
-                Collections.<LabelKey>emptyList()));
+                labelKeys));
     assertThat(metrics.get(1).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(1).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
+    assertThat(metrics.get(1).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(tags.size());
+    assertThat(metrics.get(1).getTimeSeriesList().get(0).getLabelValues().equals(labelValues));
     assertThat(metrics.get(1).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
     assertThat(metrics.get(1).getTimeSeriesList().get(0).getPoints().get(0).getValue())
         .isEqualTo(Value.longValue(1));
@@ -161,12 +132,13 @@ public class DropWizardMetricsTest {
             MetricDescriptor.create(
                 "codahale_double_gauge_gauge",
                 "Collected from codahale (metric=double_gauge, "
-                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$2)",
+                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$DoubleGauge)",
                 DEFAULT_UNIT,
                 Type.GAUGE_DOUBLE,
-                Collections.<LabelKey>emptyList()));
+                labelKeys));
     assertThat(metrics.get(2).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(2).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
+    assertThat(metrics.get(2).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(tags.size());
+    assertThat(metrics.get(2).getTimeSeriesList().get(0).getLabelValues().equals(labelValues));
     assertThat(metrics.get(2).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
     assertThat(metrics.get(2).getTimeSeriesList().get(0).getPoints().get(0).getValue())
         .isEqualTo(Value.doubleValue(1.234));
@@ -177,12 +149,13 @@ public class DropWizardMetricsTest {
             MetricDescriptor.create(
                 "codahale_float_gauge_gauge",
                 "Collected from codahale (metric=float_gauge, "
-                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$4)",
+                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$FloatGauge)",
                 DEFAULT_UNIT,
                 Type.GAUGE_DOUBLE,
-                Collections.<LabelKey>emptyList()));
+                labelKeys));
     assertThat(metrics.get(3).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(3).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
+    assertThat(metrics.get(3).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(tags.size());
+    assertThat(metrics.get(3).getTimeSeriesList().get(0).getLabelValues().equals(labelValues));
     assertThat(metrics.get(3).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
     assertThat(metrics.get(3).getTimeSeriesList().get(0).getPoints().get(0).getValue())
         .isEqualTo(Value.doubleValue(0.1234000027179718));
@@ -193,12 +166,13 @@ public class DropWizardMetricsTest {
             MetricDescriptor.create(
                 "codahale_integer_gauge_gauge",
                 "Collected from codahale (metric=integer_gauge, "
-                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$1)",
+                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$IntegerGauge)",
                 DEFAULT_UNIT,
                 Type.GAUGE_DOUBLE,
-                Collections.<LabelKey>emptyList()));
+                labelKeys));
     assertThat(metrics.get(4).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(4).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
+    assertThat(metrics.get(4).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(tags.size());
+    assertThat(metrics.get(4).getTimeSeriesList().get(0).getLabelValues().equals(labelValues));
     assertThat(metrics.get(4).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
     assertThat(metrics.get(4).getTimeSeriesList().get(0).getPoints().get(0).getValue())
         .isEqualTo(Value.doubleValue(1234.0));
@@ -209,45 +183,66 @@ public class DropWizardMetricsTest {
             MetricDescriptor.create(
                 "codahale_long_gauge_gauge",
                 "Collected from codahale (metric=long_gauge, "
-                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$3)",
+                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$LongGauge)",
                 DEFAULT_UNIT,
                 Type.GAUGE_DOUBLE,
-                Collections.<LabelKey>emptyList()));
+                labelKeys));
     assertThat(metrics.get(5).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(5).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
+    assertThat(metrics.get(5).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(tags.size());
+    assertThat(metrics.get(5).getTimeSeriesList().get(0).getLabelValues().equals(labelValues));
     assertThat(metrics.get(5).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
     assertThat(metrics.get(5).getTimeSeriesList().get(0).getPoints().get(0).getValue())
         .isEqualTo(Value.doubleValue(1234.0));
     assertThat(metrics.get(5).getTimeSeriesList().get(0).getStartTimestamp()).isEqualTo(null);
 
+    //boolean gauge with tags
     assertThat(metrics.get(6).getMetricDescriptor())
-        .isEqualTo(
-            MetricDescriptor.create(
-                "codahale_get_requests_meter",
-                "Collected from codahale (metric=get_requests, "
-                    + "type=com.codahale.metrics.Meter)",
-                DEFAULT_UNIT,
-                Type.CUMULATIVE_INT64,
-                Collections.<LabelKey>emptyList()));
+            .isEqualTo(
+                    MetricDescriptor.create(
+                            "codahale_notags_boolean_gauge_gauge",
+                            "Collected from codahale (metric=notags_boolean_gauge, "
+                                    + "type=io.opencensus.contrib.dropwizard.DropWizardMetricsTest$BooleanGauge)",
+                            DEFAULT_UNIT,
+                            Type.GAUGE_INT64,
+                            Collections.emptyList()));
     assertThat(metrics.get(6).getTimeSeriesList().size()).isEqualTo(1);
     assertThat(metrics.get(6).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
+    assertThat(metrics.get(6).getTimeSeriesList().get(0).getLabelValues().equals(labelValues));
     assertThat(metrics.get(6).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
     assertThat(metrics.get(6).getTimeSeriesList().get(0).getPoints().get(0).getValue())
-        .isEqualTo(Value.longValue(2));
+            .isEqualTo(Value.longValue(1));
     assertThat(metrics.get(6).getTimeSeriesList().get(0).getStartTimestamp()).isEqualTo(null);
 
     assertThat(metrics.get(7).getMetricDescriptor())
         .isEqualTo(
             MetricDescriptor.create(
-                "codahale_result_histogram",
-                "Collected from codahale (metric=result, " + "type=com.codahale.metrics.Histogram)",
+                "codahale_get_requests_meter",
+                "Collected from codahale (metric=get_requests, "
+                    + "type=io.dropwizard.metrics5.Meter)",
                 DEFAULT_UNIT,
-                Type.SUMMARY,
-                Collections.<LabelKey>emptyList()));
+                Type.CUMULATIVE_INT64,
+                labelKeys));
     assertThat(metrics.get(7).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(7).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
+    assertThat(metrics.get(7).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(tags.size());
+    assertThat(metrics.get(7).getTimeSeriesList().get(0).getLabelValues().equals(labelValues));
     assertThat(metrics.get(7).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
     assertThat(metrics.get(7).getTimeSeriesList().get(0).getPoints().get(0).getValue())
+        .isEqualTo(Value.longValue(2));
+    assertThat(metrics.get(7).getTimeSeriesList().get(0).getStartTimestamp()).isEqualTo(null);
+
+    assertThat(metrics.get(8).getMetricDescriptor())
+        .isEqualTo(
+            MetricDescriptor.create(
+                "codahale_result_histogram",
+                "Collected from codahale (metric=result, " + "type=io.dropwizard.metrics5.Histogram)",
+                DEFAULT_UNIT,
+                Type.SUMMARY,
+                labelKeys));
+    assertThat(metrics.get(8).getTimeSeriesList().size()).isEqualTo(1);
+    assertThat(metrics.get(8).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(tags.size());
+    assertThat(metrics.get(8).getTimeSeriesList().get(0).getLabelValues().equals(labelValues));
+    assertThat(metrics.get(8).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
+    assertThat(metrics.get(8).getTimeSeriesList().get(0).getPoints().get(0).getValue())
         .isEqualTo(
             Value.summaryValue(
                 Summary.create(
@@ -262,21 +257,21 @@ public class DropWizardMetricsTest {
                             ValueAtPercentile.create(98.0, 200.0),
                             ValueAtPercentile.create(99.0, 200.0),
                             ValueAtPercentile.create(99.9, 200.0))))));
-    assertThat(metrics.get(7).getTimeSeriesList().get(0).getStartTimestamp())
+    assertThat(metrics.get(8).getTimeSeriesList().get(0).getStartTimestamp())
         .isInstanceOf(Timestamp.class);
 
-    assertThat(metrics.get(8).getMetricDescriptor())
+    assertThat(metrics.get(9).getMetricDescriptor())
         .isEqualTo(
             MetricDescriptor.create(
                 "codahale_requests_timer",
-                "Collected from codahale (metric=requests, " + "type=com.codahale.metrics.Timer)",
+                "Collected from codahale (metric=requests, " + "type=io.dropwizard.metrics5.Timer)",
                 DEFAULT_UNIT,
                 Type.SUMMARY,
-                Collections.<LabelKey>emptyList()));
-    assertThat(metrics.get(8).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(8).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
-    assertThat(metrics.get(8).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
-    assertThat(metrics.get(8).getTimeSeriesList().get(0).getPoints().get(0).getValue())
+                labelKeys));
+    assertThat(metrics.get(9).getTimeSeriesList().size()).isEqualTo(1);
+    assertThat(metrics.get(9).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(tags.size());
+    assertThat(metrics.get(9).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
+    assertThat(metrics.get(9).getTimeSeriesList().get(0).getPoints().get(0).getValue())
         .isEqualTo(
             Value.summaryValue(
                 Summary.create(
@@ -293,7 +288,7 @@ public class DropWizardMetricsTest {
                             ValueAtPercentile.create(
                                 99.9, timer.getSnapshot().get999thPercentile()))))));
 
-    assertThat(metrics.get(8).getTimeSeriesList().get(0).getStartTimestamp())
+    assertThat(metrics.get(9).getTimeSeriesList().get(0).getStartTimestamp())
         .isInstanceOf(Timestamp.class);
   }
 
@@ -301,4 +296,38 @@ public class DropWizardMetricsTest {
   public void empty_GetMetrics() {
     assertThat(dropWizardMetrics.getMetrics()).isEmpty();
   }
+
+  static class IntegerGauge implements Gauge<Integer> {
+    @Override
+    public Integer getValue() {
+      return 1234;
+    }
+  }
+  static class DoubleGauge implements Gauge<Double> {
+    @Override
+    public Double getValue() {
+      return 1.234D;
+    }
+  }
+  static class LongGauge implements Gauge<Long> {
+    @Override
+    public Long getValue() {
+      return 1234L;
+    }
+  }
+  static class FloatGauge implements Gauge<Float> {
+    @Override
+    public Float getValue() {
+      return 0.1234F;
+    }
+  }
+  static class BooleanGauge implements Gauge<Boolean> {
+    @Override
+    public Boolean getValue() {
+      return Boolean.TRUE;
+    }
+  }
 }
+
+
+

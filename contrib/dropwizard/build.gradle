@@ -3,8 +3,8 @@ description = 'OpenCensus dropwizard util'
 apply plugin: 'java'
 
 [compileJava, compileTestJava].each() {
-    it.sourceCompatibility = 1.7
-    it.targetCompatibility = 1.7
+    it.sourceCompatibility = 1.8
+    it.targetCompatibility = 1.8
 }
 
 dependencies {
