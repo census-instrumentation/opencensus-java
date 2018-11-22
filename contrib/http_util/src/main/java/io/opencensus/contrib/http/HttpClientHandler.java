@@ -17,8 +17,21 @@
 package io.opencensus.contrib.http;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_METHOD;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_SENT_BYTES;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_STATUS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.contrib.http.util.HttpTraceUtil;
+import io.opencensus.stats.Stats;
+import io.opencensus.stats.StatsRecorder;
+import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagValue;
+import io.opencensus.tags.Tagger;
+import io.opencensus.tags.Tags;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanBuilder;
@@ -47,6 +60,8 @@ public class HttpClientHandler<
   private final TextFormat.Setter<C> setter;
   private final TextFormat textFormat;
   private final Tracer tracer;
+  private final StatsRecorder statsRecorder;
+  private final Tagger tagger;
 
   /**
    * Creates a {@link HttpClientHandler} with given parameters.
@@ -70,6 +85,8 @@ public class HttpClientHandler<
     this.setter = setter;
     this.textFormat = textFormat;
     this.tracer = tracer;
+    this.statsRecorder = Stats.getStatsRecorder();
+    this.tagger = Tags.getTagger();
   }
 
   /**
@@ -86,11 +103,18 @@ public class HttpClientHandler<
    * @param carrier the entity that holds the HTTP information.
    * @param request the request entity.
    * @return a span that represents the request process.
+   * @deprecated This method is deprecated in lieu of {@link HttpClientHandler#requestStart(Span,
+   *     Object, Object)}
    * @since 0.18
    */
+  @Deprecated
   public Span handleStart(@Nullable Span parent, C carrier, Q request) {
     checkNotNull(carrier, "carrier");
     checkNotNull(request, "request");
+    return handleBeginInternal(parent, carrier, request);
+  }
+
+  private Span handleBeginInternal(@Nullable Span parent, C carrier, Q request) {
     if (parent == null) {
       parent = tracer.getCurrentSpan();
     }
@@ -118,9 +142,84 @@ public class HttpClientHandler<
    * @param response the HTTP response entity. {@code null} means invalid response.
    * @param error the error occurs when processing the response.
    * @param span the span.
+   * @deprecated This method is deprecated in lieu of {@link
+   *     HttpClientHandler#requestEnd(HttpContext, Object, Object, Throwable)}
    * @since 0.18
    */
+  @Deprecated
   public void handleEnd(Span span, @Nullable P response, @Nullable Throwable error) {
     spanEnd(span, response, error);
+  }
+
+  /**
+   * Instrument a request for tracing and stats before it is sent.
+   *
+   * <p>This method will create a span in current context to represent the HTTP call. The created
+   * span will be serialized and propagated to the server.
+   *
+   * <p>The generated span will NOT be set as current context. User can control when to enter the
+   * scope of this span. Use {@link AbstractHttpHandler#getSpanFromContext} to retrieve the span.
+   *
+   * @param parent the parent {@link Span}. {@code null} indicates using current span.
+   * @param carrier the entity that holds the HTTP information.
+   * @param request the request entity.
+   * @return the {@link HttpContext} that contains stats and trace data associated with the request.
+   * @since 0.18
+   */
+  public HttpContext requestStart(@Nullable Span parent, C carrier, Q request) {
+    checkNotNull(carrier, "carrier");
+    checkNotNull(request, "request");
+    return getNewContext(handleBeginInternal(parent, carrier, request));
+  }
+
+  /**
+   * Close an HTTP span and records stats specific to the request.
+   *
+   * <p>This method will set status of the span and end it. Additionally it will record message
+   * events for the span and record measurements associated with the request.
+   *
+   * @param context the {@link HttpContext} returned from {@link
+   *     HttpClientHandler#requestStart(Span, Object, Object)}
+   * @param request the HTTP request entity.
+   * @param response the HTTP response entity. {@code null} means invalid response.
+   * @param error the error occurs when processing the response.
+   * @since 0.18
+   */
+  public void requestEnd(
+      HttpContext context, Q request, @Nullable P response, @Nullable Throwable error) {
+    checkNotNull(context, "context");
+    checkNotNull(request, "request");
+    recordStats(context, request, response, error);
+    recordTraceEvents(context);
+    spanEnd(context.span, response, error);
+  }
+
+  private void recordStats(
+      HttpContext context, Q request, @Nullable P response, @Nullable Throwable error) {
+    double requestLatency = NANOSECONDS.toMillis(System.nanoTime() - context.requestStartTime);
+
+    String methodStr = extractor.getMethod(request);
+    TagContext startCtx =
+        tagger
+            .currentBuilder()
+            .put(HTTP_CLIENT_METHOD, TagValue.create(methodStr == null ? "" : methodStr))
+            .put(
+                HTTP_CLIENT_STATUS,
+                TagValue.create(
+                    HttpTraceUtil.parseResponseStatus(extractor.getStatusCode(response), error)
+                        .toString()))
+            .build();
+
+    statsRecorder
+        .newMeasureMap()
+        .put(HTTP_CLIENT_ROUNDTRIP_LATENCY, requestLatency)
+        .put(HTTP_CLIENT_SENT_BYTES, context.requestMessageSize.get())
+        .put(HTTP_CLIENT_RECEIVED_BYTES, context.responseMessageSize.get())
+        .record(startCtx);
+  }
+
+  private void recordTraceEvents(HttpContext context) {
+    handleMessageSent(context.span, context.reqId, context.requestMessageSize.get());
+    handleMessageReceived(context.span, context.reqId, context.responseMessageSize.get());
   }
 }

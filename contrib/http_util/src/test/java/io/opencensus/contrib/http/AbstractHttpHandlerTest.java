@@ -188,4 +188,30 @@ public class AbstractHttpHandlerTest {
       verifyAttributes(entry.getKey());
     }
   }
+
+  @Test
+  public void testGetNewContext() {
+    HttpContext context = handler.getNewContext(fakeSpan);
+    assertThat(context).isNotNull();
+  }
+
+  @Test
+  public void testGetSpanFromContext() {
+    HttpContext context = handler.getNewContext(fakeSpan);
+    assertThat(handler.getSpanFromContext(context)).isEqualTo(fakeSpan);
+  }
+
+  @Test
+  public void testAddToRequestSize() {
+    HttpContext context = new HttpContext(fakeSpan, 1L);
+    assertThat(handler.addAndGetRequestMessageSize(context, 10L)).isEqualTo(10L);
+    assertThat(handler.addAndGetRequestMessageSize(context, 40000000000L)).isEqualTo(40000000010L);
+  }
+
+  @Test
+  public void testAddToResponseSize() {
+    HttpContext context = new HttpContext(fakeSpan, 1L);
+    assertThat(handler.addAndGetResponseMessageSize(context, 10L)).isEqualTo(10L);
+    assertThat(handler.addAndGetResponseMessageSize(context, 40000000000L)).isEqualTo(40000000010L);
+  }
 }

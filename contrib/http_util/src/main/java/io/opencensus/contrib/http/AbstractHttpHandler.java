@@ -26,12 +26,15 @@ import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Span.Options;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 
 /** Base class for handling request on http client and server. */
 abstract class AbstractHttpHandler<Q, P> {
   /** The {@link HttpExtractor} used to extract information from request/response. */
   @VisibleForTesting final HttpExtractor<Q, P> extractor;
+
+  @VisibleForTesting final AtomicLong reqId = new AtomicLong();
 
   /** Constructor to allow access from same package subclasses only. */
   AbstractHttpHandler(HttpExtractor<Q, P> extractor) {
@@ -134,5 +137,49 @@ abstract class AbstractHttpHandler<Q, P> {
         span, HttpTraceAttributeConstants.HTTP_ROUTE, extractor.getRoute(request));
     putAttributeIfNotEmptyOrNull(
         span, HttpTraceAttributeConstants.HTTP_URL, extractor.getUrl(request));
+  }
+
+  /**
+   * Increments the request content size by the number of bytes in the parameter. Typically called
+   * for every chunk of request received or sent.
+   *
+   * @param context request specific {@link HttpContext}
+   * @param bytes bytes to add to current size of the request content.
+   * @return value after addition.
+   * @since 0.18
+   */
+  public long addAndGetRequestMessageSize(HttpContext context, long bytes) {
+    checkNotNull(context, "context");
+    return context.requestMessageSize.addAndGet(bytes);
+  }
+
+  /**
+   * Increment the response content size by the number of bytes in the parameter. Typically called
+   * for every chunk of response received or sent.
+   *
+   * @param context request specific {@link HttpContext}
+   * @param bytes bytes to add to current size of the response content.
+   * @return value after addition.
+   * @since 0.18
+   */
+  public long addAndGetResponseMessageSize(HttpContext context, long bytes) {
+    checkNotNull(context, "context");
+    return context.responseMessageSize.addAndGet(bytes);
+  }
+
+  /**
+   * Retrieves {@link Span} from the {@link HttpContext}.
+   *
+   * @param context request specific {@link HttpContext}
+   * @return {@link Span} associated with the request.
+   * @since 0.18
+   */
+  public Span getSpanFromContext(HttpContext context) {
+    checkNotNull(context, "context");
+    return context.span;
+  }
+
+  HttpContext getNewContext(Span span) {
+    return new HttpContext(span, reqId.addAndGet(1L));
   }
 }

@@ -59,6 +59,7 @@ public class HttpClientHandlerTest {
           null);
   private final Object request = new Object();
   private final Object carrier = new Object();
+  private final Object response = new Object();
   @Mock private SpanBuilder spanBuilder;
   @Mock private Tracer tracer;
   @Mock private TextFormat textFormat;
@@ -67,6 +68,7 @@ public class HttpClientHandlerTest {
   private HttpClientHandler<Object, Object, Object> handler;
   @Spy private FakeSpan parentSpan = new FakeSpan(spanContext, null);
   private final FakeSpan childSpan = new FakeSpan(parentSpan.getContext(), null);
+  private final HttpContext context = new HttpContext(parentSpan, 1L);
   @Captor private ArgumentCaptor<EndSpanOptions> optionsCaptor;
 
   @Before
@@ -127,6 +129,66 @@ public class HttpClientHandlerTest {
     when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
 
     handler.spanEnd(parentSpan, carrier, null);
+    verify(parentSpan).end(optionsCaptor.capture());
+    EndSpanOptions options = optionsCaptor.getValue();
+    assertThat(options).isEqualTo(EndSpanOptions.DEFAULT);
+  }
+
+  @Test
+  public void requestStartWithoutSpanDisallowNullCarrier() {
+    thrown.expect(NullPointerException.class);
+    handler.requestStart(parentSpan, /*carrier=*/ null, request);
+  }
+
+  @Test
+  public void requestStartDisallowNullRequest() {
+    thrown.expect(NullPointerException.class);
+    handler.requestStart(parentSpan, carrier, /*request=*/ null);
+  }
+
+  @Test
+  public void requestStartShouldCreateChildSpanInCurrentContext() {
+    Scope scope = tracer.withSpan(parentSpan);
+    try {
+      HttpContext context = handler.requestStart(null, carrier, request);
+      verify(tracer).spanBuilderWithExplicitParent(any(String.class), same(parentSpan));
+      assertThat(context.span).isEqualTo(childSpan);
+    } finally {
+      scope.close();
+    }
+  }
+
+  @Test
+  public void requestStartCreateChildSpanInSpecifiedContext() {
+    // without scope
+    HttpContext context = handler.requestStart(parentSpan, carrier, request);
+    verify(tracer).spanBuilderWithExplicitParent(any(String.class), same(parentSpan));
+    assertThat(context.span).isEqualTo(childSpan);
+  }
+
+  @Test
+  public void requestStartShouldInjectCarrier() {
+    handler.requestStart(parentSpan, carrier, request);
+    verify(textFormat).inject(same(spanContext), same(carrier), same(textFormatSetter));
+  }
+
+  @Test
+  public void requestEndDisallowNullContext() {
+    thrown.expect(NullPointerException.class);
+    handler.requestEnd(null, request, response, null);
+  }
+
+  @Test
+  public void requestEndDisallowNullRequest() {
+    thrown.expect(NullPointerException.class);
+    handler.requestEnd(context, null, response, null);
+  }
+
+  @Test
+  public void requestEndShouldEndSpan() {
+    HttpContext context = new HttpContext(parentSpan, 1L);
+    when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
+    handler.requestEnd(context, request, response, null);
     verify(parentSpan).end(optionsCaptor.capture());
     EndSpanOptions options = optionsCaptor.getValue();
     assertThat(options).isEqualTo(EndSpanOptions.DEFAULT);
