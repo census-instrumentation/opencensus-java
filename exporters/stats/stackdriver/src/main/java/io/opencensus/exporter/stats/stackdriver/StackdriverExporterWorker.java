@@ -176,16 +176,15 @@ final class StackdriverExporterWorker implements Runnable {
         final io.opencensus.metrics.export.MetricDescriptor metricDescriptor =
             metric.getMetricDescriptor();
         if (metricDescriptor.getType() == Type.SUMMARY) {
-          List<Metric> summaryToGaugeMetrics =
-              StackdriverExportUtils.summaryMetricToDoubleGaugeMetric(metric);
-          metricsList.ensureCapacity(metricsList.size() + summaryToGaugeMetrics.size());
-          for (Metric summaryToGaugeMetric : summaryToGaugeMetrics) {
-            if (registerMetricDescriptor(summaryToGaugeMetric.getMetricDescriptor())) {
-              metricsList.add(summaryToGaugeMetric);
+          List<Metric> convertedMetrics = StackdriverExportUtils.convertSummaryMetric(metric);
+          metricsList.ensureCapacity(metricsList.size() + convertedMetrics.size());
+          for (Metric convertedMetric : convertedMetrics) {
+            if (registerMetricDescriptor(convertedMetric.getMetricDescriptor())) {
+              metricsList.add(convertedMetric);
             }
           }
         } else {
-          if (registerMetricDescriptor(metric.getMetricDescriptor())) {
+          if (registerMetricDescriptor(metricDescriptor)) {
             metricsList.add(metric);
           }
         }

@@ -559,7 +559,7 @@ public class StackdriverExportUtilsTest {
                 Point.create(Value.doubleValue(1.2), TIMESTAMP),
                 null));
     List<io.opencensus.metrics.export.Metric> metrics =
-        StackdriverExportUtils.summaryMetricToDoubleGaugeMetric(SUMMARY_METRIC);
+        StackdriverExportUtils.convertSummaryMetric(SUMMARY_METRIC);
 
     assertThat(metrics).isNotEmpty();
     assertThat(metrics.size()).isEqualTo(3);
@@ -607,7 +607,7 @@ public class StackdriverExportUtilsTest {
                 Point.create(Value.doubleValue(6), TIMESTAMP),
                 null));
     List<io.opencensus.metrics.export.Metric> metrics =
-        StackdriverExportUtils.summaryMetricToDoubleGaugeMetric(SUMMARY_METRIC_NULL_SUM);
+        StackdriverExportUtils.convertSummaryMetric(SUMMARY_METRIC_NULL_SUM);
 
     assertThat(metrics).isNotEmpty();
     assertThat(metrics.size()).isEqualTo(2);
