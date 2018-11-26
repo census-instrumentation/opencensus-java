@@ -103,11 +103,9 @@ public class HttpClientHandler<
    * @param carrier the entity that holds the HTTP information.
    * @param request the request entity.
    * @return a span that represents the request process.
-   * @deprecated This method is deprecated in lieu of {@link HttpClientHandler#requestStart(Span,
-   *     Object, Object)}
+   * [TODO: rghetia] Mark it deprecated or remove.
    * @since 0.18
    */
-  @Deprecated
   public Span handleStart(@Nullable Span parent, C carrier, Q request) {
     checkNotNull(carrier, "carrier");
     checkNotNull(request, "request");
@@ -142,11 +140,9 @@ public class HttpClientHandler<
    * @param response the HTTP response entity. {@code null} means invalid response.
    * @param error the error occurs when processing the response.
    * @param span the span.
-   * @deprecated This method is deprecated in lieu of {@link
-   *     HttpClientHandler#requestEnd(HttpContext, Object, Object, Throwable)}
+   * [TODO: rghetia] Mark it deprecated or remove.
    * @since 0.18
    */
-  @Deprecated
   public void handleEnd(Span span, @Nullable P response, @Nullable Throwable error) {
     spanEnd(span, response, error);
   }
