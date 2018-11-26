@@ -39,9 +39,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @param <C> the type of the carrier.
  * @since 0.18
  */
+// [TODO:rghetia] add it back after 0.18 is released
 @ExperimentalApi
-public class HttpClientHandler<
-        Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @NonNull Object*/>
+class HttpClientHandler<Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @NonNull Object*/>
     extends AbstractHttpHandler<Q, P> {
 
   private final TextFormat.Setter<C> setter;

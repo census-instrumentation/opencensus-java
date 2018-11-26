@@ -73,7 +73,8 @@ abstract class AbstractHttpHandler<Q, P> {
    * @param messageSize the size of the message.
    * @since 0.18
    */
-  public final void handleMessageSent(Span span, long messageId, long messageSize) {
+  // [TODO:rghetia] add it back after 0.18 is released
+  final void handleMessageSent(Span span, long messageId, long messageSize) {
     checkNotNull(span, "span");
     if (span.getOptions().contains(Options.RECORD_EVENTS)) {
       // record compressed size
@@ -89,7 +90,8 @@ abstract class AbstractHttpHandler<Q, P> {
    * @param messageSize the size of the message.
    * @since 0.18
    */
-  public final void handleMessageReceived(Span span, long messageId, long messageSize) {
+  // [TODO:rghetia] add it back after 0.18 is released
+  final void handleMessageReceived(Span span, long messageId, long messageSize) {
     checkNotNull(span, "span");
     if (span.getOptions().contains(Options.RECORD_EVENTS)) {
       // record compressed size
