@@ -498,8 +498,12 @@ final class StackdriverExportUtils {
     if (summaryCountTimeSeries.size() > 0) {
       addMetric(
           metricsList,
-          createNewMetricDescriptor(
-              summaryMetric.getMetricDescriptor(), Type.CUMULATIVE_INT64, SUMMARY_SUFFIX_COUNT),
+          io.opencensus.metrics.export.MetricDescriptor.create(
+              summaryMetric.getMetricDescriptor().getName() + SUMMARY_SUFFIX_COUNT,
+              summaryMetric.getMetricDescriptor().getDescription(),
+              "1",
+              Type.CUMULATIVE_INT64,
+              summaryMetric.getMetricDescriptor().getLabelKeys()),
           summaryCountTimeSeries);
     }
 
@@ -507,8 +511,12 @@ final class StackdriverExportUtils {
     if (summarySumTimeSeries.size() > 0) {
       addMetric(
           metricsList,
-          createNewMetricDescriptor(
-              summaryMetric.getMetricDescriptor(), Type.CUMULATIVE_DOUBLE, SUMMARY_SUFFIX_SUM),
+          io.opencensus.metrics.export.MetricDescriptor.create(
+              summaryMetric.getMetricDescriptor().getName() + SUMMARY_SUFFIX_SUM,
+              summaryMetric.getMetricDescriptor().getDescription(),
+              summaryMetric.getMetricDescriptor().getUnit(),
+              Type.CUMULATIVE_DOUBLE,
+              summaryMetric.getMetricDescriptor().getLabelKeys()),
           summarySumTimeSeries);
     }
 
@@ -517,10 +525,11 @@ final class StackdriverExportUtils {
     labelKeys.add(PERCENTILE_LABEL_KEY);
     addMetric(
         metricsList,
-        createNewMetricDescriptorWithNewLabels(
-            summaryMetric.getMetricDescriptor(),
+        io.opencensus.metrics.export.MetricDescriptor.create(
+            summaryMetric.getMetricDescriptor().getName() + SNAPSHOT_SUFFIX_PERCENTILE,
+            summaryMetric.getMetricDescriptor().getDescription(),
+            summaryMetric.getMetricDescriptor().getUnit(),
             Type.GAUGE_DOUBLE,
-            SNAPSHOT_SUFFIX_PERCENTILE,
             labelKeys),
         percentileTimeSeries);
     return metricsList;
@@ -544,31 +553,6 @@ final class StackdriverExportUtils {
             labelValues,
             io.opencensus.metrics.export.Point.create(value, pointTimestamp),
             timeSeriesTimestamp));
-  }
-
-  private static io.opencensus.metrics.export.MetricDescriptor createNewMetricDescriptor(
-      io.opencensus.metrics.export.MetricDescriptor metricDescriptor,
-      Type metricDescriptorType,
-      String metricDescriptorNameSuffix) {
-    return createNewMetricDescriptorWithNewLabels(
-        metricDescriptor,
-        metricDescriptorType,
-        metricDescriptorNameSuffix,
-        metricDescriptor.getLabelKeys());
-  }
-
-  private static io.opencensus.metrics.export.MetricDescriptor
-      createNewMetricDescriptorWithNewLabels(
-          io.opencensus.metrics.export.MetricDescriptor metricDescriptor,
-          Type metricDescriptorType,
-          String metricDescriptorNameSuffix,
-          List<LabelKey> labelKeys) {
-    return io.opencensus.metrics.export.MetricDescriptor.create(
-        metricDescriptor.getName() + metricDescriptorNameSuffix,
-        metricDescriptor.getDescription(),
-        metricDescriptor.getUnit(),
-        metricDescriptorType,
-        labelKeys);
   }
 
   private static Map<String, String> getGcpResourceLabelsMappings() {

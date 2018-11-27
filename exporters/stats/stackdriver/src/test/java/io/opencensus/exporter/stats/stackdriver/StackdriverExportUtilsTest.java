@@ -507,12 +507,12 @@ public class StackdriverExportUtilsTest {
   }
 
   @Test
-  public void summaryMetricToDoubleGaugeMetric() {
+  public void convertSummaryMetric() {
     io.opencensus.metrics.export.MetricDescriptor expectedMetricDescriptor1 =
         io.opencensus.metrics.export.MetricDescriptor.create(
             METRIC_NAME + SUMMARY_SUFFIX_COUNT,
             METRIC_DESCRIPTION,
-            METRIC_UNIT,
+            METRIC_UNIT_2,
             Type.CUMULATIVE_INT64,
             LABEL_KEY);
     io.opencensus.metrics.export.MetricDescriptor expectedMetricDescriptor2 =
@@ -578,12 +578,12 @@ public class StackdriverExportUtilsTest {
   }
 
   @Test
-  public void summaryMetricToDoubleGaugeMetricWithNullSum() {
+  public void convertSummaryMetricWithNullSum() {
     io.opencensus.metrics.export.MetricDescriptor expectedMetricDescriptor1 =
         io.opencensus.metrics.export.MetricDescriptor.create(
             METRIC_NAME + SUMMARY_SUFFIX_COUNT,
             METRIC_DESCRIPTION,
-            METRIC_UNIT,
+            METRIC_UNIT_2,
             Type.CUMULATIVE_INT64,
             LABEL_KEY);
     List<LabelKey> labelKeys = new ArrayList<>(LABEL_KEY);
