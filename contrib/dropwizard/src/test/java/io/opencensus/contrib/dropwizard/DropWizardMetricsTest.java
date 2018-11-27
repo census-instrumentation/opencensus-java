@@ -237,7 +237,7 @@ public class DropWizardMetricsTest {
     assertThat(metrics.get(0).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
     assertThat(metrics.get(0).getTimeSeriesList().get(0).getPoints().get(0).getValue())
         .isEqualTo(Value.longValue(2));
-    assertThat(metrics.get(0).getTimeSeriesList().get(0).getStartTimestamp()).isNull();
+    assertThat(metrics.get(0).getTimeSeriesList().get(0).getStartTimestamp()).isNotNull();
   }
 
   @Test
