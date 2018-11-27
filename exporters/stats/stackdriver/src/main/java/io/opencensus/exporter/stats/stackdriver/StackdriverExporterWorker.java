@@ -30,6 +30,7 @@ import com.google.monitoring.v3.TimeSeries;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Scope;
 import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.metrics.export.MetricProducer;
 import io.opencensus.metrics.export.MetricProducerManager;
 import io.opencensus.trace.EndSpanOptions;
@@ -172,8 +173,20 @@ final class StackdriverExporterWorker implements Runnable {
       Collection<Metric> producerMetricsList = metricProducer.getMetrics();
       metricsList.ensureCapacity(metricsList.size() + producerMetricsList.size());
       for (Metric metric : producerMetricsList) {
-        if (registerMetricDescriptor(metric.getMetricDescriptor())) {
-          metricsList.add(metric);
+        final io.opencensus.metrics.export.MetricDescriptor metricDescriptor =
+            metric.getMetricDescriptor();
+        if (metricDescriptor.getType() == Type.SUMMARY) {
+          List<Metric> convertedMetrics = StackdriverExportUtils.convertSummaryMetric(metric);
+          metricsList.ensureCapacity(metricsList.size() + convertedMetrics.size());
+          for (Metric convertedMetric : convertedMetrics) {
+            if (registerMetricDescriptor(convertedMetric.getMetricDescriptor())) {
+              metricsList.add(convertedMetric);
+            }
+          }
+        } else {
+          if (registerMetricDescriptor(metricDescriptor)) {
+            metricsList.add(metric);
+          }
         }
       }
     }

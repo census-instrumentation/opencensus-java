@@ -44,6 +44,8 @@ import io.opencensus.metrics.export.Distribution.Bucket;
 import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.metrics.export.Summary;
+import io.opencensus.metrics.export.Summary.Snapshot;
+import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
 import io.opencensus.metrics.export.Value;
 import io.opencensus.resource.Resource;
 import java.lang.management.ManagementFactory;
@@ -83,6 +85,16 @@ final class StackdriverExportUtils {
   private static final Map<String, String> K8S_RESOURCE_MAPPING = getK8sResourceLabelsMappings();
   private static final Map<String, String> AWS_RESOURCE_MAPPING = getAwsResourceLabelsMappings();
 
+  @VisibleForTesting
+  static final LabelKey PERCENTILE_LABEL_KEY =
+      LabelKey.create("percentile", "the value at a given percentile of a distribution");
+
+  @VisibleForTesting
+  static final String SNAPSHOT_SUFFIX_PERCENTILE = "_summary_snapshot_percentile";
+
+  @VisibleForTesting static final String SUMMARY_SUFFIX_COUNT = "_summary_count";
+  @VisibleForTesting static final String SUMMARY_SUFFIX_SUM = "_summary_sum";
+
   // Constant functions for TypedValue.
   private static final Function<Double, TypedValue> typedValueDoubleFunction =
       new Function<Double, TypedValue>() {
@@ -115,8 +127,6 @@ final class StackdriverExportUtils {
       new Function<Summary, TypedValue>() {
         @Override
         public TypedValue apply(Summary arg) {
-          // StackDriver doesn't handle Summary value.
-          // TODO(mayurkale): decide what to do with Summary value.
           TypedValue.Builder builder = TypedValue.newBuilder();
           return builder.build();
         }
@@ -222,7 +232,6 @@ final class StackdriverExportUtils {
   // Convert a OpenCensus Type to a StackDriver ValueType
   @VisibleForTesting
   static MetricDescriptor.ValueType createValueType(Type type) {
-    // TODO(mayurkale): decide what to do with Summary type.
     if (type == Type.CUMULATIVE_DOUBLE || type == Type.GAUGE_DOUBLE) {
       return MetricDescriptor.ValueType.DOUBLE;
     } else if (type == Type.GAUGE_INT64 || type == Type.CUMULATIVE_INT64) {
@@ -423,6 +432,127 @@ final class StackdriverExportUtils {
     }
 
     throw new IllegalArgumentException("Unknown subclass of MonitoredResource.");
+  }
+
+  @VisibleForTesting
+  static List<io.opencensus.metrics.export.Metric> convertSummaryMetric(
+      io.opencensus.metrics.export.Metric summaryMetric) {
+    List<io.opencensus.metrics.export.Metric> metricsList = Lists.newArrayList();
+    final List<io.opencensus.metrics.export.TimeSeries> percentileTimeSeries = new ArrayList<>();
+    final List<io.opencensus.metrics.export.TimeSeries> summaryCountTimeSeries = new ArrayList<>();
+    final List<io.opencensus.metrics.export.TimeSeries> summarySumTimeSeries = new ArrayList<>();
+    for (final io.opencensus.metrics.export.TimeSeries timeSeries :
+        summaryMetric.getTimeSeriesList()) {
+      final List<LabelValue> labelValuesWithPercentile =
+          new ArrayList<>(timeSeries.getLabelValues());
+      final io.opencensus.common.Timestamp timeSeriesTimestamp = timeSeries.getStartTimestamp();
+      for (io.opencensus.metrics.export.Point point : timeSeries.getPoints()) {
+        final io.opencensus.common.Timestamp pointTimestamp = point.getTimestamp();
+        point
+            .getValue()
+            .match(
+                Functions.<Void>returnNull(),
+                Functions.<Void>returnNull(),
+                Functions.<Void>returnNull(),
+                new Function<Summary, Void>() {
+                  @Override
+                  public Void apply(Summary summary) {
+                    Long count = summary.getCount();
+                    if (count != null) {
+                      createTimeSeries(
+                          timeSeries.getLabelValues(),
+                          Value.longValue(count),
+                          pointTimestamp,
+                          timeSeriesTimestamp,
+                          summaryCountTimeSeries);
+                    }
+                    Double sum = summary.getSum();
+                    if (sum != null) {
+                      createTimeSeries(
+                          timeSeries.getLabelValues(),
+                          Value.doubleValue(sum),
+                          pointTimestamp,
+                          timeSeriesTimestamp,
+                          summarySumTimeSeries);
+                    }
+                    Snapshot snapshot = summary.getSnapshot();
+                    for (ValueAtPercentile valueAtPercentile : snapshot.getValueAtPercentiles()) {
+                      labelValuesWithPercentile.add(
+                          LabelValue.create(valueAtPercentile.getPercentile() + ""));
+                      createTimeSeries(
+                          labelValuesWithPercentile,
+                          Value.doubleValue(valueAtPercentile.getValue()),
+                          pointTimestamp,
+                          null,
+                          percentileTimeSeries);
+                      labelValuesWithPercentile.remove(labelValuesWithPercentile.size() - 1);
+                    }
+                    return null;
+                  }
+                },
+                Functions.<Void>returnNull());
+      }
+    }
+
+    // Metric for summary->count.
+    if (summaryCountTimeSeries.size() > 0) {
+      addMetric(
+          metricsList,
+          io.opencensus.metrics.export.MetricDescriptor.create(
+              summaryMetric.getMetricDescriptor().getName() + SUMMARY_SUFFIX_COUNT,
+              summaryMetric.getMetricDescriptor().getDescription(),
+              "1",
+              Type.CUMULATIVE_INT64,
+              summaryMetric.getMetricDescriptor().getLabelKeys()),
+          summaryCountTimeSeries);
+    }
+
+    // Metric for summary->sum.
+    if (summarySumTimeSeries.size() > 0) {
+      addMetric(
+          metricsList,
+          io.opencensus.metrics.export.MetricDescriptor.create(
+              summaryMetric.getMetricDescriptor().getName() + SUMMARY_SUFFIX_SUM,
+              summaryMetric.getMetricDescriptor().getDescription(),
+              summaryMetric.getMetricDescriptor().getUnit(),
+              Type.CUMULATIVE_DOUBLE,
+              summaryMetric.getMetricDescriptor().getLabelKeys()),
+          summarySumTimeSeries);
+    }
+
+    // Metric for summary->snapshot->percentiles.
+    List<LabelKey> labelKeys = new ArrayList<>(summaryMetric.getMetricDescriptor().getLabelKeys());
+    labelKeys.add(PERCENTILE_LABEL_KEY);
+    addMetric(
+        metricsList,
+        io.opencensus.metrics.export.MetricDescriptor.create(
+            summaryMetric.getMetricDescriptor().getName() + SNAPSHOT_SUFFIX_PERCENTILE,
+            summaryMetric.getMetricDescriptor().getDescription(),
+            summaryMetric.getMetricDescriptor().getUnit(),
+            Type.GAUGE_DOUBLE,
+            labelKeys),
+        percentileTimeSeries);
+    return metricsList;
+  }
+
+  private static void addMetric(
+      List<io.opencensus.metrics.export.Metric> metricsList,
+      io.opencensus.metrics.export.MetricDescriptor metricDescriptor,
+      List<io.opencensus.metrics.export.TimeSeries> timeSeriesList) {
+    metricsList.add(io.opencensus.metrics.export.Metric.create(metricDescriptor, timeSeriesList));
+  }
+
+  private static void createTimeSeries(
+      List<LabelValue> labelValues,
+      Value value,
+      io.opencensus.common.Timestamp pointTimestamp,
+      @javax.annotation.Nullable io.opencensus.common.Timestamp timeSeriesTimestamp,
+      List<io.opencensus.metrics.export.TimeSeries> timeSeriesList) {
+    timeSeriesList.add(
+        io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
+            labelValues,
+            io.opencensus.metrics.export.Point.create(value, pointTimestamp),
+            timeSeriesTimestamp));
   }
 
   private static Map<String, String> getGcpResourceLabelsMappings() {
