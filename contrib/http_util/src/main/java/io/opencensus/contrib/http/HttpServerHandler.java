@@ -42,8 +42,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @since 0.19
  */
 @ExperimentalApi
-// [TODO:rghetia] add it back after 0.18 is released
-class HttpServerHandler<Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @NonNull Object*/>
+public class HttpServerHandler<
+        Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @NonNull Object*/>
     extends AbstractHttpHandler<Q, P> {
 
   private final TextFormat.Getter<C> getter;

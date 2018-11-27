@@ -26,12 +26,15 @@ import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Span.Options;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 
 /** Base class for handling request on http client and server. */
 abstract class AbstractHttpHandler<Q, P> {
   /** The {@link HttpExtractor} used to extract information from request/response. */
   @VisibleForTesting final HttpExtractor<Q, P> extractor;
+
+  @VisibleForTesting final AtomicLong reqId = new AtomicLong();
 
   /** Constructor to allow access from same package subclasses only. */
   AbstractHttpHandler(HttpExtractor<Q, P> extractor) {
@@ -66,36 +69,33 @@ abstract class AbstractHttpHandler<Q, P> {
   }
 
   /**
-   * Instrument an HTTP span after a message is sent.
+   * Instrument an HTTP span after a message is sent. Typically called when last chunk of request or
+   * response is sent.
    *
-   * @param span the span.
-   * @param messageId an id for the message.
-   * @param messageSize the size of the message.
+   * @param context request specific {@link HttpContext}
    * @since 0.19
    */
-  // [TODO:rghetia] add it back after 0.18 is released
-  final void handleMessageSent(Span span, long messageId, long messageSize) {
-    checkNotNull(span, "span");
-    if (span.getOptions().contains(Options.RECORD_EVENTS)) {
+  public final void handleMessageSent(HttpContext context) {
+    checkNotNull(context, "context");
+    if (context.span.getOptions().contains(Options.RECORD_EVENTS)) {
       // record compressed size
-      recordMessageEvent(span, messageId, Type.SENT, messageSize, 0L);
+      recordMessageEvent(context.span, context.reqId, Type.SENT, context.sentMessageSize.get(), 0L);
     }
   }
 
   /**
-   * Instrument an HTTP span after a message is received.
+   * Instrument an HTTP span after a message is received. Typically called when last chunk of
+   * request or response is received.
    *
-   * @param span the span.
-   * @param messageId an id for the message.
-   * @param messageSize the size of the message.
+   * @param context request specific {@link HttpContext}
    * @since 0.19
    */
-  // [TODO:rghetia] add it back after 0.18 is released
-  final void handleMessageReceived(Span span, long messageId, long messageSize) {
-    checkNotNull(span, "span");
-    if (span.getOptions().contains(Options.RECORD_EVENTS)) {
+  public final void handleMessageReceived(HttpContext context) {
+    checkNotNull(context, "context");
+    if (context.span.getOptions().contains(Options.RECORD_EVENTS)) {
       // record compressed size
-      recordMessageEvent(span, messageId, Type.RECEIVED, messageSize, 0L);
+      recordMessageEvent(
+          context.span, context.reqId, Type.RECEIVED, context.receiveMessageSize.get(), 0L);
     }
   }
 
@@ -136,5 +136,49 @@ abstract class AbstractHttpHandler<Q, P> {
         span, HttpTraceAttributeConstants.HTTP_ROUTE, extractor.getRoute(request));
     putAttributeIfNotEmptyOrNull(
         span, HttpTraceAttributeConstants.HTTP_URL, extractor.getUrl(request));
+  }
+
+  /**
+   * Increments the sent content size by the number of bytes in the parameter. Typically called for
+   * every chunk of request/response sent.
+   *
+   * @param context request specific {@link HttpContext}
+   * @param bytes bytes to add to current size of the sent content.
+   * @return value after addition.
+   * @since 0.19
+   */
+  public long addAndGetSentMessageSize(HttpContext context, long bytes) {
+    checkNotNull(context, "context");
+    return context.sentMessageSize.addAndGet(bytes);
+  }
+
+  /**
+   * Increment the received content size by the number of bytes in the parameter. Typically called
+   * for every chunk of request/response received.
+   *
+   * @param context request specific {@link HttpContext}
+   * @param bytes bytes to add to current size of the received content.
+   * @return value after addition.
+   * @since 0.19
+   */
+  public long addAndGetReceiveMessageSize(HttpContext context, long bytes) {
+    checkNotNull(context, "context");
+    return context.receiveMessageSize.addAndGet(bytes);
+  }
+
+  /**
+   * Retrieves {@link Span} from the {@link HttpContext}.
+   *
+   * @param context request specific {@link HttpContext}
+   * @return {@link Span} associated with the request.
+   * @since 0.19
+   */
+  public Span getSpanFromContext(HttpContext context) {
+    checkNotNull(context, "context");
+    return context.span;
+  }
+
+  HttpContext getNewContext(Span span) {
+    return new HttpContext(span, reqId.addAndGet(1L));
   }
 }

@@ -59,6 +59,7 @@ public class HttpClientHandlerTest {
           null);
   private final Object request = new Object();
   private final Object carrier = new Object();
+  private final Object response = new Object();
   @Mock private SpanBuilder spanBuilder;
   @Mock private Tracer tracer;
   @Mock private TextFormat textFormat;
@@ -102,8 +103,9 @@ public class HttpClientHandlerTest {
   public void handleStartShouldCreateChildSpanInCurrentContext() {
     Scope scope = tracer.withSpan(parentSpan);
     try {
-      handler.handleStart(null, carrier, request);
+      HttpContext context = handler.handleStart(null, carrier, request);
       verify(tracer).spanBuilderWithExplicitParent(any(String.class), same(parentSpan));
+      assertThat(context.span).isEqualTo(childSpan);
     } finally {
       scope.close();
     }
@@ -112,8 +114,9 @@ public class HttpClientHandlerTest {
   @Test
   public void handleStartCreateChildSpanInSpecifiedContext() {
     // without scope
-    handler.handleStart(parentSpan, carrier, request);
+    HttpContext context = handler.handleStart(parentSpan, carrier, request);
     verify(tracer).spanBuilderWithExplicitParent(any(String.class), same(parentSpan));
+    assertThat(context.span).isEqualTo(childSpan);
   }
 
   @Test
@@ -123,10 +126,16 @@ public class HttpClientHandlerTest {
   }
 
   @Test
-  public void handleEndShouldEndSpan() {
-    when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
+  public void handleEndDisallowNullContext() {
+    thrown.expect(NullPointerException.class);
+    handler.handleEnd(null, request, response, null);
+  }
 
-    handler.spanEnd(parentSpan, carrier, null);
+  @Test
+  public void handleEndShouldEndSpan() {
+    HttpContext context = new HttpContext(parentSpan, 1L);
+    when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
+    handler.handleEnd(context, request, response, null);
     verify(parentSpan).end(optionsCaptor.capture());
     EndSpanOptions options = optionsCaptor.getValue();
     assertThat(options).isEqualTo(EndSpanOptions.DEFAULT);

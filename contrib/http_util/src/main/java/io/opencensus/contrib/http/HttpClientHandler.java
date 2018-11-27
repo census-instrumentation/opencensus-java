@@ -17,8 +17,21 @@
 package io.opencensus.contrib.http;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_METHOD;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_SENT_BYTES;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_STATUS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.contrib.http.util.HttpTraceUtil;
+import io.opencensus.stats.Stats;
+import io.opencensus.stats.StatsRecorder;
+import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagValue;
+import io.opencensus.tags.Tagger;
+import io.opencensus.tags.Tags;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanBuilder;
@@ -39,14 +52,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @param <C> the type of the carrier.
  * @since 0.19
  */
-// [TODO:rghetia] add it back after 0.18 is released
 @ExperimentalApi
-class HttpClientHandler<Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @NonNull Object*/>
+public class HttpClientHandler<
+        Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @NonNull Object*/>
     extends AbstractHttpHandler<Q, P> {
 
   private final TextFormat.Setter<C> setter;
   private final TextFormat textFormat;
   private final Tracer tracer;
+  private final StatsRecorder statsRecorder;
+  private final Tagger tagger;
 
   /**
    * Creates a {@link HttpClientHandler} with given parameters.
@@ -70,25 +85,26 @@ class HttpClientHandler<Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @N
     this.setter = setter;
     this.textFormat = textFormat;
     this.tracer = tracer;
+    this.statsRecorder = Stats.getStatsRecorder();
+    this.tagger = Tags.getTagger();
   }
 
   /**
-   * Instrument a request before it is sent. Users should optionally invoke {@link
-   * #handleMessageSent} after the request is sent.
+   * Instrument a request for tracing and stats before it is sent.
    *
    * <p>This method will create a span in current context to represent the HTTP call. The created
    * span will be serialized and propagated to the server.
    *
-   * <p>The generated span will NOT be set as current context. User can use the returned value to
-   * control when to enter the scope of this span.
+   * <p>The generated span will NOT be set as current context. User can control when to enter the
+   * scope of this span. Use {@link AbstractHttpHandler#getSpanFromContext} to retrieve the span.
    *
    * @param parent the parent {@link Span}. {@code null} indicates using current span.
    * @param carrier the entity that holds the HTTP information.
    * @param request the request entity.
-   * @return a span that represents the request process.
+   * @return the {@link HttpContext} that contains stats and trace data associated with the request.
    * @since 0.19
    */
-  public Span handleStart(@Nullable Span parent, C carrier, Q request) {
+  public HttpContext handleStart(@Nullable Span parent, C carrier, Q request) {
     checkNotNull(carrier, "carrier");
     checkNotNull(request, "request");
     if (parent == null) {
@@ -107,20 +123,50 @@ class HttpClientHandler<Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @N
     if (!spanContext.equals(SpanContext.INVALID)) {
       textFormat.inject(spanContext, carrier, setter);
     }
-    return span;
+    return getNewContext(span);
   }
 
   /**
-   * Close an HTTP span.
+   * Close an HTTP span and records stats specific to the request.
    *
-   * <p>This method will set status of the span and end it.
+   * <p>This method will set status of the span and end it. Additionally it will record measurements
+   * associated with the request.
    *
+   * @param context the {@link HttpContext} returned from {@link HttpClientHandler#handleStart(Span,
+   *     Object, Object)}
+   * @param request the HTTP request entity.
    * @param response the HTTP response entity. {@code null} means invalid response.
    * @param error the error occurs when processing the response.
-   * @param span the span.
    * @since 0.19
    */
-  public void handleEnd(Span span, @Nullable P response, @Nullable Throwable error) {
-    spanEnd(span, response, error);
+  public void handleEnd(
+      HttpContext context, @Nullable Q request, @Nullable P response, @Nullable Throwable error) {
+    checkNotNull(context, "context");
+    recordStats(context, request, response, error);
+    spanEnd(context.span, response, error);
+  }
+
+  private void recordStats(
+      HttpContext context, @Nullable Q request, @Nullable P response, @Nullable Throwable error) {
+    double requestLatency = NANOSECONDS.toMillis(System.nanoTime() - context.requestStartTime);
+
+    String methodStr = request == null ? "" : extractor.getMethod(request);
+    TagContext startCtx =
+        tagger
+            .currentBuilder()
+            .put(HTTP_CLIENT_METHOD, TagValue.create(methodStr == null ? "" : methodStr))
+            .put(
+                HTTP_CLIENT_STATUS,
+                TagValue.create(
+                    HttpTraceUtil.parseResponseStatus(extractor.getStatusCode(response), error)
+                        .toString()))
+            .build();
+
+    statsRecorder
+        .newMeasureMap()
+        .put(HTTP_CLIENT_ROUNDTRIP_LATENCY, requestLatency)
+        .put(HTTP_CLIENT_SENT_BYTES, context.sentMessageSize.get())
+        .put(HTTP_CLIENT_RECEIVED_BYTES, context.receiveMessageSize.get())
+        .record(startCtx);
   }
 }
