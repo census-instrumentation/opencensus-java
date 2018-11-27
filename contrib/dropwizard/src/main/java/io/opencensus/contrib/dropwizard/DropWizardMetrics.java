@@ -162,7 +162,7 @@ public class DropWizardMetrics extends MetricProducer {
         TimeSeries.createWithOnePoint(
             Collections.<LabelValue>emptyList(),
             Point.create(Value.longValue(meter.getCount()), clock.now()),
-            null);
+            cumulativeStartTimestamp);
 
     return Metric.createWithOneTimeSeries(metricDescriptor, timeSeries);
   }

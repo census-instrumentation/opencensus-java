@@ -252,7 +252,7 @@ public class DropWizardMetricsTest {
         .isEqualTo(
             MetricDescriptor.create(
                 "codahale_result_histogram",
-                "Collected from codahale (metric=result, " + "type=com.codahale.metrics.Histogram)",
+                "Collected from codahale (metric=result, type=com.codahale.metrics.Histogram)",
                 DEFAULT_UNIT,
                 Type.SUMMARY,
                 Collections.<LabelKey>emptyList()));
