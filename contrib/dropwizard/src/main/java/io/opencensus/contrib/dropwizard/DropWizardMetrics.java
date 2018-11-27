@@ -54,7 +54,9 @@ import javax.annotation.Nullable;
  * @since 0.17
  */
 public class DropWizardMetrics extends MetricProducer {
+
   @DefaultVisibilityForTesting static final String DEFAULT_UNIT = "1";
+  @DefaultVisibilityForTesting static final String NS_UNIT = "ns";
   private final List<com.codahale.metrics.MetricRegistry> metricRegistryList;
   private final Clock clock;
   private final Timestamp cumulativeStartTimestamp;
@@ -177,7 +179,7 @@ public class DropWizardMetrics extends MetricProducer {
     String metricDescription =
         DropWizardUtils.generateFullMetricDescription(dropwizardName, histogram);
     return collectSnapshotAndCount(
-        metricName, metricDescription, histogram.getSnapshot(), histogram.getCount());
+        metricName, metricDescription, DEFAULT_UNIT, histogram.getSnapshot(), histogram.getCount());
   }
 
   /**
@@ -191,7 +193,7 @@ public class DropWizardMetrics extends MetricProducer {
     String metricName = DropWizardUtils.generateFullMetricName(dropwizardName, "timer");
     String metricDescription = DropWizardUtils.generateFullMetricDescription(dropwizardName, timer);
     return collectSnapshotAndCount(
-        metricName, metricDescription, timer.getSnapshot(), timer.getCount());
+        metricName, metricDescription, NS_UNIT, timer.getSnapshot(), timer.getCount());
   }
 
   /**
@@ -199,6 +201,7 @@ public class DropWizardMetrics extends MetricProducer {
    *
    * @param metricName the metric name.
    * @param metricDescription the metric description.
+   * @param unit the metric descriptor unit.
    * @param codahaleSnapshot the snapshot object to collect
    * @param count the value or count
    * @return a {@code Metric}.
@@ -206,6 +209,7 @@ public class DropWizardMetrics extends MetricProducer {
   private Metric collectSnapshotAndCount(
       String metricName,
       String metricDescription,
+      String unit,
       com.codahale.metrics.Snapshot codahaleSnapshot,
       long count) {
     List<ValueAtPercentile> valueAtPercentiles =
@@ -223,11 +227,7 @@ public class DropWizardMetrics extends MetricProducer {
     // TODO(mayurkale): OPTIMIZATION: Cache the MetricDescriptor objects.
     MetricDescriptor metricDescriptor =
         MetricDescriptor.create(
-            metricName,
-            metricDescription,
-            DEFAULT_UNIT,
-            Type.SUMMARY,
-            Collections.<LabelKey>emptyList());
+            metricName, metricDescription, unit, Type.SUMMARY, Collections.<LabelKey>emptyList());
     TimeSeries timeSeries =
         TimeSeries.createWithOnePoint(
             Collections.<LabelValue>emptyList(), point, cumulativeStartTimestamp);
