@@ -19,12 +19,13 @@ package io.opencensus.impl.internal;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.internal.EventQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -116,13 +117,15 @@ public final class DisruptorEventQueue implements EventQueue {
     // Create new Disruptor for processing. Note that Disruptor creates a single thread per
     // consumer (see https://github.com/LMAX-Exchange/disruptor/issues/121 for details);
     // this ensures that the event handler can take unsynchronized actions whenever possible.
+    DaemonThreadFactory threadFactory = new DaemonThreadFactory("OpenCensus.Disruptor");
+    SingleThreadFactory singleThreadFactory = new SingleThreadFactory(threadFactory);
     Disruptor<DisruptorEvent> disruptor =
         new Disruptor<>(
             DisruptorEventFactory.INSTANCE,
             DISRUPTOR_BUFFER_SIZE,
-            new DaemonThreadFactory("OpenCensus.Disruptor"),
+            singleThreadFactory,
             ProducerType.MULTI,
-            new SleepingWaitStrategy(0, 1000 * 1000));
+            new LockFreeSingleConsumerBlockingWaitStrategy(singleThreadFactory.thread));
     disruptor.handleEventsWith(new DisruptorEventHandler[] {DisruptorEventHandler.INSTANCE});
     disruptor.start();
     final RingBuffer<DisruptorEvent> ringBuffer = disruptor.getRingBuffer();
@@ -230,6 +233,34 @@ public final class DisruptorEventQueue implements EventQueue {
       }
       // Remove the reference to the previous entry to allow the memory to be gc'ed.
       event.setEntry(null);
+    }
+  }
+
+  private static class SingleThreadFactory implements ThreadFactory {
+
+    private final Trampoline trampoline = new Trampoline();
+    private final Thread thread;
+
+    SingleThreadFactory(ThreadFactory threadFactory) {
+      this.thread = threadFactory.newThread(trampoline);
+    }
+
+    @Override
+    public Thread newThread(Runnable r) {
+      if (!trampoline.runnable.compareAndSet(null, r)) {
+        throw new AssertionError();
+      }
+      return thread;
+    }
+
+    private static class Trampoline implements Runnable {
+
+      private final AtomicReference<Runnable> runnable = new AtomicReference<>();
+
+      @Override
+      public void run() {
+        runnable.get().run();
+      }
     }
   }
 }
