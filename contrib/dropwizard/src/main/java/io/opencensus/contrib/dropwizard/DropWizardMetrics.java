@@ -72,6 +72,9 @@ public class DropWizardMetrics extends MetricProducer {
         Utils.checkNotNull(metricRegistryList, "metricRegistryList"), "metricRegistry");
     this.metricRegistryList = metricRegistryList;
     clock = MillisClock.getInstance();
+
+    // TODO(mayurkale): consider to add cache map<string, CacheEntry> where CacheEntry is
+    // {MetricDescriptor, startTime}
     cumulativeStartTimestamp = clock.now();
   }
 
@@ -162,7 +165,7 @@ public class DropWizardMetrics extends MetricProducer {
         TimeSeries.createWithOnePoint(
             Collections.<LabelValue>emptyList(),
             Point.create(Value.longValue(meter.getCount()), clock.now()),
-            null);
+            cumulativeStartTimestamp);
 
     return Metric.createWithOneTimeSeries(metricDescriptor, timeSeries);
   }
