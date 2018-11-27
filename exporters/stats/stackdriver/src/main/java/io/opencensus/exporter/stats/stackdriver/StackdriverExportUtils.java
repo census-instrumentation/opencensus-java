@@ -483,7 +483,7 @@ final class StackdriverExportUtils {
                           labelValuesWithPercentile,
                           Value.doubleValue(valueAtPercentile.getValue()),
                           pointTimestamp,
-                          timeSeriesTimestamp,
+                          null,
                           percentileTimeSeries);
                       labelValuesWithPercentile.remove(labelValuesWithPercentile.size() - 1);
                     }
