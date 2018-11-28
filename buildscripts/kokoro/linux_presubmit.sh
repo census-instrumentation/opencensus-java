@@ -36,7 +36,7 @@ fi
 
 case "$TASK" in
   "CHECK_GIT_HISTORY")
-    python ./scripts/check-git-history.py
+    python ./buildscripts/check-git-history.py
     ;;
   "BUILD")
     ./gradlew clean assemble --stacktrace
