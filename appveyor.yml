@@ -5,6 +5,6 @@ build_script:
   # The Gradle build script runs the integration tests of contrib/agent using different Java
   # versions. %JAVA_HOMES% lists the home directories of the JDK installations used for
   # integration testing. Also see https://www.appveyor.com/docs/build-environment/#java.
-  - set JAVA_HOMES=C:\Program Files\Java\jdk1.6.0\jre;C:\Program Files\Java\jdk1.7.0\jre;C:\Program Files\Java\jdk1.8.0\jre
+  - set JAVA_HOMES=C:\Program Files\Java\jdk1.7.0\jre;C:\Program Files\Java\jdk1.8.0\jre
   - gradlew.bat clean assemble check --stacktrace
   - pushd examples && gradlew.bat clean assemble check --stacktrace && popd
