@@ -39,11 +39,6 @@ public class OcAgentNodeUtilsTest {
           "some environment", Collections.singletonMap("k1", "v1"));
 
   @Test
-  public void testConstants() {
-    assertThat(OC_AGENT_EXPORTER_VERSION).isEqualTo("0.19.0-SNAPSHOT");
-  }
-
-  @Test
   public void getProcessIdentifier() {
     String jvmName = "54321@my.org";
     Timestamp timestamp = Timestamp.create(10, 20);
