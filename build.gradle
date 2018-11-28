@@ -55,8 +55,8 @@ subprojects {
     group = "io.opencensus"
     version = "0.19.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
 
     repositories {
         mavenCentral()
@@ -132,10 +132,6 @@ subprojects {
             // @SuppressWarnings. See
             // https://stackoverflow.com/questions/26921774/how-to-avoid-deprecation-warnings-when-suppresswarningsdeprecation-doesnt
             it.options.compilerArgs += ["-Xlint:-deprecation"]
-
-            // TODO(bdrutu): Enable for Java 7 when fix the issue with configuring bootstrap class.
-            // [options] bootstrap class path not set in conjunction with -source 1.6
-            it.options.compilerArgs += ["-Xlint:-options"]
         }
         if (JavaVersion.current().isJava9()) {
             // TODO(sebright): Currently, building with Java 9 produces the following "options" warnings:
@@ -175,17 +171,17 @@ subprojects {
         findBugsAnnotationsVersion = '3.0.1'
         findBugsJsr305Version = '3.0.2'
         errorProneVersion = '2.3.2'
-        grpcVersion = '1.14.0'
+        grpcVersion = '1.16.1'
         guavaVersion = '20.0'
-        googleAuthVersion = '0.11.0'
+        googleAuthVersion = '0.12.0'
         googleCloudBetaVersion = '0.70.0-beta'
         googleCloudGaVersion = '1.52.0'
         log4j2Version = '2.11.1'
-        signalfxVersion = '0.0.39'
+        signalfxVersion = '0.0.48'
         springBootVersion = '1.5.15.RELEASE'
         springCloudVersion = '1.3.4.RELEASE'
         springVersion = '4.3.12.RELEASE'
-        prometheusVersion = '0.4.0'
+        prometheusVersion = '0.5.0'
         protobufVersion = '3.5.1'
         zipkinReporterVersion = '2.3.2'
         jaegerReporterVersion = '0.27.0'
@@ -232,7 +228,7 @@ subprojects {
                 junit: 'junit:junit:4.12',
                 mockito: 'org.mockito:mockito-core:1.9.5',
                 spring_test: "org.springframework:spring-test:${springVersion}",
-                truth: 'com.google.truth:truth:0.30',
+                truth: 'com.google.truth:truth:0.42',
                 dropwizard: "io.dropwizard.metrics:metrics-core:${dropwizardVersion}",
         ]
     }
