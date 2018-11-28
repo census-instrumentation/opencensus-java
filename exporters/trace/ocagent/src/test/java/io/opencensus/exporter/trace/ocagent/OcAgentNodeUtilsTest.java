@@ -40,7 +40,7 @@ public class OcAgentNodeUtilsTest {
 
   @Test
   public void testConstants() {
-    assertThat(OC_AGENT_EXPORTER_VERSION).isEqualTo("0.18.0");
+    assertThat(OC_AGENT_EXPORTER_VERSION).isEqualTo("0.18.1-SNAPSHOT");
   }
 
   @Test
