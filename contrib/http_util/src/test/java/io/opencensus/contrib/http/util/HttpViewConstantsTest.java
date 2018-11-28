@@ -117,31 +117,35 @@ public class HttpViewConstantsTest {
 
     assertThat(HttpViewConstants.HTTP_CLIENT_COMPLETED_COUNT_VIEW.getColumns())
         .containsExactly(
-            HttpMeasureConstants.HTTP_CLIENT_METHOD, HttpMeasureConstants.HTTP_CLIENT_PATH);
+            HttpMeasureConstants.HTTP_CLIENT_METHOD, HttpMeasureConstants.HTTP_CLIENT_STATUS);
     assertThat(HttpViewConstants.HTTP_CLIENT_SENT_BYTES_VIEW.getColumns())
         .containsExactly(
-            HttpMeasureConstants.HTTP_CLIENT_METHOD, HttpMeasureConstants.HTTP_CLIENT_PATH);
+            HttpMeasureConstants.HTTP_CLIENT_METHOD, HttpMeasureConstants.HTTP_CLIENT_STATUS);
     assertThat(HttpViewConstants.HTTP_CLIENT_RECEIVED_BYTES_VIEW.getColumns())
         .containsExactly(
-            HttpMeasureConstants.HTTP_CLIENT_METHOD, HttpMeasureConstants.HTTP_CLIENT_PATH);
+            HttpMeasureConstants.HTTP_CLIENT_METHOD, HttpMeasureConstants.HTTP_CLIENT_STATUS);
     assertThat(HttpViewConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY_VIEW.getColumns())
         .containsExactly(
-            HttpMeasureConstants.HTTP_CLIENT_METHOD,
-            HttpMeasureConstants.HTTP_CLIENT_PATH,
-            HttpMeasureConstants.HTTP_CLIENT_STATUS);
+            HttpMeasureConstants.HTTP_CLIENT_METHOD, HttpMeasureConstants.HTTP_CLIENT_STATUS);
     assertThat(HttpViewConstants.HTTP_SERVER_COMPLETED_COUNT_VIEW.getColumns())
         .containsExactly(
-            HttpMeasureConstants.HTTP_SERVER_METHOD, HttpMeasureConstants.HTTP_SERVER_PATH);
+            HttpMeasureConstants.HTTP_SERVER_METHOD,
+            HttpMeasureConstants.HTTP_SERVER_ROUTE,
+            HttpMeasureConstants.HTTP_SERVER_STATUS);
     assertThat(HttpViewConstants.HTTP_SERVER_RECEIVED_BYTES_VIEW.getColumns())
         .containsExactly(
-            HttpMeasureConstants.HTTP_SERVER_METHOD, HttpMeasureConstants.HTTP_SERVER_PATH);
+            HttpMeasureConstants.HTTP_SERVER_METHOD,
+            HttpMeasureConstants.HTTP_SERVER_ROUTE,
+            HttpMeasureConstants.HTTP_SERVER_STATUS);
     assertThat(HttpViewConstants.HTTP_SERVER_SENT_BYTES_VIEW.getColumns())
         .containsExactly(
-            HttpMeasureConstants.HTTP_SERVER_METHOD, HttpMeasureConstants.HTTP_SERVER_PATH);
+            HttpMeasureConstants.HTTP_SERVER_METHOD,
+            HttpMeasureConstants.HTTP_SERVER_ROUTE,
+            HttpMeasureConstants.HTTP_SERVER_STATUS);
     assertThat(HttpViewConstants.HTTP_SERVER_LATENCY_VIEW.getColumns())
         .containsExactly(
             HttpMeasureConstants.HTTP_SERVER_METHOD,
-            HttpMeasureConstants.HTTP_SERVER_PATH,
+            HttpMeasureConstants.HTTP_SERVER_ROUTE,
             HttpMeasureConstants.HTTP_SERVER_STATUS);
   }
 }
