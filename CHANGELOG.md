@@ -4,11 +4,14 @@
 - Add support generic http server handler.
 - Add support for generic http client handler.
 - Add OpenCensus Java OC-Agent Trace Exporter.
+
+## 0.18.0 - 2018-11-27
 - Set the
-  [`trace_sampled` field](https://github.com/googleapis/googleapis/blob/8027f17420d5a323c7dfef1ae0e57d82f3b97430/google/logging/v2/log_entry.proto#L143-L149)
-  in the Stackdriver `LogEntry` protocol buffer in `opencensus-contrib-log-correlation-stackdriver`.
+  [`trace_sampled` field](https://github.com/googleapis/googleapis/blob/8027f17420d5a323c7dfef1ae0e57d82f3b97430/google/logging/v2/log_entry.proto#L143-L149) in the Stackdriver `LogEntry` protocol buffer in `opencensus-contrib-log-correlation-stackdriver`.
 - Add support for w3c/distributed-tracing propagation format.
 - Add gRPC measures and views for real-time metrics in streaming RPCs.
+- Add Summary Metric support for Stackdriver exporter.
+- Reduce CPU usage for low qps applications.
 
 ## 0.17.0 - 2018-11-02
 - Add `AttributeValueDouble` to `AttributeValue`.
