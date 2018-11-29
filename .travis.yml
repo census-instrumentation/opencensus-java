@@ -12,12 +12,6 @@ matrix:
   - jdk: oraclejdk8
     env: TASK=BUILD
     os: linux
-    addons:
-      apt:
-        packages:
-          # Install the JREs that are used for integration tests in
-          # contrib/agent, but are not installed by default.
-          - openjdk-6-jdk
 
   # - jdk: oraclejdk9
   #   env: TASK=BUILD
