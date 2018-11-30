@@ -103,7 +103,7 @@ public class HttpClientHandlerTest {
   public void handleStartShouldCreateChildSpanInCurrentContext() {
     Scope scope = tracer.withSpan(parentSpan);
     try {
-      HttpContext context = handler.handleStart(null, carrier, request);
+      HttpRequestContext context = handler.handleStart(null, carrier, request);
       verify(tracer).spanBuilderWithExplicitParent(any(String.class), same(parentSpan));
       assertThat(context.span).isEqualTo(childSpan);
     } finally {
@@ -114,7 +114,7 @@ public class HttpClientHandlerTest {
   @Test
   public void handleStartCreateChildSpanInSpecifiedContext() {
     // without scope
-    HttpContext context = handler.handleStart(parentSpan, carrier, request);
+    HttpRequestContext context = handler.handleStart(parentSpan, carrier, request);
     verify(tracer).spanBuilderWithExplicitParent(any(String.class), same(parentSpan));
     assertThat(context.span).isEqualTo(childSpan);
   }
@@ -133,7 +133,7 @@ public class HttpClientHandlerTest {
 
   @Test
   public void handleEndShouldEndSpan() {
-    HttpContext context = new HttpContext(parentSpan, 1L);
+    HttpRequestContext context = new HttpRequestContext(parentSpan, 1L);
     when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
     handler.handleEnd(context, request, response, null);
     verify(parentSpan).end(optionsCaptor.capture());

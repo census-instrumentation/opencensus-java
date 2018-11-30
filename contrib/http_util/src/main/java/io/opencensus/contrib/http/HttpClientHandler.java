@@ -50,7 +50,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @param <Q> the HTTP request entity.
  * @param <P> the HTTP response entity.
  * @param <C> the type of the carrier.
- * @since 0.19
+ * @since 0.18
  */
 @ExperimentalApi
 public class HttpClientHandler<
@@ -71,7 +71,7 @@ public class HttpClientHandler<
    *     request/response.
    * @param textFormat the {@code TextFormat} used in HTTP propagation.
    * @param setter the setter used when injecting information to the {@code carrier}.
-   * @since 0.19
+   * @since 0.18
    */
   public HttpClientHandler(
       Tracer tracer,
@@ -101,10 +101,11 @@ public class HttpClientHandler<
    * @param parent the parent {@link Span}. {@code null} indicates using current span.
    * @param carrier the entity that holds the HTTP information.
    * @param request the request entity.
-   * @return the {@link HttpContext} that contains stats and trace data associated with the request.
-   * @since 0.19
+   * @return the {@link HttpRequestContext} that contains stats and trace data associated with the
+   *     request.
+   * @since 0.18
    */
-  public HttpContext handleStart(@Nullable Span parent, C carrier, Q request) {
+  public HttpRequestContext handleStart(@Nullable Span parent, C carrier, Q request) {
     checkNotNull(carrier, "carrier");
     checkNotNull(request, "request");
     if (parent == null) {
@@ -132,22 +133,28 @@ public class HttpClientHandler<
    * <p>This method will set status of the span and end it. Additionally it will record measurements
    * associated with the request.
    *
-   * @param context the {@link HttpContext} returned from {@link HttpClientHandler#handleStart(Span,
-   *     Object, Object)}
+   * @param context the {@link HttpRequestContext} returned from {@link
+   *     HttpClientHandler#handleStart(Span, Object, Object)}
    * @param request the HTTP request entity.
    * @param response the HTTP response entity. {@code null} means invalid response.
    * @param error the error occurs when processing the response.
-   * @since 0.19
+   * @since 0.18
    */
   public void handleEnd(
-      HttpContext context, @Nullable Q request, @Nullable P response, @Nullable Throwable error) {
+      HttpRequestContext context,
+      @Nullable Q request,
+      @Nullable P response,
+      @Nullable Throwable error) {
     checkNotNull(context, "context");
     recordStats(context, request, response, error);
     spanEnd(context.span, response, error);
   }
 
   private void recordStats(
-      HttpContext context, @Nullable Q request, @Nullable P response, @Nullable Throwable error) {
+      HttpRequestContext context,
+      @Nullable Q request,
+      @Nullable P response,
+      @Nullable Throwable error) {
     double requestLatency = NANOSECONDS.toMillis(System.nanoTime() - context.requestStartTime);
 
     String methodStr = request == null ? "" : extractor.getMethod(request);

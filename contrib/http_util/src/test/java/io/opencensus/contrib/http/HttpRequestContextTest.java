@@ -26,17 +26,17 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link HttpContext}. */
+/** Unit tests for {@link HttpRequestContext}. */
 @RunWith(JUnit4.class)
-public class HttpContextTest {
+public class HttpRequestContextTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
   private final Span span = Tracing.getTracer().spanBuilder("testSpan").startSpan();
-  private final HttpContext context = new HttpContext(span, 1L);
+  private final HttpRequestContext context = new HttpRequestContext(span, 1L);
 
   @Test
   public void testDisallowNullSpan() {
     thrown.expect(NullPointerException.class);
-    new HttpContext(null, 0L);
+    new HttpRequestContext(null, 0L);
   }
 
   @Test

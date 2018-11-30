@@ -99,9 +99,8 @@ public class AbstractHttpHandlerTest {
     Type type = Type.SENT;
     long id = 123L;
     long uncompressed = 456L;
-    HttpContext context = new HttpContext(fakeSpan, id);
-    handler.addAndGetSentMessageSize(context, uncompressed);
-    handler.handleMessageSent(context);
+    HttpRequestContext context = new HttpRequestContext(fakeSpan, id);
+    handler.handleMessageSent(context, uncompressed);
     verify(fakeSpan).addMessageEvent(captor.capture());
 
     MessageEvent messageEvent = captor.getValue();
@@ -116,9 +115,8 @@ public class AbstractHttpHandlerTest {
     Type type = Type.RECEIVED;
     long id = 123L;
     long uncompressed = 456L;
-    HttpContext context = new HttpContext(fakeSpan, id);
-    handler.addAndGetReceiveMessageSize(context, uncompressed);
-    handler.handleMessageReceived(context);
+    HttpRequestContext context = new HttpRequestContext(fakeSpan, id);
+    handler.handleMessageReceived(context, uncompressed);
     verify(fakeSpan).addMessageEvent(captor.capture());
 
     MessageEvent messageEvent = captor.getValue();
@@ -195,27 +193,13 @@ public class AbstractHttpHandlerTest {
 
   @Test
   public void testGetNewContext() {
-    HttpContext context = handler.getNewContext(fakeSpan);
+    HttpRequestContext context = handler.getNewContext(fakeSpan);
     assertThat(context).isNotNull();
   }
 
   @Test
   public void testGetSpanFromContext() {
-    HttpContext context = handler.getNewContext(fakeSpan);
+    HttpRequestContext context = handler.getNewContext(fakeSpan);
     assertThat(handler.getSpanFromContext(context)).isEqualTo(fakeSpan);
-  }
-
-  @Test
-  public void testAddToRequestSize() {
-    HttpContext context = new HttpContext(fakeSpan, 1L);
-    assertThat(handler.addAndGetSentMessageSize(context, 10L)).isEqualTo(10L);
-    assertThat(handler.addAndGetSentMessageSize(context, 40000000000L)).isEqualTo(40000000010L);
-  }
-
-  @Test
-  public void testAddToResponseSize() {
-    HttpContext context = new HttpContext(fakeSpan, 1L);
-    assertThat(handler.addAndGetReceiveMessageSize(context, 10L)).isEqualTo(10L);
-    assertThat(handler.addAndGetReceiveMessageSize(context, 40000000000L)).isEqualTo(40000000010L);
   }
 }

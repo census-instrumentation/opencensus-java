@@ -50,7 +50,7 @@ abstract class AbstractHttpHandler<Q, P> {
    * @param type the {@code MessageEvent.Type} of the event.
    * @param uncompressedMessageSize size of the message before compressed (optional).
    * @param compressedMessageSize size of the message after compressed (optional).
-   * @since 0.19
+   * @since 0.18
    */
   static void recordMessageEvent(
       Span span, long id, Type type, long uncompressedMessageSize, long compressedMessageSize) {
@@ -72,14 +72,15 @@ abstract class AbstractHttpHandler<Q, P> {
    * Instrument an HTTP span after a message is sent. Typically called when last chunk of request or
    * response is sent.
    *
-   * @param context request specific {@link HttpContext}
-   * @since 0.19
+   * @param context request specific {@link HttpRequestContext}
+   * @since 0.18
    */
-  public final void handleMessageSent(HttpContext context) {
+  public final void handleMessageSent(HttpRequestContext context, long bytes) {
     checkNotNull(context, "context");
+    context.sentMessageSize.addAndGet(bytes);
     if (context.span.getOptions().contains(Options.RECORD_EVENTS)) {
       // record compressed size
-      recordMessageEvent(context.span, context.reqId, Type.SENT, context.sentMessageSize.get(), 0L);
+      recordMessageEvent(context.span, context.reqId, Type.SENT, bytes, 0L);
     }
   }
 
@@ -87,15 +88,15 @@ abstract class AbstractHttpHandler<Q, P> {
    * Instrument an HTTP span after a message is received. Typically called when last chunk of
    * request or response is received.
    *
-   * @param context request specific {@link HttpContext}
-   * @since 0.19
+   * @param context request specific {@link HttpRequestContext}
+   * @since 0.18
    */
-  public final void handleMessageReceived(HttpContext context) {
+  public final void handleMessageReceived(HttpRequestContext context, long bytes) {
     checkNotNull(context, "context");
+    context.receiveMessageSize.addAndGet(bytes);
     if (context.span.getOptions().contains(Options.RECORD_EVENTS)) {
       // record compressed size
-      recordMessageEvent(
-          context.span, context.reqId, Type.RECEIVED, context.receiveMessageSize.get(), 0L);
+      recordMessageEvent(context.span, context.reqId, Type.RECEIVED, bytes, 0L);
     }
   }
 
@@ -139,46 +140,18 @@ abstract class AbstractHttpHandler<Q, P> {
   }
 
   /**
-   * Increments the sent content size by the number of bytes in the parameter. Typically called for
-   * every chunk of request/response sent.
+   * Retrieves {@link Span} from the {@link HttpRequestContext}.
    *
-   * @param context request specific {@link HttpContext}
-   * @param bytes bytes to add to current size of the sent content.
-   * @return value after addition.
-   * @since 0.19
-   */
-  public long addAndGetSentMessageSize(HttpContext context, long bytes) {
-    checkNotNull(context, "context");
-    return context.sentMessageSize.addAndGet(bytes);
-  }
-
-  /**
-   * Increment the received content size by the number of bytes in the parameter. Typically called
-   * for every chunk of request/response received.
-   *
-   * @param context request specific {@link HttpContext}
-   * @param bytes bytes to add to current size of the received content.
-   * @return value after addition.
-   * @since 0.19
-   */
-  public long addAndGetReceiveMessageSize(HttpContext context, long bytes) {
-    checkNotNull(context, "context");
-    return context.receiveMessageSize.addAndGet(bytes);
-  }
-
-  /**
-   * Retrieves {@link Span} from the {@link HttpContext}.
-   *
-   * @param context request specific {@link HttpContext}
+   * @param context request specific {@link HttpRequestContext}
    * @return {@link Span} associated with the request.
    * @since 0.19
    */
-  public Span getSpanFromContext(HttpContext context) {
+  public Span getSpanFromContext(HttpRequestContext context) {
     checkNotNull(context, "context");
     return context.span;
   }
 
-  HttpContext getNewContext(Span span) {
-    return new HttpContext(span, reqId.addAndGet(1L));
+  HttpRequestContext getNewContext(Span span) {
+    return new HttpRequestContext(span, reqId.addAndGet(1L));
   }
 }

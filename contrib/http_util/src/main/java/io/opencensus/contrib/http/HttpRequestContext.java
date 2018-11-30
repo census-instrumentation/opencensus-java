@@ -29,16 +29,16 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 0.19
  */
 @ExperimentalApi
-public class HttpContext {
+public class HttpRequestContext {
   @VisibleForTesting static final long INVALID_STARTTIME = -1;
 
   @VisibleForTesting final long requestStartTime;
-  @VisibleForTesting AtomicLong sentMessageSize = new AtomicLong();
-  @VisibleForTesting AtomicLong receiveMessageSize = new AtomicLong();
   @VisibleForTesting final Span span;
   @VisibleForTesting final long reqId;
+  @VisibleForTesting AtomicLong sentMessageSize = new AtomicLong();
+  @VisibleForTesting AtomicLong receiveMessageSize = new AtomicLong();
 
-  HttpContext(Span span, long reqId) {
+  HttpRequestContext(Span span, long reqId) {
     checkNotNull(span, "span");
     this.reqId = reqId;
     this.span = span;
