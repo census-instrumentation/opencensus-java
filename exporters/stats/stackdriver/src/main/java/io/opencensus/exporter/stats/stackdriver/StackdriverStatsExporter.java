@@ -75,7 +75,7 @@ public final class StackdriverStatsExporter {
   // See io.grpc.internal.GrpcUtil.USER_AGENT_KEY
   private static final String USER_AGENT_KEY = "user-agent";
   private static final String USER_AGENT =
-      "opencensus-java [" + OpenCensusLibraryInformation.VERSION + "]";
+      "opencensus-java/" + OpenCensusLibraryInformation.VERSION;
   private static final HeaderProvider OPENCENSUS_USER_AGENT_HEADER_PROVIDER =
       FixedHeaderProvider.create(USER_AGENT_KEY, USER_AGENT);
 
