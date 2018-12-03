@@ -167,6 +167,18 @@ General guidelines on imports:
   <subpackage name="exporter">
     <allow pkg="com.google.common"/>
     <allow pkg="io.opencensus.common"/>
+    <subpackage name="metrics">
+      <subpackage name="ocagent">
+        <allow pkg="com.google.protobuf"/>
+        <allow pkg="io.grpc"/>
+        <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
+        <allow pkg="io.opencensus.contrib.opencensus.proto.util"/>
+        <allow pkg="io.opencensus.exporter.metrics.ocagent"/>
+        <allow pkg="io.opencensus.metrics"/>
+        <allow pkg="io.opencensus.proto"/>
+        <allow pkg="io.opencensus.resource"/>
+      </subpackage>
+    </subpackage>
     <subpackage name="stats">
       <allow pkg="io.opencensus.metrics"/>
       <subpackage name="prometheus">
