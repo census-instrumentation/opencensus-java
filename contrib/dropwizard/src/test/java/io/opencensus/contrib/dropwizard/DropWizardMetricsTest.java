@@ -24,6 +24,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.Timer;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.export.Metric;
@@ -35,6 +36,7 @@ import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
 import io.opencensus.metrics.export.Value;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
@@ -320,5 +322,25 @@ public class DropWizardMetricsTest {
   @Test
   public void empty_GetMetrics() {
     assertThat(dropWizardMetrics.getMetrics()).isEmpty();
+  }
+
+  @Test
+  public void filter_GetMetrics() {
+    MetricFilter filter = new MetricFilter() {
+      @Override
+      public boolean matches(String name, com.codahale.metrics.Metric metric) {
+        return name.startsWith("test");
+      }
+    };
+    dropWizardMetrics = new DropWizardMetrics(Collections.singletonList(metricRegistry), filter);
+    metricRegistry.timer("test_requests");
+    metricRegistry.timer("requests");
+
+    Collection<Metric> metrics = dropWizardMetrics.getMetrics();
+    assertThat(metrics).hasSize(1);
+
+    Metric value = metrics.iterator().next();
+    assertThat(value.getMetricDescriptor().getName()).isEqualTo("codahale_test_requests_timer");
+
   }
 }
