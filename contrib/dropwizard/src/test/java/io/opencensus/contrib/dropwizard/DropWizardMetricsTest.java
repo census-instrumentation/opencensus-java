@@ -338,7 +338,6 @@ public class DropWizardMetricsTest {
 
     Collection<Metric> metrics = dropWizardMetrics.getMetrics();
     assertThat(metrics).hasSize(1);
-
     Metric value = metrics.iterator().next();
     assertThat(value.getMetricDescriptor().getName()).isEqualTo("codahale_test_requests_timer");
 

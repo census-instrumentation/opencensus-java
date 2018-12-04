@@ -84,9 +84,8 @@ public class DropWizardMetrics extends MetricProducer {
       List<com.codahale.metrics.MetricRegistry> metricRegistryList, MetricFilter metricFilter) {
     Utils.checkListElementNotNull(
         Utils.checkNotNull(metricRegistryList, "metricRegistryList"), "metricRegistry");
-    Utils.checkNotNull(metricFilter, "metricFilter");
     this.metricRegistryList = metricRegistryList;
-    this.metricFilter = metricFilter;
+    this.metricFilter = Utils.checkNotNull(metricFilter, "metricFilter");
     clock = MillisClock.getInstance();
 
     // TODO(mayurkale): consider to add cache map<string, CacheEntry> where CacheEntry is
