@@ -5,6 +5,7 @@ include ":opencensus-impl-core"
 include ":opencensus-impl-lite"
 include ":opencensus-impl"
 include ":opencensus-testing"
+include ":opencensus-exporter-metrics-ocagent"
 include ":opencensus-exporter-trace-instana"
 include ":opencensus-exporter-trace-logging"
 include ":opencensus-exporter-trace-ocagent"
@@ -55,6 +56,8 @@ project(':opencensus-contrib-monitored-resource-util').projectDir =
 project(':opencensus-contrib-spring').projectDir = "$rootDir/contrib/spring" as File
 project(':opencensus-contrib-spring-sleuth-v1x').projectDir =
         "$rootDir/contrib/spring_sleuth_v1x" as File
+project(':opencensus-exporter-metrics-ocagent').projectDir =
+        "$rootDir/exporters/metrics/ocagent" as File
 project(':opencensus-exporter-stats-signalfx').projectDir =
         "$rootDir/exporters/stats/signalfx" as File
 project(':opencensus-exporter-stats-stackdriver').projectDir =

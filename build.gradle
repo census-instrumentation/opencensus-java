@@ -24,7 +24,7 @@ apply plugin: 'com.github.ben-manes.versions'
 subprojects {
     // OC-Agent exporter depends on grpc-core which depends on errorprone annotations, and it
     // doesn't work with checker framework.
-    def projectsDependOnGrpcCore = ["opencensus-exporter-trace-ocagent"]
+    def projectsDependOnGrpcCore = ["opencensus-exporter-metrics-ocagent", "opencensus-exporter-trace-ocagent"]
 
     // Don't use the Checker Framework by default, since it interferes with Error Prone.
     def useCheckerFramework = rootProject.hasProperty('checkerFramework') && !(project.name in projectsDependOnGrpcCore)
@@ -456,6 +456,7 @@ subprojects {
                  'opencensus-contrib-spring',
                  'opencensus-contrib-spring-sleuth-v1x',
                  'opencensus-contrib-zpages',
+                 // 'opencensus-exporter-metrics-ocagent',
                  'opencensus-exporter-stats-prometheus',
                  'opencensus-exporter-stats-signalfx',
                  'opencensus-exporter-stats-stackdriver',
