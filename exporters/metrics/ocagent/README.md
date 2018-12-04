@@ -17,7 +17,7 @@ For Maven add to your `pom.xml`:
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
-    <artifactId>pencensus-exporter-metrics-ocagent</artifactId>
+    <artifactId>opencensus-exporter-metrics-ocagent</artifactId>
     <version>0.19.0</version>
   </dependency>
   <dependency>
@@ -39,6 +39,8 @@ runtime 'io.opencensus:opencensus-impl:0.19.0'
 ### Register the exporter
 
 ```java
+import io.opencensus.exporter.metrics.ocagent.OcAgentMetricsExporter;
+
 public class MyMainClass {
   public static void main(String[] args) throws Exception {
     OcAgentMetricsExporter.createAndRegister();
