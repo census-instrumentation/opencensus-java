@@ -326,12 +326,13 @@ public class DropWizardMetricsTest {
 
   @Test
   public void filter_GetMetrics() {
-    MetricFilter filter = new MetricFilter() {
-      @Override
-      public boolean matches(String name, com.codahale.metrics.Metric metric) {
-        return name.startsWith("test");
-      }
-    };
+    MetricFilter filter =
+        new MetricFilter() {
+          @Override
+          public boolean matches(String name, com.codahale.metrics.Metric metric) {
+            return name.startsWith("test");
+          }
+        };
     dropWizardMetrics = new DropWizardMetrics(Collections.singletonList(metricRegistry), filter);
     metricRegistry.timer("test_requests");
     metricRegistry.timer("requests");
@@ -340,6 +341,5 @@ public class DropWizardMetricsTest {
     assertThat(metrics).hasSize(1);
     Metric value = metrics.iterator().next();
     assertThat(value.getMetricDescriptor().getName()).isEqualTo("codahale_test_requests_timer");
-
   }
 }
