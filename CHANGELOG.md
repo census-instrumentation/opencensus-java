@@ -5,6 +5,7 @@
 - Add support for generic http client handler.
 - Add OpenCensus Java OC-Agent Trace Exporter.
 - Add OpenCensus Java OC-Agent Metrics Exporter.
+- Add ability to filter metrics collected from Dropwizard registry.
 
 ## 0.18.0 - 2018-11-27
 - Set the

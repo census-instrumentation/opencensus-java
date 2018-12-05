@@ -20,6 +20,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.Timer;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
@@ -58,6 +59,7 @@ public class DropWizardMetrics extends MetricProducer {
   @DefaultVisibilityForTesting static final String DEFAULT_UNIT = "1";
   @DefaultVisibilityForTesting static final String NS_UNIT = "ns";
   private final List<com.codahale.metrics.MetricRegistry> metricRegistryList;
+  private final MetricFilter metricFilter;
   private final Clock clock;
   private final Timestamp cumulativeStartTimestamp;
 
@@ -68,9 +70,22 @@ public class DropWizardMetrics extends MetricProducer {
    * @since 0.17
    */
   public DropWizardMetrics(List<com.codahale.metrics.MetricRegistry> metricRegistryList) {
+    this(metricRegistryList, MetricFilter.ALL);
+  }
+
+  /**
+   * Hook the Dropwizard registry into the OpenCensus registry.
+   *
+   * @param metricRegistryList a list of {@link com.codahale.metrics.MetricRegistry}s.
+   * @param metricFilter a filter to choose which metric to export
+   * @since 0.19
+   */
+  public DropWizardMetrics(
+      List<com.codahale.metrics.MetricRegistry> metricRegistryList, MetricFilter metricFilter) {
     Utils.checkListElementNotNull(
         Utils.checkNotNull(metricRegistryList, "metricRegistryList"), "metricRegistry");
     this.metricRegistryList = metricRegistryList;
+    this.metricFilter = Utils.checkNotNull(metricFilter, "metricFilter");
     clock = MillisClock.getInstance();
 
     // TODO(mayurkale): consider to add cache map<string, CacheEntry> where CacheEntry is
@@ -244,26 +259,28 @@ public class DropWizardMetrics extends MetricProducer {
     ArrayList<Metric> metrics = new ArrayList<Metric>();
 
     for (com.codahale.metrics.MetricRegistry metricRegistry : metricRegistryList) {
-      for (Entry<String, Counter> counterEntry : metricRegistry.getCounters().entrySet()) {
+      for (Entry<String, Counter> counterEntry :
+          metricRegistry.getCounters(metricFilter).entrySet()) {
         metrics.add(collectCounter(counterEntry.getKey(), counterEntry.getValue()));
       }
 
-      for (Entry<String, Gauge> gaugeEntry : metricRegistry.getGauges().entrySet()) {
+      for (Entry<String, Gauge> gaugeEntry : metricRegistry.getGauges(metricFilter).entrySet()) {
         Metric metric = collectGauge(gaugeEntry.getKey(), gaugeEntry.getValue());
         if (metric != null) {
           metrics.add(metric);
         }
       }
 
-      for (Entry<String, Meter> counterEntry : metricRegistry.getMeters().entrySet()) {
+      for (Entry<String, Meter> counterEntry : metricRegistry.getMeters(metricFilter).entrySet()) {
         metrics.add(collectMeter(counterEntry.getKey(), counterEntry.getValue()));
       }
 
-      for (Entry<String, Histogram> counterEntry : metricRegistry.getHistograms().entrySet()) {
+      for (Entry<String, Histogram> counterEntry :
+          metricRegistry.getHistograms(metricFilter).entrySet()) {
         metrics.add(collectHistogram(counterEntry.getKey(), counterEntry.getValue()));
       }
 
-      for (Entry<String, Timer> counterEntry : metricRegistry.getTimers().entrySet()) {
+      for (Entry<String, Timer> counterEntry : metricRegistry.getTimers(metricFilter).entrySet()) {
         metrics.add(collectTimer(counterEntry.getKey(), counterEntry.getValue()));
       }
     }
