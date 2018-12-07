@@ -92,6 +92,34 @@ public class RpcViewsTest {
   }
 
   @Test
+  public void registerAllGrpcBasicViews() {
+    FakeViewManager fakeViewManager = new FakeViewManager();
+    RpcViews.registerAllGrpcBasicViews(fakeViewManager);
+    assertThat(fakeViewManager.getRegisteredViews())
+        .containsExactlyElementsIn(
+            ImmutableSet.builder()
+                .addAll(RpcViews.GRPC_CLIENT_BASIC_VIEWS_SET)
+                .addAll(RpcViews.GRPC_SERVER_BASIC_VIEWS_SET)
+                .build());
+  }
+
+  @Test
+  public void registerClientGrpcBasicViews() {
+    FakeViewManager fakeViewManager = new FakeViewManager();
+    RpcViews.registerClientGrpcBasicViews(fakeViewManager);
+    assertThat(fakeViewManager.getRegisteredViews())
+        .containsExactlyElementsIn(RpcViews.GRPC_CLIENT_BASIC_VIEWS_SET);
+  }
+
+  @Test
+  public void registerServerGrpcBasicViews() {
+    FakeViewManager fakeViewManager = new FakeViewManager();
+    RpcViews.registerServerGrpcBasicViews(fakeViewManager);
+    assertThat(fakeViewManager.getRegisteredViews())
+        .containsExactlyElementsIn(RpcViews.GRPC_SERVER_BASIC_VIEWS_SET);
+  }
+
+  @Test
   public void registerRealTimeMetricsViews() {
     FakeViewManager fakeViewManager = new FakeViewManager();
     RpcViews.registerRealTimeMetricsViews(fakeViewManager);
