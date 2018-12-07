@@ -8,6 +8,7 @@ buildscript {
     }
     dependencies {
         classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.4.6'
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE")
         classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.16'
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.18"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
@@ -168,6 +169,7 @@ subprojects {
         log4j2Version = '2.11.1'
         signalfxVersion = '0.0.48'
         springBootVersion = '1.5.15.RELEASE'
+        springBootTestVersion = '2.1.1.RELEASE'
         springCloudVersion = '1.3.4.RELEASE'
         springVersion = '4.3.12.RELEASE'
         prometheusVersion = '0.6.0'
@@ -223,6 +225,7 @@ subprojects {
                 mockito: 'org.mockito:mockito-core:1.9.5',
                 spring_test: "org.springframework:spring-test:${springVersion}",
                 truth: 'com.google.truth:truth:0.44',
+                spring_boot_test: "org.springframework.boot:spring-boot-starter-test:${springBootTestVersion}",
                 dropwizard: "io.dropwizard.metrics:metrics-core:${dropwizardVersion}",
                 dropwizard5: "io.dropwizard.metrics5:metrics-core:${dropwizard5Version}",
         ]
@@ -435,6 +438,7 @@ subprojects {
                  'opencensus-contrib-log-correlation-stackdriver',
                  'opencensus-contrib-resource-util',
                  'opencensus-contrib-spring',
+                 'opencensus-contrib-spring-cloud-core',
                  'opencensus-contrib-spring-sleuth-v1x',
                  'opencensus-contrib-zpages',
                  'opencensus-exporter-metrics-ocagent',
