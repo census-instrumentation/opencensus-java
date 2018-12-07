@@ -156,6 +156,13 @@ General guidelines on imports:
       <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
       <allow pkg="io.opencensus.resource"/>
     </subpackage>
+    <subpackage name="dropwizard5">
+      <allow pkg="io.opencensus.contrib.dropwizard5"/>
+      <allow pkg="io.opencensus.metrics"/>
+      <allow pkg="io.opencensus.implcore"/>
+      <allow pkg="io.opencensus.internal"/>
+      <allow pkg="io.dropwizard.metrics5"/>
+    </subpackage>
     <subpackage name="dropwizard">
       <allow pkg="io.opencensus.contrib.dropwizard"/>
       <allow pkg="io.opencensus.metrics"/>

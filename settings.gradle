@@ -79,8 +79,10 @@ if (JavaVersion.current().isJava8Compatible()) {
     include ":opencensus-all"
     include ":opencensus-benchmarks"
     include ":opencensus-contrib-zpages"
+    include ":opencensus-contrib-dropwizard5"
 
     project(':opencensus-all').projectDir = "$rootDir/all" as File
     project(':opencensus-benchmarks').projectDir = "$rootDir/benchmarks" as File
     project(':opencensus-contrib-zpages').projectDir = "$rootDir/contrib/zpages" as File
+    project(':opencensus-contrib-dropwizard5').projectDir = "$rootDir/contrib/dropwizard5" as File
 }

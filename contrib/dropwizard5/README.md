@@ -17,7 +17,7 @@ For Maven add to your `pom.xml`:
 <dependencies>
   <dependency>
     <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-contrib-dropwizard</artifactId>
+    <artifactId>opencensus-contrib-dropwizard5</artifactId>
     <version>0.19.0</version>
   </dependency>
 </dependencies>
@@ -35,11 +35,15 @@ import java.util.Collections;
 
 public class YourClass {
   // Create registry for Dropwizard metrics.
-  static final com.codahale.metrics.MetricRegistry codahaleRegistry =
-    new com.codahale.metrics.MetricRegistry();
+  static final io.dropwizard.metrics5.MetricRegistry codahaleRegistry =
+    new io.dropwizard.metrics5.MetricRegistry();
 
   // Create a Dropwizard counter.
-  static final com.codahale.metrics.Counter requests = codahaleRegistry.counter("requests");
+  Map<String, String> tags = new HashMap<>();
+  tags.put("tag1", "value1");
+  tags.put("tag2", "value2");
+  static final io.dropwizard.metrics5.Counter requests =
+    codahaleRegistry.counter(new MetricName("requests", tags));
 
   public static void main(String[] args) {
 
@@ -64,11 +68,12 @@ This section describes how each of the DropWizard metrics translate into OpenCen
 
 Given a DropWizard Counter with name `cache_evictions`, the following values are reported:
 
-* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_cache_evictions_counter)
+* name: dropwizard5_<initial_metric_name>_<initial_type> (ex: codahale_cache_evictions_counter)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
-(ex: Collected from Dropwizard (metric=cache_evictions, type=com.codahale.metrics.Counter))
+(ex: Collected from Dropwizard (metric=cache_evictions, type=io.dropwizard.metrics5.Counter))
 * type: GAUGE_INT64
 * unit: 1
+* labels: metrics tags are converted to label keys/values
 
 Note: OpenCensus's CUMULATIVE_INT64 type represent monotonically increasing values. Since
 DropWizard Counter goes up/down, it make sense to report them as OpenCensus GAUGE_INT64.
@@ -77,10 +82,12 @@ DropWizard Counter goes up/down, it make sense to report them as OpenCensus GAUG
 
 Given a DropWizard Gauge with name `line_requests`, the following values are reported:
 
-* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_line_requests_gauge)
+* name: dropwizard5_<initial_metric_name>_<initial_type> (ex: codahale_line_requests_gauge)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
 * type: GAUGE_INT64 or GAUGE_DOUBLE
 * unit: 1
+* labels: metrics tags are converted to label keys/values
+
 
 Note: For simplicity, OpenCensus uses GAUGE_DOUBLE type for any Number and GAUGE_INT64
 type for Boolean values.
@@ -89,24 +96,30 @@ type for Boolean values.
 
 Given a DropWizard Meter with name `get_requests`, the following values are reported:
 
-* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_get_requests_meter)
+* name: dropwizard5_<initial_metric_name>_<initial_type> (ex: codahale_get_requests_meter)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
 * type: CUMULATIVE_INT64
 * unit: 1
+* labels: metrics tags are converted to label keys/values
+
 
 ### DropWizard Histograms
 
 Given a DropWizard Histogram with name `results`, the following values are reported:
 
-* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_results_histogram)
+* name: dropwizard5_<initial_metric_name>_<initial_type> (ex: codahale_results_histogram)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
 * type: SUMMARY
 * unit: 1
+* labels: metrics tags are converted to label keys/values
+
 
 ### DropWizard Timers
 
 Given a DropWizard Timer with name `requests`, the following values are reported:
-* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_requests_timer)
+* name: dropwizard5_<initial_metric_name>_<initial_type> (ex: codahale_requests_timer)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
 * type: SUMMARY
-* unit: 1
+* unit: 
+* labels: metrics tags are converted to label keys/values
+
