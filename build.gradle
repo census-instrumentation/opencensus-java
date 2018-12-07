@@ -448,6 +448,7 @@ subprojects {
                  'opencensus-contrib-resource-util',
                  'opencensus-contrib-spring',
                  'opencensus-contrib-spring-sleuth-v1x',
+                 'opencensus-contrib-spring-starter',
                  'opencensus-contrib-zpages',
                  'opencensus-exporter-metrics-ocagent',
                  'opencensus-exporter-metrics-util',
