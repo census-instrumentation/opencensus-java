@@ -37,16 +37,13 @@ import javax.annotation.Nullable;
 /** Utilities for converting Metrics APIs in OpenCensus Java to OpenCensus Metrics Proto. */
 final class MetricsProtoUtils {
 
+  // TODO(songya): determine if we should make the optimization on not sending already-existed
+  // MetricDescriptors.
   static Metric toMetricProto(
       io.opencensus.metrics.export.Metric metric,
-      @Nullable io.opencensus.resource.Resource resource,
-      boolean alreadySent) {
+      @Nullable io.opencensus.resource.Resource resource) {
     Metric.Builder builder = Metric.newBuilder();
-    if (alreadySent) {
-      builder.setName(metric.getMetricDescriptor().getName());
-    } else {
-      builder.setMetricDescriptor(toMetricDescriptorProto(metric.getMetricDescriptor()));
-    }
+    builder.setMetricDescriptor(toMetricDescriptorProto(metric.getMetricDescriptor()));
     for (io.opencensus.metrics.export.TimeSeries timeSeries : metric.getTimeSeriesList()) {
       builder.addTimeseries(toTimeSeriesProto(timeSeries));
     }
@@ -185,6 +182,8 @@ final class MetricsProtoUtils {
     return builder.build();
   }
 
+  // TODO(songya): determine if we should make the optimization on not sending already-existed
+  // BucketOptions.
   private static DistributionValue.BucketOptions toBucketOptionsProto(
       Distribution.BucketOptions bucketOptions) {
     final DistributionValue.BucketOptions.Builder builder =
