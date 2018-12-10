@@ -142,13 +142,17 @@ public final class RpcViews {
   static final ImmutableSet<View> GRPC_CLIENT_BASIC_VIEWS_SET =
       ImmutableSet.of(
           RpcViewConstants.GRPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
-          RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW);
+          RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW,
+          RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
+          RpcViewConstants.RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW);
 
   @VisibleForTesting
   static final ImmutableSet<View> GRPC_SERVER_BASIC_VIEWS_SET =
       ImmutableSet.of(
           RpcViewConstants.GRPC_SERVER_SERVER_LATENCY_VIEW,
-          RpcViewConstants.GRPC_SERVER_STARTED_RPC_VIEW);
+          RpcViewConstants.GRPC_SERVER_STARTED_RPC_VIEW,
+          RpcViewConstants.RPC_SERVER_SERVER_LATENCY_VIEW,
+          RpcViewConstants.RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW);
 
   /**
    * Registers all standard gRPC views.
