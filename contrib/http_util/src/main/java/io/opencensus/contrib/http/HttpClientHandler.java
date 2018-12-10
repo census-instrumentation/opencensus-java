@@ -37,7 +37,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @param <Q> the HTTP request entity.
  * @param <P> the HTTP response entity.
  * @param <C> the type of the carrier.
- * @since 0.18
+ * @since 0.19
  */
 // [TODO:rghetia] add it back after 0.18 is released
 @ExperimentalApi
@@ -56,7 +56,7 @@ class HttpClientHandler<Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @N
    *     request/response.
    * @param textFormat the {@code TextFormat} used in HTTP propagation.
    * @param setter the setter used when injecting information to the {@code carrier}.
-   * @since 0.18
+   * @since 0.19
    */
   public HttpClientHandler(
       Tracer tracer,
@@ -86,7 +86,7 @@ class HttpClientHandler<Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @N
    * @param carrier the entity that holds the HTTP information.
    * @param request the request entity.
    * @return a span that represents the request process.
-   * @since 0.18
+   * @since 0.19
    */
   public Span handleStart(@Nullable Span parent, C carrier, Q request) {
     checkNotNull(carrier, "carrier");
@@ -118,7 +118,7 @@ class HttpClientHandler<Q /*>>> extends @NonNull Object*/, P, C /*>>> extends @N
    * @param response the HTTP response entity. {@code null} means invalid response.
    * @param error the error occurs when processing the response.
    * @param span the span.
-   * @since 0.18
+   * @since 0.19
    */
   public void handleEnd(Span span, @Nullable P response, @Nullable Throwable error) {
     spanEnd(span, response, error);

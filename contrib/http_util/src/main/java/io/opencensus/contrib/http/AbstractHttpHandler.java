@@ -47,7 +47,7 @@ abstract class AbstractHttpHandler<Q, P> {
    * @param type the {@code MessageEvent.Type} of the event.
    * @param uncompressedMessageSize size of the message before compressed (optional).
    * @param compressedMessageSize size of the message after compressed (optional).
-   * @since 0.18
+   * @since 0.19
    */
   static void recordMessageEvent(
       Span span, long id, Type type, long uncompressedMessageSize, long compressedMessageSize) {
@@ -71,7 +71,7 @@ abstract class AbstractHttpHandler<Q, P> {
    * @param span the span.
    * @param messageId an id for the message.
    * @param messageSize the size of the message.
-   * @since 0.18
+   * @since 0.19
    */
   // [TODO:rghetia] add it back after 0.18 is released
   final void handleMessageSent(Span span, long messageId, long messageSize) {
@@ -88,7 +88,7 @@ abstract class AbstractHttpHandler<Q, P> {
    * @param span the span.
    * @param messageId an id for the message.
    * @param messageSize the size of the message.
-   * @since 0.18
+   * @since 0.19
    */
   // [TODO:rghetia] add it back after 0.18 is released
   final void handleMessageReceived(Span span, long messageId, long messageSize) {
