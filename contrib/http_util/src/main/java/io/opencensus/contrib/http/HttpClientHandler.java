@@ -50,7 +50,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @param <Q> the HTTP request entity.
  * @param <P> the HTTP response entity.
  * @param <C> the type of the carrier.
- * @since 0.18
+ * @since 0.19
  */
 @ExperimentalApi
 public class HttpClientHandler<
@@ -71,7 +71,7 @@ public class HttpClientHandler<
    *     request/response.
    * @param textFormat the {@code TextFormat} used in HTTP propagation.
    * @param setter the setter used when injecting information to the {@code carrier}.
-   * @since 0.18
+   * @since 0.19
    */
   public HttpClientHandler(
       Tracer tracer,
@@ -103,7 +103,7 @@ public class HttpClientHandler<
    * @param request the request entity.
    * @return the {@link HttpRequestContext} that contains stats and trace data associated with the
    *     request.
-   * @since 0.18
+   * @since 0.19
    */
   public HttpRequestContext handleStart(@Nullable Span parent, C carrier, Q request) {
     checkNotNull(carrier, "carrier");
@@ -138,7 +138,7 @@ public class HttpClientHandler<
    * @param request the HTTP request entity.
    * @param response the HTTP response entity. {@code null} means invalid response.
    * @param error the error occurs when processing the response.
-   * @since 0.18
+   * @since 0.19
    */
   public void handleEnd(
       HttpRequestContext context,

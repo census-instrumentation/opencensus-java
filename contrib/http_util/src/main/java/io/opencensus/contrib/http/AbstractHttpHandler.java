@@ -47,7 +47,7 @@ abstract class AbstractHttpHandler<Q, P> {
    * @param type the {@code MessageEvent.Type} of the event.
    * @param uncompressedMessageSize size of the message before compressed (optional).
    * @param compressedMessageSize size of the message after compressed (optional).
-   * @since 0.18
+   * @since 0.19
    */
   static void recordMessageEvent(
       Span span, long id, Type type, long uncompressedMessageSize, long compressedMessageSize) {
@@ -70,7 +70,7 @@ abstract class AbstractHttpHandler<Q, P> {
    * response is sent.
    *
    * @param context request specific {@link HttpRequestContext}
-   * @since 0.18
+   * @since 0.19
    */
   public final void handleMessageSent(HttpRequestContext context, long bytes) {
     checkNotNull(context, "context");
@@ -86,7 +86,7 @@ abstract class AbstractHttpHandler<Q, P> {
    * request or response is received.
    *
    * @param context request specific {@link HttpRequestContext}
-   * @since 0.18
+   * @since 0.19
    */
   public final void handleMessageReceived(HttpRequestContext context, long bytes) {
     checkNotNull(context, "context");
