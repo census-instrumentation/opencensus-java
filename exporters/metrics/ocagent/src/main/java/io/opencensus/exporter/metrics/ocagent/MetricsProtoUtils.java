@@ -37,15 +37,18 @@ import javax.annotation.Nullable;
 /** Utilities for converting Metrics APIs in OpenCensus Java to OpenCensus Metrics Proto. */
 final class MetricsProtoUtils {
 
-  // TODO(songya): determine if we should make the optimization on not sending already-existed
-  // MetricDescriptors.
   static Metric toMetricProto(
       io.opencensus.metrics.export.Metric metric,
-      @Nullable io.opencensus.resource.Resource resource) {
+      @Nullable io.opencensus.resource.Resource resource,
+      boolean alreadySent) {
     Metric.Builder builder = Metric.newBuilder();
-    builder.setMetricDescriptor(toMetricDescriptorProto(metric.getMetricDescriptor()));
+    if (alreadySent) {
+      builder.setName(metric.getMetricDescriptor().getName());
+    } else {
+      builder.setMetricDescriptor(toMetricDescriptorProto(metric.getMetricDescriptor()));
+    }
     for (io.opencensus.metrics.export.TimeSeries timeSeries : metric.getTimeSeriesList()) {
-      builder.addTimeseries(toTimeSeriesProto(timeSeries));
+      builder.addTimeseries(toTimeSeriesProto(timeSeries, alreadySent));
     }
     if (resource != null) {
       builder.setResource(toResourceProto(resource));
@@ -104,7 +107,8 @@ final class MetricsProtoUtils {
     return builder.build();
   }
 
-  private static TimeSeries toTimeSeriesProto(io.opencensus.metrics.export.TimeSeries timeSeries) {
+  private static TimeSeries toTimeSeriesProto(
+      io.opencensus.metrics.export.TimeSeries timeSeries, boolean alreadySent) {
     TimeSeries.Builder builder = TimeSeries.newBuilder();
     if (timeSeries.getStartTimestamp() != null) {
       builder.setStartTimestamp(toTimestampProto(timeSeries.getStartTimestamp()));
@@ -113,7 +117,7 @@ final class MetricsProtoUtils {
       builder.addLabelValues(toLabelValueProto(labelValue));
     }
     for (io.opencensus.metrics.export.Point point : timeSeries.getPoints()) {
-      builder.addPoints(toPointProto(point));
+      builder.addPoints(toPointProto(point, alreadySent));
     }
     return builder.build();
   }
@@ -128,7 +132,8 @@ final class MetricsProtoUtils {
     return builder.build();
   }
 
-  private static Point toPointProto(io.opencensus.metrics.export.Point point) {
+  private static Point toPointProto(
+      io.opencensus.metrics.export.Point point, final boolean alreadySent) {
     final Point.Builder builder = Point.newBuilder();
     builder.setTimestamp(toTimestampProto(point.getTimestamp()));
     point
@@ -151,7 +156,7 @@ final class MetricsProtoUtils {
             new Function<Distribution, Void>() {
               @Override
               public Void apply(Distribution arg) {
-                builder.setDistributionValue(toDistributionProto(arg));
+                builder.setDistributionValue(toDistributionProto(arg, alreadySent));
                 return null;
               }
             },
@@ -167,13 +172,13 @@ final class MetricsProtoUtils {
   }
 
   private static DistributionValue toDistributionProto(
-      io.opencensus.metrics.export.Distribution distribution) {
+      io.opencensus.metrics.export.Distribution distribution, boolean alreadySent) {
     DistributionValue.Builder builder = DistributionValue.newBuilder();
     builder
         .setSum(distribution.getSum())
         .setCount(distribution.getCount())
         .setSumOfSquaredDeviation(distribution.getSumOfSquaredDeviations());
-    if (distribution.getBucketOptions() != null) {
+    if (!alreadySent && distribution.getBucketOptions() != null) {
       builder.setBucketOptions(toBucketOptionsProto(distribution.getBucketOptions()));
     }
     for (io.opencensus.metrics.export.Distribution.Bucket bucket : distribution.getBuckets()) {
@@ -182,8 +187,6 @@ final class MetricsProtoUtils {
     return builder.build();
   }
 
-  // TODO(songya): determine if we should make the optimization on not sending already-existed
-  // BucketOptions.
   private static DistributionValue.BucketOptions toBucketOptionsProto(
       Distribution.BucketOptions bucketOptions) {
     final DistributionValue.BucketOptions.Builder builder =

@@ -109,7 +109,7 @@ public class MetricsProtoUtilsTests {
       Resource.create("env", Collections.<String, String>singletonMap("env_key", "env_val"));
 
   @Test
-  public void toMetricProto_Distribution() {
+  public void toMetricProto_Distribution_NotSent() {
     Metric metric = Metric.create(DESCRIPTOR_1, Collections.singletonList(TIME_SERIES_1));
     io.opencensus.proto.metrics.v1.Metric expected =
         io.opencensus.proto.metrics.v1.Metric.newBuilder()
@@ -178,12 +178,61 @@ public class MetricsProtoUtilsTests {
                     .build())
             .build();
     io.opencensus.proto.metrics.v1.Metric actual =
-        MetricsProtoUtils.toMetricProto(metric, RESOURCE);
+        MetricsProtoUtils.toMetricProto(metric, RESOURCE, false);
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  public void toMetricProto_Summary() {
+  public void toMetricProto_Distribution_AlreadySent() {
+    Metric metric = Metric.create(DESCRIPTOR_1, Collections.singletonList(TIME_SERIES_1));
+    io.opencensus.proto.metrics.v1.Metric expected =
+        io.opencensus.proto.metrics.v1.Metric.newBuilder()
+            .setName(METRIC_NAME_1) // Send metric name instead of whole metric descriptor.
+            .addTimeseries(
+                io.opencensus.proto.metrics.v1.TimeSeries.newBuilder()
+                    .setStartTimestamp(MetricsProtoUtils.toTimestampProto(TIMESTAMP_4))
+                    .addLabelValues(
+                        io.opencensus.proto.metrics.v1.LabelValue.newBuilder()
+                            .setHasValue(true)
+                            .setValue(VALUE_1.getValue())
+                            .build())
+                    .addPoints(
+                        io.opencensus.proto.metrics.v1.Point.newBuilder()
+                            .setTimestamp(MetricsProtoUtils.toTimestampProto(TIMESTAMP_2))
+                            .setDistributionValue(
+                                DistributionValue.newBuilder()
+                                    .setCount(5)
+                                    .setSum(24.0)
+                                    .setSumOfSquaredDeviation(321.5)
+                                    // No need to send BucketOptions again.
+                                    .addBuckets(
+                                        DistributionValue.Bucket.newBuilder().setCount(2).build())
+                                    .addBuckets(
+                                        DistributionValue.Bucket.newBuilder().setCount(1).build())
+                                    .addBuckets(
+                                        DistributionValue.Bucket.newBuilder()
+                                            .setCount(2)
+                                            .setExemplar(
+                                                DistributionValue.Exemplar.newBuilder()
+                                                    .setTimestamp(
+                                                        MetricsProtoUtils.toTimestampProto(
+                                                            TIMESTAMP_1))
+                                                    .setValue(11)
+                                                    .build())
+                                            .build())
+                                    .addBuckets(
+                                        DistributionValue.Bucket.newBuilder().setCount(0).build())
+                                    .build())
+                            .build())
+                    .build())
+            .build();
+    io.opencensus.proto.metrics.v1.Metric actual =
+        MetricsProtoUtils.toMetricProto(metric, null, true);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  public void toMetricProto_Summary_NotSent() {
     Metric metric = Metric.create(DESCRIPTOR_2, Collections.singletonList(TIME_SERIES_2));
     io.opencensus.proto.metrics.v1.Metric expected =
         io.opencensus.proto.metrics.v1.Metric.newBuilder()
@@ -237,7 +286,8 @@ public class MetricsProtoUtilsTests {
                             .build())
                     .build())
             .build();
-    io.opencensus.proto.metrics.v1.Metric actual = MetricsProtoUtils.toMetricProto(metric, null);
+    io.opencensus.proto.metrics.v1.Metric actual =
+        MetricsProtoUtils.toMetricProto(metric, null, false);
     assertThat(actual).isEqualTo(expected);
   }
 }
