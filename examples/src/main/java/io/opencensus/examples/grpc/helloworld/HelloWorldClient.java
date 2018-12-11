@@ -108,7 +108,8 @@ public class HelloWorldClient {
     final String cloudProjectId = getStringOrDefaultFromArgs(args, 3, null);
     final int zPagePort = getPortOrDefaultFromArgs(args, 4, 3001);
 
-    // Registers all RPC views.
+    // Registers all RPC views. For demonstration all views are registered. You may want to
+    // start with registering basic views and register other views as needed for your application.
     RpcViews.registerAllViews();
 
     // Starts a HTTP server and registers all Zpages to it.

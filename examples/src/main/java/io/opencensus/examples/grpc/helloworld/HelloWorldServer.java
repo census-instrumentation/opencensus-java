@@ -120,7 +120,8 @@ public class HelloWorldServer {
     final int zPagePort = getPortOrDefaultFromArgs(args, 2, 3000);
     final int prometheusPort = getPortOrDefaultFromArgs(args, 3, 9090);
 
-    // Registers all RPC views.
+    // Registers all RPC views. For demonstration all views are registered. You may want to
+    // start with registering basic views and register other views as needed for your application.
     RpcViews.registerAllViews();
 
     // Registers logging trace exporter.
