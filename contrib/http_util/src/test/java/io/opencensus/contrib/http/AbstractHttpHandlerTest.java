@@ -97,15 +97,14 @@ public class AbstractHttpHandlerTest {
   @Test
   public void handleMessageSent() {
     Type type = Type.SENT;
-    long id = 123L;
     long uncompressed = 456L;
-    HttpRequestContext context = new HttpRequestContext(fakeSpan, id);
+    HttpRequestContext context = new HttpRequestContext(fakeSpan);
     handler.handleMessageSent(context, uncompressed);
     verify(fakeSpan).addMessageEvent(captor.capture());
 
     MessageEvent messageEvent = captor.getValue();
     assertThat(messageEvent.getType()).isEqualTo(type);
-    assertThat(messageEvent.getMessageId()).isEqualTo(id);
+    assertThat(messageEvent.getMessageId()).isEqualTo(1L);
     assertThat(messageEvent.getUncompressedMessageSize()).isEqualTo(uncompressed);
     assertThat(messageEvent.getCompressedMessageSize()).isEqualTo(0);
   }
@@ -113,15 +112,14 @@ public class AbstractHttpHandlerTest {
   @Test
   public void handleMessageReceived() {
     Type type = Type.RECEIVED;
-    long id = 123L;
     long uncompressed = 456L;
-    HttpRequestContext context = new HttpRequestContext(fakeSpan, id);
+    HttpRequestContext context = new HttpRequestContext(fakeSpan);
     handler.handleMessageReceived(context, uncompressed);
     verify(fakeSpan).addMessageEvent(captor.capture());
 
     MessageEvent messageEvent = captor.getValue();
     assertThat(messageEvent.getType()).isEqualTo(type);
-    assertThat(messageEvent.getMessageId()).isEqualTo(id);
+    assertThat(messageEvent.getMessageId()).isEqualTo(1L);
     assertThat(messageEvent.getUncompressedMessageSize()).isEqualTo(uncompressed);
     assertThat(messageEvent.getCompressedMessageSize()).isEqualTo(0);
   }

@@ -34,13 +34,13 @@ public class HttpRequestContext {
 
   @VisibleForTesting final long requestStartTime;
   @VisibleForTesting final Span span;
-  @VisibleForTesting final long reqId;
   @VisibleForTesting AtomicLong sentMessageSize = new AtomicLong();
   @VisibleForTesting AtomicLong receiveMessageSize = new AtomicLong();
+  @VisibleForTesting AtomicLong sentSeqId = new AtomicLong();
+  @VisibleForTesting AtomicLong receviedSeqId = new AtomicLong();
 
-  HttpRequestContext(Span span, long reqId) {
+  HttpRequestContext(Span span) {
     checkNotNull(span, "span");
-    this.reqId = reqId;
     this.span = span;
     requestStartTime = System.nanoTime();
   }

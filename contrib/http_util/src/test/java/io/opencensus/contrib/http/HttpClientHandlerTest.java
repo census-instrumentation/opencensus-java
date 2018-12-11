@@ -133,7 +133,7 @@ public class HttpClientHandlerTest {
 
   @Test
   public void handleEndShouldEndSpan() {
-    HttpRequestContext context = new HttpRequestContext(parentSpan, 1L);
+    HttpRequestContext context = new HttpRequestContext(parentSpan);
     when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
     handler.handleEnd(context, request, response, null);
     verify(parentSpan).end(optionsCaptor.capture());

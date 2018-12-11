@@ -31,12 +31,12 @@ import org.junit.runners.JUnit4;
 public class HttpRequestContextTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
   private final Span span = Tracing.getTracer().spanBuilder("testSpan").startSpan();
-  private final HttpRequestContext context = new HttpRequestContext(span, 1L);
+  private final HttpRequestContext context = new HttpRequestContext(span);
 
   @Test
   public void testDisallowNullSpan() {
     thrown.expect(NullPointerException.class);
-    new HttpRequestContext(null, 0L);
+    new HttpRequestContext(null);
   }
 
   @Test

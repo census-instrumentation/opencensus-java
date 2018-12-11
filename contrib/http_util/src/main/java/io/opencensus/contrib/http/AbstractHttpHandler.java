@@ -26,15 +26,12 @@ import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Span.Options;
-import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 
 /** Base class for handling request on http client and server. */
 abstract class AbstractHttpHandler<Q, P> {
   /** The {@link HttpExtractor} used to extract information from request/response. */
   @VisibleForTesting final HttpExtractor<Q, P> extractor;
-
-  @VisibleForTesting final AtomicLong reqId = new AtomicLong();
 
   /** Constructor to allow access from same package subclasses only. */
   AbstractHttpHandler(HttpExtractor<Q, P> extractor) {
@@ -80,7 +77,7 @@ abstract class AbstractHttpHandler<Q, P> {
     context.sentMessageSize.addAndGet(bytes);
     if (context.span.getOptions().contains(Options.RECORD_EVENTS)) {
       // record compressed size
-      recordMessageEvent(context.span, context.reqId, Type.SENT, bytes, 0L);
+      recordMessageEvent(context.span, context.sentSeqId.addAndGet(1L), Type.SENT, bytes, 0L);
     }
   }
 
@@ -96,7 +93,8 @@ abstract class AbstractHttpHandler<Q, P> {
     context.receiveMessageSize.addAndGet(bytes);
     if (context.span.getOptions().contains(Options.RECORD_EVENTS)) {
       // record compressed size
-      recordMessageEvent(context.span, context.reqId, Type.RECEIVED, bytes, 0L);
+      recordMessageEvent(
+          context.span, context.receviedSeqId.addAndGet(1L), Type.RECEIVED, bytes, 0L);
     }
   }
 
@@ -152,6 +150,6 @@ abstract class AbstractHttpHandler<Q, P> {
   }
 
   HttpRequestContext getNewContext(Span span) {
-    return new HttpRequestContext(span, reqId.addAndGet(1L));
+    return new HttpRequestContext(span);
   }
 }
