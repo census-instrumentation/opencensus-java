@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 
 import io.opencensus.contrib.http.util.HttpTraceAttributeConstants;
 import io.opencensus.contrib.http.util.testing.FakeSpan;
+import io.opencensus.tags.TagContext;
+import io.opencensus.tags.Tags;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.MessageEvent;
@@ -75,6 +77,7 @@ public class AbstractHttpHandlerTest {
   @Captor private ArgumentCaptor<EndSpanOptions> optionsCaptor;
 
   @Spy private FakeSpan fakeSpan = new FakeSpan(spanContext, EnumSet.of(Options.RECORD_EVENTS));
+  private final TagContext tagContext = Tags.getTagger().getCurrentTagContext();
 
   @Before
   public void setUp() {
@@ -98,7 +101,7 @@ public class AbstractHttpHandlerTest {
   public void handleMessageSent() {
     Type type = Type.SENT;
     long uncompressed = 456L;
-    HttpRequestContext context = new HttpRequestContext(fakeSpan);
+    HttpRequestContext context = new HttpRequestContext(fakeSpan, tagContext);
     handler.handleMessageSent(context, uncompressed);
     verify(fakeSpan).addMessageEvent(captor.capture());
 
@@ -113,7 +116,7 @@ public class AbstractHttpHandlerTest {
   public void handleMessageReceived() {
     Type type = Type.RECEIVED;
     long uncompressed = 456L;
-    HttpRequestContext context = new HttpRequestContext(fakeSpan);
+    HttpRequestContext context = new HttpRequestContext(fakeSpan, tagContext);
     handler.handleMessageReceived(context, uncompressed);
     verify(fakeSpan).addMessageEvent(captor.capture());
 
@@ -191,13 +194,13 @@ public class AbstractHttpHandlerTest {
 
   @Test
   public void testGetNewContext() {
-    HttpRequestContext context = handler.getNewContext(fakeSpan);
+    HttpRequestContext context = handler.getNewContext(fakeSpan, tagContext);
     assertThat(context).isNotNull();
   }
 
   @Test
   public void testGetSpanFromContext() {
-    HttpRequestContext context = handler.getNewContext(fakeSpan);
+    HttpRequestContext context = handler.getNewContext(fakeSpan, tagContext);
     assertThat(handler.getSpanFromContext(context)).isEqualTo(fakeSpan);
   }
 }

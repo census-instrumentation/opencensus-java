@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.tags.TagContext;
 import io.opencensus.trace.Span;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -38,10 +39,13 @@ public class HttpRequestContext {
   @VisibleForTesting AtomicLong receiveMessageSize = new AtomicLong();
   @VisibleForTesting AtomicLong sentSeqId = new AtomicLong();
   @VisibleForTesting AtomicLong receviedSeqId = new AtomicLong();
+  @VisibleForTesting final TagContext tagContext;
 
-  HttpRequestContext(Span span) {
+  HttpRequestContext(Span span, TagContext tagContext) {
     checkNotNull(span, "span");
+    checkNotNull(tagContext, "tagContext");
     this.span = span;
+    this.tagContext = tagContext;
     requestStartTime = System.nanoTime();
   }
 }

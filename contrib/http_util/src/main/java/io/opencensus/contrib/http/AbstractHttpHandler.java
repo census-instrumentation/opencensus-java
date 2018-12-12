@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.contrib.http.util.HttpTraceAttributeConstants;
 import io.opencensus.contrib.http.util.HttpTraceUtil;
+import io.opencensus.tags.TagContext;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
@@ -149,7 +150,7 @@ abstract class AbstractHttpHandler<Q, P> {
     return context.span;
   }
 
-  HttpRequestContext getNewContext(Span span) {
-    return new HttpRequestContext(span);
+  HttpRequestContext getNewContext(Span span, TagContext tagContext) {
+    return new HttpRequestContext(span, tagContext);
   }
 }

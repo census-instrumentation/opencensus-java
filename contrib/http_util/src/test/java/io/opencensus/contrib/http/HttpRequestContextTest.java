@@ -18,6 +18,8 @@ package io.opencensus.contrib.http;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.tags.TagContext;
+import io.opencensus.tags.Tags;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracing;
 import org.junit.Rule;
@@ -31,12 +33,19 @@ import org.junit.runners.JUnit4;
 public class HttpRequestContextTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
   private final Span span = Tracing.getTracer().spanBuilder("testSpan").startSpan();
-  private final HttpRequestContext context = new HttpRequestContext(span);
+  private final TagContext tagContext = Tags.getTagger().getCurrentTagContext();
+  private final HttpRequestContext context = new HttpRequestContext(span, tagContext);
 
   @Test
   public void testDisallowNullSpan() {
     thrown.expect(NullPointerException.class);
-    new HttpRequestContext(null);
+    new HttpRequestContext(null, tagContext);
+  }
+
+  @Test
+  public void testDisallowNullTagContext() {
+    thrown.expect(NullPointerException.class);
+    new HttpRequestContext(span, null);
   }
 
   @Test

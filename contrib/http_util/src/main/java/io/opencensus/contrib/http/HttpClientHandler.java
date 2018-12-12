@@ -124,7 +124,7 @@ public class HttpClientHandler<
     if (!spanContext.equals(SpanContext.INVALID)) {
       textFormat.inject(spanContext, carrier, setter);
     }
-    return getNewContext(span);
+    return getNewContext(span, tagger.getCurrentTagContext());
   }
 
   /**
@@ -160,7 +160,7 @@ public class HttpClientHandler<
     String methodStr = request == null ? "" : extractor.getMethod(request);
     TagContext startCtx =
         tagger
-            .currentBuilder()
+            .toBuilder(context.tagContext)
             .put(HTTP_CLIENT_METHOD, TagValue.create(methodStr == null ? "" : methodStr))
             .put(
                 HTTP_CLIENT_STATUS,
