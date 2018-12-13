@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.contrib.http.util.HttpTraceAttributeConstants;
 import io.opencensus.contrib.http.util.HttpTraceUtil;
+import io.opencensus.tags.TagContext;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
@@ -66,36 +67,35 @@ abstract class AbstractHttpHandler<Q, P> {
   }
 
   /**
-   * Instrument an HTTP span after a message is sent.
+   * Instrument an HTTP span after a message is sent. Typically called when last chunk of request or
+   * response is sent.
    *
-   * @param span the span.
-   * @param messageId an id for the message.
-   * @param messageSize the size of the message.
+   * @param context request specific {@link HttpRequestContext}
    * @since 0.19
    */
-  // [TODO:rghetia] add it back after 0.18 is released
-  final void handleMessageSent(Span span, long messageId, long messageSize) {
-    checkNotNull(span, "span");
-    if (span.getOptions().contains(Options.RECORD_EVENTS)) {
+  public final void handleMessageSent(HttpRequestContext context, long bytes) {
+    checkNotNull(context, "context");
+    context.sentMessageSize.addAndGet(bytes);
+    if (context.span.getOptions().contains(Options.RECORD_EVENTS)) {
       // record compressed size
-      recordMessageEvent(span, messageId, Type.SENT, messageSize, 0L);
+      recordMessageEvent(context.span, context.sentSeqId.addAndGet(1L), Type.SENT, bytes, 0L);
     }
   }
 
   /**
-   * Instrument an HTTP span after a message is received.
+   * Instrument an HTTP span after a message is received. Typically called when last chunk of
+   * request or response is received.
    *
-   * @param span the span.
-   * @param messageId an id for the message.
-   * @param messageSize the size of the message.
+   * @param context request specific {@link HttpRequestContext}
    * @since 0.19
    */
-  // [TODO:rghetia] add it back after 0.18 is released
-  final void handleMessageReceived(Span span, long messageId, long messageSize) {
-    checkNotNull(span, "span");
-    if (span.getOptions().contains(Options.RECORD_EVENTS)) {
+  public final void handleMessageReceived(HttpRequestContext context, long bytes) {
+    checkNotNull(context, "context");
+    context.receiveMessageSize.addAndGet(bytes);
+    if (context.span.getOptions().contains(Options.RECORD_EVENTS)) {
       // record compressed size
-      recordMessageEvent(span, messageId, Type.RECEIVED, messageSize, 0L);
+      recordMessageEvent(
+          context.span, context.receviedSeqId.addAndGet(1L), Type.RECEIVED, bytes, 0L);
     }
   }
 
@@ -136,5 +136,21 @@ abstract class AbstractHttpHandler<Q, P> {
         span, HttpTraceAttributeConstants.HTTP_ROUTE, extractor.getRoute(request));
     putAttributeIfNotEmptyOrNull(
         span, HttpTraceAttributeConstants.HTTP_URL, extractor.getUrl(request));
+  }
+
+  /**
+   * Retrieves {@link Span} from the {@link HttpRequestContext}.
+   *
+   * @param context request specific {@link HttpRequestContext}
+   * @return {@link Span} associated with the request.
+   * @since 0.19
+   */
+  public Span getSpanFromContext(HttpRequestContext context) {
+    checkNotNull(context, "context");
+    return context.span;
+  }
+
+  HttpRequestContext getNewContext(Span span, TagContext tagContext) {
+    return new HttpRequestContext(span, tagContext);
   }
 }
