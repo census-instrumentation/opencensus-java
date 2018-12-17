@@ -160,14 +160,14 @@ public class HttpServerHandler<
    */
   public void handleEnd(
       HttpRequestContext context, Q request, @Nullable P response, @Nullable Throwable error) {
+    checkNotNull(context, "context");
+    checkNotNull(request, "request");
     recordStats(context, request, response, error);
     spanEnd(context.span, response, error);
   }
 
   private void recordStats(
       HttpRequestContext context, Q request, @Nullable P response, @Nullable Throwable error) {
-    checkNotNull(context, "context");
-    checkNotNull(request, "request");
     double requestLatency = NANOSECONDS.toMillis(System.nanoTime() - context.requestStartTime);
 
     String methodStr = extractor.getMethod(request);

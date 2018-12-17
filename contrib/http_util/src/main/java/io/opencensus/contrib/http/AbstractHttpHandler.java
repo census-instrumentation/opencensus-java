@@ -102,7 +102,6 @@ abstract class AbstractHttpHandler<Q, P> {
   }
 
   void spanEnd(Span span, @Nullable P response, @Nullable Throwable error) {
-    checkNotNull(span, "span");
     int statusCode = extractor.getStatusCode(response);
     if (span.getOptions().contains(Options.RECORD_EVENTS)) {
       span.putAttribute(
