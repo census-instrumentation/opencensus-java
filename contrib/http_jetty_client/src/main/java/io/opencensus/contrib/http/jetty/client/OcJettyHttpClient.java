@@ -45,7 +45,7 @@ public final class OcJettyHttpClient extends HttpClient {
       };
 
   private static final Tracer tracer = Tracing.getTracer();
-  @VisibleForTesting private final HttpClientHandler<Request, Response, Request> handler;
+  private final HttpClientHandler<Request, Response, Request> handler;
 
   /** Create a new {@code OcJettyHttpClient}. */
   public OcJettyHttpClient() {
