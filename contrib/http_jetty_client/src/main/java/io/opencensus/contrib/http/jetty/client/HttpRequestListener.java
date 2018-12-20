@@ -19,9 +19,10 @@ package io.opencensus.contrib.http.jetty.client;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.contrib.http.HttpClientHandler;
-import io.opencensus.trace.BlankSpan;
+import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.trace.Span;
 import java.nio.ByteBuffer;
+import javax.annotation.Nullable;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.api.Result;
@@ -32,43 +33,44 @@ public final class HttpRequestListener
     implements Request.Listener, Response.ContentListener, Response.CompleteListener {
 
   private final Span parent;
-  private final HttpClientHandler<Request, Response, Request> handler;
-  @VisibleForTesting Span span = BlankSpan.INSTANCE;
-  private final long reqId;
-  @VisibleForTesting long recvMessageSize = 0L;
-  @VisibleForTesting long sendMessageSize = 0L;
+  @VisibleForTesting final HttpClientHandler<Request, Response, Request> handler;
+  @VisibleForTesting @Nullable HttpRequestContext context;
 
-  HttpRequestListener(
-      Span parent, HttpClientHandler<Request, Response, Request> handler, long reqId) {
+  HttpRequestListener(Span parent, HttpClientHandler<Request, Response, Request> handler) {
     this.parent = parent;
     this.handler = handler;
-    this.reqId = reqId;
+    this.context = null;
   }
 
   @Override
   public void onComplete(Result result) {
-    handler.handleMessageSent(span, reqId, sendMessageSize);
-    handler.handleMessageReceived(span, reqId, recvMessageSize);
+    if (context == null) {
+      return;
+    }
     if (result != null) {
-      handler.handleEnd(span, result.getResponse(), result.getFailure());
+      handler.handleEnd(context, result.getRequest(), result.getResponse(), result.getFailure());
     } else {
-      handler.handleEnd(span, null, null);
+      handler.handleEnd(context, null, null, null);
     }
   }
 
   @Override
   public void onBegin(Request request) {
-    span = handler.handleStart(parent, request, request);
+    context = handler.handleStart(parent, request, request);
   }
 
   @Override
   public void onContent(Request request, ByteBuffer content) {
-    sendMessageSize += content.capacity();
+    if (context != null) {
+      handler.handleMessageSent(context, content.capacity());
+    }
   }
 
   @Override
   public void onContent(Response response, ByteBuffer content) {
-    recvMessageSize += content.capacity();
+    if (context != null) {
+      handler.handleMessageReceived(context, content.capacity());
+    }
   }
 
   @Override

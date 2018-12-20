@@ -21,8 +21,7 @@ include ":opencensus-contrib-dropwizard"
 include ":opencensus-contrib-exemplar-util"
 include ":opencensus-contrib-grpc-metrics"
 include ":opencensus-contrib-grpc-util"
-//[TODO:rghetia] add this back after 0.18 is released.
-//include ":opencensus-contrib-http-jetty-client"
+include ":opencensus-contrib-http-jetty-client"
 include ":opencensus-contrib-http-servlet"
 include ":opencensus-contrib-http-util"
 include ":opencensus-contrib-log-correlation-log4j2"
@@ -43,8 +42,7 @@ project(':opencensus-contrib-dropwizard').projectDir = "$rootDir/contrib/dropwiz
 project(':opencensus-contrib-exemplar-util').projectDir = "$rootDir/contrib/exemplar_util" as File
 project(':opencensus-contrib-grpc-metrics').projectDir = "$rootDir/contrib/grpc_metrics" as File
 project(':opencensus-contrib-grpc-util').projectDir = "$rootDir/contrib/grpc_util" as File
-//[TODO:rghetia] add this back after 0.18 is released.
-//project(':opencensus-contrib-http-jetty-client').projectDir = "$rootDir/contrib/http_jetty_client" as File
+project(':opencensus-contrib-http-jetty-client').projectDir = "$rootDir/contrib/http_jetty_client" as File
 project(':opencensus-contrib-http-servlet').projectDir = "$rootDir/contrib/http_servlet" as File
 project(':opencensus-contrib-http-util').projectDir = "$rootDir/contrib/http_util" as File
 project(':opencensus-contrib-log-correlation-log4j2').projectDir =

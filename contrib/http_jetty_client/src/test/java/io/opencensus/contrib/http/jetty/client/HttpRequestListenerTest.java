@@ -17,17 +17,16 @@
 package io.opencensus.contrib.http.jetty.client;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.opencensus.contrib.http.HttpClientHandler;
+import io.opencensus.contrib.http.HttpExtractor;
+import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracing;
-import java.nio.ByteBuffer;
-import org.eclipse.jetty.client.api.ContentProvider;
+import io.opencensus.trace.propagation.TextFormat.Setter;
+import javax.annotation.Nullable;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.api.Result;
@@ -41,85 +40,118 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link HttpRequestListener}. */
 @RunWith(JUnit4.class)
 public class HttpRequestListenerTest {
-  @Mock private Request mockRequest;
-  @Mock private Response mockResponse;
-  @Mock private Result mockResult;
+  private Request request;
+  private HttpRequestListener listener;
+  private HttpRequestListener listenerWithMockhandler;
+  private HttpRequestContext context;
+  private final Object requestObj = new Object();
+  private final Object responseObj = new Object();
+  static final Setter<Object> setter =
+      new Setter<Object>() {
+        @Override
+        public void put(Object carrier, String key, String val) {}
+      };
+
+  private final HttpExtractor<Object, Object> extractor =
+      new HttpExtractor<Object, Object>() {
+        @Nullable
+        @Override
+        public String getRoute(Object request) {
+          return "";
+        }
+
+        @Nullable
+        @Override
+        public String getUrl(Object request) {
+          return "";
+        }
+
+        @Nullable
+        @Override
+        public String getHost(Object request) {
+          return "";
+        }
+
+        @Nullable
+        @Override
+        public String getMethod(Object request) {
+          return "";
+        }
+
+        @Nullable
+        @Override
+        public String getPath(Object request) {
+          return "";
+        }
+
+        @Nullable
+        @Override
+        public String getUserAgent(Object request) {
+          return "";
+        }
+
+        @Override
+        public int getStatusCode(@Nullable Object response) {
+          return 0;
+        }
+      };
+
+  private final HttpClientHandler<Object, Object, Object> handler =
+      new HttpClientHandler<Object, Object, Object>(
+          Tracing.getTracer(),
+          extractor,
+          Tracing.getPropagationComponent().getTraceContextFormat(),
+          setter) {
+        @Override
+        public HttpRequestContext handleStart(
+            @Nullable Span parent, Object carrier, Object request) {
+          return super.handleStart(parent, carrier, request);
+        }
+
+        @Override
+        public void handleEnd(
+            HttpRequestContext context,
+            @Nullable Object request,
+            @Nullable Object response,
+            @Nullable Throwable error) {
+          super.handleEnd(context, request, response, error);
+        }
+      };
   @Mock private HttpClientHandler<Request, Response, Request> mockHandler;
-  private static final long REQ_ID = 1L;
-  @Mock private ContentProvider mockContent;
-  private Span realSpan;
-  private final byte[] bytes = new byte[2];
-  private final ByteBuffer buf = ByteBuffer.wrap(bytes);
+  @Mock private Result mockResult;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    realSpan = Tracing.getTracer().spanBuilder("testSpan").startSpan();
+    OcJettyHttpClient client = new OcJettyHttpClient();
+    request = client.newRequest("http://www.example.com/foo");
+    listener = request.getRequestListeners(HttpRequestListener.class).get(0);
+
+    // for onComplete() test
+    context = handler.handleStart(null, requestObj, responseObj);
+    listenerWithMockhandler = new HttpRequestListener(null, mockHandler);
   }
 
   @Test
-  public void testListener() {
-    HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
-    when(mockHandler.handleStart(any(Span.class), any(Request.class), any(Request.class)))
-        .thenReturn(realSpan);
-    doNothing()
-        .when(mockHandler)
-        .handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
-    listener.onBegin(mockRequest);
-    verify(mockHandler).handleStart(any(Span.class), any(Request.class), any(Request.class));
-
-    listener.onComplete(mockResult);
-    verify(mockHandler).handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
+  public void testOnBegin() {
+    listener.onBegin(request);
+    assertThat(listener.context).isNotNull();
   }
 
   @Test
-  public void testRequestOnContent() {
-    HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
-    when(mockHandler.handleStart(any(Span.class), any(Request.class), any(Request.class)))
-        .thenReturn(realSpan);
-    doNothing()
-        .when(mockHandler)
-        .handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
-
-    listener.onContent(mockRequest, buf);
-    assertThat(listener.sendMessageSize).isEqualTo(2L);
-    listener.onContent(mockRequest, buf);
-    assertThat(listener.sendMessageSize).isEqualTo(4L);
+  public void testOnCompleteWithNullResult() {
+    listenerWithMockhandler.context = context;
+    listenerWithMockhandler.onComplete(null);
+    verify(mockHandler).handleEnd(context, null, null, null);
   }
 
   @Test
-  public void testResponseOnContent() {
-    HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
-    when(mockHandler.handleStart(any(Span.class), any(Request.class), any(Request.class)))
-        .thenReturn(realSpan);
-    doNothing()
-        .when(mockHandler)
-        .handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
-
-    listener.onContent(mockResponse, buf);
-    assertThat(listener.recvMessageSize).isEqualTo(2L);
-    listener.onContent(mockResponse, buf);
-    assertThat(listener.recvMessageSize).isEqualTo(4L);
-  }
-
-  @Test
-  public void testResponseOnComplete() {
-    HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
-    doNothing()
-        .when(mockHandler)
-        .handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
-    when(mockResult.getRequest()).thenReturn(mockRequest);
-    when(mockResult.getResponse()).thenReturn(mockResponse);
-    listener.onComplete(mockResult);
-    verify(mockHandler).handleEnd(any(Span.class), any(Response.class), any(Throwable.class));
-  }
-
-  @Test
-  public void testResponseOnCompleteWithNullResult() {
-    HttpRequestListener listener = new HttpRequestListener(realSpan, mockHandler, REQ_ID);
-    doCallRealMethod().when(mockHandler).handleEnd(realSpan, null, null);
-
-    listener.onComplete(null);
-    verify(mockHandler).handleEnd(realSpan, null, null);
+  public void testOnComplete() {
+    listenerWithMockhandler.context = context;
+    when(mockResult.getFailure()).thenReturn(null);
+    when(mockResult.getRequest()).thenReturn(null);
+    when(mockResult.getResponse()).thenReturn(null);
+    listenerWithMockhandler.onComplete(null);
+    verify(mockHandler).handleEnd(context, null, null, null);
   }
 }
