@@ -25,6 +25,8 @@ import org.eclipse.jetty.server.Response;
 class OcHttpServletUtil {
   static final String CONTENT_LENGTH = "Content-Length";
 
+  private OcHttpServletUtil() {}
+
   static void recordMessageSentEvent(
       HttpServerHandler<HttpServletRequest, HttpServletResponse, HttpServletRequest> handler,
       HttpRequestContext context,
