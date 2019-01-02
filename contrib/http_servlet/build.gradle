@@ -9,7 +9,6 @@ description = 'OpenCensus Http Servlet Plugin'
     it.targetCompatibility = 1.6
 }
 
-def opencensusVersion = "0.18.0-SNAPSHOT"
 def jettyVersion = "9.2.25.v20180606"
 
 dependencies {
