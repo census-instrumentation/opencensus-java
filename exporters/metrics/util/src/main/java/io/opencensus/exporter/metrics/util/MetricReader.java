@@ -34,7 +34,6 @@ import io.opencensus.trace.samplers.Samplers;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
