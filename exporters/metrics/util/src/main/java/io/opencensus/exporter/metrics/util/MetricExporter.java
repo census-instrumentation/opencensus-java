@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, OpenCensus Authors
+ * Copyright 2019, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,11 @@ package io.opencensus.exporter.metrics.util;
 import io.opencensus.metrics.export.Metric;
 import java.util.Collection;
 
-/** Abstract class that represents a metric exporter. */
+/**
+ * Abstract class that represents a metric exporter.
+ *
+ * @since 0.19
+ */
 public abstract class MetricExporter {
 
   /**

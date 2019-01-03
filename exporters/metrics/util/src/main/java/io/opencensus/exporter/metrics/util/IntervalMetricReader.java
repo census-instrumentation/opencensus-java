@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, OpenCensus Authors
+ * Copyright 2019, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -61,7 +60,6 @@ public final class IntervalMetricReader {
      * @return the export interval.
      * @since 0.19
      */
-    @Nullable
     public abstract Duration getExportInterval();
 
     /**

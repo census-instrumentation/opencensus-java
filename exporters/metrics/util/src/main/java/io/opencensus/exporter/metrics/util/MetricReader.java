@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, OpenCensus Authors
+ * Copyright 2019, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Scope;
+import io.opencensus.metrics.Metrics;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricProducer;
 import io.opencensus.metrics.export.MetricProducerManager;
@@ -73,7 +74,6 @@ public class MetricReader {
      * @return the {@link MetricProducerManager}.
      * @since 0.19
      */
-    @Nullable
     public abstract MetricProducerManager getMetricProducerManager();
 
     /**
@@ -82,7 +82,6 @@ public class MetricReader {
      * @return the span name for the {@link Span} created when data are read and exported.
      * @since 0.19
      */
-    @Nullable
     public abstract String getSpanName();
 
     /**
@@ -92,7 +91,9 @@ public class MetricReader {
      * @since 0.19
      */
     public static Builder builder() {
-      return new AutoValue_MetricReader_Options.Builder().setSpanName(DEFAULT_SPAN_NAME);
+      return new AutoValue_MetricReader_Options.Builder()
+          .setMetricProducerManager(Metrics.getExportComponent().getMetricProducerManager())
+          .setSpanName(DEFAULT_SPAN_NAME);
     }
 
     /**
