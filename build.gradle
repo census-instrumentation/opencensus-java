@@ -455,6 +455,7 @@ subprojects {
                  'opencensus-contrib-spring-sleuth-v1x',
                  'opencensus-contrib-zpages',
                  // 'opencensus-exporter-metrics-ocagent',
+                 'opencensus-exporter-metrics-util',
                  'opencensus-exporter-stats-prometheus',
                  'opencensus-exporter-stats-signalfx',
                  'opencensus-exporter-stats-stackdriver',

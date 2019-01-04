@@ -7,7 +7,7 @@
 - Add OpenCensus Java OC-Agent Metrics Exporter.
 - Add ability to filter metrics collected from Dropwizard registry.
 - Add an util artifact opencensus-contrib-dropwizard5 to translate Dropwizard metrics5 to OpenCensus.
-
+- Add metrics util package to be shared by all metrics exporters.
 
 ## 0.18.0 - 2018-11-27
 - Set the
