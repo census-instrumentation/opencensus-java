@@ -1,0 +1,17 @@
+description = 'OpenCensus dropwizard5 util'
+
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.8
+    it.targetCompatibility = 1.8
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            project(':opencensus-impl-core')
+
+    compile libraries.dropwizard5
+
+    signature "org.codehaus.mojo.signature:java18:+@signature"
+}

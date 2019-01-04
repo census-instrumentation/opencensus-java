@@ -187,6 +187,7 @@ subprojects {
         jaegerReporterVersion = '0.27.0'
         opencensusProtoVersion = '0.1.0'
         dropwizardVersion = '3.1.2'
+        dropwizard5Version = '5.0.0-rc2'
 
         libraries = [
                 appengine_api: "com.google.appengine:appengine-api-1.0-sdk:${appengineVersion}",
@@ -230,6 +231,7 @@ subprojects {
                 spring_test: "org.springframework:spring-test:${springVersion}",
                 truth: 'com.google.truth:truth:0.42',
                 dropwizard: "io.dropwizard.metrics:metrics-core:${dropwizardVersion}",
+                dropwizard5: "io.dropwizard.metrics5:metrics-core:${dropwizard5Version}",
         ]
     }
 
@@ -439,6 +441,7 @@ subprojects {
                  'opencensus-contrib-agent',
                  'opencensus-contrib-appengine-standard-util',
                  'opencensus-contrib-dropwizard',
+                 'opencensus-contrib-dropwizard5',
                  'opencensus-contrib-exemplar-util',
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
