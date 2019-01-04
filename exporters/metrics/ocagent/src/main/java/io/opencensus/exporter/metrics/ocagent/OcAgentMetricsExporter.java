@@ -34,7 +34,8 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <pre>{@code
  * public static void main(String[] args) {
- *   OcAgentMetricsExporter.createAndRegister();
+ *   OcAgentMetricsExporter.createAndRegister(
+ *     OcAgentMetricsExporterConfiguration.builder().build());
  *   ... // Do work.
  * }
  * }</pre>
@@ -81,13 +82,13 @@ public final class OcAgentMetricsExporter {
       @Nullable String serviceName,
       @Nullable Duration exportInterval,
       @Nullable Duration retryInterval) {
-    if (endPoint == null) {
+    if (endPoint == null || endPoint.isEmpty()) {
       endPoint = DEFAULT_END_POINT;
     }
     if (useInsecure == null) {
       useInsecure = false;
     }
-    if (serviceName == null) {
+    if (serviceName == null || serviceName.isEmpty()) {
       serviceName = DEFAULT_SERVICE_NAME;
     }
     if (exportInterval == null) {
