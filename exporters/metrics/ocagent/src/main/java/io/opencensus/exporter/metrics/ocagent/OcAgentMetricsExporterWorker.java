@@ -21,15 +21,12 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.opencensus.common.Duration;
 import io.opencensus.metrics.export.Metric;
-import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricProducer;
 import io.opencensus.metrics.export.MetricProducerManager;
 import io.opencensus.proto.agent.metrics.v1.ExportMetricsServiceRequest;
 import io.opencensus.proto.agent.metrics.v1.MetricsServiceGrpc;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -55,7 +52,7 @@ final class OcAgentMetricsExporterWorker implements Runnable {
   private final String serviceName;
   private final MetricProducerManager metricProducerManager;
   private OcAgentMetricsServiceExportRpcHandler exportRpcHandler;
-  private final Set<MetricDescriptor> registeredDescriptors = new HashSet<>();
+  // private final Set<MetricDescriptor> registeredDescriptors = new HashSet<>();
 
   OcAgentMetricsExporterWorker(
       String endPoint,
@@ -119,12 +116,14 @@ final class OcAgentMetricsExporterWorker implements Runnable {
 
     List<io.opencensus.proto.metrics.v1.Metric> metricProtos = Lists.newArrayList();
     for (Metric metric : metricsList) {
-      boolean registered = true;
-      if (!registeredDescriptors.contains(metric.getMetricDescriptor())) {
-        registered = false;
-        registeredDescriptors.add(metric.getMetricDescriptor());
-      }
-      metricProtos.add(MetricsProtoUtils.toMetricProto(metric, null, registered));
+      // TODO(songya): determine if we should make the optimization on not sending already-existed
+      // MetricDescriptors.
+      // boolean registered = true;
+      // if (!registeredDescriptors.contains(metric.getMetricDescriptor())) {
+      //   registered = false;
+      //   registeredDescriptors.add(metric.getMetricDescriptor());
+      // }
+      metricProtos.add(MetricsProtoUtils.toMetricProto(metric, null));
     }
 
     exportRpcHandler.onExport(
