@@ -186,6 +186,7 @@ subprojects {
         zipkinReporterVersion = '2.3.2'
         jaegerReporterVersion = '0.27.0'
         opencensusProtoVersion = '0.1.0'
+        gsonVersion = '2.8.5'
         dropwizardVersion = '3.1.2'
         dropwizard5Version = '5.0.0-rc2'
 
@@ -223,6 +224,7 @@ subprojects {
                 prometheus_simpleclient: "io.prometheus:simpleclient:${prometheusVersion}",
                 protobuf: "com.google.protobuf:protobuf-java:${protobufVersion}",
                 opencensus_proto: "io.opencensus:opencensus-proto:${opencensusProtoVersion}",
+                gson: "com.google.code.gson:gson:${gsonVersion}",
 
                 // Test dependencies.
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
@@ -459,6 +461,7 @@ subprojects {
                  'opencensus-exporter-stats-prometheus',
                  'opencensus-exporter-stats-signalfx',
                  'opencensus-exporter-stats-stackdriver',
+                 'opencensus-exporter-trace-datadog',
                  'opencensus-exporter-trace-instana',
                  'opencensus-exporter-trace-logging',
                  // 'opencensus-exporter-trace-ocagent',

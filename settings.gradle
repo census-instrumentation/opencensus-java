@@ -7,6 +7,7 @@ include ":opencensus-impl"
 include ":opencensus-testing"
 include ":opencensus-exporter-metrics-ocagent"
 include ":opencensus-exporter-metrics-util"
+include ":opencensus-exporter-trace-datadog"
 include ":opencensus-exporter-trace-instana"
 include ":opencensus-exporter-trace-logging"
 include ":opencensus-exporter-trace-ocagent"
@@ -65,6 +66,8 @@ project(':opencensus-exporter-stats-stackdriver').projectDir =
         "$rootDir/exporters/stats/stackdriver" as File
 project(':opencensus-exporter-stats-prometheus').projectDir =
         "$rootDir/exporters/stats/prometheus" as File
+project(':opencensus-exporter-trace-datadog').projectDir =
+        "$rootDir/exporters/trace/datadog" as File
 project(':opencensus-exporter-trace-instana').projectDir =
         "$rootDir/exporters/trace/instana" as File
 project(':opencensus-exporter-trace-logging').projectDir =

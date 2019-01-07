@@ -8,6 +8,7 @@
 - Add ability to filter metrics collected from Dropwizard registry.
 - Add an util artifact opencensus-contrib-dropwizard5 to translate Dropwizard metrics5 to OpenCensus.
 - Add metrics util package to be shared by all metrics exporters.
+- Add Datadog Trace Exporter.
 
 ## 0.18.0 - 2018-11-27
 - Set the
@@ -48,10 +49,10 @@
 - Add an API MeasureMap.putAttachment() for recording exemplars.
 - Add Exemplar class and an API to get Exemplar list to DistributionData.
 - Improve the styling of Rpcz, Statsz, Tracez, and Traceconfigz pages.
-- Add an artifact `opencensus-contrib-exemplar-util` that has helper utilities 
+- Add an artifact `opencensus-contrib-exemplar-util` that has helper utilities
   on recording exemplars.
 - Reduce the default limit on `Link`s per `Span` to 32 (was 128 before).
-- Add Spring support for `@Traced` annotation and java.sql.PreparedStatements 
+- Add Spring support for `@Traced` annotation and java.sql.PreparedStatements
   tracing.
 - Allow custom prefix for Stackdriver metrics in `StackdriverStatsConfiguration`.
 - Add support to handle the Tracestate in the SpanContext.
@@ -114,7 +115,7 @@
 - Add `Duration.toMillis()`.
 - Make monitored resource utils a separate artifact `opencensus-contrib-monitored-resource-util`,
   so that it can be reused across exporters.
-- Add `LastValue`, `LastValueDouble` and `LastValueLong`. Also support them in 
+- Add `LastValue`, `LastValueDouble` and `LastValueLong`. Also support them in
   stats exporters and zpages. Please note that there is an API breaking change
   in methods `Aggregation.match()` and `AggregationData.match()`.
 

@@ -1,0 +1,18 @@
+description = 'OpenCensus Datadog Trace Exporter'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.8
+    it.targetCompatibility = 1.8
+}
+
+dependencies {
+    compileOnly libraries.findbugs_annotations
+
+    compile project(':opencensus-api'),
+        libraries.guava,
+        libraries.gson
+
+    testCompile project(':opencensus-api')
+
+    signature "org.codehaus.mojo.signature:java18:1.0@signature"
+}

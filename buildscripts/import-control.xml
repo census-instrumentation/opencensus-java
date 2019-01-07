@@ -241,6 +241,11 @@ General guidelines on imports:
         <allow pkg="io.opencensus.exporter.trace.zipkin"/>
         <allow pkg="zipkin2"/>
       </subpackage>
+      <subpackage name="datadog">
+        <allow pkg="io.opencensus.exporter.trace.datadog"/>
+        <allow pkg="edu.umd.cs.findbugs.annotations"/>
+        <allow pkg="com.google.gson"/>
+      </subpackage>
     </subpackage>
   </subpackage>
   <subpackage name="implcore">
