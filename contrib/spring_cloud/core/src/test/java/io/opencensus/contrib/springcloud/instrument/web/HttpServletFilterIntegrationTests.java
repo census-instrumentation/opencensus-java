@@ -83,7 +83,7 @@ public class HttpServletFilterIntegrationTests extends AbstractMvcIntegrationTes
   }
 
   @Test(timeout = 10000)
-  public void shouldCreateAServerTrace() throws Exception {
+  public void shouldCreateServerTrace() throws Exception {
     sendRequest();
 
     List<SpanData> data = handler.waitForExport(1);

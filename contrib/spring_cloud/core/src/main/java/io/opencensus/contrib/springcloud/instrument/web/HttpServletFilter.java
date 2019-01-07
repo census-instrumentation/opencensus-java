@@ -18,11 +18,12 @@ package io.opencensus.contrib.springcloud.instrument.web;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opencensus.contrib.http.servlet.OcHttpServletFilter;
+import io.opencensus.contrib.springcloud.autoconfig.OpenCensusAutoConfiguration;
 import javax.servlet.Filter;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(1)
+@Order(OpenCensusAutoConfiguration.TRACE_FILTER_ORDER)
 @SuppressFBWarnings("RI_REDUNDANT_INTERFACES")
 public class HttpServletFilter extends OcHttpServletFilter implements Filter {}

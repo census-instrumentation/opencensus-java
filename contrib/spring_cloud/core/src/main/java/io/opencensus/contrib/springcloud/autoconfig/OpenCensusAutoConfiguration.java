@@ -21,6 +21,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 
 /**
  * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration Auto-configuration} to
@@ -33,4 +34,6 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(value = "spring.opencensus.enabled", matchIfMissing = true)
 @EnableConfigurationProperties(OpenCensusProperties.class)
 @ExperimentalApi
-public class OpenCensusAutoConfiguration {}
+public class OpenCensusAutoConfiguration {
+  public static final int TRACE_FILTER_ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
+}
