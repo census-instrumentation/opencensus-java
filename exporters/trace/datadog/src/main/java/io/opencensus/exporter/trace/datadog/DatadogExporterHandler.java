@@ -108,7 +108,7 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
 
   private static long timestampToNanos(@Nullable final Timestamp timestamp) {
     return (timestamp == null)
-        ? 0L
+        ? System.currentTimeMillis() * 1000 * 1000
         : TimeUnit.SECONDS.toNanos(timestamp.getSeconds()) + timestamp.getNanos();
   }
 
@@ -126,9 +126,6 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
       SpanContext sc = sd.getContext();
 
       final long startTime = timestampToNanos(sd.getStartTimestamp());
-      // NB: If the span endTimestamp is null, there isn't a good way to determine the duration.
-      // Currently this will produce a meaningless negative value, since the duration field
-      // is required for Datadog to accept the trace.
       final long endTime = timestampToNanos(sd.getEndTimestamp());
       final long duration = endTime - startTime;
 

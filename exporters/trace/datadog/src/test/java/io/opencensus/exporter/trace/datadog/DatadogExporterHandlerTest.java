@@ -124,7 +124,7 @@ public class DatadogExporterHandlerTest {
             SpanData.Links.create(Collections.emptyList(), 0),
             /* childSpanCount= */ null,
             /* status= */ null,
-            /* endTimestamp= */ null);
+            /* endTimestamp= */ Timestamp.create(1505855799, 465726528));
 
     final String expected =
         "[["
@@ -136,7 +136,7 @@ public class DatadogExporterHandlerTest {
             + "\"service\":\"service\","
             + "\"type\":\"web\","
             + "\"start\":1505855794194009601,"
-            + "\"duration\":-1505855794194009601,"
+            + "\"duration\":5271716927,"
             + "\"error\":0,"
             + "\"meta\":{"
             + "\"resource\":\"/foo\","
