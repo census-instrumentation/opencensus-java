@@ -30,7 +30,6 @@ import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.export.SpanData;
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +56,7 @@ public class DatadogExporterHandlerTest {
 
   @Before
   public void setup() throws Exception {
-    final URL url = new URL("http://localhost");
-    this.handler = new DatadogExporterHandler(url, "service", "web");
+    this.handler = new DatadogExporterHandler("http://localhost", "service", "web");
   }
 
   @Test
@@ -71,17 +69,17 @@ public class DatadogExporterHandlerTest {
                 TraceOptions.builder().setIsSampled(true).build(),
                 Tracestate.builder().build()),
             SpanId.fromLowerBase16(PARENT_SPAN_ID),
-            true,
+            /* hasRemoteParent= */ true,
             "SpanName",
-            null,
-            Timestamp.create(1505855794, 194009601) /* startTimestamp */,
+            /* kind= */ null,
+            /* startTimestamp= */ Timestamp.create(1505855794, 194009601),
             SpanData.Attributes.create(attributes, 0),
             SpanData.TimedEvents.create(annotations, 0),
             SpanData.TimedEvents.create(messageEvents, 0),
             SpanData.Links.create(Collections.emptyList(), 0),
-            null,
+            /* childSpanCount= */ null,
             Status.OK,
-            Timestamp.create(1505855799, 465726528) /* endTimestamp */);
+            /* endTimestamp= */ Timestamp.create(1505855799, 465726528));
 
     final String expected =
         "[["
@@ -95,6 +93,50 @@ public class DatadogExporterHandlerTest {
             + "\"start\":1505855794194009601,"
             + "\"duration\":5271716927,"
             + "\"parent_id\":8429705776517054011,"
+            + "\"error\":0,"
+            + "\"meta\":{"
+            + "\"resource\":\"/foo\","
+            + "\"http.url\":\"http://localhost/foo\""
+            + "}"
+            + "}"
+            + "]]";
+
+    assertThat(handler.convertToJson(Collections.singletonList(data))).isEqualTo(expected);
+  }
+
+  @Test
+  public void testNullableConversion() {
+    SpanData data =
+        SpanData.create(
+            SpanContext.create(
+                TraceId.fromLowerBase16(TRACE_ID),
+                SpanId.fromLowerBase16(SPAN_ID),
+                TraceOptions.builder().setIsSampled(true).build(),
+                Tracestate.builder().build()),
+            /* parentSpanId= */ null,
+            /* hasRemoteParent= */ false,
+            "SpanName",
+            /* kind= */ null,
+            /* startTimestamp= */ Timestamp.create(1505855794, 194009601),
+            SpanData.Attributes.create(attributes, 0),
+            SpanData.TimedEvents.create(annotations, 0),
+            SpanData.TimedEvents.create(messageEvents, 0),
+            SpanData.Links.create(Collections.emptyList(), 0),
+            /* childSpanCount= */ null,
+            /* status= */ null,
+            /* endTimestamp= */ null);
+
+    final String expected =
+        "[["
+            + "{"
+            + "\"trace_id\":3298601478987650031,"
+            + "\"span_id\":7151185124527981047,"
+            + "\"name\":\"SpanName\","
+            + "\"resource\":\"/foo\","
+            + "\"service\":\"service\","
+            + "\"type\":\"web\","
+            + "\"start\":1505855794194009601,"
+            + "\"duration\":-1505855794194009601,"
             + "\"error\":0,"
             + "\"meta\":{"
             + "\"resource\":\"/foo\","

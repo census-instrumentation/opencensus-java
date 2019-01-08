@@ -18,35 +18,37 @@ package io.opencensus.exporter.trace.datadog;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 @SuppressFBWarnings("URF_UNREAD_FIELD")
+@SuppressWarnings("unused")
 class DatadogSpan {
   // Required. The unique integer (64-bit unsigned) ID of the trace containing this span.
-  private long traceId;
+  private final long traceId;
   // Required. The span integer (64-bit unsigned) ID.
-  private long spanId;
+  private final long spanId;
   // Required. The span name. The span name must not be longer than 100 characters.
-  private String name;
+  private final String name;
   // Required. The resource you are tracing. The resource name must not be longer than 5000
   // characters.
   // A resource is a particular action for a service.
-  private String resource;
+  private final String resource;
   // Required. The service you are tracing. The service name must not be longer than 100 characters.
-  private String service;
+  private final String service;
   // Required. The type of request.
-  private String type;
+  private final String type;
   // Required. The start time of the request in nanoseconds from the unix epoch.
-  private long start;
+  private final long start;
   // Required. The duration of the request in nanoseconds.
-  private long duration;
+  private final long duration;
   // Optional. The span integer ID of the parent span.
-  private Long parentId;
+  @Nullable private final Long parentId;
   // Optional. Set this value to 1 to indicate if an error occured. If an error occurs, you
   // should pass additional information, such as the error message, type and stack information
   // in the meta property.
-  private Integer error;
+  @Nullable private final Integer error;
   // Optional. A dictionary of key-value metadata. e.g. tags.
-  private Map<String, String> meta;
+  @Nullable private final Map<String, String> meta;
 
   long getTraceId() {
     return traceId;
@@ -61,9 +63,9 @@ class DatadogSpan {
       final String type,
       final long start,
       final long duration,
-      final Long parentId,
-      final Integer error,
-      final Map<String, String> meta) {
+      @Nullable final Long parentId,
+      @Nullable final Integer error,
+      @Nullable final Map<String, String> meta) {
     this.traceId = traceId;
     this.spanId = spanId;
     this.name = name;

@@ -10,7 +10,8 @@ dependencies {
 
     compile project(':opencensus-api'),
         libraries.guava,
-        libraries.gson
+        libraries.gson, 
+        libraries.auto_value
 
     testCompile project(':opencensus-api')
 

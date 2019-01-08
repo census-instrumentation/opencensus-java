@@ -35,6 +35,7 @@ import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -45,12 +46,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
+@SuppressWarnings({
+  // This library is not supposed to be Android or Java 7 compatible.
+  "AndroidJdkLibsChecker",
+  "Java7ApiChecker"
+})
 final class DatadogExporterHandler extends SpanExporter.Handler {
 
   private static final Tracer tracer = Tracing.getTracer();
   private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
-  private static Gson gson =
+  private static final Gson gson =
       new GsonBuilder()
           .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
           .create();
@@ -59,26 +66,30 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
   private final String service;
   private final String type;
 
-  DatadogExporterHandler(final URL agentEndpoint, final String service, final String type) {
-    this.agentEndpoint = agentEndpoint;
+  DatadogExporterHandler(final String agentEndpoint, final String service, final String type)
+      throws MalformedURLException {
+    this.agentEndpoint = new URL(agentEndpoint);
     this.service = service;
     this.type = type;
   }
 
-  @javax.annotation.Nullable
   private static String attributeValueToString(AttributeValue attributeValue) {
     return attributeValue.match(
         Functions.returnToString(),
         Functions.returnToString(),
         Functions.returnToString(),
         Functions.returnToString(),
-        Functions.returnNull());
+        Functions.throwIllegalArgumentException());
   }
 
   private static Map<String, String> attributesToMeta(
       final Map<String, AttributeValue> attributes) {
     final HashMap<String, String> result = new HashMap<>();
-    attributes.forEach((key, value) -> result.put(key, attributeValueToString(value)));
+    attributes
+        .entrySet()
+        .stream()
+        .filter(entry -> entry.getValue() != null)
+        .forEach(entry -> result.put(entry.getKey(), attributeValueToString(entry.getValue())));
     return result;
   }
 
@@ -95,14 +106,14 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
     return result;
   }
 
-  private static long timestampToNanos(final Timestamp timestamp) {
+  private static long timestampToNanos(@Nullable final Timestamp timestamp) {
     return (timestamp == null)
         ? 0L
         : TimeUnit.SECONDS.toNanos(timestamp.getSeconds()) + timestamp.getNanos();
   }
 
-  private static Integer errorCode(final Status status) {
-    if (status == Status.OK || status == Status.ALREADY_EXISTS) {
+  private static Integer errorCode(@Nullable final Status status) {
+    if (status == null || status.equals(Status.OK) || status.equals(Status.ALREADY_EXISTS)) {
       return 0;
     }
 
@@ -115,9 +126,13 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
       SpanContext sc = sd.getContext();
 
       final long startTime = timestampToNanos(sd.getStartTimestamp());
+      // NB: If the span endTimestamp is null, there isn't a good way to determine the duration.
+      // Currently this will produce a meaningless negative value, since the duration field
+      // is required for Datadog to accept the trace.
       final long endTime = timestampToNanos(sd.getEndTimestamp());
+      final long duration = endTime - startTime;
 
-      Long parentId =
+      final Long parentId =
           Optional.ofNullable(sd.getParentSpanId())
               .map(DatadogExporterHandler::convertSpanId)
               .orElse(null);
@@ -137,7 +152,7 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
               this.service,
               this.type,
               startTime,
-              endTime - startTime,
+              duration,
               parentId,
               errorCode(sd.getStatus()),
               meta);

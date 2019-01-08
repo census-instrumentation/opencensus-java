@@ -245,6 +245,7 @@ General guidelines on imports:
         <allow pkg="io.opencensus.exporter.trace.datadog"/>
         <allow pkg="edu.umd.cs.findbugs.annotations"/>
         <allow pkg="com.google.gson"/>
+        <allow pkg="com.google.auto.value"/>
       </subpackage>
     </subpackage>
   </subpackage>

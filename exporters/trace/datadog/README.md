@@ -49,7 +49,13 @@ runtime 'io.opencensus:opencensus-impl:0.19.0'
 ```java
 public class MyMainClass {
   public static void main(String[] args) throws Exception {
-    DatadogTraceExporter.createAndRegister("http://localhost:8126/v0.3/traces", "myService", "web");
+
+    DatadogTraceConfiguration config = DatadogTraceConfiguration.builder()
+      .setAgentEndpoint("http://localhost:8126/v0.3/traces")
+      .setService("myService")
+      .setType("web")
+      .build();
+    DatadogTraceExporter.createAndRegister(config);
     // ...
   }
 }

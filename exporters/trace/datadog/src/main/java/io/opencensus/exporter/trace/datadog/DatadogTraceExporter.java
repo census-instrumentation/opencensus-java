@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkState;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
 import java.net.MalformedURLException;
-import java.net.URL;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
@@ -54,18 +53,20 @@ public final class DatadogTraceExporter {
    * Creates and registers the Datadog Trace exporter to the OpenCensus library. Only one Datadog
    * exporter can be registered at any point.
    *
-   * @param agentEndpoint URL for the Datadog agent.
-   * @param service Name of the service being traced.
-   * @param type Type of service being traced, eg web or db.
+   * @param configuration the {@code DatadogTraceConfiguration} used to create the exporter.
+   * @throws MalformedURLException if the agent URL is invalid.
    * @since 0.19
    */
-  public static void createAndRegister(
-      final String agentEndpoint, final String service, final String type)
+  public static void createAndRegister(DatadogTraceConfiguration configuration)
       throws MalformedURLException {
     synchronized (monitor) {
       checkState(handler == null, "Datadog exporter is already registered.");
-      final URL agentUrl = new URL(agentEndpoint);
-      handler = new DatadogExporterHandler(agentUrl, service, type);
+
+      String agentEndpoint = configuration.getAgentEndpoint();
+      String service = configuration.getService();
+      String type = configuration.getType();
+
+      handler = new DatadogExporterHandler(agentEndpoint, service, type);
       Tracing.getExportComponent().getSpanExporter().registerHandler(REGISTER_NAME, handler);
     }
   }
