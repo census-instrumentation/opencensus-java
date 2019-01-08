@@ -106,10 +106,8 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
     return result;
   }
 
-  private static long timestampToNanos(@Nullable final Timestamp timestamp) {
-    return (timestamp == null)
-        ? System.currentTimeMillis() * 1000 * 1000
-        : TimeUnit.SECONDS.toNanos(timestamp.getSeconds()) + timestamp.getNanos();
+  private static long timestampToNanos(final Timestamp timestamp) {
+    return TimeUnit.SECONDS.toNanos(timestamp.getSeconds()) + timestamp.getNanos();
   }
 
   private static Integer errorCode(@Nullable final Status status) {
@@ -126,7 +124,9 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
       SpanContext sc = sd.getContext();
 
       final long startTime = timestampToNanos(sd.getStartTimestamp());
-      final long endTime = timestampToNanos(sd.getEndTimestamp());
+      final Timestamp endTimestamp =
+          Optional.ofNullable(sd.getEndTimestamp()).orElseGet(() -> Tracing.getClock().now());
+      final long endTime = timestampToNanos(endTimestamp);
       final long duration = endTime - startTime;
 
       final Long parentId =
