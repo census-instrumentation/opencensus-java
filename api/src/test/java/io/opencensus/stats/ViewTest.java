@@ -56,7 +56,7 @@ public final class ViewTest {
                 TagKey.create("ab"), TagKey.create("a"), TagKey.create("A"), TagKey.create("b")));
     assertThat(view.getColumns())
         .containsExactly(
-            TagKey.create("A"), TagKey.create("a"), TagKey.create("ab"), TagKey.create("b"))
+            TagKey.create("a"), TagKey.create("A"), TagKey.create("ab"), TagKey.create("b"))
         .inOrder();
   }
 

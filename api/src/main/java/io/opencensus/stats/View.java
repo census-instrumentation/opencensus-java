@@ -48,7 +48,7 @@ public abstract class View {
       new Comparator<TagKey>() {
         @Override
         public int compare(TagKey key1, TagKey key2) {
-          return key1.getName().compareTo(key2.getName());
+          return key1.getName().compareToIgnoreCase(key2.getName());
         }
       };
 
