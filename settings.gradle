@@ -7,6 +7,7 @@ include ":opencensus-impl"
 include ":opencensus-testing"
 include ":opencensus-exporter-metrics-ocagent"
 include ":opencensus-exporter-metrics-util"
+include ":opencensus-exporter-trace-datadog"
 include ":opencensus-exporter-trace-instana"
 include ":opencensus-exporter-trace-logging"
 include ":opencensus-exporter-trace-ocagent"
@@ -88,4 +89,6 @@ if (JavaVersion.current().isJava8Compatible()) {
     project(':opencensus-benchmarks').projectDir = "$rootDir/benchmarks" as File
     project(':opencensus-contrib-zpages').projectDir = "$rootDir/contrib/zpages" as File
     project(':opencensus-contrib-dropwizard5').projectDir = "$rootDir/contrib/dropwizard5" as File
+    project(':opencensus-exporter-trace-datadog').projectDir =
+        "$rootDir/exporters/trace/datadog" as File
 }
