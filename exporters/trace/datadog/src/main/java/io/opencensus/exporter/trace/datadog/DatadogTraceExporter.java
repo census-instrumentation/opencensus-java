@@ -31,7 +31,12 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * <pre>{@code
  * public static void main(String[] args) {
- *   DatadogTraceExporter.createAndRegister("http://localhost:8126/v0.3/traces", "myService", "web");
+ *   DatadogTraceConfiguration config = DatadogTraceConfiguration.builder()
+ * .setAgentEndpoint("http://localhost:8126/v0.3/traces")
+ * .setService("myService")
+ * .setType("web")
+ * .build();
+ * DatadogTraceExporter.createAndRegister(config);
  *   ... // Do work.
  * }
  * }</pre>
@@ -66,8 +71,12 @@ public final class DatadogTraceExporter {
       String service = configuration.getService();
       String type = configuration.getType();
 
-      handler = new DatadogExporterHandler(agentEndpoint, service, type);
-      Tracing.getExportComponent().getSpanExporter().registerHandler(REGISTER_NAME, handler);
+      final DatadogExporterHandler exporterHandler =
+          new DatadogExporterHandler(agentEndpoint, service, type);
+      handler = exporterHandler;
+      Tracing.getExportComponent()
+          .getSpanExporter()
+          .registerHandler(REGISTER_NAME, exporterHandler);
     }
   }
 
