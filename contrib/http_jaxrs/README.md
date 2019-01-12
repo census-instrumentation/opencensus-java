@@ -31,6 +31,45 @@ compile 'io.opencensus:opencensus-api:0.19.0'
 compile 'io.opencensus:opencensus-contrib-http-jaxrs:0.19.0'
 ```
 
+### Usage
+
+#### Container Filter
+
+The container filter should be added to the JAX-RS `Application` class and endpoints should be annotated
+with `@Metrics` annotation.
+
+```java
+class MyApplication extends Application {
+  @Override
+  public Set<Class<?>> getClasses() {
+      Set<Class<?>> providers = new HashSet<>(super.getClasses());
+      providers.add(JaxrsContainerFilter.class);
+      return providers;
+  }
+}
+```
+```java
+@Metrics
+@Path("/resource")
+class MyResource {
+  @GET
+  public Response resource() {
+    ...
+  }
+}
+```
+
+The annotation may also be applied on method level.
+
+#### Client Filter
+
+Filter should be added to the `WebTarget` instance when using JAX-RS as client.
+
+```java
+WebTarget target = ClientBuilder.newClient().target("endpoint");
+target.register(JaxrsClientFilter.class);
+```
+
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/hxthmpkxar4jq4be/branch/master?svg=true
