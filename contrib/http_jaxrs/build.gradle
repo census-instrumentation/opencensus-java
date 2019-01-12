@@ -5,8 +5,8 @@ plugins {
 description = 'OpenCensus Http Servlet Plugin'
 
 [compileJava, compileTestJava].each() {
-    it.sourceCompatibility = 1.6
-    it.targetCompatibility = 1.6
+    it.sourceCompatibility = 1.8
+    it.targetCompatibility = 1.8
 }
 
 dependencies {
@@ -16,6 +16,9 @@ dependencies {
     // Will be provided from elsewhere at runtime
     compileOnly('javax.ws.rs:javax.ws.rs-api:2.1')
     compileOnly('javax.annotation:javax.annotation-api:1.2')
+
+    testCompile('javax.ws.rs:javax.ws.rs-api:2.1')
+    testCompile('javax.annotation:javax.annotation-api:1.2')
 
     signature "org.codehaus.mojo.signature:java17:1.0@signature"
 }
