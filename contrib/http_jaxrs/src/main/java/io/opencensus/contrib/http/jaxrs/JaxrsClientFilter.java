@@ -41,10 +41,8 @@ public class JaxrsClientFilter implements ClientRequestFilter, ClientResponseFil
 
   @Override
   public void filter(ClientRequestContext requestContext) throws IOException {
-    // get hold of parent span
     HttpRequestContext context = handler.handleStart(null, requestContext, requestContext);
     requestContext.setProperty(OPENCENSUS_CONTEXT, context);
-
   }
 
   @Override
