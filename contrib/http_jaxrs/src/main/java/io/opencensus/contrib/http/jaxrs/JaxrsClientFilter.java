@@ -31,7 +31,7 @@ public class JaxrsClientFilter implements ClientRequestFilter, ClientResponseFil
   private final HttpClientHandler<ClientRequestContext, ClientResponseContext, ClientRequestContext> handler;
 
   public JaxrsClientFilter() {
-    handler = new HttpClientHandler<ClientRequestContext, ClientResponseContext, ClientRequestContext>(
+    handler = new HttpClientHandler<>(
         Tracing.getTracer(),
         new JaxrsClientExtractor(),
         Tracing.getPropagationComponent().getTraceContextFormat(),
