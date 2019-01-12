@@ -17,7 +17,6 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.Status;
 import java.lang.reflect.Constructor;
 import java.net.URI;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 import javax.ws.rs.client.ClientRequestContext;
@@ -38,7 +37,7 @@ public class JaxrsClientFilterTest {
   }
 
   @Test
-  public void testResponseFilter() throws Exception{
+  public void testResponseFilter() throws Exception {
     Span span = new FakeSpan(SpanContext.INVALID, null);
     TagContext tagContext = mock(TagContext.class);
 
@@ -55,40 +54,51 @@ public class JaxrsClientFilterTest {
     verify(responseContext, times(2)).getStatus();
   }
 
-  static HttpRequestContext createHttpRequestContext(Span span, TagContext tagContext) throws Exception {
-    Constructor<HttpRequestContext> constructor = HttpRequestContext.class.getDeclaredConstructor(Span.class, TagContext.class);
+  static HttpRequestContext createHttpRequestContext(Span span, TagContext tagContext)
+      throws Exception {
+    Constructor<HttpRequestContext> constructor = HttpRequestContext.class
+        .getDeclaredConstructor(Span.class, TagContext.class);
     constructor.setAccessible(true);
     return constructor.newInstance(span, tagContext);
   }
 
   static class FakeSpan extends Span {
+
     public FakeSpan(SpanContext context, EnumSet<Options> options) {
       super(context, options);
     }
 
     @Override
-    public void putAttribute(String key, AttributeValue value) {}
+    public void putAttribute(String key, AttributeValue value) {
+    }
 
     @Override
-    public void putAttributes(Map<String, AttributeValue> attributes) {}
+    public void putAttributes(Map<String, AttributeValue> attributes) {
+    }
 
     @Override
-    public void addAnnotation(String description, Map<String, AttributeValue> attributes) {}
+    public void addAnnotation(String description, Map<String, AttributeValue> attributes) {
+    }
 
     @Override
-    public void addAnnotation(Annotation annotation) {}
+    public void addAnnotation(Annotation annotation) {
+    }
 
     @Override
-    public void addMessageEvent(MessageEvent messageEvent) {}
+    public void addMessageEvent(MessageEvent messageEvent) {
+    }
 
     @Override
-    public void addLink(Link link) {}
+    public void addLink(Link link) {
+    }
 
     @Override
-    public void setStatus(Status status) {}
+    public void setStatus(Status status) {
+    }
 
     @Override
-    public void end(EndSpanOptions options) {}
+    public void end(EndSpanOptions options) {
+    }
   }
 
 }
