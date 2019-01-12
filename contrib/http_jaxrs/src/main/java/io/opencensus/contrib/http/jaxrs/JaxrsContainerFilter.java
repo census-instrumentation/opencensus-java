@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.http.jaxrs;
 
+import io.opencensus.common.Scope;
 import io.opencensus.contrib.http.HttpExtractor;
 import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.contrib.http.HttpServerHandler;
@@ -23,6 +24,8 @@ import io.opencensus.trace.Tracing;
 import io.opencensus.trace.propagation.TextFormat;
 import io.opencensus.trace.propagation.TextFormat.Getter;
 import java.io.IOException;
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
@@ -31,14 +34,18 @@ import javax.ws.rs.ext.Provider;
 
 /**
  * JAX-RS request and response filter to provide instrumentation of JAX-RS based endpoint with
- * OpenCensus.
+ * OpenCensus. Filter will instrument any endpoint marked with the {@link Metrics} annotation.
+ * Filter will also start a scoped span so that child spans may be added.
  *
  * @since 0.19
  */
+@Metrics
 @Provider
+@Priority(Priorities.USER - 100)
 public class JaxrsContainerFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
   private static final String CONTEXT_PROPERTY = "opencensus.context";
+  private static final String SPAN_PROPERTY = "opencensus.span";
   private static final Getter<ContainerRequestContext> GETTER = new Getter<ContainerRequestContext>() {
     @Override
     public String get(ContainerRequestContext request, String key) {
@@ -86,17 +93,22 @@ public class JaxrsContainerFilter implements ContainerRequestFilter, ContainerRe
     if (requestContext.getLength() > 0) {
       handler.handleMessageReceived(context, requestContext.getLength());
     }
+    requestContext.setProperty(SPAN_PROPERTY, Tracing.getTracer().withSpan(handler.getSpanFromContext(context)));
   }
 
   @Override
   public void filter(ContainerRequestContext requestContext,
       ContainerResponseContext responseContext) throws IOException {
-    if (requestContext.getProperty(CONTEXT_PROPERTY) == null) {
+    HttpRequestContext context = (HttpRequestContext) requestContext.getProperty(CONTEXT_PROPERTY);
+    if (context == null) {
       // JAX-RS response filters are always invoked - we only want to record something if
       // request came through this filter
       return;
     }
-    HttpRequestContext context = (HttpRequestContext) requestContext.getProperty(CONTEXT_PROPERTY);
+    Scope scope = (Scope) requestContext.getProperty(SPAN_PROPERTY);
+    if (scope != null) {
+      scope.close();
+    }
     if (responseContext.getLength() > 0) {
       handler.handleMessageSent(context, responseContext.getLength());
     }
