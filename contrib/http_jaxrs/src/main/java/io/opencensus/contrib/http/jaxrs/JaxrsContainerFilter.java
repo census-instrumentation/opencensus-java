@@ -46,59 +46,66 @@ public class JaxrsContainerFilter implements ContainerRequestFilter, ContainerRe
 
   private static final String CONTEXT_PROPERTY = "opencensus.context";
   private static final String SPAN_PROPERTY = "opencensus.span";
-  private static final Getter<ContainerRequestContext> GETTER = new Getter<ContainerRequestContext>() {
-    @Override
-    public String get(ContainerRequestContext request, String key) {
-      return request.getHeaderString(key);
-    }
-  };
+  private static final Getter<ContainerRequestContext> GETTER =
+      new Getter<ContainerRequestContext>() {
+        @Override
+        public String get(ContainerRequestContext request, String key) {
+          return request.getHeaderString(key);
+        }
+      };
 
-  private final HttpServerHandler<ContainerRequestContext, ContainerResponseContext, ContainerRequestContext> handler;
+  private final HttpServerHandler<
+          ContainerRequestContext, ContainerResponseContext, ContainerRequestContext>
+      handler;
 
   /**
    * Default constructor construct new instance with {@link JaxrsContainerExtractor}, {@link
-   * Tracing#getPropagationComponent()#getTraceContextFormat()} and as public endpoint.
+   * io.opencensus.trace.propagation.PropagationComponent#getTraceContextFormat()} and as public
+   * endpoint.
    *
    * @see #JaxrsContainerFilter(HttpExtractor, TextFormat, Boolean)
    */
   public JaxrsContainerFilter() {
-    this(new JaxrsContainerExtractor(), Tracing.getPropagationComponent().getTraceContextFormat(),
-        true);
+    this(
+        new JaxrsContainerExtractor(),
+        Tracing.getPropagationComponent().getTraceContextFormat(),
+        /* publicEndpoint= */ true);
   }
 
   /**
    * Construct instance with custom configuration.
    *
    * @param extractor the {@code HttpExtractor} used to extract information from the
-   * request/response.
+   *     request/response.
    * @param propagationFormat the {@code TextFormat} used in HTTP propagation.
    * @param publicEndpoint set to true for publicly accessible HTTP(S) server. If true then incoming
-   * tracecontext will be added as a link instead of as a parent.
+   *     tracecontext will be added as a link instead of as a parent.
    */
   public JaxrsContainerFilter(
       HttpExtractor<ContainerRequestContext, ContainerResponseContext> extractor,
-      TextFormat propagationFormat, Boolean publicEndpoint) {
-    this.handler = new HttpServerHandler<ContainerRequestContext, ContainerResponseContext, ContainerRequestContext>(
-        Tracing.getTracer(),
-        extractor,
-        propagationFormat,
-        GETTER,
-        publicEndpoint);
+      TextFormat propagationFormat,
+      Boolean publicEndpoint) {
+    this.handler =
+        new HttpServerHandler<>(
+            Tracing.getTracer(), extractor, propagationFormat, GETTER, publicEndpoint);
   }
 
   @Override
+  @SuppressWarnings("MustBeClosedChecker") // Close will happen in response filter method
   public void filter(ContainerRequestContext requestContext) throws IOException {
     HttpRequestContext context = handler.handleStart(requestContext, requestContext);
     requestContext.setProperty(CONTEXT_PROPERTY, context);
     if (requestContext.getLength() > 0) {
       handler.handleMessageReceived(context, requestContext.getLength());
     }
-    requestContext.setProperty(SPAN_PROPERTY, Tracing.getTracer().withSpan(handler.getSpanFromContext(context)));
+    requestContext.setProperty(
+        SPAN_PROPERTY, Tracing.getTracer().withSpan(handler.getSpanFromContext(context)));
   }
 
   @Override
-  public void filter(ContainerRequestContext requestContext,
-      ContainerResponseContext responseContext) throws IOException {
+  public void filter(
+      ContainerRequestContext requestContext, ContainerResponseContext responseContext)
+      throws IOException {
     HttpRequestContext context = (HttpRequestContext) requestContext.getProperty(CONTEXT_PROPERTY);
     if (context == null) {
       // JAX-RS response filters are always invoked - we only want to record something if

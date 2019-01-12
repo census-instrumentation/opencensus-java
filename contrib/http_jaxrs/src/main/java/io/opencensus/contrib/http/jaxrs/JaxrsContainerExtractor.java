@@ -27,8 +27,8 @@ import javax.ws.rs.container.ContainerResponseContext;
  *
  * @since 0.19
  */
-public class JaxrsContainerExtractor extends
-    HttpExtractor<ContainerRequestContext, ContainerResponseContext> {
+public class JaxrsContainerExtractor
+    extends HttpExtractor<ContainerRequestContext, ContainerResponseContext> {
 
   @Nullable
   @Override

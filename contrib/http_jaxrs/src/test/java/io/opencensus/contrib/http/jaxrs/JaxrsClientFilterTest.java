@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019, OpenCensus Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.opencensus.contrib.http.jaxrs;
 
 import static org.mockito.Mockito.mock;
@@ -56,8 +72,8 @@ public class JaxrsClientFilterTest {
 
   static HttpRequestContext createHttpRequestContext(Span span, TagContext tagContext)
       throws Exception {
-    Constructor<HttpRequestContext> constructor = HttpRequestContext.class
-        .getDeclaredConstructor(Span.class, TagContext.class);
+    Constructor<HttpRequestContext> constructor =
+        HttpRequestContext.class.getDeclaredConstructor(Span.class, TagContext.class);
     constructor.setAccessible(true);
     return constructor.newInstance(span, tagContext);
   }
@@ -69,36 +85,27 @@ public class JaxrsClientFilterTest {
     }
 
     @Override
-    public void putAttribute(String key, AttributeValue value) {
-    }
+    public void putAttribute(String key, AttributeValue value) {}
 
     @Override
-    public void putAttributes(Map<String, AttributeValue> attributes) {
-    }
+    public void putAttributes(Map<String, AttributeValue> attributes) {}
 
     @Override
-    public void addAnnotation(String description, Map<String, AttributeValue> attributes) {
-    }
+    public void addAnnotation(String description, Map<String, AttributeValue> attributes) {}
 
     @Override
-    public void addAnnotation(Annotation annotation) {
-    }
+    public void addAnnotation(Annotation annotation) {}
 
     @Override
-    public void addMessageEvent(MessageEvent messageEvent) {
-    }
+    public void addMessageEvent(MessageEvent messageEvent) {}
 
     @Override
-    public void addLink(Link link) {
-    }
+    public void addLink(Link link) {}
 
     @Override
-    public void setStatus(Status status) {
-    }
+    public void setStatus(Status status) {}
 
     @Override
-    public void end(EndSpanOptions options) {
-    }
+    public void end(EndSpanOptions options) {}
   }
-
 }
