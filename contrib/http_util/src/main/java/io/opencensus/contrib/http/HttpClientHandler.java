@@ -25,7 +25,6 @@ import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_S
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.contrib.http.util.HttpTraceUtil;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagContext;
@@ -158,15 +157,14 @@ public class HttpClientHandler<
     double requestLatency = NANOSECONDS.toMillis(System.nanoTime() - context.requestStartTime);
 
     String methodStr = request == null ? "" : extractor.getMethod(request);
+    int status = extractor.getStatusCode(response);
     TagContext startCtx =
         tagger
             .toBuilder(context.tagContext)
             .put(HTTP_CLIENT_METHOD, TagValue.create(methodStr == null ? "" : methodStr))
             .put(
                 HTTP_CLIENT_STATUS,
-                TagValue.create(
-                    HttpTraceUtil.parseResponseStatus(extractor.getStatusCode(response), error)
-                        .toString()))
+                TagValue.create(status == 0 ? "error" : Integer.toString(status)))
             .build();
 
     statsRecorder
