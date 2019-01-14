@@ -72,6 +72,8 @@ public class JaxrsContainerExtractor
     return response != null ? response.getStatus() : 0;
   }
 
+  @Nullable
+  @SuppressWarnings("dereference.of.nullable") // The annotations are checked
   private static String resolveRoute(ResourceInfo info) {
     StringBuilder path = new StringBuilder();
 

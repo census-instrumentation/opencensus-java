@@ -60,7 +60,9 @@ public class JaxrsContainerFilter implements ContainerRequestFilter, ContainerRe
           ExtendedContainerRequest, ContainerResponseContext, ContainerRequestContext>
       handler;
 
-  @Context private ResourceInfo info;
+  @SuppressWarnings("initialization.fields.uninitialized") // Will be injected by JAX-RS
+  @Context
+  private ResourceInfo info;
 
   /**
    * Default constructor construct new instance with {@link JaxrsContainerExtractor}, {@link
