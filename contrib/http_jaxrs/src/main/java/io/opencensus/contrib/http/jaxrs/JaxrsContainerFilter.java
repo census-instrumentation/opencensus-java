@@ -60,8 +60,7 @@ public class JaxrsContainerFilter implements ContainerRequestFilter, ContainerRe
           ExtendedContainerRequest, ContainerResponseContext, ContainerRequestContext>
       handler;
 
-  @Context
-  private ResourceInfo info;
+  @Context private ResourceInfo info;
 
   /**
    * Default constructor construct new instance with {@link JaxrsContainerExtractor}, {@link

@@ -17,12 +17,13 @@
 package io.opencensus.contrib.http.jaxrs;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.util.Collections;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ResourceInfo;
@@ -32,7 +33,8 @@ import org.junit.Test;
 public class JaxrsContainerExtractorTest {
 
   @Test
-  public void testExtraction() {
+  @SuppressWarnings("unchecked")
+  public void testExtraction() throws Exception {
     UriInfo uriInfo = mock(UriInfo.class);
     when(uriInfo.getPath()).thenReturn("mypath");
     when(uriInfo.getMatchedURIs()).thenReturn(Collections.singletonList("/resource/{route}"));
@@ -45,6 +47,8 @@ public class JaxrsContainerExtractorTest {
     when(requestContext.getHeaderString("user-agent")).thenReturn("java/1.8");
 
     ResourceInfo info = mock(ResourceInfo.class);
+    when(info.getResourceClass()).thenReturn((Class) MyResource.class);
+    when(info.getResourceMethod()).thenReturn(MyResource.class.getMethod("route"));
 
     ExtendedContainerRequest extendedRequest = new ExtendedContainerRequest(requestContext, info);
 
@@ -55,10 +59,19 @@ public class JaxrsContainerExtractorTest {
     assertEquals("myhost", extractor.getHost(extendedRequest));
     assertEquals("GET", extractor.getMethod(extendedRequest));
     assertEquals("mypath", extractor.getPath(extendedRequest));
-    assertNull(extractor.getRoute(extendedRequest));
+    assertEquals("/resource/{route}", extractor.getRoute(extendedRequest));
     assertEquals("https://myhost/resource/1", extractor.getUrl(extendedRequest));
     assertEquals("java/1.8", extractor.getUserAgent(extendedRequest));
     assertEquals(200, extractor.getStatusCode(responseContext));
   }
 
+  @Path("/resource")
+  static class MyResource {
+
+    @GET
+    @Path("{route}")
+    public String route() {
+      return "OK";
+    }
+  }
 }

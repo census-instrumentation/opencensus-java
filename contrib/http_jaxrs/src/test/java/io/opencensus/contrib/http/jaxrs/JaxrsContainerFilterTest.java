@@ -31,12 +31,20 @@ import io.opencensus.trace.SpanContext;
 import java.util.Collections;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.UriInfo;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class JaxrsContainerFilterTest {
 
-  JaxrsContainerFilter filter = new JaxrsContainerFilter();
+  @Mock ResourceInfo info;
+
+  @InjectMocks JaxrsContainerFilter filter = new JaxrsContainerFilter();
 
   @Test
   public void testRequestFilter() throws Exception {
