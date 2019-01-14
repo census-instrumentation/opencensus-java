@@ -17,6 +17,7 @@
 package io.opencensus.contrib.http.jaxrs;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,10 +25,12 @@ import java.net.URI;
 import java.util.Collections;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.UriInfo;
 import org.junit.Test;
 
 public class JaxrsContainerExtractorTest {
+
   @Test
   public void testExtraction() {
     UriInfo uriInfo = mock(UriInfo.class);
@@ -41,16 +44,22 @@ public class JaxrsContainerExtractorTest {
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getHeaderString("user-agent")).thenReturn("java/1.8");
 
+    ResourceInfo info = mock(ResourceInfo.class);
+
+    ExtendedContainerRequest extendedRequest = new ExtendedContainerRequest(requestContext, info);
+
     ContainerResponseContext responseContext = mock(ContainerResponseContext.class);
     when(responseContext.getStatus()).thenReturn(200);
 
     JaxrsContainerExtractor extractor = new JaxrsContainerExtractor();
-    assertEquals("myhost", extractor.getHost(requestContext));
-    assertEquals("GET", extractor.getMethod(requestContext));
-    assertEquals("mypath", extractor.getPath(requestContext));
-    assertEquals("/resource/{route}", extractor.getRoute(requestContext));
-    assertEquals("https://myhost/resource/1", extractor.getUrl(requestContext));
-    assertEquals("java/1.8", extractor.getUserAgent(requestContext));
+    assertEquals("myhost", extractor.getHost(extendedRequest));
+    assertEquals("GET", extractor.getMethod(extendedRequest));
+    assertEquals("mypath", extractor.getPath(extendedRequest));
+    assertNull(extractor.getRoute(extendedRequest));
+    assertEquals("https://myhost/resource/1", extractor.getUrl(extendedRequest));
+    assertEquals("java/1.8", extractor.getUserAgent(extendedRequest));
     assertEquals(200, extractor.getStatusCode(responseContext));
   }
+
+}
 }

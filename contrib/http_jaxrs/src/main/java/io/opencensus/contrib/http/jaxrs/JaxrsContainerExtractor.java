@@ -17,10 +17,11 @@
 package io.opencensus.contrib.http.jaxrs;
 
 import io.opencensus.contrib.http.HttpExtractor;
-import java.util.List;
+import java.lang.reflect.Method;
 import javax.annotation.Nullable;
-import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ResourceInfo;
 
 /**
  * Extracts information from JAX-RS container request and response.
@@ -28,47 +29,74 @@ import javax.ws.rs.container.ContainerResponseContext;
  * @since 0.19
  */
 public class JaxrsContainerExtractor
-    extends HttpExtractor<ContainerRequestContext, ContainerResponseContext> {
+    extends HttpExtractor<ExtendedContainerRequest, ContainerResponseContext> {
 
   @Nullable
   @Override
-  public String getRoute(ContainerRequestContext request) {
-    List<String> uris = request.getUriInfo().getMatchedURIs();
-    return uris.isEmpty() ? null : uris.get(0);
+  public String getRoute(ExtendedContainerRequest request) {
+    return resolveRoute(request.getResourceInfo());
   }
 
   @Nullable
   @Override
-  public String getUrl(ContainerRequestContext request) {
-    return request.getUriInfo().getRequestUri().toString();
+  public String getUrl(ExtendedContainerRequest request) {
+    return request.getRequestContext().getUriInfo().getRequestUri().toString();
   }
 
   @Nullable
   @Override
-  public String getHost(ContainerRequestContext request) {
-    return request.getHeaderString("host");
+  public String getHost(ExtendedContainerRequest request) {
+    return request.getRequestContext().getHeaderString("host");
   }
 
   @Nullable
   @Override
-  public String getMethod(ContainerRequestContext request) {
-    return request.getMethod();
+  public String getMethod(ExtendedContainerRequest request) {
+    return request.getRequestContext().getMethod();
   }
 
   @Nullable
   @Override
-  public String getPath(ContainerRequestContext request) {
-    return request.getUriInfo().getPath();
+  public String getPath(ExtendedContainerRequest request) {
+    return request.getRequestContext().getUriInfo().getPath();
   }
 
   @Nullable
   @Override
-  public String getUserAgent(ContainerRequestContext request) {
-    return request.getHeaderString("user-agent");
+  public String getUserAgent(ExtendedContainerRequest request) {
+    return request.getRequestContext().getHeaderString("user-agent");
   }
 
   @Override
   public int getStatusCode(@Nullable ContainerResponseContext response) {
     return response != null ? response.getStatus() : 0;
+  }
+
+  private static String resolveRoute(ResourceInfo info) {
+    StringBuilder path = new StringBuilder();
+
+    Class<?> c = info.getResourceClass();
+    if (c != null && c.isAnnotationPresent(Path.class)) {
+      Path p = c.getAnnotation(Path.class);
+      path.append(p.value());
+    }
+
+    Method m = info.getResourceMethod();
+    if (m != null && m.isAnnotationPresent(Path.class)) {
+      Path p = m.getAnnotation(Path.class);
+      if (!endsWithSlash(path) && !p.value().startsWith("/")) {
+        path.append("/");
+      }
+      if (endsWithSlash(path) && p.value().startsWith("/")) {
+        path.deleteCharAt(path.lastIndexOf("/"));
+      }
+      path.append(p.value());
+    }
+
+    return path.length() == 0 ? null : path.toString();
+  }
+
+  private static boolean endsWithSlash(StringBuilder path) {
+    return path.lastIndexOf("/") == (path.length() - 1);
   }
 }

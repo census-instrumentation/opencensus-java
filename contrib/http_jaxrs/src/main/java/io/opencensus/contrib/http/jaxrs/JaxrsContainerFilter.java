@@ -30,6 +30,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.Provider;
 
 /**
@@ -55,8 +57,11 @@ public class JaxrsContainerFilter implements ContainerRequestFilter, ContainerRe
       };
 
   private final HttpServerHandler<
-          ContainerRequestContext, ContainerResponseContext, ContainerRequestContext>
+          ExtendedContainerRequest, ContainerResponseContext, ContainerRequestContext>
       handler;
+
+  @Context
+  private ResourceInfo info;
 
   /**
    * Default constructor construct new instance with {@link JaxrsContainerExtractor}, {@link
@@ -82,7 +87,7 @@ public class JaxrsContainerFilter implements ContainerRequestFilter, ContainerRe
    *     tracecontext will be added as a link instead of as a parent.
    */
   public JaxrsContainerFilter(
-      HttpExtractor<ContainerRequestContext, ContainerResponseContext> extractor,
+      HttpExtractor<ExtendedContainerRequest, ContainerResponseContext> extractor,
       TextFormat propagationFormat,
       Boolean publicEndpoint) {
     this.handler =
@@ -93,7 +98,8 @@ public class JaxrsContainerFilter implements ContainerRequestFilter, ContainerRe
   @Override
   @SuppressWarnings("MustBeClosedChecker") // Close will happen in response filter method
   public void filter(ContainerRequestContext requestContext) throws IOException {
-    HttpRequestContext context = handler.handleStart(requestContext, requestContext);
+    ExtendedContainerRequest extendedRequest = new ExtendedContainerRequest(requestContext, info);
+    HttpRequestContext context = handler.handleStart(requestContext, extendedRequest);
     requestContext.setProperty(CONTEXT_PROPERTY, context);
     if (requestContext.getLength() > 0) {
       handler.handleMessageReceived(context, requestContext.getLength());
@@ -119,6 +125,7 @@ public class JaxrsContainerFilter implements ContainerRequestFilter, ContainerRe
     if (responseContext.getLength() > 0) {
       handler.handleMessageSent(context, responseContext.getLength());
     }
-    handler.handleEnd(context, requestContext, responseContext, null);
+    ExtendedContainerRequest extendedRequest = new ExtendedContainerRequest(requestContext, info);
+    handler.handleEnd(context, extendedRequest, responseContext, null);
   }
 }
