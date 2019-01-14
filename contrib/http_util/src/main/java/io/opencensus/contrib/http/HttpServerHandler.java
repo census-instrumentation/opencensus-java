@@ -26,7 +26,6 @@ import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_S
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.contrib.http.util.HttpTraceUtil;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagContext;
@@ -178,7 +177,8 @@ public class HttpServerHandler<
             .toBuilder(context.tagContext)
             .put(HTTP_SERVER_METHOD, TagValue.create(methodStr == null ? "" : methodStr))
             .put(HTTP_SERVER_ROUTE, TagValue.create(routeStr == null ? "" : routeStr))
-            .put(HTTP_SERVER_STATUS,
+            .put(
+                HTTP_SERVER_STATUS,
                 TagValue.create(status == 0 ? "error" : Integer.toString(status)))
             .build();
 
