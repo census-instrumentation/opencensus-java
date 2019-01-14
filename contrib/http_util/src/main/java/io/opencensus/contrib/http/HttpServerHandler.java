@@ -172,16 +172,14 @@ public class HttpServerHandler<
 
     String methodStr = extractor.getMethod(request);
     String routeStr = extractor.getRoute(request);
+    int status = extractor.getStatusCode(response);
     TagContext startCtx =
         tagger
             .toBuilder(context.tagContext)
             .put(HTTP_SERVER_METHOD, TagValue.create(methodStr == null ? "" : methodStr))
             .put(HTTP_SERVER_ROUTE, TagValue.create(routeStr == null ? "" : routeStr))
-            .put(
-                HTTP_SERVER_STATUS,
-                TagValue.create(
-                    HttpTraceUtil.parseResponseStatus(extractor.getStatusCode(response), error)
-                        .toString()))
+            .put(HTTP_SERVER_STATUS,
+                TagValue.create(status == 0 ? "error" : Integer.toString(status)))
             .build();
 
     statsRecorder
