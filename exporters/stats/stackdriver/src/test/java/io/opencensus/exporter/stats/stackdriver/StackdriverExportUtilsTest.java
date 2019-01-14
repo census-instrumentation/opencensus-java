@@ -22,8 +22,8 @@ import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.SN
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.STACKDRIVER_PROJECT_ID_KEY;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.SUMMARY_SUFFIX_COUNT;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.SUMMARY_SUFFIX_SUM;
-import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.CUSTOM_OPENCENSUS_DOMAIN;
-import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.DEFAULT_DISPLAY_NAME_PREFIX;
+import static io.opencensus.exporter.stats.stackdriver.Util.CUSTOM_OPENCENSUS_DOMAIN;
+import static io.opencensus.exporter.stats.stackdriver.Util.DEFAULT_DISPLAY_NAME_PREFIX;
 
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
