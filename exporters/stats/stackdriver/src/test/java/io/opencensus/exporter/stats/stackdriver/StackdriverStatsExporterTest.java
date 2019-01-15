@@ -67,6 +67,7 @@ public class StackdriverStatsExporterTest {
     StackdriverStatsConfiguration configuration =
         StackdriverStatsConfiguration.builder()
             .setCredentials(FAKE_CREDENTIALS)
+            .setProjectId(PROJECT_ID)
             .setExportInterval(NEG_ONE_SECOND)
             .build();
     thrown.expect(IllegalArgumentException.class);

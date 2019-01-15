@@ -66,8 +66,7 @@ public final class StackdriverStatsExporter {
   @Nullable
   private static StackdriverStatsExporter instance = null;
 
-  private static final String STACKDRIVER_EXPORTER_SPAN_NAME =
-      "ExportMetricsToStackdriverMonitoring";
+  private static final String EXPORTER_SPAN_NAME = "ExportMetricsToStackdriver";
 
   // See io.grpc.internal.GrpcUtil.USER_AGENT_KEY
   private static final String USER_AGENT_KEY = "user-agent";
@@ -82,11 +81,10 @@ public final class StackdriverStatsExporter {
 
   private final IntervalMetricReader intervalMetricReader;
 
-  @VisibleForTesting
-  StackdriverStatsExporter(
+  private StackdriverStatsExporter(
       String projectId,
       MetricServiceClient metricServiceClient,
-      @Nullable Duration exportInterval,
+      Duration exportInterval,
       MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix) {
     IntervalMetricReader.Options.Builder intervalMetricReaderOptionsBuilder =
@@ -106,7 +104,7 @@ public final class StackdriverStatsExporter {
                 MetricReader.Options.builder()
                     .setMetricProducerManager(
                         Metrics.getExportComponent().getMetricProducerManager())
-                    .setSpanName(STACKDRIVER_EXPORTER_SPAN_NAME)
+                    .setSpanName(EXPORTER_SPAN_NAME)
                     .build()),
             intervalMetricReaderOptionsBuilder.build());
   }
