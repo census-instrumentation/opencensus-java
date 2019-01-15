@@ -66,7 +66,8 @@ public final class StackdriverStatsExporter {
   @Nullable
   private static StackdriverStatsExporter instance = null;
 
-  private static final String STACKDRIVER_EXPORTER_SPAN_NAME = "ExportStatsToStackdriverMonitoring";
+  private static final String STACKDRIVER_EXPORTER_SPAN_NAME =
+      "ExportMetricsToStackdriverMonitoring";
 
   // See io.grpc.internal.GrpcUtil.USER_AGENT_KEY
   private static final String USER_AGENT_KEY = "user-agent";

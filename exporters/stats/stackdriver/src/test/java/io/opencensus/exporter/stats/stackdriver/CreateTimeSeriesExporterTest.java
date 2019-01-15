@@ -16,7 +16,6 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
-import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -38,6 +37,7 @@ import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.Value;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -64,12 +64,11 @@ public class CreateTimeSeriesExporterTest {
           METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, Type.CUMULATIVE_INT64, LABEL_KEY);
 
   private static final Value VALUE_LONG = Value.longValue(12345678);
-  private static final Timestamp TIMESTAMP = Timestamp.fromMillis(3000);
-  private static final Timestamp TIMESTAMP_2 = Timestamp.fromMillis(1000);
-  private static final Point POINT = Point.create(VALUE_LONG, TIMESTAMP);
+  private static final Point POINT = Point.create(VALUE_LONG, Timestamp.fromMillis(3000));
 
   private static final io.opencensus.metrics.export.TimeSeries CUMULATIVE_TIME_SERIES =
-      io.opencensus.metrics.export.TimeSeries.createWithOnePoint(LABEL_VALUE, POINT, TIMESTAMP_2);
+      io.opencensus.metrics.export.TimeSeries.createWithOnePoint(
+          LABEL_VALUE, POINT, Timestamp.fromMillis(1000));
 
   private static final Metric METRIC =
       Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR, CUMULATIVE_TIME_SERIES);
@@ -98,11 +97,6 @@ public class CreateTimeSeriesExporterTest {
   }
 
   @Test
-  public void testConstants() {
-    assertThat(CreateTimeSeriesExporter.MAX_BATCH_EXPORT_SIZE).isEqualTo(200);
-  }
-
-  @Test
   public void export() {
     CreateTimeSeriesExporter exporter =
         new CreateTimeSeriesExporter(
@@ -121,6 +115,20 @@ public class CreateTimeSeriesExporterTest {
                     .setName("projects/" + PROJECT_ID)
                     .addAllTimeSeries(timeSeries)
                     .build()));
+  }
+
+  @Test
+  public void splitInMultipleBatches() {
+    CreateTimeSeriesExporter exporter =
+        new CreateTimeSeriesExporter(
+            PROJECT_ID, new FakeMetricServiceClient(mockStub), DEFAULT_RESOURCE, null);
+    final int numExportedTimeSeries = 4 * StackdriverExportUtils.MAX_BATCH_EXPORT_SIZE;
+    ArrayList<Metric> exportedMetrics = new ArrayList<>(numExportedTimeSeries);
+    for (int i = 0; i < numExportedTimeSeries; i++) {
+      exportedMetrics.add(METRIC);
+    }
+    exporter.export(exportedMetrics);
+    verify(mockStub, times(4)).createTimeSeriesCallable();
   }
 
   @Test
