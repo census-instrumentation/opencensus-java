@@ -58,8 +58,8 @@ public class CreateMetricDescriptorExporter extends MetricExporter {
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
-    this.domain = Util.getDomain(metricNamePrefix);
-    this.displayNamePrefix = Util.getDisplayNamePrefix(metricNamePrefix);
+    this.domain = StackdriverExportUtils.getDomain(metricNamePrefix);
+    this.displayNamePrefix = StackdriverExportUtils.getDisplayNamePrefix(metricNamePrefix);
     this.nextExporter = nextExporter;
   }
 
@@ -106,13 +106,14 @@ public class CreateMetricDescriptorExporter extends MetricExporter {
               .toStatus()
               .withDescription(
                   "ApiException thrown when creating MetricDescriptor: "
-                      + Util.exceptionMessage(e)));
+                      + StackdriverExportUtils.exceptionMessage(e)));
       return false;
     } catch (Throwable e) {
       logger.log(Level.WARNING, "Exception thrown when creating MetricDescriptor.", e);
       span.setStatus(
           Status.UNKNOWN.withDescription(
-              "Exception thrown when creating MetricDescriptor: " + Util.exceptionMessage(e)));
+              "Exception thrown when creating MetricDescriptor: "
+                  + StackdriverExportUtils.exceptionMessage(e)));
       return false;
     }
   }

@@ -27,6 +27,7 @@ import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
 import com.google.cloud.MetadataConfig;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.Point;
@@ -72,6 +73,13 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
   @VisibleForTesting static final String STACKDRIVER_PROJECT_ID_KEY = "project_id";
+  @VisibleForTesting static final String DEFAULT_DISPLAY_NAME_PREFIX = "OpenCensus/";
+  @VisibleForTesting static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com/";
+
+  @VisibleForTesting
+  static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "opencensus/";
+  // Stackdriver Monitoring v3 only accepts up to 200 TimeSeries per CreateTimeSeries call.
+  @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 200;
   private static final String GCP_GKE_CONTAINER = "k8s_container";
   private static final String GCP_GCE_INSTANCE = "gce_instance";
   private static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
@@ -584,4 +592,33 @@ final class StackdriverExportUtils {
   }
 
   private StackdriverExportUtils() {}
+
+  static String exceptionMessage(Throwable e) {
+    return e.getMessage() != null ? e.getMessage() : e.getClass().getName();
+  }
+
+  static String getDomain(@javax.annotation.Nullable String metricNamePrefix) {
+    String domain;
+    if (Strings.isNullOrEmpty(metricNamePrefix)) {
+      domain = CUSTOM_OPENCENSUS_DOMAIN;
+    } else {
+      if (!metricNamePrefix.endsWith("/")) {
+        domain = metricNamePrefix + '/';
+      } else {
+        domain = metricNamePrefix;
+      }
+    }
+    return domain;
+  }
+
+  static String getDisplayNamePrefix(@javax.annotation.Nullable String metricNamePrefix) {
+    if (metricNamePrefix == null) {
+      return DEFAULT_DISPLAY_NAME_PREFIX;
+    } else {
+      if (!metricNamePrefix.endsWith("/") && !metricNamePrefix.isEmpty()) {
+        metricNamePrefix += '/';
+      }
+      return metricNamePrefix;
+    }
+  }
 }

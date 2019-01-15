@@ -16,10 +16,11 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.MAX_BATCH_EXPORT_SIZE;
+
 import com.google.api.MonitoredResource;
 import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
@@ -40,9 +41,6 @@ final class CreateTimeSeriesExporter extends MetricExporter {
   private static final Tracer tracer = Tracing.getTracer();
   private static final Logger logger = Logger.getLogger(CreateTimeSeriesExporter.class.getName());
 
-  // Stackdriver Monitoring v3 only accepts up to 200 TimeSeries per CreateTimeSeries call.
-  @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 200;
-
   private final ProjectName projectName;
   private final MetricServiceClient metricServiceClient;
   private final MonitoredResource monitoredResource;
@@ -56,7 +54,7 @@ final class CreateTimeSeriesExporter extends MetricExporter {
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.monitoredResource = monitoredResource;
-    this.domain = Util.getDomain(metricNamePrefix);
+    this.domain = StackdriverExportUtils.getDomain(metricNamePrefix);
   }
 
   @Override
@@ -85,12 +83,14 @@ final class CreateTimeSeriesExporter extends MetricExporter {
             Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name())
                 .toStatus()
                 .withDescription(
-                    "ApiException thrown when exporting TimeSeries: " + Util.exceptionMessage(e)));
+                    "ApiException thrown when exporting TimeSeries: "
+                        + StackdriverExportUtils.exceptionMessage(e)));
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
         span.setStatus(
             Status.UNKNOWN.withDescription(
-                "Exception thrown when exporting TimeSeries: " + Util.exceptionMessage(e)));
+                "Exception thrown when exporting TimeSeries: "
+                    + StackdriverExportUtils.exceptionMessage(e)));
       }
     }
   }

@@ -112,7 +112,7 @@ public class CreateTimeSeriesExporterTest {
 
     List<TimeSeries> timeSeries =
         StackdriverExportUtils.createTimeSeriesList(
-            METRIC, DEFAULT_RESOURCE, Util.CUSTOM_OPENCENSUS_DOMAIN);
+            METRIC, DEFAULT_RESOURCE, StackdriverExportUtils.CUSTOM_OPENCENSUS_DOMAIN);
 
     verify(mockCreateTimeSeriesCallable, times(1))
         .call(

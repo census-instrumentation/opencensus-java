@@ -17,13 +17,13 @@
 package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.CUSTOM_OPENCENSUS_DOMAIN;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_DISPLAY_NAME_PREFIX;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.PERCENTILE_LABEL_KEY;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.SNAPSHOT_SUFFIX_PERCENTILE;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.STACKDRIVER_PROJECT_ID_KEY;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.SUMMARY_SUFFIX_COUNT;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.SUMMARY_SUFFIX_SUM;
-import static io.opencensus.exporter.stats.stackdriver.Util.CUSTOM_OPENCENSUS_DOMAIN;
-import static io.opencensus.exporter.stats.stackdriver.Util.DEFAULT_DISPLAY_NAME_PREFIX;
 
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
@@ -183,6 +183,19 @@ public class StackdriverExportUtilsTest {
   private static final io.opencensus.metrics.export.Metric SUMMARY_METRIC_NULL_SUM =
       io.opencensus.metrics.export.Metric.createWithOneTimeSeries(
           SUMMARY_METRIC_DESCRIPTOR, SUMMARY_TIME_SERIES_NULL_SUM);
+
+  @Test
+  public void testConstants() {
+    assertThat(StackdriverExportUtils.OPENCENSUS_TASK).isEqualTo("opencensus_task");
+    assertThat(StackdriverExportUtils.OPENCENSUS_TASK_DESCRIPTION)
+        .isEqualTo("Opencensus task identifier");
+    assertThat(StackdriverExportUtils.STACKDRIVER_PROJECT_ID_KEY).isEqualTo("project_id");
+    assertThat(StackdriverExportUtils.MAX_BATCH_EXPORT_SIZE).isEqualTo(200);
+    assertThat(StackdriverExportUtils.CUSTOM_METRIC_DOMAIN).isEqualTo("custom.googleapis.com/");
+    assertThat(StackdriverExportUtils.CUSTOM_OPENCENSUS_DOMAIN)
+        .isEqualTo("custom.googleapis.com/opencensus/");
+    assertThat(StackdriverExportUtils.DEFAULT_DISPLAY_NAME_PREFIX).isEqualTo("OpenCensus/");
+  }
 
   @Test
   public void createLabelDescriptor() {
@@ -698,5 +711,28 @@ public class StackdriverExportUtilsTest {
     assertThat(monitoredResourceBuilder.getLabelsMap().size()).isEqualTo(4);
     assertThat(monitoredResourceBuilder.getLabelsMap())
         .containsExactlyEntriesIn(expectedResourceLabels);
+  }
+
+  @Test
+  public void getDomain() {
+    assertThat(StackdriverExportUtils.getDomain(null))
+        .isEqualTo("custom.googleapis.com/opencensus/");
+    assertThat(StackdriverExportUtils.getDomain("")).isEqualTo("custom.googleapis.com/opencensus/");
+    assertThat(StackdriverExportUtils.getDomain("custom.googleapis.com/myorg/"))
+        .isEqualTo("custom.googleapis.com/myorg/");
+    assertThat(StackdriverExportUtils.getDomain("external.googleapis.com/prometheus/"))
+        .isEqualTo("external.googleapis.com/prometheus/");
+    assertThat(StackdriverExportUtils.getDomain("myorg")).isEqualTo("myorg/");
+  }
+
+  @Test
+  public void getDisplayNamePrefix() {
+    assertThat(StackdriverExportUtils.getDisplayNamePrefix(null)).isEqualTo("OpenCensus/");
+    assertThat(StackdriverExportUtils.getDisplayNamePrefix("")).isEqualTo("");
+    assertThat(StackdriverExportUtils.getDisplayNamePrefix("custom.googleapis.com/myorg/"))
+        .isEqualTo("custom.googleapis.com/myorg/");
+    assertThat(StackdriverExportUtils.getDisplayNamePrefix("external.googleapis.com/prometheus/"))
+        .isEqualTo("external.googleapis.com/prometheus/");
+    assertThat(StackdriverExportUtils.getDisplayNamePrefix("myorg")).isEqualTo("myorg/");
   }
 }

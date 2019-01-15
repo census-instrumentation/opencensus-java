@@ -17,8 +17,8 @@
 package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.opencensus.exporter.stats.stackdriver.Util.CUSTOM_OPENCENSUS_DOMAIN;
-import static io.opencensus.exporter.stats.stackdriver.Util.DEFAULT_DISPLAY_NAME_PREFIX;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.CUSTOM_OPENCENSUS_DOMAIN;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_DISPLAY_NAME_PREFIX;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
