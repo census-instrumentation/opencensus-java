@@ -16,18 +16,16 @@
 
 package io.opencensus.exporter.stats.signalfx;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.signalfx.metrics.errorhandler.MetricError;
 import com.signalfx.metrics.errorhandler.OnSendErrorHandler;
 import com.signalfx.metrics.flush.AggregateMetricSender;
 import com.signalfx.metrics.flush.AggregateMetricSender.Session;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.DataPoint;
-import io.opencensus.common.Duration;
+import io.opencensus.exporter.metrics.util.MetricExporter;
 import io.opencensus.metrics.export.Metric;
-import io.opencensus.metrics.export.MetricProducer;
-import io.opencensus.metrics.export.MetricProducerManager;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,10 +34,9 @@ import java.util.logging.Logger;
  *
  * <p>{@code SignalFxStatsExporterWorkerThread} is a daemon {@code Thread}
  */
-final class SignalFxStatsExporterWorkerThread extends Thread {
+final class SignalFxMetricExporter extends MetricExporter {
 
-  private static final Logger logger =
-      Logger.getLogger(SignalFxStatsExporterWorkerThread.class.getName());
+  private static final Logger logger = Logger.getLogger(SignalFxMetricExporter.class.getName());
 
   private static final OnSendErrorHandler ERROR_HANDLER =
       new OnSendErrorHandler() {
@@ -49,55 +46,30 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
         }
       };
 
-  private final long intervalMs;
-  private final MetricProducerManager metricProducerManager;
   private final AggregateMetricSender sender;
 
-  SignalFxStatsExporterWorkerThread(
-      SignalFxMetricsSenderFactory factory,
-      URI endpoint,
-      String token,
-      Duration interval,
-      MetricProducerManager metricProducerManager) {
-    this.intervalMs = interval.toMillis();
-    this.metricProducerManager = metricProducerManager;
+  SignalFxMetricExporter(SignalFxMetricsSenderFactory factory, URI endpoint, String token) {
     this.sender = factory.create(endpoint, token, ERROR_HANDLER);
 
-    setDaemon(true);
-    setName(getClass().getSimpleName());
     logger.log(Level.FINE, "Initialized SignalFx exporter to {0}.", endpoint);
   }
 
-  @VisibleForTesting
-  void export() throws IOException {
+  @Override
+  public void export(Collection<Metric> metrics) {
     Session session = sender.createSession();
 
     try {
-      for (MetricProducer metricProducer : metricProducerManager.getAllMetricProducer()) {
-        for (Metric metric : metricProducer.getMetrics()) {
-          for (DataPoint datapoint : SignalFxSessionAdaptor.adapt(metric)) {
-            session.setDatapoint(datapoint);
-          }
+      for (Metric metric : metrics) {
+        for (DataPoint datapoint : SignalFxSessionAdaptor.adapt(metric)) {
+          session.setDatapoint(datapoint);
         }
       }
     } finally {
-      session.close();
-    }
-  }
-
-  @Override
-  public void run() {
-    while (true) {
       try {
-        export();
-        Thread.sleep(intervalMs);
-      } catch (InterruptedException ie) {
-        Thread.currentThread().interrupt();
-        break;
-      } catch (Throwable e) {
-        logger.log(Level.WARNING, "Exception thrown by the SignalFx stats exporter", e);
+        session.close();
+      } catch (IOException e) {
+        logger.log(Level.FINE, "Unable to close the session", e);
       }
     }
-    logger.log(Level.INFO, "SignalFx stats exporter stopped.");
   }
 }

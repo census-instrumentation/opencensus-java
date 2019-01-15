@@ -18,6 +18,8 @@ package io.opencensus.exporter.stats.signalfx;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import io.opencensus.exporter.metrics.util.IntervalMetricReader;
+import io.opencensus.exporter.metrics.util.MetricReader;
 import io.opencensus.metrics.Metrics;
 import io.opencensus.metrics.export.MetricProducerManager;
 import javax.annotation.Nullable;
@@ -42,7 +44,9 @@ public final class SignalFxStatsExporter {
   private static final Object monitor = new Object();
 
   private final SignalFxStatsConfiguration configuration;
-  private final SignalFxStatsExporterWorkerThread workerThread;
+  private final IntervalMetricReader intervalMetricReader;
+
+  private static final String EXPORTER_SPAN_NAME = "ExportMetricsToSignalFX";
 
   @GuardedBy("monitor")
   @Nullable
@@ -50,15 +54,21 @@ public final class SignalFxStatsExporter {
 
   private SignalFxStatsExporter(
       SignalFxStatsConfiguration configuration, MetricProducerManager metricProducerManager) {
-    Preconditions.checkNotNull(configuration, "SignalFx stats exporter configuration");
-    this.configuration = configuration;
-    this.workerThread =
-        new SignalFxStatsExporterWorkerThread(
-            SignalFxMetricsSenderFactory.DEFAULT,
-            configuration.getIngestEndpoint(),
-            configuration.getToken(),
-            configuration.getExportInterval(),
-            metricProducerManager);
+    this.configuration = Preconditions.checkNotNull(configuration, "configuration");
+    this.intervalMetricReader =
+        IntervalMetricReader.create(
+            new SignalFxMetricExporter(
+                SignalFxMetricsSenderFactory.DEFAULT,
+                configuration.getIngestEndpoint(),
+                configuration.getToken()),
+            MetricReader.create(
+                MetricReader.Options.builder()
+                    .setMetricProducerManager(metricProducerManager)
+                    .setSpanName(EXPORTER_SPAN_NAME)
+                    .build()),
+            IntervalMetricReader.Options.builder()
+                .setExportInterval(configuration.getExportInterval())
+                .build());
   }
 
   /**
@@ -80,7 +90,6 @@ public final class SignalFxStatsExporter {
       exporter =
           new SignalFxStatsExporter(
               configuration, Metrics.getExportComponent().getMetricProducerManager());
-      exporter.workerThread.start();
     }
   }
 
@@ -88,14 +97,8 @@ public final class SignalFxStatsExporter {
   static void unsafeResetExporter() {
     synchronized (monitor) {
       if (exporter != null) {
-        SignalFxStatsExporterWorkerThread workerThread = exporter.workerThread;
-        if (workerThread != null && workerThread.isAlive()) {
-          try {
-            workerThread.interrupt();
-            workerThread.join();
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-          }
+        if (exporter.intervalMetricReader != null) {
+          exporter.intervalMetricReader.stop();
         }
         exporter = null;
       }

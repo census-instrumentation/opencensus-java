@@ -16,28 +16,20 @@
 
 package io.opencensus.exporter.stats.signalfx;
 
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
-import com.google.common.collect.ImmutableSet;
 import com.signalfx.metrics.errorhandler.OnSendErrorHandler;
 import com.signalfx.metrics.flush.AggregateMetricSender;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.DataPoint;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.Datum;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.Dimension;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.MetricType;
-import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
-import io.opencensus.metrics.export.MetricProducer;
-import io.opencensus.metrics.export.MetricProducerManager;
 import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.TimeSeries;
 import io.opencensus.metrics.export.Value;
@@ -54,12 +46,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-/** Unit tests for {@link SignalFxStatsExporterWorkerThread}. */
+/** Unit tests for {@link SignalFxMetricExporter}. */
 @RunWith(MockitoJUnitRunner.class)
-public class SignalFxStatsExporterWorkerThreadTest {
+public class SignalFxMetricExporterTest {
 
   private static final String TEST_TOKEN = "token";
-  private static final Duration ONE_SECOND = Duration.create(1, 0);
   private static final String METRIC_NAME = "metric-name";
   private static final String METRIC_DESCRIPTION = "description";
   private static final String METRIC_UNIT = "1";
@@ -79,11 +70,6 @@ public class SignalFxStatsExporterWorkerThreadTest {
       Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR, TIME_SERIES);
 
   @Mock private AggregateMetricSender.Session session;
-
-  @Mock private MetricProducerManager metricProducerManager;
-
-  @Mock private MetricProducer metricProducer;
-
   @Mock private SignalFxMetricsSenderFactory factory;
 
   private URI endpoint;
@@ -108,41 +94,12 @@ public class SignalFxStatsExporterWorkerThreadTest {
                 return spy;
               }
             });
-    doReturn(ImmutableSet.of(metricProducer)).when(metricProducerManager).getAllMetricProducer();
-    doReturn(ImmutableSet.<Metric>of()).when(metricProducer).getMetrics();
-  }
-
-  @Test
-  public void createThread() {
-    SignalFxStatsExporterWorkerThread thread =
-        new SignalFxStatsExporterWorkerThread(
-            factory, endpoint, TEST_TOKEN, ONE_SECOND, metricProducerManager);
-    assertTrue(thread.isDaemon());
-    assertThat(thread.getName(), startsWith("SignalFx"));
-  }
-
-  @Test
-  public void senderThreadInterruptStopsLoop() throws InterruptedException {
-    Mockito.when(session.setDatapoint(Mockito.any(DataPoint.class))).thenReturn(session);
-    doReturn(ImmutableSet.<Metric>of()).when(metricProducer).getMetrics();
-
-    SignalFxStatsExporterWorkerThread thread =
-        new SignalFxStatsExporterWorkerThread(
-            factory, endpoint, TEST_TOKEN, ONE_SECOND, metricProducerManager);
-    thread.start();
-    thread.interrupt();
-    thread.join(5000, 0);
-    assertFalse("Worker thread should have stopped", thread.isAlive());
   }
 
   @Test
   public void setsDatapointsFromViewOnSession() throws IOException {
-    doReturn(Collections.singletonList(METRIC)).when(metricProducer).getMetrics();
-
-    SignalFxStatsExporterWorkerThread thread =
-        new SignalFxStatsExporterWorkerThread(
-            factory, endpoint, TEST_TOKEN, ONE_SECOND, metricProducerManager);
-    thread.export();
+    SignalFxMetricExporter exporter = new SignalFxMetricExporter(factory, endpoint, TEST_TOKEN);
+    exporter.export(Collections.singletonList(METRIC));
 
     DataPoint datapoint =
         DataPoint.newBuilder()
