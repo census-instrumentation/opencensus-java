@@ -9,6 +9,7 @@ dependencies {
     compileOnly libraries.auto_value
 
     compile project(':opencensus-api'),
+            project(':opencensus-exporter-metrics-util'),
             libraries.guava
 
     compile (libraries.signalfx_java) {
