@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CreateMetricDescriptorExporter extends MetricExporter {
+final class CreateMetricDescriptorExporter extends MetricExporter {
   private static final Tracer tracer = Tracing.getTracer();
   private static final Logger logger =
       Logger.getLogger(CreateMetricDescriptorExporter.class.getName());
