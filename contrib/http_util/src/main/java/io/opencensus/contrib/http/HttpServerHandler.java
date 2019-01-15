@@ -26,7 +26,6 @@ import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_S
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.contrib.http.util.HttpTraceUtil;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagContext;
@@ -172,6 +171,7 @@ public class HttpServerHandler<
 
     String methodStr = extractor.getMethod(request);
     String routeStr = extractor.getRoute(request);
+    int status = extractor.getStatusCode(response);
     TagContext startCtx =
         tagger
             .toBuilder(context.tagContext)
@@ -179,9 +179,7 @@ public class HttpServerHandler<
             .put(HTTP_SERVER_ROUTE, TagValue.create(routeStr == null ? "" : routeStr))
             .put(
                 HTTP_SERVER_STATUS,
-                TagValue.create(
-                    HttpTraceUtil.parseResponseStatus(extractor.getStatusCode(response), error)
-                        .toString()))
+                TagValue.create(status == 0 ? "error" : Integer.toString(status)))
             .build();
 
     statsRecorder
