@@ -24,7 +24,5 @@ dependencies {
         exclude group: 'io.opencensus', module: 'opencensus-api'
     }
 
-    testCompile project(':opencensus-api')
-
     signature "org.codehaus.mojo.signature:java17:1.0@signature"
 }

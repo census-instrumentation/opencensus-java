@@ -25,8 +25,7 @@ dependencies {
         exclude group: 'com.google.guava', module: 'guava'
     }
 
-    testCompile project(':opencensus-api'),
-            'org.testcontainers:testcontainers:1.7.0',
+    testCompile 'org.testcontainers:testcontainers:1.7.0',
             'com.google.http-client:google-http-client-gson:1.23.0'
 
     // Unless linked to impl, spans will be blank and not exported during integration tests.
