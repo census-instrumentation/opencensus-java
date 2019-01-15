@@ -67,10 +67,11 @@ public class StackdriverStatsExporterTest {
     StackdriverStatsConfiguration configuration =
         StackdriverStatsConfiguration.builder()
             .setCredentials(FAKE_CREDENTIALS)
+            .setProjectId(PROJECT_ID)
             .setExportInterval(NEG_ONE_SECOND)
             .build();
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Duration must be positive");
+    thrown.expectMessage("Export interval must be positive");
     StackdriverStatsExporter.createAndRegister(configuration);
   }
 
@@ -105,7 +106,7 @@ public class StackdriverStatsExporterTest {
   @SuppressWarnings("deprecation")
   public void createWithNegativeDuration() throws IOException {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Duration must be positive");
+    thrown.expectMessage("Export interval must be positive");
     StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
         GoogleCredentials.newBuilder().build(), PROJECT_ID, NEG_ONE_SECOND);
   }

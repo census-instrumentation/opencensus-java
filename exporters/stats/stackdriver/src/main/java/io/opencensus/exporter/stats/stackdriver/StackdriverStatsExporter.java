@@ -16,7 +16,6 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
@@ -31,13 +30,12 @@ import com.google.cloud.ServiceOptions;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.util.concurrent.MoreExecutors;
 import io.opencensus.common.Duration;
 import io.opencensus.common.OpenCensusLibraryInformation;
+import io.opencensus.exporter.metrics.util.IntervalMetricReader;
+import io.opencensus.exporter.metrics.util.MetricReader;
 import io.opencensus.metrics.Metrics;
-import io.opencensus.metrics.export.MetricProducerManager;
 import java.io.IOException;
-import java.util.concurrent.ThreadFactory;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
@@ -64,13 +62,11 @@ public final class StackdriverStatsExporter {
 
   @VisibleForTesting static final Object monitor = new Object();
 
-  private final Thread workerThread;
-
   @GuardedBy("monitor")
   @Nullable
-  private static StackdriverStatsExporter exporter = null;
+  private static StackdriverStatsExporter instance = null;
 
-  private static final Duration ZERO = Duration.create(0, 0);
+  private static final String EXPORTER_SPAN_NAME = "ExportMetricsToStackdriver";
 
   // See io.grpc.internal.GrpcUtil.USER_AGENT_KEY
   private static final String USER_AGENT_KEY = "user-agent";
@@ -78,30 +74,39 @@ public final class StackdriverStatsExporter {
       "opencensus-java/" + OpenCensusLibraryInformation.VERSION;
   private static final HeaderProvider OPENCENSUS_USER_AGENT_HEADER_PROVIDER =
       FixedHeaderProvider.create(USER_AGENT_KEY, USER_AGENT);
-
   @VisibleForTesting static final Duration DEFAULT_INTERVAL = Duration.create(60, 0);
 
   private static final MonitoredResource DEFAULT_RESOURCE =
       StackdriverExportUtils.getDefaultResource();
 
-  @VisibleForTesting
-  StackdriverStatsExporter(
+  private final IntervalMetricReader intervalMetricReader;
+
+  private StackdriverStatsExporter(
       String projectId,
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
-      MetricProducerManager metricProducerManager,
       MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix) {
-    checkArgument(exportInterval.compareTo(ZERO) > 0, "Duration must be positive");
-    StackdriverExporterWorker worker =
-        new StackdriverExporterWorker(
-            projectId,
-            metricServiceClient,
-            exportInterval,
-            metricProducerManager,
-            monitoredResource,
-            metricNamePrefix);
-    this.workerThread = new DaemonThreadFactory().newThread(worker);
+    IntervalMetricReader.Options.Builder intervalMetricReaderOptionsBuilder =
+        IntervalMetricReader.Options.builder();
+    if (exportInterval != null) {
+      intervalMetricReaderOptionsBuilder.setExportInterval(exportInterval);
+    }
+    intervalMetricReader =
+        IntervalMetricReader.create(
+            new CreateMetricDescriptorExporter(
+                projectId,
+                metricServiceClient,
+                metricNamePrefix,
+                new CreateTimeSeriesExporter(
+                    projectId, metricServiceClient, monitoredResource, metricNamePrefix)),
+            MetricReader.create(
+                MetricReader.Options.builder()
+                    .setMetricProducerManager(
+                        Metrics.getExportComponent().getMetricProducerManager())
+                    .setSpanName(EXPORTER_SPAN_NAME)
+                    .build()),
+            intervalMetricReaderOptionsBuilder.build());
   }
 
   /**
@@ -320,19 +325,15 @@ public final class StackdriverStatsExporter {
             // TODO(sebright): Handle null default project ID.
             ? castNonNull(ServiceOptions.getDefaultProjectId())
             : projectId;
-    exportInterval = exportInterval == null ? DEFAULT_INTERVAL : exportInterval;
-    monitoredResource = monitoredResource == null ? DEFAULT_RESOURCE : monitoredResource;
     synchronized (monitor) {
-      checkState(exporter == null, "Stackdriver stats exporter is already created.");
-      exporter =
+      checkState(instance == null, "Stackdriver stats exporter is already created.");
+      instance =
           new StackdriverStatsExporter(
               projectId,
               createMetricServiceClient(credentials),
-              exportInterval,
-              Metrics.getExportComponent().getMetricProducerManager(),
-              monitoredResource,
+              exportInterval == null ? DEFAULT_INTERVAL : exportInterval,
+              monitoredResource == null ? DEFAULT_RESOURCE : monitoredResource,
               metricNamePrefix);
-      exporter.workerThread.start();
     }
   }
 
@@ -363,28 +364,10 @@ public final class StackdriverStatsExporter {
   @VisibleForTesting
   static void unsafeResetExporter() {
     synchronized (monitor) {
-      StackdriverStatsExporter.exporter = null;
-    }
-  }
-
-  /** A lightweight {@link ThreadFactory} to spawn threads in a GAE-Java7-compatible way. */
-  // TODO(Hailong): Remove this once we use a callback to implement the exporter.
-  static final class DaemonThreadFactory implements ThreadFactory {
-    // AppEngine runtimes have constraints on threading and socket handling
-    // that need to be accommodated.
-    public static final boolean IS_RESTRICTED_APPENGINE =
-        System.getProperty("com.google.appengine.runtime.environment") != null
-            && "1.7".equals(System.getProperty("java.specification.version"));
-    private static final ThreadFactory threadFactory = MoreExecutors.platformThreadFactory();
-
-    @Override
-    public Thread newThread(Runnable r) {
-      Thread thread = threadFactory.newThread(r);
-      if (!IS_RESTRICTED_APPENGINE) {
-        thread.setName("ExportWorkerThread");
-        thread.setDaemon(true);
+      if (instance != null) {
+        instance.intervalMetricReader.stop();
       }
-      return thread;
+      instance = null;
     }
   }
 }
