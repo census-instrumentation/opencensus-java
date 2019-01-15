@@ -13,7 +13,5 @@ dependencies {
         libraries.gson, 
         libraries.auto_value
 
-    testCompile project(':opencensus-api')
-
     signature "org.codehaus.mojo.signature:java18:1.0@signature"
 }

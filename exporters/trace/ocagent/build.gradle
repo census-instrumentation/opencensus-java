@@ -15,7 +15,5 @@ dependencies {
             libraries.grpc_stub,
             libraries.opencensus_proto
 
-    testCompile project(':opencensus-api')
-
     signature "org.codehaus.mojo.signature:java17:1.0@signature"
 }
