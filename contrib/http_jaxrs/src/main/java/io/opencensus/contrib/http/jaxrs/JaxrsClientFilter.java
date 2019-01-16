@@ -17,10 +17,11 @@
 package io.opencensus.contrib.http.jaxrs;
 
 import io.opencensus.contrib.http.HttpClientHandler;
+import io.opencensus.contrib.http.HttpExtractor;
 import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.propagation.TextFormat;
 import io.opencensus.trace.propagation.TextFormat.Setter;
-import java.io.IOException;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.ClientResponseContext;
@@ -50,23 +51,30 @@ public class JaxrsClientFilter implements ClientRequestFilter, ClientResponseFil
 
   /** Constructs new client filter with default configuration. */
   public JaxrsClientFilter() {
-    handler =
-        new HttpClientHandler<>(
-            Tracing.getTracer(),
-            new JaxrsClientExtractor(),
-            Tracing.getPropagationComponent().getTraceContextFormat(),
-            SETTER);
+    this(new JaxrsClientExtractor(), Tracing.getPropagationComponent().getTraceContextFormat());
+  }
+
+  /**
+   * Construct new client filter with custom configuration.
+   *
+   * @param extractor the {@code HttpExtractor} used to extract information from the
+   *     request/response.
+   * @param propagationFormat the {@code TextFormat} used in HTTP propagation.
+   */
+  public JaxrsClientFilter(
+      HttpExtractor<ClientRequestContext, ClientResponseContext> extractor,
+      TextFormat propagationFormat) {
+    handler = new HttpClientHandler<>(Tracing.getTracer(), extractor, propagationFormat, SETTER);
   }
 
   @Override
-  public void filter(ClientRequestContext requestContext) throws IOException {
+  public void filter(ClientRequestContext requestContext) {
     HttpRequestContext context = handler.handleStart(null, requestContext, requestContext);
     requestContext.setProperty(OPENCENSUS_CONTEXT, context);
   }
 
   @Override
-  public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext)
-      throws IOException {
+  public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) {
     HttpRequestContext context =
         (HttpRequestContext) requestContext.getProperty(OPENCENSUS_CONTEXT);
     handler.handleEnd(context, requestContext, responseContext, null);
