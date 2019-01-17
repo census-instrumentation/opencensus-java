@@ -20,11 +20,11 @@ def agentRepackaged = "${agentPackage}.deps"
 
 dependencies {
   compileOnly libraries.auto_service
+  compileOnly libraries.findbugs_annotations
   compileOnly libraries.grpc_context
   compileOnly project(':opencensus-api')
   compile libraries.byte_buddy
   compile libraries.config
-  compile libraries.findbugs_annotations
   compile libraries.guava
 
   signature 'org.codehaus.mojo.signature:java17:1.0@signature'
