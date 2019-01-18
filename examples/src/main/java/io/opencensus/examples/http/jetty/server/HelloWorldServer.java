@@ -50,14 +50,14 @@ public class HelloWorldServer extends AbstractHandler {
   private static final Logger logger = Logger.getLogger(HelloWorldServer.class.getName());
 
   public static class HelloServlet extends HttpServlet {
-    private static String RESOURCE = "<h1>Hello World Servlet Get</h1>";
+    private static String body = "<h1>Hello World Servlet Get</h1>";
 
     private static final long serialVersionUID = 1L;
 
-    private void nonAsyncGet(HttpServletRequest request, HttpServletResponse response)
+    private void blockingGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
-      String str = RESOURCE.concat("<h3>non-async</h3>");
+      String str = body.concat("<h3>blocking</h3>");
       ByteBuffer content = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
 
       PrintWriter pout = response.getWriter();
@@ -70,7 +70,7 @@ public class HelloWorldServer extends AbstractHandler {
 
     private void asyncGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-      String str = RESOURCE.concat("<h3>async</h3>");
+      String str = body.concat("<h3>async</h3>");
       ByteBuffer content = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
 
       AsyncContext async = request.startAsync();
@@ -110,7 +110,7 @@ public class HelloWorldServer extends AbstractHandler {
       if (request.getPathInfo().contains("async")) {
         asyncGet(request, response);
       } else {
-        nonAsyncGet(request, response);
+        blockingGet(request, response);
       }
     }
 
