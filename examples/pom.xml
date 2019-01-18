@@ -10,6 +10,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- change to the version you want to use. -->
+    <jetty.version>9.4.12.v20180830</jetty.version>
     <opencensus.version>0.18.0</opencensus.version><!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
     <grpc.version>1.15.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
   </properties>
@@ -24,6 +25,23 @@
       <artifactId>opencensus-contrib-grpc-metrics</artifactId>
       <version>${opencensus.version}</version>
     </dependency>
+<!-- [TODO:rghetia] uncomment after 0.19.0 is released.
+    <dependency>
+      <groupId>io.opencensus</groupId>
+      <artifactId>opencensus-contrib-http-util</artifactId>
+      <version>${opencensus.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opencensus</groupId>
+      <artifactId>opencensus-contrib-http-jetty-client</artifactId>
+      <version>${opencensus.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opencensus</groupId>
+      <artifactId>opencensus-contrib-http-servlet</artifactId>
+      <version>${opencensus.version}</version>
+    </dependency>
+-->
     <dependency>
       <groupId>io.opencensus</groupId>
       <artifactId>opencensus-contrib-zpages</artifactId>
@@ -37,6 +55,11 @@
     <dependency>
       <groupId>io.opencensus</groupId>
       <artifactId>opencensus-exporter-stats-prometheus</artifactId>
+      <version>${opencensus.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opencensus</groupId>
+      <artifactId>opencensus-exporter-trace-jaeger</artifactId>
       <version>${opencensus.version}</version>
     </dependency>
     <dependency>
@@ -80,6 +103,31 @@
       <artifactId>netty-tcnative-boringssl-static</artifactId>
       <version>2.0.8.Final</version>
       <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-client</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.25</version>
     </dependency>
   </dependencies>
   <build>
@@ -166,6 +214,16 @@
               <id>LongGaugeQuickstart</id>
               <mainClass>io.opencensus.examples.gauges.LongGaugeQuickstart</mainClass>
             </program>
+<!-- [TODO:rghetia] uncomment after 0.19.0 is released.
+            <program>
+              <id>HttpJettyClient</id>
+              <mainClass>io.opencensus.examples.http.jetty.client.HelloWorldClient</mainClass>
+            </program>
+            <program>
+              <id>HttpJettyServer</id>
+              <mainClass>io.opencensus.examples.http.jetty.server.HelloWorldServer</mainClass>
+            </program>
+-->
           </programs>
         </configuration>
       </plugin>
@@ -186,6 +244,18 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+<!--
+      [TODO:rghetia] remove the exclusion from build after 0.19.0 is released.
+-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/http/jetty/**/*.java</exclude>
+          </excludes>
+        </configuration>
       </plugin>
     </plugins>
   </build>

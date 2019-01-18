@@ -23,6 +23,7 @@ java_library(
     name = "opencensus_examples",
     srcs = glob(
         ["src/main/java/**/*.java"],
+        exclude = ["**/http/jetty/**"]
     ),
     deps = [
         ":helloworld_java_grpc",
