@@ -33,6 +33,7 @@ import org.eclipse.jetty.client.HttpRequest;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 
+/** Sample application that shows how to instrument jetty client. */
 public class HelloWorldClient {
   private static final Logger logger = Logger.getLogger(HelloWorldClient.class.getName());
 
@@ -57,6 +58,10 @@ public class HelloWorldClient {
     HTTPServer prometheusServer = new HTTPServer(9091, true);
   }
 
+  /**
+   * HelloWorldClient sends http request periodically to {@link HelloWorldServer}. These requests
+   * are instrumented using opencensus jetty client library to enable tracing and monitoring stats.
+   */
   public static void main(String[] args) throws Exception {
     BasicConfigurator.configure();
 
@@ -87,7 +92,7 @@ public class HelloWorldClient {
       try {
         Thread.sleep(15000);
       } catch (Exception e) {
-
+        logger.error("Error while sleeping");
       }
     } while (true);
   }

@@ -46,6 +46,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 
+/** Sample application that shows how to instrument jetty server. */
 public class HelloWorldServer extends AbstractHandler {
   private static final Logger logger = Logger.getLogger(HelloWorldServer.class.getName());
 
@@ -135,6 +136,7 @@ public class HelloWorldServer extends AbstractHandler {
     }
   }
 
+  @Override
   public void handle(
       String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
@@ -169,6 +171,11 @@ public class HelloWorldServer extends AbstractHandler {
     JaegerTraceExporter.createAndRegister("http://localhost:14268/api/traces", "helloworldserver");
   }
 
+  /**
+   * HelloWorldServer starts a jetty server that responds to http request sent by {@link
+   * HelloWorldClient}. The server uses http servlet which is instrumented with opencensus to enable
+   * tracing and monitoring stats.
+   */
   public static void main(String[] args) throws Exception {
     initTracing();
     initStatsExporter();
