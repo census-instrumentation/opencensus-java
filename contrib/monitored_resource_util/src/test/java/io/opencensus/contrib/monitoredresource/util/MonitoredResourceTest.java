@@ -34,7 +34,8 @@ public class MonitoredResourceTest {
   private static final String AWS_REGION = "us-west-2";
   private static final String GCP_PROJECT = "gcp-project";
   private static final String GCP_INSTANCE = "instance";
-  private static final String GCP_ZONE = "us-east1";
+  private static final String GCP_ZONE = "projects/my-project/zone/us-east1";
+  private static final String GCP_ZONE_SANITIZED = "us-east1";
   private static final String GCP_GKE_NAMESPACE = "namespace";
   private static final String GCP_GKE_POD_ID = "pod-id";
   private static final String GCP_GKE_CONTAINER_NAME = "container";
@@ -53,11 +54,11 @@ public class MonitoredResourceTest {
   @Test
   public void testGcpGceInstanceMonitoredResource() {
     GcpGceInstanceMonitoredResource resource =
-        GcpGceInstanceMonitoredResource.create(GCP_PROJECT, GCP_INSTANCE, GCP_ZONE);
+        GcpGceInstanceMonitoredResource.create(GCP_PROJECT, GCP_INSTANCE, GCP_ZONE_SANITIZED);
     assertThat(resource.getResourceType()).isEqualTo(ResourceType.GCP_GCE_INSTANCE);
     assertThat(resource.getAccount()).isEqualTo(GCP_PROJECT);
     assertThat(resource.getInstanceId()).isEqualTo(GCP_INSTANCE);
-    assertThat(resource.getZone()).isEqualTo(GCP_ZONE);
+    assertThat(resource.getZone()).isEqualTo(GCP_ZONE_SANITIZED);
   }
 
   @Test
@@ -70,7 +71,7 @@ public class MonitoredResourceTest {
             GCP_GKE_NAMESPACE,
             GCP_INSTANCE,
             GCP_GKE_POD_ID,
-            GCP_ZONE);
+            GCP_ZONE_SANITIZED);
     assertThat(resource.getResourceType()).isEqualTo(ResourceType.GCP_GKE_CONTAINER);
     assertThat(resource.getAccount()).isEqualTo(GCP_PROJECT);
     assertThat(resource.getClusterName()).isEqualTo(GCP_GKE_CLUSTER_NAME);
@@ -78,6 +79,11 @@ public class MonitoredResourceTest {
     assertThat(resource.getNamespaceId()).isEqualTo(GCP_GKE_NAMESPACE);
     assertThat(resource.getInstanceId()).isEqualTo(GCP_INSTANCE);
     assertThat(resource.getPodId()).isEqualTo(GCP_GKE_POD_ID);
-    assertThat(resource.getZone()).isEqualTo(GCP_ZONE);
+    assertThat(resource.getZone()).isEqualTo(GCP_ZONE_SANITIZED);
+  }
+
+  @Test
+  public void sanitizeLocationLabel() {
+    assertThat(MonitoredResource.sanitizeLocationLabel(GCP_ZONE)).isEqualTo(GCP_ZONE_SANITIZED);
   }
 }

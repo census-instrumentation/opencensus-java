@@ -145,7 +145,8 @@ public abstract class MonitoredResource {
     private static final String GCP_ACCOUNT_ID = firstNonNull(GcpMetadataConfig.getProjectId(), "");
     private static final String GCP_INSTANCE_ID =
         firstNonNull(GcpMetadataConfig.getInstanceId(), "");
-    private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
+    private static final String GCP_ZONE =
+        sanitizeLocationLabel(firstNonNull(GcpMetadataConfig.getZone(), ""));
 
     @Override
     public ResourceType getResourceType() {
@@ -222,7 +223,8 @@ public abstract class MonitoredResource {
     private static final String GCP_INSTANCE_ID =
         firstNonNull(GcpMetadataConfig.getInstanceId(), "");
     private static final String GCP_POD_ID = firstNonNull(System.getenv("HOSTNAME"), "");
-    private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
+    private static final String GCP_ZONE =
+        sanitizeLocationLabel(firstNonNull(GcpMetadataConfig.getZone(), ""));
 
     @Override
     public ResourceType getResourceType() {
@@ -331,5 +333,16 @@ public abstract class MonitoredResource {
       labels.put(ResourceKeyConstants.K8S_POD_NAME_KEY, GCP_POD_ID);
       return Resource.create(ResourceKeyConstants.K8S_CONTAINER_TYPE, labels);
     }
+  }
+
+  // Location label could be of format "projects/.../zones/us-central1-d".
+  // If so, only return the location info from the label.
+  static String sanitizeLocationLabel(String label) {
+    if (label.startsWith("projects")) {
+      @SuppressWarnings("StringSplitter") // Don't want to introduce Guava dependency.
+      String[] strings = label.split("/");
+      return strings[strings.length - 1];
+    }
+    return label;
   }
 }
