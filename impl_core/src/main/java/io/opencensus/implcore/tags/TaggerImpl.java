@@ -29,8 +29,8 @@ import java.util.Iterator;
 
 /** Implementation of {@link Tagger}. */
 public final class TaggerImpl extends Tagger {
-  // All methods in this class use TagContextImpl and TagContextBuilderImpl. For example,
-  // withTagContext(...) always puts a TagContextImpl into scope, even if the argument is another
+  // All methods in this class use TagMapImpl and TagMapBuilderImpl. For example,
+  // withTagContext(...) always puts a TagMapImpl into scope, even if the argument is another
   // TagContext subclass.
 
   private final CurrentState state;
@@ -40,54 +40,54 @@ public final class TaggerImpl extends Tagger {
   }
 
   @Override
-  public TagContextImpl empty() {
-    return TagContextImpl.EMPTY;
+  public TagMapImpl empty() {
+    return TagMapImpl.EMPTY;
   }
 
   @Override
-  public TagContextImpl getCurrentTagContext() {
+  public TagMapImpl getCurrentTagContext() {
     return state.getInternal() == State.DISABLED
-        ? TagContextImpl.EMPTY
-        : toTagContextImpl(CurrentTagContextUtils.getCurrentTagContext());
+        ? TagMapImpl.EMPTY
+        : toTagMapImpl(CurrentTagMapUtils.getCurrentTagMap());
   }
 
   @Override
   public TagContextBuilder emptyBuilder() {
     return state.getInternal() == State.DISABLED
-        ? NoopTagContextBuilder.INSTANCE
-        : new TagContextBuilderImpl();
+        ? NoopTagMapBuilder.INSTANCE
+        : new TagMapBuilderImpl();
   }
 
   @Override
   public TagContextBuilder currentBuilder() {
     return state.getInternal() == State.DISABLED
-        ? NoopTagContextBuilder.INSTANCE
-        : toBuilder(CurrentTagContextUtils.getCurrentTagContext());
+        ? NoopTagMapBuilder.INSTANCE
+        : toBuilder(CurrentTagMapUtils.getCurrentTagMap());
   }
 
   @Override
   public TagContextBuilder toBuilder(TagContext tags) {
     return state.getInternal() == State.DISABLED
-        ? NoopTagContextBuilder.INSTANCE
-        : toTagContextBuilderImpl(tags);
+        ? NoopTagMapBuilder.INSTANCE
+        : toTagMapBuilderImpl(tags);
   }
 
   @Override
   public Scope withTagContext(TagContext tags) {
     return state.getInternal() == State.DISABLED
         ? NoopScope.getInstance()
-        : CurrentTagContextUtils.withTagContext(toTagContextImpl(tags));
+        : CurrentTagMapUtils.withTagMap(toTagMapImpl(tags));
   }
 
-  private static TagContextImpl toTagContextImpl(TagContext tags) {
-    if (tags instanceof TagContextImpl) {
-      return (TagContextImpl) tags;
+  private static TagMapImpl toTagMapImpl(TagContext tags) {
+    if (tags instanceof TagMapImpl) {
+      return (TagMapImpl) tags;
     } else {
       Iterator<Tag> i = InternalUtils.getTags(tags);
       if (!i.hasNext()) {
-        return TagContextImpl.EMPTY;
+        return TagMapImpl.EMPTY;
       }
-      TagContextBuilderImpl builder = new TagContextBuilderImpl();
+      TagMapBuilderImpl builder = new TagMapBuilderImpl();
       while (i.hasNext()) {
         Tag tag = i.next();
         if (tag != null) {
@@ -98,12 +98,12 @@ public final class TaggerImpl extends Tagger {
     }
   }
 
-  private static TagContextBuilderImpl toTagContextBuilderImpl(TagContext tags) {
-    // Copy the tags more efficiently in the expected case, when the TagContext is a TagContextImpl.
-    if (tags instanceof TagContextImpl) {
-      return new TagContextBuilderImpl(((TagContextImpl) tags).getTags());
+  private static TagMapBuilderImpl toTagMapBuilderImpl(TagContext tags) {
+    // Copy the tags more efficiently in the expected case, when the TagContext is a TagMapImpl.
+    if (tags instanceof TagMapImpl) {
+      return new TagMapBuilderImpl(((TagMapImpl) tags).getTags());
     } else {
-      TagContextBuilderImpl builder = new TagContextBuilderImpl();
+      TagMapBuilderImpl builder = new TagMapBuilderImpl();
       for (Iterator<Tag> i = InternalUtils.getTags(tags); i.hasNext(); ) {
         Tag tag = i.next();
         if (tag != null) {

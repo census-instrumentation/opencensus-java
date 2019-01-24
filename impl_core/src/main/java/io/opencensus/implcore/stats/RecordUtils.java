@@ -27,7 +27,7 @@ import io.opencensus.implcore.stats.MutableAggregation.MutableLastValueLong;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSumDouble;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSumLong;
-import io.opencensus.implcore.tags.TagContextImpl;
+import io.opencensus.implcore.tags.TagMapImpl;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
@@ -62,8 +62,8 @@ final class RecordUtils {
   @javax.annotation.Nullable @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = null;
 
   static Map<TagKey, TagValue> getTagMap(TagContext ctx) {
-    if (ctx instanceof TagContextImpl) {
-      return ((TagContextImpl) ctx).getTags();
+    if (ctx instanceof TagMapImpl) {
+      return ((TagMapImpl) ctx).getTags();
     } else {
       Map<TagKey, TagValue> tags = Maps.newHashMap();
       for (Iterator<Tag> i = InternalUtils.getTags(ctx); i.hasNext(); ) {

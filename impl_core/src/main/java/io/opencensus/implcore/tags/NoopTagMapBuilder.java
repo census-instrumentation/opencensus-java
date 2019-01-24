@@ -24,10 +24,10 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 
 /** {@link TagContextBuilder} that is used when tagging is disabled. */
-final class NoopTagContextBuilder extends TagContextBuilder {
-  static final NoopTagContextBuilder INSTANCE = new NoopTagContextBuilder();
+final class NoopTagMapBuilder extends TagContextBuilder {
+  static final NoopTagMapBuilder INSTANCE = new NoopTagMapBuilder();
 
-  private NoopTagContextBuilder() {}
+  private NoopTagMapBuilder() {}
 
   @Override
   public TagContextBuilder put(TagKey key, TagValue value) {
@@ -41,7 +41,7 @@ final class NoopTagContextBuilder extends TagContextBuilder {
 
   @Override
   public TagContext build() {
-    return TagContextImpl.EMPTY;
+    return TagMapImpl.EMPTY;
   }
 
   @Override
