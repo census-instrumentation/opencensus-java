@@ -9,14 +9,11 @@ description = 'OpenCensus Http Servlet Plugin'
     it.targetCompatibility = 1.6
 }
 
-def jettyVersion = "9.2.25.v20180606"
-
 dependencies {
     compile project(':opencensus-api')
     compile project(':opencensus-contrib-http-util')
 
-    compile "javax.servlet:javax.servlet-api:3.0.1",
-            "org.eclipse.jetty:jetty-server:${jettyVersion}"
+    compile "javax.servlet:javax.servlet-api:3.0.1"
 
     signature "org.codehaus.mojo.signature:java17:1.0@signature"
     signature "net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature"

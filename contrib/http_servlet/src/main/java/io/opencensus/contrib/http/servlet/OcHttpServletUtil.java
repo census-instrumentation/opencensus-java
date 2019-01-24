@@ -20,7 +20,6 @@ import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.contrib.http.HttpServerHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.server.Response;
 
 class OcHttpServletUtil {
   static final String CONTENT_LENGTH = "Content-Length";
@@ -38,11 +37,6 @@ class OcHttpServletUtil {
           handler.handleMessageSent(context, Integer.parseInt(length));
         } catch (NumberFormatException e) {
           return;
-        }
-      } else {
-        if (response instanceof Response) {
-          Response resp = (Response) response;
-          handler.handleMessageSent(context, resp.getContentCount());
         }
       }
     }
