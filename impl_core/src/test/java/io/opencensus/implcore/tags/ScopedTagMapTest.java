@@ -32,11 +32,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Unit tests for the methods in {@link TaggerImpl} and {@link TagContextBuilderImpl} that interact
- * with the current {@link TagContext}.
+ * Unit tests for the methods in {@link TaggerImpl} and {@link TagMapBuilderImpl} that interact with
+ * the current {@link TagContext}.
  */
 @RunWith(JUnit4.class)
-public class ScopedTagContextsTest {
+public class ScopedTagMapTest {
   private static final TagKey KEY_1 = TagKey.create("key 1");
   private static final TagKey KEY_2 = TagKey.create("key 2");
 
@@ -49,7 +49,7 @@ public class ScopedTagContextsTest {
   public void defaultTagContext() {
     TagContext defaultTagContext = tagger.getCurrentTagContext();
     assertThat(tagContextToList(defaultTagContext)).isEmpty();
-    assertThat(defaultTagContext).isInstanceOf(TagContextImpl.class);
+    assertThat(defaultTagContext).isInstanceOf(TagMapImpl.class);
   }
 
   @Test

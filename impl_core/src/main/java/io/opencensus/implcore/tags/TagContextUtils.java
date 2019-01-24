@@ -27,7 +27,7 @@ final class TagContextUtils {
    * @param tag tag containing the key and value to set.
    * @param builder the builder to update.
    */
-  static void addTagToBuilder(Tag tag, TagContextBuilderImpl builder) {
+  static void addTagToBuilder(Tag tag, TagMapBuilderImpl builder) {
     builder.put(tag.getKey(), tag.getValue());
   }
 }

@@ -41,12 +41,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for {@link TagContextImpl} and {@link TagContextBuilderImpl}.
+ * Tests for {@link TagMapImpl} and {@link TagMapBuilderImpl}.
  *
- * <p>Tests for {@link TagContextBuilderImpl#buildScoped()} are in {@link ScopedTagContextsTest}.
+ * <p>Tests for {@link TagMapBuilderImpl#buildScoped()} are in {@link ScopedTagContextsTest}.
  */
 @RunWith(JUnit4.class)
-public class TagContextImplTest {
+public class TagMapImplTest {
   private final Tagger tagger = new TaggerImpl(new CurrentState(State.ENABLED));
 
   private static final TagKey K1 = TagKey.create("k1");
@@ -59,33 +59,33 @@ public class TagContextImplTest {
 
   @Test
   public void getTags_empty() {
-    TagContextImpl tags = new TagContextImpl(ImmutableMap.<TagKey, TagValue>of());
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.<TagKey, TagValue>of());
     assertThat(tags.getTags()).isEmpty();
   }
 
   @Test
   public void getTags_nonEmpty() {
-    TagContextImpl tags = new TagContextImpl(ImmutableMap.of(K1, V1, K2, V2));
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
     assertThat(tags.getTags()).containsExactly(K1, V1, K2, V2);
   }
 
   @Test
   public void put_newKey() {
-    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
-    assertThat(((TagContextImpl) tagger.toBuilder(tags).put(K2, V2).build()).getTags())
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
+    assertThat(((TagMapImpl) tagger.toBuilder(tags).put(K2, V2).build()).getTags())
         .containsExactly(K1, V1, K2, V2);
   }
 
   @Test
   public void put_existingKey() {
-    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
-    assertThat(((TagContextImpl) tagger.toBuilder(tags).put(K1, V2).build()).getTags())
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
+    assertThat(((TagMapImpl) tagger.toBuilder(tags).put(K1, V2).build()).getTags())
         .containsExactly(K1, V2);
   }
 
   @Test
   public void put_nullKey() {
-    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
     TagContextBuilder builder = tagger.toBuilder(tags);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key");
@@ -94,7 +94,7 @@ public class TagContextImplTest {
 
   @Test
   public void put_nullValue() {
-    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
     TagContextBuilder builder = tagger.toBuilder(tags);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("value");
@@ -103,21 +103,21 @@ public class TagContextImplTest {
 
   @Test
   public void remove_existingKey() {
-    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1, K2, V2));
-    assertThat(((TagContextImpl) tagger.toBuilder(tags).remove(K1).build()).getTags())
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
+    assertThat(((TagMapImpl) tagger.toBuilder(tags).remove(K1).build()).getTags())
         .containsExactly(K2, V2);
   }
 
   @Test
   public void remove_differentKey() {
-    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
-    assertThat(((TagContextImpl) tagger.toBuilder(tags).remove(K2).build()).getTags())
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
+    assertThat(((TagMapImpl) tagger.toBuilder(tags).remove(K2).build()).getTags())
         .containsExactly(K1, V1);
   }
 
   @Test
   public void remove_nullKey() {
-    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
     TagContextBuilder builder = tagger.toBuilder(tags);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key");
@@ -126,7 +126,7 @@ public class TagContextImplTest {
 
   @Test
   public void testIterator() {
-    TagContextImpl tags = new TagContextImpl(ImmutableMap.of(K1, V1, K2, V2));
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
     Iterator<Tag> i = tags.getIterator();
     assertTrue(i.hasNext());
     Tag tag1 = i.next();
@@ -140,7 +140,7 @@ public class TagContextImplTest {
 
   @Test
   public void disallowCallingRemoveOnIterator() {
-    TagContextImpl tags = new TagContextImpl(ImmutableMap.of(K1, V1, K2, V2));
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
     Iterator<Tag> i = tags.getIterator();
     i.next();
     thrown.expect(UnsupportedOperationException.class);

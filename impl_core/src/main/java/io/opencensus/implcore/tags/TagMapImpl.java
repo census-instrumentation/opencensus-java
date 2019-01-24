@@ -29,15 +29,14 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class TagContextImpl extends TagContext {
+public final class TagMapImpl extends TagContext {
 
-  public static final TagContextImpl EMPTY =
-      new TagContextImpl(Collections.<TagKey, TagValue>emptyMap());
+  public static final TagMapImpl EMPTY = new TagMapImpl(Collections.<TagKey, TagValue>emptyMap());
 
   // The types of the TagKey and value must match for each entry.
   private final Map<TagKey, TagValue> tags;
 
-  public TagContextImpl(Map<? extends TagKey, ? extends TagValue> tags) {
+  public TagMapImpl(Map<? extends TagKey, ? extends TagValue> tags) {
     this.tags = Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags));
   }
 
@@ -52,9 +51,9 @@ public final class TagContextImpl extends TagContext {
 
   @Override
   public boolean equals(@Nullable Object other) {
-    // Directly compare the tags when both objects are TagContextImpls, for efficiency.
-    if (other instanceof TagContextImpl) {
-      return getTags().equals(((TagContextImpl) other).getTags());
+    // Directly compare the tags when both objects are TagMapImpls, for efficiency.
+    if (other instanceof TagMapImpl) {
+      return getTags().equals(((TagMapImpl) other).getTags());
     }
     return super.equals(other);
   }

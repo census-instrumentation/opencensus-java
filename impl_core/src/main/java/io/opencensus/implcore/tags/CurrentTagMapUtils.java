@@ -24,16 +24,16 @@ import io.opencensus.tags.unsafe.ContextUtils;
 /**
  * Utility methods for accessing the {@link TagContext} contained in the {@link io.grpc.Context}.
  */
-final class CurrentTagContextUtils {
+final class CurrentTagMapUtils {
 
-  private CurrentTagContextUtils() {}
+  private CurrentTagMapUtils() {}
 
   /**
    * Returns the {@link TagContext} from the current context.
    *
    * @return the {@code TagContext} from the current context.
    */
-  static TagContext getCurrentTagContext() {
+  static TagContext getCurrentTagMap() {
     return ContextUtils.TAG_CONTEXT_KEY.get();
   }
 
@@ -46,20 +46,20 @@ final class CurrentTagContextUtils {
    * @return an object that defines a scope where the given {@code TagContext} is set to the current
    *     context.
    */
-  static Scope withTagContext(TagContext tags) {
-    return new WithTagContext(tags);
+  static Scope withTagMap(TagContext tags) {
+    return new WithTagMap(tags);
   }
 
-  private static final class WithTagContext implements Scope {
+  private static final class WithTagMap implements Scope {
 
     private final Context orig;
 
     /**
-     * Constructs a new {@link WithTagContext}.
+     * Constructs a new {@link WithTagMap}.
      *
      * @param tags the {@code TagContext} to be added to the current {@code Context}.
      */
-    private WithTagContext(TagContext tags) {
+    private WithTagMap(TagContext tags) {
       orig = Context.current().withValue(ContextUtils.TAG_CONTEXT_KEY, tags).attach();
     }
 

@@ -32,9 +32,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link CurrentTagContextUtils}. */
+/** Unit tests for {@link CurrentTagMapUtils}. */
 @RunWith(JUnit4.class)
-public class CurrentTagContextUtilsTest {
+public class CurrentTagMapUtilsTest {
   private static final Tag TAG = Tag.create(TagKey.create("key"), TagValue.create("value"));
 
   private final TagContext tagContext =
@@ -47,17 +47,17 @@ public class CurrentTagContextUtilsTest {
       };
 
   @Test
-  public void testGetCurrentTagContext_DefaultContext() {
-    TagContext tags = CurrentTagContextUtils.getCurrentTagContext();
+  public void testGetCurrentTagMap_DefaultContext() {
+    TagContext tags = CurrentTagMapUtils.getCurrentTagMap();
     assertThat(tags).isNotNull();
     assertThat(tagContextToList(tags)).isEmpty();
   }
 
   @Test
-  public void testGetCurrentTagContext_ContextSetToNull() {
+  public void testGetCurrentTagMap_ContextSetToNull() {
     Context orig = Context.current().withValue(ContextUtils.TAG_CONTEXT_KEY, null).attach();
     try {
-      TagContext tags = CurrentTagContextUtils.getCurrentTagContext();
+      TagContext tags = CurrentTagMapUtils.getCurrentTagMap();
       assertThat(tags).isNotNull();
       assertThat(tagContextToList(tags)).isEmpty();
     } finally {
@@ -66,37 +66,36 @@ public class CurrentTagContextUtilsTest {
   }
 
   @Test
-  public void testWithTagContext() {
-    assertThat(tagContextToList(CurrentTagContextUtils.getCurrentTagContext())).isEmpty();
-    Scope scopedTags = CurrentTagContextUtils.withTagContext(tagContext);
+  public void testWithTagMap() {
+    assertThat(tagContextToList(CurrentTagMapUtils.getCurrentTagMap())).isEmpty();
+    Scope scopedTags = CurrentTagMapUtils.withTagMap(tagContext);
     try {
-      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isSameAs(tagContext);
+      assertThat(CurrentTagMapUtils.getCurrentTagMap()).isSameAs(tagContext);
     } finally {
       scopedTags.close();
     }
-    assertThat(tagContextToList(CurrentTagContextUtils.getCurrentTagContext())).isEmpty();
+    assertThat(tagContextToList(CurrentTagMapUtils.getCurrentTagMap())).isEmpty();
   }
 
   @Test
-  public void testWithTagContextUsingWrap() {
+  public void testWithTagMapUsingWrap() {
     Runnable runnable;
-    Scope scopedTags = CurrentTagContextUtils.withTagContext(tagContext);
+    Scope scopedTags = CurrentTagMapUtils.withTagMap(tagContext);
     try {
-      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isSameAs(tagContext);
+      assertThat(CurrentTagMapUtils.getCurrentTagMap()).isSameAs(tagContext);
       runnable =
           Context.current()
               .wrap(
                   new Runnable() {
                     @Override
                     public void run() {
-                      assertThat(CurrentTagContextUtils.getCurrentTagContext())
-                          .isSameAs(tagContext);
+                      assertThat(CurrentTagMapUtils.getCurrentTagMap()).isSameAs(tagContext);
                     }
                   });
     } finally {
       scopedTags.close();
     }
-    assertThat(tagContextToList(CurrentTagContextUtils.getCurrentTagContext())).isEmpty();
+    assertThat(tagContextToList(CurrentTagMapUtils.getCurrentTagMap())).isEmpty();
     // When we run the runnable we will have the TagContext in the current Context.
     runnable.run();
   }

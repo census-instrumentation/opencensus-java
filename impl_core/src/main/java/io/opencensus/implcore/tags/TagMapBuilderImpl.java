@@ -25,36 +25,36 @@ import io.opencensus.tags.TagValue;
 import java.util.HashMap;
 import java.util.Map;
 
-final class TagContextBuilderImpl extends TagContextBuilder {
+final class TagMapBuilderImpl extends TagContextBuilder {
   private final Map<TagKey, TagValue> tags;
 
-  TagContextBuilderImpl(Map<TagKey, TagValue> tags) {
+  TagMapBuilderImpl(Map<TagKey, TagValue> tags) {
     this.tags = new HashMap<TagKey, TagValue>(tags);
   }
 
-  TagContextBuilderImpl() {
+  TagMapBuilderImpl() {
     this.tags = new HashMap<TagKey, TagValue>();
   }
 
   @Override
-  public TagContextBuilderImpl put(TagKey key, TagValue value) {
+  public TagMapBuilderImpl put(TagKey key, TagValue value) {
     tags.put(checkNotNull(key, "key"), checkNotNull(value, "value"));
     return this;
   }
 
   @Override
-  public TagContextBuilderImpl remove(TagKey key) {
+  public TagMapBuilderImpl remove(TagKey key) {
     tags.remove(checkNotNull(key, "key"));
     return this;
   }
 
   @Override
-  public TagContextImpl build() {
-    return new TagContextImpl(tags);
+  public TagMapImpl build() {
+    return new TagMapImpl(tags);
   }
 
   @Override
   public Scope buildScoped() {
-    return CurrentTagContextUtils.withTagContext(build());
+    return CurrentTagMapUtils.withTagMap(build());
   }
 }

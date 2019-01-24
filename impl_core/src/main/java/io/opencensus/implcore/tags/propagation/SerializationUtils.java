@@ -21,7 +21,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.opencensus.implcore.internal.VarInt;
-import io.opencensus.implcore.tags.TagContextImpl;
+import io.opencensus.implcore.tags.TagMapImpl;
 import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
@@ -94,7 +94,7 @@ final class SerializationUtils {
 
   // Deserializes input to TagContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static TagContextImpl deserializeBinary(byte[] bytes) throws TagContextDeserializationException {
+  static TagMapImpl deserializeBinary(byte[] bytes) throws TagContextDeserializationException {
     try {
       if (bytes.length == 0) {
         // Does not allow empty byte array.
@@ -107,7 +107,7 @@ final class SerializationUtils {
         throw new TagContextDeserializationException(
             "Wrong Version ID: " + versionId + ". Currently supports version up to: " + VERSION_ID);
       }
-      return new TagContextImpl(parseTags(buffer));
+      return new TagMapImpl(parseTags(buffer));
     } catch (BufferUnderflowException exn) {
       throw new TagContextDeserializationException(exn.toString()); // byte array format error.
     }
