@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.opencensus</groupId>
@@ -12,7 +13,7 @@
     <!-- change to the version you want to use. -->
     <jetty.version>9.4.12.v20180830</jetty.version>
     <opencensus.version>0.18.0</opencensus.version><!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
-    <grpc.version>1.18.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
+    <grpc.version>1.15.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
   </properties>
   <dependencies>
     <dependency>
@@ -25,23 +26,23 @@
       <artifactId>opencensus-contrib-grpc-metrics</artifactId>
       <version>${opencensus.version}</version>
     </dependency>
-<!-- [TODO:rghetia] uncomment after 0.19.0 is released.
-    <dependency>
-      <groupId>io.opencensus</groupId>
-      <artifactId>opencensus-contrib-http-util</artifactId>
-      <version>${opencensus.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.opencensus</groupId>
-      <artifactId>opencensus-contrib-http-jetty-client</artifactId>
-      <version>${opencensus.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.opencensus</groupId>
-      <artifactId>opencensus-contrib-http-servlet</artifactId>
-      <version>${opencensus.version}</version>
-    </dependency>
--->
+    <!-- [TODO:rghetia] uncomment after 0.19.0 is released.
+        <dependency>
+          <groupId>io.opencensus</groupId>
+          <artifactId>opencensus-contrib-http-util</artifactId>
+          <version>${opencensus.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>io.opencensus</groupId>
+          <artifactId>opencensus-contrib-http-jetty-client</artifactId>
+          <version>${opencensus.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>io.opencensus</groupId>
+          <artifactId>opencensus-contrib-http-servlet</artifactId>
+          <version>${opencensus.version}</version>
+        </dependency>
+    -->
     <dependency>
       <groupId>io.opencensus</groupId>
       <artifactId>opencensus-contrib-zpages</artifactId>
@@ -71,6 +72,11 @@
       <groupId>io.opencensus</groupId>
       <artifactId>opencensus-exporter-trace-logging</artifactId>
       <version>${opencensus.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-core</artifactId>
+      <version>${grpc.version}</version>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
@@ -214,27 +220,30 @@
               <id>LongGaugeQuickstart</id>
               <mainClass>io.opencensus.examples.gauges.LongGaugeQuickstart</mainClass>
             </program>
-<!-- [TODO:rghetia] uncomment after 0.19.0 is released.
-            <program>
-              <id>HttpJettyClient</id>
-              <mainClass>io.opencensus.examples.http.jetty.client.HelloWorldClient</mainClass>
-            </program>
-            <program>
-              <id>HttpJettyServer</id>
-              <mainClass>io.opencensus.examples.http.jetty.server.HelloWorldServer</mainClass>
-            </program>
--->
+            <!-- [TODO:rghetia] uncomment after 0.19.0 is released.
+                        <program>
+                          <id>HttpJettyClient</id>
+                          <mainClass>io.opencensus.examples.http.jetty.client.HelloWorldClient</mainClass>
+                        </program>
+                        <program>
+                          <id>HttpJettyServer</id>
+                          <mainClass>io.opencensus.examples.http.jetty.server.HelloWorldServer</mainClass>
+                        </program>
+            -->
           </programs>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.xolstice.maven.plugins</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <version>0.5.0</version>
+        <version>0.6.1</version>
         <configuration>
-          <protocArtifact>com.google.protobuf:protoc:3.6.1:exe:${os.detected.classifier}</protocArtifact>
+          <protocArtifact>com.google.protobuf:protoc:3.6.1:exe:${os.detected.classifier}
+          </protocArtifact>
           <pluginId>grpc-java</pluginId>
-          <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+          <pluginArtifact>
+            io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
+          </pluginArtifact>
         </configuration>
         <executions>
           <execution>
@@ -245,9 +254,10 @@
           </execution>
         </executions>
       </plugin>
-<!--
-      [TODO:rghetia] remove the exclusion from build after 0.19.0 is released.
--->
+
+      <!--
+            [TODO:rghetia] remove the exclusion from build after 0.19.0 is released.
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
