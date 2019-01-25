@@ -22,8 +22,6 @@ valid_tasks() {
   echo "- BUILD_EXAMPLES_GRADLE"
   echo "- BUILD_EXAMPLES_MAVEN"
   echo "- CHECKER_FRAMEWORK"
-  echo "- CHECK_EXAMPLES_FORMAT"
-  echo "- CHECK_EXAMPLES_LICENSE"
   echo "- CHECK_GIT_HISTORY"
 }
 
@@ -63,17 +61,8 @@ case "$TASK" in
   "CHECKER_FRAMEWORK")
     ./gradlew clean assemble -PcheckerFramework=true
     ;;
-  "CHECK_EXAMPLES_LICENSE")
-    curl -L -o checkstyle-8.12-all.jar https://github.com/checkstyle/checkstyle/releases/download/checkstyle-8.12/checkstyle-8.12-all.jar
-    java -DrootDir=. -jar checkstyle-8.12-all.jar -c buildscripts/checkstyle.xml examples/src/
-    ;;
-  "CHECK_EXAMPLES_FORMAT")
-    curl -L -o google-java-format-1.5-all-deps.jar \
-      https://github.com/google/google-java-format/releases/download/google-java-format-1.5/google-java-format-1.5-all-deps.jar
-    java -jar google-java-format-1.5-all-deps.jar --set-exit-if-changed --dry-run `find examples/src/ -name '*.java'`
-    ;;
   "BUILD_EXAMPLES_GRADLE")
-    pushd examples && ./gradlew clean assemble --stacktrace && popd
+    pushd examples && ./gradlew clean assemble --stacktrace && ./gradlew check && ./gradlew verGJF && popd
     ;;
   "BUILD_EXAMPLES_MAVEN")
     pushd examples && mvn clean package appassembler:assemble -e && popd

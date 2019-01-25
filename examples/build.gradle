@@ -11,12 +11,15 @@ buildscript {
     dependencies {
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
+        classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.8"
     }
 }
 
+apply plugin: "checkstyle"
+apply plugin: 'com.google.protobuf'
+apply plugin: 'com.github.sherter.google-java-format'
 apply plugin: 'idea'
 apply plugin: 'java'
-apply plugin: 'com.google.protobuf'
 
 // Display the version report using: ./gradlew dependencyUpdates
 // Also see https://github.com/ben-manes/gradle-versions-plugin.
@@ -69,6 +72,17 @@ dependencies {
             "io.netty:netty-tcnative-boringssl-static:2.0.8.Final"
 }
 
+googleJavaFormat {
+    toolVersion '1.7'
+    source = 'src/main'
+    include '**/*.java'
+}
+
+verifyGoogleJavaFormat {
+    source = 'src/main'
+    include '**/*.java'
+}
+
 protobuf {
     protoc {
         artifact = 'com.google.protobuf:protoc:3.6.1'
@@ -98,6 +112,17 @@ sourceSets {
         }
     }
 }
+
+checkstyle {
+    configFile = file("$rootDir/../buildscripts/checkstyle.xml")
+    toolVersion = "8.12"
+    ignoreFailures = false
+    configProperties["rootDir"] = "$rootDir/.."
+}
+
+// Disable checkstyle if no java8.
+checkstyleMain.source = 'src/main'
+checkstyleTest.source = 'src/main'
 
 // Provide convenience executables for trying out the examples.
 apply plugin: 'application'

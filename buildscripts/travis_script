@@ -63,7 +63,7 @@ case "$TASK" in
     java -jar google-java-format-1.5-all-deps.jar --set-exit-if-changed --dry-run `find examples/src/ -name '*.java'`
     ;;
   "BUILD_EXAMPLES_GRADLE")
-    pushd examples && ./gradlew clean assemble --stacktrace && popd
+    pushd examples && ./gradlew clean assemble --stacktrace && ./gradlew check && ./gradlew verGJF && popd
     ;;
   "BUILD_EXAMPLES_MAVEN")
     pushd examples && mvn clean package appassembler:assemble -e && popd
