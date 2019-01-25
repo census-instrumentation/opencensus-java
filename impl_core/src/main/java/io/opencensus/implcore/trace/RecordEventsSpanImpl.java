@@ -93,6 +93,10 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
   @GuardedBy("this")
   @Nullable
   private TraceEvents<Link> links;
+  // The number of children.
+  @GuardedBy("this")
+  @Nullable
+  private int numberOfChildren;
   // The status of the span.
   @GuardedBy("this")
   @Nullable
@@ -263,7 +267,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
           annotationsSpanData,
           messageEventsSpanData,
           linksSpanData,
-          null, // Not supported yet.
+          numberOfChildren,
           hasBeenEnded ? getStatusWithDefault() : null,
           hasBeenEnded ? timestampConverter.convertNanoTime(endNanoTime) : null);
     }
@@ -379,6 +383,16 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
       hasBeenEnded = true;
     }
     startEndHandler.onEnd(this);
+  }
+
+  void addChild() {
+    synchronized (this) {
+      if (hasBeenEnded) {
+        logger.log(Level.FINE, "Calling end() on an ended Span.");
+        return;
+      }
+      numberOfChildren++;
+    }
   }
 
   @GuardedBy("this")
@@ -568,6 +582,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
     this.clock = clock;
     this.hasBeenEnded = false;
     this.sampleToLocalSpanStore = false;
+    this.numberOfChildren = 0;
     this.timestampConverter =
         timestampConverter != null ? timestampConverter : TimestampConverter.now(clock);
     startNanoTime = clock.nowNanos();

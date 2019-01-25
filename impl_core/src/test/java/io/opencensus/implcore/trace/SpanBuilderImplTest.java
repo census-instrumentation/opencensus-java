@@ -139,6 +139,33 @@ public class SpanBuilderImplTest {
   }
 
   @Test
+  public void startSpanIncreaseNumberOfChildren() {
+    RecordEventsSpanImpl parent =
+        (RecordEventsSpanImpl)
+            SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+                .setSampler(Samplers.alwaysSample())
+                .startSpan();
+    assertThat(parent.getContext().getTraceOptions().isSampled()).isTrue();
+    assertThat(parent.toSpanData().getChildSpanCount()).isEqualTo(0);
+    RecordEventsSpanImpl span =
+        (RecordEventsSpanImpl)
+            SpanBuilderImpl.createWithParent(SPAN_NAME, parent, spanBuilderOptions)
+                .setSampler(Samplers.alwaysSample())
+                .startSpan();
+    assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
+    assertThat(span.toSpanData().getChildSpanCount()).isEqualTo(0);
+    assertThat(parent.toSpanData().getChildSpanCount()).isEqualTo(1);
+    span =
+        (RecordEventsSpanImpl)
+            SpanBuilderImpl.createWithParent(SPAN_NAME, parent, spanBuilderOptions)
+                .setSampler(Samplers.alwaysSample())
+                .startSpan();
+    assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
+    assertThat(span.toSpanData().getChildSpanCount()).isEqualTo(0);
+    assertThat(parent.toSpanData().getChildSpanCount()).isEqualTo(2);
+  }
+
+  @Test
   public void startSpanNullParentNoRecordOptions() {
     Span span =
         SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)

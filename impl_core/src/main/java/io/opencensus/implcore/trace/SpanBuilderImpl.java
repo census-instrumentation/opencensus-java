@@ -58,14 +58,14 @@ final class SpanBuilderImpl extends SpanBuilder {
   @Nullable private Kind kind;
 
   private Span startSpanInternal(
-      @Nullable SpanContext parent,
+      @Nullable SpanContext parentContext,
       @Nullable Boolean hasRemoteParent,
       String name,
       @Nullable Sampler sampler,
       List<Span> parentLinks,
       @Nullable Boolean recordEvents,
       @Nullable Kind kind,
-      @Nullable TimestampConverter timestampConverter) {
+      @Nullable RecordEventsSpanImpl paretRecordEventsSpan) {
     TraceParams activeTraceParams = options.traceConfig.getActiveTraceParams();
     Random random = options.randomHandler.current();
     TraceId traceId;
@@ -73,20 +73,20 @@ final class SpanBuilderImpl extends SpanBuilder {
     SpanId parentSpanId = null;
     // TODO(bdrutu): Handle tracestate correctly not just propagate.
     Tracestate tracestate = TRACESTATE_DEFAULT;
-    if (parent == null || !parent.isValid()) {
+    if (parentContext == null || !parentContext.isValid()) {
       // New root span.
       traceId = TraceId.generateRandomId(random);
       // This is a root span so no remote or local parent.
       hasRemoteParent = null;
     } else {
       // New child span.
-      traceId = parent.getTraceId();
-      parentSpanId = parent.getSpanId();
-      tracestate = parent.getTracestate();
+      traceId = parentContext.getTraceId();
+      parentSpanId = parentContext.getSpanId();
+      tracestate = parentContext.getTracestate();
     }
     TraceOptions traceOptions =
         makeSamplingDecision(
-                parent,
+                parentContext,
                 hasRemoteParent,
                 name,
                 sampler,
@@ -96,22 +96,32 @@ final class SpanBuilderImpl extends SpanBuilder {
                 activeTraceParams)
             ? SAMPLED_TRACE_OPTIONS
             : NOT_SAMPLED_TRACE_OPTIONS;
-    Span span =
-        (traceOptions.isSampled() || Boolean.TRUE.equals(recordEvents))
-            ? RecordEventsSpanImpl.startSpan(
-                SpanContext.create(traceId, spanId, traceOptions, tracestate),
-                name,
-                kind,
-                parentSpanId,
-                hasRemoteParent,
-                activeTraceParams,
-                options.startEndHandler,
-                timestampConverter,
-                options.clock)
-            : NoRecordEventsSpanImpl.create(
-                SpanContext.create(traceId, spanId, traceOptions, tracestate));
-    linkSpans(span, parentLinks);
-    return span;
+
+    if (traceOptions.isSampled() || Boolean.TRUE.equals(recordEvents)) {
+      // Pass the timestamp converter from the parent to ensure that the recorded events are in
+      // the right order. Implementation uses System.nanoTime() which is monotonically increasing.
+      TimestampConverter timestampConverter = null;
+      if (paretRecordEventsSpan != null) {
+        timestampConverter = paretRecordEventsSpan.getTimestampConverter();
+        paretRecordEventsSpan.addChild();
+      }
+      Span span =
+          RecordEventsSpanImpl.startSpan(
+              SpanContext.create(traceId, spanId, traceOptions, tracestate),
+              name,
+              kind,
+              parentSpanId,
+              hasRemoteParent,
+              activeTraceParams,
+              options.startEndHandler,
+              timestampConverter,
+              options.clock);
+      linkSpans(span, parentLinks);
+      return span;
+    } else {
+      return NoRecordEventsSpanImpl.create(
+          SpanContext.create(traceId, spanId, traceOptions, tracestate));
+    }
   }
 
   private static boolean makeSamplingDecision(
@@ -182,6 +192,7 @@ final class SpanBuilderImpl extends SpanBuilder {
     SpanContext parentContext = remoteParentSpanContext;
     Boolean hasRemoteParent = Boolean.TRUE;
     TimestampConverter timestampConverter = null;
+    RecordEventsSpanImpl parentRecordEventsSpan = null;
     if (remoteParentSpanContext == null) {
       // This is not a child of a remote Span. Get the parent SpanContext from the parent Span if
       // any.
@@ -189,10 +200,8 @@ final class SpanBuilderImpl extends SpanBuilder {
       hasRemoteParent = Boolean.FALSE;
       if (parent != null) {
         parentContext = parent.getContext();
-        // Pass the timestamp converter from the parent to ensure that the recorded events are in
-        // the right order. Implementation uses System.nanoTime() which is monotonically increasing.
         if (parent instanceof RecordEventsSpanImpl) {
-          timestampConverter = ((RecordEventsSpanImpl) parent).getTimestampConverter();
+          parentRecordEventsSpan = (RecordEventsSpanImpl) parent;
         }
       } else {
         hasRemoteParent = null;
@@ -206,7 +215,7 @@ final class SpanBuilderImpl extends SpanBuilder {
         parentLinks,
         recordEvents,
         kind,
-        timestampConverter);
+        parentRecordEventsSpan);
   }
 
   static final class Options {
