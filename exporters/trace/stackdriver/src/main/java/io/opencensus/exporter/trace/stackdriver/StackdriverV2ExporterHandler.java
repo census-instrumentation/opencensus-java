@@ -69,7 +69,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.Nullable;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -155,7 +154,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private StackdriverV2ExporterHandler(
       String projectId,
       TraceServiceClient traceServiceClient,
-      @Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes) {
+      @javax.annotation.Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes) {
     this.projectId = checkNotNull(projectId, "projectId");
     this.traceServiceClient = traceServiceClient;
     if (fixedAttributes == null) {
@@ -176,14 +175,14 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   static StackdriverV2ExporterHandler createWithStub(
       String projectId,
       TraceServiceClient traceServiceClient,
-      @Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes) {
+      @javax.annotation.Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes) {
     return new StackdriverV2ExporterHandler(projectId, traceServiceClient, fixedAttributes);
   }
 
   static StackdriverV2ExporterHandler createWithCredentials(
       String projectId,
       Credentials credentials,
-      @Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes)
+      @javax.annotation.Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes)
       throws IOException {
     TraceServiceSettings traceServiceSettings =
         TraceServiceSettings.newBuilder()
