@@ -3,8 +3,12 @@ description = 'OpenCensus Stackdriver Log Correlation'
 apply plugin: 'java'
 
 dependencies {
-    compile project(':opencensus-api'),
-            libraries.google_cloud_logging
+    compile project(':opencensus-api')
+
+    compile (libraries.google_cloud_logging) {
+        // We will always be more up to date.
+        exclude group: 'io.opencensus', module: 'opencensus-api'
+    }
 
     testCompile libraries.guava
 

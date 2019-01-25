@@ -85,9 +85,7 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
   private static Map<String, String> attributesToMeta(
       final Map<String, AttributeValue> attributes) {
     final HashMap<String, String> result = new HashMap<>();
-    attributes
-        .entrySet()
-        .stream()
+    attributes.entrySet().stream()
         .filter(entry -> entry.getValue() != null)
         .forEach(entry -> result.put(entry.getKey(), attributeValueToString(entry.getValue())));
     return result;
@@ -157,8 +155,7 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
     }
 
     final Collection<List<DatadogSpan>> traces =
-        datadogSpans
-            .stream()
+        datadogSpans.stream()
             .collect(Collectors.groupingBy(DatadogSpan::getTraceId, Collectors.toList()))
             .values();
 
