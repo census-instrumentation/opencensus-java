@@ -19,6 +19,8 @@ package io.opencensus.exporter.trace.stackdriver;
 import com.google.auth.Credentials;
 import com.google.auto.value.AutoValue;
 import com.google.cloud.trace.v2.stub.TraceServiceStub;
+import io.opencensus.trace.AttributeValue;
+import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -59,6 +61,15 @@ public abstract class StackdriverTraceConfiguration {
    */
   @Nullable
   public abstract TraceServiceStub getTraceServiceStub();
+
+  /**
+   * Returns a map of attributes that is added to all the exported spans.
+   *
+   * @return the map of attributes that is added to all the exported spans.
+   * @since 0.19
+   */
+  @Nullable
+  public abstract Map<String, AttributeValue> getFixedAttributes();
 
   /**
    * Returns a new {@link Builder}.
@@ -106,6 +117,15 @@ public abstract class StackdriverTraceConfiguration {
      * @since 0.16
      */
     public abstract Builder setTraceServiceStub(TraceServiceStub traceServiceStub);
+
+    /**
+     * Sets the map of attributes that is added to all the exported spans.
+     *
+     * @param fixedAttributes the map of attributes that is added to all the exported spans.
+     * @return this.
+     * @since 0.16
+     */
+    public abstract Builder setFixedAttributes(Map<String, AttributeValue> fixedAttributes);
 
     /**
      * Builds a {@link StackdriverTraceConfiguration}.

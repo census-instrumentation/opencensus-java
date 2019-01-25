@@ -99,7 +99,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           .put("http.status_code", "/http/status_code")
           .build();
 
-  @Deprecated @javax.annotation.Nullable
+  @javax.annotation.Nullable
+  @SuppressWarnings("deprecation")
   private static final MonitoredResource RESOURCE = MonitoredResourceUtils.getDefaultResource();
 
   // Only initialize once.
@@ -110,9 +111,9 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
       new Function<String, /*@Nullable*/ AttributeValue>() {
         @Override
         public AttributeValue apply(String stringValue) {
-          AttributeValue.Builder attributeValueBuilder = AttributeValue.newBuilder();
-          attributeValueBuilder.setStringValue(toTruncatableStringProto(stringValue));
-          return attributeValueBuilder.build();
+          return AttributeValue.newBuilder()
+              .setStringValue(toTruncatableStringProto(stringValue))
+              .build();
         }
       };
   private static final Function<Boolean, /*@Nullable*/ AttributeValue>
@@ -120,18 +121,14 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           new Function<Boolean, /*@Nullable*/ AttributeValue>() {
             @Override
             public AttributeValue apply(Boolean booleanValue) {
-              AttributeValue.Builder attributeValueBuilder = AttributeValue.newBuilder();
-              attributeValueBuilder.setBoolValue(booleanValue);
-              return attributeValueBuilder.build();
+              return AttributeValue.newBuilder().setBoolValue(booleanValue).build();
             }
           };
   private static final Function<Long, /*@Nullable*/ AttributeValue> longAttributeValueFunction =
       new Function<Long, /*@Nullable*/ AttributeValue>() {
         @Override
         public AttributeValue apply(Long longValue) {
-          AttributeValue.Builder attributeValueBuilder = AttributeValue.newBuilder();
-          attributeValueBuilder.setIntValue(longValue);
-          return attributeValueBuilder.build();
+          return AttributeValue.newBuilder().setIntValue(longValue).build();
         }
       };
   private static final Function<Double, /*@Nullable*/ AttributeValue> doubleAttributeValueFunction =
@@ -149,30 +146,58 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private static final EndSpanOptions END_SPAN_OPTIONS =
       EndSpanOptions.builder().setSampleToLocalSpanStore(true).build();
 
+  private final Map<String, AttributeValue> fixedAttributes;
   private final String projectId;
   private final TraceServiceClient traceServiceClient;
   private final ProjectName projectName;
 
-  @VisibleForTesting
-  StackdriverV2ExporterHandler(String projectId, TraceServiceClient traceServiceClient) {
+  private StackdriverV2ExporterHandler(
+      String projectId,
+      TraceServiceClient traceServiceClient,
+      @javax.annotation.Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes) {
     this.projectId = checkNotNull(projectId, "projectId");
     this.traceServiceClient = traceServiceClient;
+    if (fixedAttributes == null) {
+      this.fixedAttributes = Collections.emptyMap();
+    } else {
+      this.fixedAttributes = new HashMap<>();
+      for (Map.Entry<String, io.opencensus.trace.AttributeValue> label :
+          fixedAttributes.entrySet()) {
+        AttributeValue value = toAttributeValueProto(label.getValue());
+        if (value != null) {
+          this.fixedAttributes.put(label.getKey(), value);
+        }
+      }
+    }
     projectName = ProjectName.of(this.projectId);
   }
 
+  static StackdriverV2ExporterHandler createWithStub(
+      String projectId,
+      TraceServiceClient traceServiceClient,
+      @javax.annotation.Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes) {
+    return new StackdriverV2ExporterHandler(projectId, traceServiceClient, fixedAttributes);
+  }
+
   static StackdriverV2ExporterHandler createWithCredentials(
-      Credentials credentials, String projectId) throws IOException {
-    checkNotNull(credentials, "credentials");
+      String projectId,
+      Credentials credentials,
+      @javax.annotation.Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes)
+      throws IOException {
     TraceServiceSettings traceServiceSettings =
         TraceServiceSettings.newBuilder()
-            .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
+            .setCredentialsProvider(
+                FixedCredentialsProvider.create(checkNotNull(credentials, "credentials")))
             .build();
     return new StackdriverV2ExporterHandler(
-        projectId, TraceServiceClient.create(traceServiceSettings));
+        projectId, TraceServiceClient.create(traceServiceSettings), fixedAttributes);
   }
 
   @VisibleForTesting
-  Span generateSpan(SpanData spanData, Map<String, AttributeValue> resourceLabels) {
+  Span generateSpan(
+      SpanData spanData,
+      Map<String, AttributeValue> resourceLabels,
+      Map<String, AttributeValue> fixedAttributes) {
     SpanContext context = spanData.getContext();
     final String spanIdHex = context.getSpanId().toLowerBase16();
     SpanName spanName =
@@ -188,7 +213,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             .setDisplayName(
                 toTruncatableStringProto(toDisplayName(spanData.getName(), spanData.getKind())))
             .setStartTime(toTimestampProto(spanData.getStartTimestamp()))
-            .setAttributes(toAttributesProto(spanData.getAttributes(), resourceLabels))
+            .setAttributes(
+                toAttributesProto(spanData.getAttributes(), resourceLabels, fixedAttributes))
             .setTimeEvents(
                 toTimeEventsProto(spanData.getAnnotations(), spanData.getMessageEvents()));
     io.opencensus.trace.Status status = spanData.getStatus();
@@ -269,12 +295,16 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   // These are the attributes of the Span, where usually we may add more attributes like the agent.
   private static Attributes toAttributesProto(
       io.opencensus.trace.export.SpanData.Attributes attributes,
-      Map<String, AttributeValue> resourceLabels) {
+      Map<String, AttributeValue> resourceLabels,
+      Map<String, AttributeValue> fixedAttributes) {
     Attributes.Builder attributesBuilder =
         toAttributesBuilderProto(
             attributes.getAttributeMap(), attributes.getDroppedAttributesCount());
     attributesBuilder.putAttributeMap(AGENT_LABEL_KEY, AGENT_LABEL_VALUE);
     for (Entry<String, AttributeValue> entry : resourceLabels.entrySet()) {
+      attributesBuilder.putAttributeMap(entry.getKey(), entry.getValue());
+    }
+    for (Entry<String, AttributeValue> entry : fixedAttributes.entrySet()) {
       attributesBuilder.putAttributeMap(entry.getKey(), entry.getValue());
     }
     return attributesBuilder.build();
@@ -493,7 +523,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     try {
       List<Span> spans = new ArrayList<>(spanDataList.size());
       for (SpanData spanData : spanDataList) {
-        spans.add(generateSpan(spanData, RESOURCE_LABELS));
+        spans.add(generateSpan(spanData, RESOURCE_LABELS, fixedAttributes));
       }
       // Sync call because it is already called for a batch of data, and on a separate thread.
       // TODO(bdrutu): Consider to make this async in the future.

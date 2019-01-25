@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.cloud.trace.v2.TraceServiceClient;
 import com.google.cloud.trace.v2.stub.TraceServiceStub;
+import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.export.SpanData;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,7 +50,9 @@ public final class StackdriverV2ExporterHandlerExportTest {
     // TODO(@Hailong): TraceServiceClient.create(TraceServiceStub) is a beta API and might change
     // in the future.
     traceServiceClient = TraceServiceClient.create(traceServiceStub);
-    handler = new StackdriverV2ExporterHandler(PROJECT_ID, traceServiceClient);
+    handler =
+        StackdriverV2ExporterHandler.createWithStub(
+            PROJECT_ID, traceServiceClient, Collections.<String, AttributeValue>emptyMap());
   }
 
   @Test

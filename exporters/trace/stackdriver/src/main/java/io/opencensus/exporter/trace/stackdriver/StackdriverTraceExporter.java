@@ -87,10 +87,13 @@ public final class StackdriverTraceExporter {
       if (stub == null) {
         handler =
             StackdriverV2ExporterHandler.createWithCredentials(
+                projectId,
                 credentials != null ? credentials : GoogleCredentials.getApplicationDefault(),
-                projectId);
+                configuration.getFixedAttributes());
       } else {
-        handler = new StackdriverV2ExporterHandler(projectId, TraceServiceClient.create(stub));
+        handler =
+            StackdriverV2ExporterHandler.createWithStub(
+                projectId, TraceServiceClient.create(stub), configuration.getFixedAttributes());
       }
 
       registerInternal(handler);
