@@ -9,13 +9,18 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
     }
 }
 
 apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'com.google.protobuf'
+
+// Display the version report using: ./gradlew dependencyUpdates
+// Also see https://github.com/ben-manes/gradle-versions-plugin.
+apply plugin: 'com.github.ben-manes.versions'
 
 repositories {
     mavenCentral()
@@ -26,8 +31,8 @@ group = "io.opencensus"
 version = "0.19.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
 def opencensusVersion = "0.18.0" // LATEST_OPENCENSUS_RELEASE_VERSION
-def grpcVersion = "1.15.0" // CURRENT_GRPC_VERSION
-def prometheusVersion = "0.5.0"
+def grpcVersion = "1.18.0" // CURRENT_GRPC_VERSION
+def prometheusVersion = "0.6.0"
 def jettyVersion = "9.4.12.v20180830"
 
 tasks.withType(JavaCompile) {
@@ -36,7 +41,7 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    compile "com.google.api.grpc:proto-google-common-protos:1.11.0",
+    compile "com.google.api.grpc:proto-google-common-protos:1.12.0",
             "io.opencensus:opencensus-api:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-zpages:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-grpc-metrics:${opencensusVersion}",
@@ -66,7 +71,7 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = 'com.google.protobuf:protoc:3.5.1-1'
+        artifact = 'com.google.protobuf:protoc:3.6.1'
     }
     plugins {
         grpc {
