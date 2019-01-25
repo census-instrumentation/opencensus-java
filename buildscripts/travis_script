@@ -20,18 +20,10 @@ case "$TASK" in
             ./gradlew clean assemble check --stacktrace
             ;;
           "oraclejdk8")
-            export JAVA_HOMES="$(jdk_switcher home openjdk7)/jre:$(jdk_switcher home oraclejdk8)/jre:$(jdk_switcher home oraclejdk9)"
+            export JAVA_HOMES="$(jdk_switcher home oraclejdk8)/jre:$(jdk_switcher home oraclejdk9)/jre"
             ./gradlew clean assemble --stacktrace
             ./gradlew check :opencensus-all:jacocoTestReport
             ./gradlew verGJF
-            ;;
-          "openjdk7")
-            # "./gradlew classes testClasses" is a workaround for
-            # https://github.com/gradle/gradle/issues/2421.
-            # See https://github.com/gradle/gradle/issues/2421#issuecomment-319916874.
-            JAVA_HOME="$(jdk_switcher home openjdk8)" ./gradlew classes testClasses
-            ./gradlew clean assemble --stacktrace
-            ./gradlew check
             ;;
           *)
             echo "Unknown JDK version $TRAVIS_JDK_VERSION"
