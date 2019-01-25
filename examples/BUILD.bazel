@@ -61,7 +61,6 @@ java_library(
         "@com_google_cloud_google_cloud_trace//jar",
         "@com_google_http_client_google_http_client//jar",
         "@com_google_http_client_google_http_client_jackson2//jar",
-        "@com_google_instrumentation_instrumentation_api//jar",
         "@com_google_protobuf_protobuf_java//jar",
         "@com_google_protobuf_protobuf_java_util//jar",
         "@commons_codec_commons_codec//jar",
