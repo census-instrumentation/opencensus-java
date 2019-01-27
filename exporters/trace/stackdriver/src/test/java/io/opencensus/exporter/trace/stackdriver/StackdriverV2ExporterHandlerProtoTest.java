@@ -389,6 +389,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             parentSpanId,
             /* hasRemoteParent= */ true,
             SPAN_NAME,
+            null,
             startTimestamp,
             httpAttributes,
             annotations,
@@ -411,6 +412,32 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         .containsEntry("/http/user_agent", toStringAttributeValueProto("user_agent"));
     assertThat(attributes)
         .containsEntry("/http/status_code", AttributeValue.newBuilder().setIntValue(200L).build());
+  }
+
+  @Test
+  public void exportChildSpanCount() {
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            /* hasRemoteParent= */ true,
+            SPAN_NAME,
+            Kind.SERVER,
+            startTimestamp,
+            attributes,
+            annotations,
+            messageEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+    assertThat(
+            handler
+                .generateSpan(
+                    spanData, EMPTY_RESOURCE_LABELS, Collections.<String, AttributeValue>emptyMap())
+                .getChildSpanCount()
+                .getValue())
+        .isEqualTo(CHILD_SPAN_COUNT);
   }
 
   @Test
