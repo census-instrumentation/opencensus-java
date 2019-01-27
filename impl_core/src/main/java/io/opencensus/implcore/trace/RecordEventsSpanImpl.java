@@ -95,7 +95,6 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
   private TraceEvents<Link> links;
   // The number of children.
   @GuardedBy("this")
-  @Nullable
   private int numberOfChildren;
   // The status of the span.
   @GuardedBy("this")

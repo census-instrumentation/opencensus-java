@@ -65,7 +65,7 @@ final class SpanBuilderImpl extends SpanBuilder {
       List<Span> parentLinks,
       @Nullable Boolean recordEvents,
       @Nullable Kind kind,
-      @Nullable RecordEventsSpanImpl paretRecordEventsSpan) {
+      @Nullable Span parentSpan) {
     TraceParams activeTraceParams = options.traceConfig.getActiveTraceParams();
     Random random = options.randomHandler.current();
     TraceId traceId;
@@ -101,9 +101,10 @@ final class SpanBuilderImpl extends SpanBuilder {
       // Pass the timestamp converter from the parent to ensure that the recorded events are in
       // the right order. Implementation uses System.nanoTime() which is monotonically increasing.
       TimestampConverter timestampConverter = null;
-      if (paretRecordEventsSpan != null) {
-        timestampConverter = paretRecordEventsSpan.getTimestampConverter();
-        paretRecordEventsSpan.addChild();
+      if (parentSpan instanceof RecordEventsSpanImpl) {
+        RecordEventsSpanImpl parentRecordEventsSpan = (RecordEventsSpanImpl) parentSpan;
+        timestampConverter = parentRecordEventsSpan.getTimestampConverter();
+        parentRecordEventsSpan.addChild();
       }
       Span span =
           RecordEventsSpanImpl.startSpan(
@@ -189,33 +190,28 @@ final class SpanBuilderImpl extends SpanBuilder {
 
   @Override
   public Span startSpan() {
-    SpanContext parentContext = remoteParentSpanContext;
-    Boolean hasRemoteParent = Boolean.TRUE;
-    TimestampConverter timestampConverter = null;
-    RecordEventsSpanImpl parentRecordEventsSpan = null;
-    if (remoteParentSpanContext == null) {
+    if (remoteParentSpanContext != null) {
+      return startSpanInternal(
+          remoteParentSpanContext,
+          Boolean.TRUE,
+          name,
+          sampler,
+          parentLinks,
+          recordEvents,
+          kind,
+          null);
+    } else {
       // This is not a child of a remote Span. Get the parent SpanContext from the parent Span if
       // any.
-      Span parent = this.parent;
-      hasRemoteParent = Boolean.FALSE;
+      SpanContext parentContext = null;
+      Boolean hasRemoteParent = null;
       if (parent != null) {
         parentContext = parent.getContext();
-        if (parent instanceof RecordEventsSpanImpl) {
-          parentRecordEventsSpan = (RecordEventsSpanImpl) parent;
-        }
-      } else {
-        hasRemoteParent = null;
+        hasRemoteParent = Boolean.FALSE;
       }
+      return startSpanInternal(
+          parentContext, hasRemoteParent, name, sampler, parentLinks, recordEvents, kind, parent);
     }
-    return startSpanInternal(
-        parentContext,
-        hasRemoteParent,
-        name,
-        sampler,
-        parentLinks,
-        recordEvents,
-        kind,
-        parentRecordEventsSpan);
   }
 
   static final class Options {
