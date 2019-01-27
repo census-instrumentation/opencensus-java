@@ -431,7 +431,12 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    assertThat(handler.generateSpan(spanData, EMPTY_RESOURCE_LABELS).getChildSpanCount().getValue())
+    assertThat(
+            handler
+                .generateSpan(
+                    spanData, EMPTY_RESOURCE_LABELS, Collections.<String, AttributeValue>emptyMap())
+                .getChildSpanCount()
+                .getValue())
         .isEqualTo(CHILD_SPAN_COUNT);
   }
 
