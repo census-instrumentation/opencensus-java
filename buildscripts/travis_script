@@ -20,7 +20,7 @@ case "$TASK" in
             ./gradlew clean assemble check --stacktrace
             ;;
           "oraclejdk8")
-            export JAVA_HOMES="$(jdk_switcher home oraclejdk8)/jre:$(jdk_switcher home oraclejdk9)/jre"
+            export JAVA_HOMES="$(jdk_switcher home oraclejdk8)/jre:$(jdk_switcher home oraclejdk9)"
             ./gradlew clean assemble --stacktrace
             ./gradlew check :opencensus-all:jacocoTestReport
             ./gradlew verGJF
