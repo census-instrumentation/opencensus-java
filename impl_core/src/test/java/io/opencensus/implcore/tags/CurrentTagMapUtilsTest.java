@@ -24,6 +24,7 @@ import io.grpc.Context;
 import io.opencensus.common.Scope;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.unsafe.ContextUtils;
@@ -43,6 +44,11 @@ public class CurrentTagMapUtilsTest {
         @Override
         protected Iterator<Tag> getIterator() {
           return ImmutableSet.<Tag>of(TAG).iterator();
+        }
+
+        @Override
+        public TagScope getTagScope() {
+          return TagScope.LOCAL;
         }
       };
 

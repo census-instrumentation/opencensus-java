@@ -25,6 +25,7 @@ import io.opencensus.implcore.tags.TagMapImpl;
 import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.propagation.TagContextDeserializationException;
@@ -107,7 +108,7 @@ final class SerializationUtils {
         throw new TagContextDeserializationException(
             "Wrong Version ID: " + versionId + ". Currently supports version up to: " + VERSION_ID);
       }
-      return new TagMapImpl(parseTags(buffer));
+      return new TagMapImpl(parseTags(buffer), TagScope.LOCAL);
     } catch (BufferUnderflowException exn) {
       throw new TagContextDeserializationException(exn.toString()); // byte array format error.
     }

@@ -19,6 +19,7 @@ package io.opencensus.tags.unsafe;
 import io.grpc.Context;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextBuilder.TagScope;
 import java.util.Collections;
 import java.util.Iterator;
 import javax.annotation.concurrent.Immutable;
@@ -51,6 +52,11 @@ public final class ContextUtils {
     @Override
     protected Iterator<Tag> getIterator() {
       return Collections.<Tag>emptySet().iterator();
+    }
+
+    @Override
+    public TagScope getTagScope() {
+      return TagScope.LOCAL;
     }
   }
 }

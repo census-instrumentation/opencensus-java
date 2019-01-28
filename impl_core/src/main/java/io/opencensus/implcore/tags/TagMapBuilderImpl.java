@@ -27,6 +27,7 @@ import java.util.Map;
 
 final class TagMapBuilderImpl extends TagContextBuilder {
   private final Map<TagKey, TagValue> tags;
+  private TagScope tagScope = TagScope.LOCAL;
 
   TagMapBuilderImpl(Map<TagKey, TagValue> tags) {
     this.tags = new HashMap<TagKey, TagValue>(tags);
@@ -49,8 +50,14 @@ final class TagMapBuilderImpl extends TagContextBuilder {
   }
 
   @Override
+  public TagContextBuilder setTagScope(TagScope tagScope) {
+    this.tagScope = checkNotNull(tagScope, "tagScope");
+    return this;
+  }
+
+  @Override
   public TagMapImpl build() {
-    return new TagMapImpl(tags);
+    return new TagMapImpl(tags, tagScope);
   }
 
   @Override

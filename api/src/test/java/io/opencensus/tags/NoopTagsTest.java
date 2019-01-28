@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
 import io.opencensus.internal.NoopScope;
+import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagContextDeserializationException;
 import io.opencensus.tags.propagation.TagContextSerializationException;
@@ -43,6 +44,11 @@ public final class NoopTagsTest {
         @Override
         protected Iterator<Tag> getIterator() {
           return Arrays.<Tag>asList(Tag.create(KEY, VALUE)).iterator();
+        }
+
+        @Override
+        public TagScope getTagScope() {
+          return TagScope.LOCAL;
         }
       };
 
@@ -142,8 +148,20 @@ public final class NoopTagsTest {
   }
 
   @Test
+  public void noopTagContextBuilder_SetTagScope_DisallowsNull() {
+    TagContextBuilder noopBuilder = NoopTags.getNoopTagContextBuilder();
+    thrown.expect(NullPointerException.class);
+    noopBuilder.setTagScope(null);
+  }
+
+  @Test
   public void noopTagContext() {
     assertThat(Lists.newArrayList(NoopTags.getNoopTagContext().getIterator())).isEmpty();
+  }
+
+  @Test
+  public void noopTagContext_GetTagScope() {
+    assertThat(NoopTags.getNoopTagContext().getTagScope()).isEqualTo(TagScope.LOCAL);
   }
 
   @Test

@@ -1,4 +1,5 @@
 ## Unreleased
+- Add support for `TagScope`. This is a breaking change because from now on `TagKey`s will be non-propagating by default.
 - Add OpenCensus Java OC-Agent Trace Exporter.
 - Add OpenCensus Java OC-Agent Metrics Exporter.
 

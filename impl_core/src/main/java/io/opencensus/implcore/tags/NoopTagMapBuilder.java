@@ -40,6 +40,11 @@ final class NoopTagMapBuilder extends TagContextBuilder {
   }
 
   @Override
+  public TagContextBuilder setTagScope(TagScope tagScope) {
+    return this;
+  }
+
+  @Override
   public TagContext build() {
     return TagMapImpl.EMPTY;
   }

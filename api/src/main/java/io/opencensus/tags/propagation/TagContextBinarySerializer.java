@@ -34,6 +34,9 @@ public abstract class TagContextBinarySerializer {
    *
    * <p>This method should be the inverse of {@link #fromByteArray}.
    *
+   * <p>Only the {@code TagContext}s with {@link
+   * io.opencensus.tags.TagContextBuilder.TagScope#REQUEST} will be serialized.
+   *
    * @param tags the {@code TagContext} to serialize.
    * @return the on-the-wire representation of a {@code TagContext}.
    * @throws TagContextSerializationException if the result would be larger than the maximum allowed

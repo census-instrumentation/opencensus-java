@@ -50,15 +50,16 @@ public class TagContextRoundtripTest {
 
   @Test
   public void testRoundtripSerialization_NormalTagContext() throws Exception {
-    testRoundtripSerialization(tagger.empty());
-    testRoundtripSerialization(tagger.emptyBuilder().put(K1, V1).build());
-    testRoundtripSerialization(tagger.emptyBuilder().put(K1, V1).put(K2, V2).put(K3, V3).build());
-    testRoundtripSerialization(tagger.emptyBuilder().put(K1, V_EMPTY).build());
+    TagContextBuilder requestCtxBuilder = tagger.emptyRequestScopeBuilder();
+    testRoundtripSerialization(requestCtxBuilder.build());
+    testRoundtripSerialization(requestCtxBuilder.put(K1, V1).build());
+    testRoundtripSerialization(requestCtxBuilder.put(K1, V1).put(K2, V2).put(K3, V3).build());
+    testRoundtripSerialization(requestCtxBuilder.put(K1, V_EMPTY).build());
   }
 
   @Test
   public void testRoundtrip_TagContextWithMaximumSize() throws Exception {
-    TagContextBuilder builder = tagger.emptyBuilder();
+    TagContextBuilder builder = tagger.emptyRequestScopeBuilder();
     for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8; i++) {
       // Each tag will be with format {key : "0123", value : "0123"}, so the length of it is 8.
       // Add 1024 tags, the total size should just be 8192.

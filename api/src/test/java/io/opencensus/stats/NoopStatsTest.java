@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.util.Collections;
@@ -47,6 +48,11 @@ public final class NoopStatsTest {
         @Override
         protected Iterator<Tag> getIterator() {
           return Collections.<Tag>singleton(TAG).iterator();
+        }
+
+        @Override
+        public TagScope getTagScope() {
+          return TagScope.LOCAL;
         }
       };
 

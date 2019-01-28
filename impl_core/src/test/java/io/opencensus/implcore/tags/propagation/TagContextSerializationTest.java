@@ -90,7 +90,7 @@ public class TagContextSerializationTest {
 
   @Test
   public void testSerializeTooLargeTagContext() throws TagContextSerializationException {
-    TagContextBuilder builder = tagger.emptyBuilder();
+    TagContextBuilder builder = tagger.emptyRequestScopeBuilder();
     for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
       // Each tag will be with format {key : "0123", value : "0123"}, so the length of it is 8.
       String str;
@@ -116,7 +116,7 @@ public class TagContextSerializationTest {
   }
 
   private void testSerialize(Tag... tags) throws IOException, TagContextSerializationException {
-    TagContextBuilder builder = tagger.emptyBuilder();
+    TagContextBuilder builder = tagger.emptyRequestScopeBuilder();
     for (Tag tag : tags) {
       builder.put(tag.getKey(), tag.getValue());
     }
