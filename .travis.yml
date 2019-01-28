@@ -33,9 +33,9 @@ matrix:
     env: TASK=BUILD_EXAMPLES_MAVEN
     os: linux
 
-  - jdk: oraclejdk8
-    env: TASK=BUILD_EXAMPLES_BAZEL
-    os: linux
+#  - jdk: oraclejdk8
+#    env: TASK=BUILD_EXAMPLES_BAZEL
+#    os: linux
 
   # Work around https://github.com/travis-ci/travis-ci/issues/2317
   - env: TASK=BUILD
