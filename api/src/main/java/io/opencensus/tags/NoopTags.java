@@ -166,7 +166,7 @@ final class NoopTags {
     @Override
     public TagContextBuilder setTagScope(TagScope tagScope) {
       Utils.checkNotNull(tagScope, "tagScope");
-      return null;
+      return this;
     }
 
     @Override
