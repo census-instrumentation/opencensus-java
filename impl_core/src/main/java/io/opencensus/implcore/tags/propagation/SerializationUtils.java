@@ -25,8 +25,8 @@ import io.opencensus.implcore.tags.TagMapImpl;
 import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagKey.TagScope;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.propagation.TagContextDeserializationException;
 import io.opencensus.tags.propagation.TagContextSerializationException;
@@ -81,6 +81,9 @@ final class SerializationUtils {
     int totalChars = 0; // Here chars are equivalent to bytes, since we're using ascii chars.
     for (Iterator<Tag> i = InternalUtils.getTags(tags); i.hasNext(); ) {
       Tag tag = i.next();
+      if (TagScope.LOCAL.equals(tag.getKey().getTagScope())) {
+        continue;
+      }
       totalChars += tag.getKey().getName().length();
       totalChars += tag.getValue().asString().length();
       encodeTag(tag, byteArrayDataOutput);
@@ -108,7 +111,7 @@ final class SerializationUtils {
         throw new TagContextDeserializationException(
             "Wrong Version ID: " + versionId + ". Currently supports version up to: " + VERSION_ID);
       }
-      return new TagMapImpl(parseTags(buffer), TagScope.LOCAL);
+      return new TagMapImpl(parseTags(buffer));
     } catch (BufferUnderflowException exn) {
       throw new TagContextDeserializationException(exn.toString()); // byte array format error.
     }
@@ -145,7 +148,7 @@ final class SerializationUtils {
   // IllegalArgumentException here.
   private static final TagKey createTagKey(String name) throws TagContextDeserializationException {
     try {
-      return TagKey.create(name);
+      return TagKey.create(name, TagScope.REQUEST);
     } catch (IllegalArgumentException e) {
       throw new TagContextDeserializationException("Invalid tag key: " + name, e);
     }

@@ -17,7 +17,6 @@
 package io.opencensus.tags;
 
 import io.opencensus.common.Scope;
-import io.opencensus.tags.TagContextBuilder.TagScope;
 
 /**
  * Object for creating new {@link TagContext}s and {@code TagContext}s based on the current context.
@@ -56,18 +55,6 @@ public abstract class Tagger {
    * @since 0.8
    */
   public abstract TagContextBuilder emptyBuilder();
-
-  /**
-   * Returns a new empty {@code Builder} with {@link
-   * io.opencensus.tags.TagContextBuilder.TagScope#REQUEST}.
-   *
-   * @return a new empty {@code Builder} with {@code
-   *     io.opencensus.tags.TagContextBuilder.TagScope#REQUEST}.
-   * @since 0.19
-   */
-  public final TagContextBuilder emptyRequestScopeBuilder() {
-    return emptyBuilder().setTagScope(TagScope.REQUEST);
-  }
 
   /**
    * Returns a builder based on this {@code TagContext}.

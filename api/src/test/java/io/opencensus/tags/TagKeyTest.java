@@ -19,6 +19,7 @@ package io.opencensus.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+import io.opencensus.tags.TagKey.TagScope;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +40,11 @@ public final class TagKeyTest {
   @Test
   public void testGetName() {
     assertThat(TagKey.create("foo").getName()).isEqualTo("foo");
+  }
+
+  @Test
+  public void getTagScope() {
+    assertThat(TagKey.create("foo", TagScope.REQUEST).getTagScope()).isEqualTo(TagScope.REQUEST);
   }
 
   @Test
@@ -68,6 +74,12 @@ public final class TagKeyTest {
   public void createString_DisallowEmpty() {
     thrown.expect(IllegalArgumentException.class);
     TagKey.create("");
+  }
+
+  @Test
+  public void create_DisallowNullTagScope() {
+    thrown.expect(NullPointerException.class);
+    TagKey.create("foo", null);
   }
 
   @Test

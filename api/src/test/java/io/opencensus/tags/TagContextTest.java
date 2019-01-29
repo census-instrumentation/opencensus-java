@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
-import io.opencensus.tags.TagContextBuilder.TagScope;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -46,11 +45,6 @@ public final class TagContextTest {
               @Override
               protected Iterator<Tag> getIterator() {
                 return Lists.newArrayList(TAG1, TAG2).iterator();
-              }
-
-              @Override
-              public TagScope getTagScope() {
-                return TagScope.LOCAL;
               }
             })
         .testEquals();
@@ -104,11 +98,6 @@ public final class TagContextTest {
     @Nullable
     protected Iterator<Tag> getIterator() {
       return tags == null ? null : tags.iterator();
-    }
-
-    @Override
-    public TagScope getTagScope() {
-      return TagScope.LOCAL;
     }
   }
 }

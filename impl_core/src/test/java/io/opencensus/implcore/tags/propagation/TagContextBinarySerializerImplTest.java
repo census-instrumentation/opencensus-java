@@ -23,8 +23,8 @@ import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.implcore.tags.TagsTestUtil;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagKey.TagScope;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.TagsComponent;
@@ -52,13 +52,9 @@ public final class TagContextBinarySerializerImplTest {
       new TagContext() {
         @Override
         public Iterator<Tag> getIterator() {
-          return ImmutableSet.<Tag>of(Tag.create(TagKey.create("key"), TagValue.create("value")))
+          return ImmutableSet.<Tag>of(
+                  Tag.create(TagKey.create("key", TagScope.REQUEST), TagValue.create("value")))
               .iterator();
-        }
-
-        @Override
-        public TagScope getTagScope() {
-          return TagScope.REQUEST;
         }
       };
 
@@ -80,7 +76,7 @@ public final class TagContextBinarySerializerImplTest {
   }
 
   @Test
-  public void toByteArray_LocalTagContext() throws TagContextSerializationException {
+  public void toByteArray_LocalTag() throws TagContextSerializationException {
     TagContext local =
         new TagContext() {
           @Override
@@ -88,13 +84,8 @@ public final class TagContextBinarySerializerImplTest {
             return ImmutableSet.<Tag>of(Tag.create(TagKey.create("key"), TagValue.create("value")))
                 .iterator();
           }
-
-          @Override
-          public TagScope getTagScope() {
-            return TagScope.LOCAL;
-          }
         };
-    assertThat(serializer.toByteArray(local)).isEmpty();
+    assertThat(serializer.toByteArray(local)).isEqualTo(new byte[] {SerializationUtils.VERSION_ID});
   }
 
   @Test

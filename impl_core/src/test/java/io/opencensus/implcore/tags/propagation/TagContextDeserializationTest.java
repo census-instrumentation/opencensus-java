@@ -25,6 +25,7 @@ import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagKey.TagScope;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagsComponent;
@@ -159,7 +160,7 @@ public class TagContextDeserializationTest {
     final byte[] bytes = output.toByteArray();
 
     thrown.expect(TagContextDeserializationException.class);
-    thrown.expectMessage("Invalid tag value for key TagKey{name=my key}: val\3");
+    thrown.expectMessage("Invalid tag value for key TagKey{name=my key, tagScope=REQUEST}: val\3");
     serializer.fromByteArray(bytes);
   }
 
@@ -169,7 +170,10 @@ public class TagContextDeserializationTest {
     output.write(SerializationUtils.VERSION_ID);
     encodeTagToOutput("Key", "Value", output);
     TagContext expected =
-        tagger.emptyBuilder().put(TagKey.create("Key"), TagValue.create("Value")).build();
+        tagger
+            .emptyBuilder()
+            .put(TagKey.create("Key", TagScope.REQUEST), TagValue.create("Value"))
+            .build();
     assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
   }
 
@@ -182,8 +186,8 @@ public class TagContextDeserializationTest {
     TagContext expected =
         tagger
             .emptyBuilder()
-            .put(TagKey.create("Key1"), TagValue.create("Value1"))
-            .put(TagKey.create("Key2"), TagValue.create("Value2"))
+            .put(TagKey.create("Key1", TagScope.REQUEST), TagValue.create("Value1"))
+            .put(TagKey.create("Key2", TagScope.REQUEST), TagValue.create("Value2"))
             .build();
     assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
   }
@@ -195,7 +199,10 @@ public class TagContextDeserializationTest {
     encodeTagToOutput("Key1", "Value1", output);
     encodeTagToOutput("Key1", "Value2", output);
     TagContext expected =
-        tagger.emptyBuilder().put(TagKey.create("Key1"), TagValue.create("Value2")).build();
+        tagger
+            .emptyBuilder()
+            .put(TagKey.create("Key1", TagScope.REQUEST), TagValue.create("Value2"))
+            .build();
     assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
   }
 
@@ -212,9 +219,9 @@ public class TagContextDeserializationTest {
     TagContext expected =
         tagger
             .emptyBuilder()
-            .put(TagKey.create("Key1"), TagValue.create("Value4"))
-            .put(TagKey.create("Key2"), TagValue.create("Value5"))
-            .put(TagKey.create("Key3"), TagValue.create("Value3"))
+            .put(TagKey.create("Key1", TagScope.REQUEST), TagValue.create("Value4"))
+            .put(TagKey.create("Key2", TagScope.REQUEST), TagValue.create("Value5"))
+            .put(TagKey.create("Key3", TagScope.REQUEST), TagValue.create("Value3"))
             .build();
     assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
   }
@@ -226,7 +233,10 @@ public class TagContextDeserializationTest {
     encodeTagToOutput("Key1", "Value1", output);
     encodeTagToOutput("Key1", "Value1", output);
     TagContext expected =
-        tagger.emptyBuilder().put(TagKey.create("Key1"), TagValue.create("Value1")).build();
+        tagger
+            .emptyBuilder()
+            .put(TagKey.create("Key1", TagScope.REQUEST), TagValue.create("Value1"))
+            .build();
     assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
   }
 
@@ -243,9 +253,9 @@ public class TagContextDeserializationTest {
     TagContext expected =
         tagger
             .emptyBuilder()
-            .put(TagKey.create("Key1"), TagValue.create("Value1"))
-            .put(TagKey.create("Key2"), TagValue.create("Value2"))
-            .put(TagKey.create("Key3"), TagValue.create("Value3"))
+            .put(TagKey.create("Key1", TagScope.REQUEST), TagValue.create("Value1"))
+            .put(TagKey.create("Key2", TagScope.REQUEST), TagValue.create("Value2"))
+            .put(TagKey.create("Key3", TagScope.REQUEST), TagValue.create("Value3"))
             .build();
     assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
   }
@@ -267,8 +277,8 @@ public class TagContextDeserializationTest {
     TagContext expected =
         tagger
             .emptyBuilder()
-            .put(TagKey.create("Key1"), TagValue.create("Value1"))
-            .put(TagKey.create("Key2"), TagValue.create("Value2"))
+            .put(TagKey.create("Key1", TagScope.REQUEST), TagValue.create("Value1"))
+            .put(TagKey.create("Key2", TagScope.REQUEST), TagValue.create("Value2"))
             .build();
     assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
   }

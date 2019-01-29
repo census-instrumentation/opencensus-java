@@ -28,7 +28,6 @@ import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
-import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
@@ -60,33 +59,33 @@ public class TagMapImplTest {
 
   @Test
   public void getTags_empty() {
-    TagMapImpl tags = new TagMapImpl(ImmutableMap.<TagKey, TagValue>of(), TagScope.LOCAL);
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.<TagKey, TagValue>of());
     assertThat(tags.getTags()).isEmpty();
   }
 
   @Test
   public void getTags_nonEmpty() {
-    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2), TagScope.LOCAL);
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
     assertThat(tags.getTags()).containsExactly(K1, V1, K2, V2);
   }
 
   @Test
   public void put_newKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1), TagScope.LOCAL);
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
     assertThat(((TagMapImpl) tagger.toBuilder(tags).put(K2, V2).build()).getTags())
         .containsExactly(K1, V1, K2, V2);
   }
 
   @Test
   public void put_existingKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1), TagScope.LOCAL);
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
     assertThat(((TagMapImpl) tagger.toBuilder(tags).put(K1, V2).build()).getTags())
         .containsExactly(K1, V2);
   }
 
   @Test
   public void put_nullKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1), TagScope.LOCAL);
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
     TagContextBuilder builder = tagger.toBuilder(tags);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key");
@@ -95,7 +94,7 @@ public class TagMapImplTest {
 
   @Test
   public void put_nullValue() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1), TagScope.LOCAL);
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
     TagContextBuilder builder = tagger.toBuilder(tags);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("value");
@@ -104,21 +103,21 @@ public class TagMapImplTest {
 
   @Test
   public void remove_existingKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2), TagScope.LOCAL);
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
     assertThat(((TagMapImpl) tagger.toBuilder(tags).remove(K1).build()).getTags())
         .containsExactly(K2, V2);
   }
 
   @Test
   public void remove_differentKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1), TagScope.LOCAL);
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
     assertThat(((TagMapImpl) tagger.toBuilder(tags).remove(K2).build()).getTags())
         .containsExactly(K1, V1);
   }
 
   @Test
   public void remove_nullKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1), TagScope.LOCAL);
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
     TagContextBuilder builder = tagger.toBuilder(tags);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key");
@@ -127,7 +126,7 @@ public class TagMapImplTest {
 
   @Test
   public void testIterator() {
-    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2), TagScope.LOCAL);
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
     Iterator<Tag> i = tags.getIterator();
     assertTrue(i.hasNext());
     Tag tag1 = i.next();
@@ -141,17 +140,11 @@ public class TagMapImplTest {
 
   @Test
   public void disallowCallingRemoveOnIterator() {
-    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2), TagScope.LOCAL);
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
     Iterator<Tag> i = tags.getIterator();
     i.next();
     thrown.expect(UnsupportedOperationException.class);
     i.remove();
-  }
-
-  @Test
-  public void getTagScope() {
-    TagMapImpl tags = new TagMapImpl(ImmutableMap.<TagKey, TagValue>of(), TagScope.REQUEST);
-    assertThat(tags.getTagScope()).isEqualTo(TagScope.REQUEST);
   }
 
   @Test
@@ -165,11 +158,6 @@ public class TagMapImplTest {
               @Override
               protected Iterator<Tag> getIterator() {
                 return Lists.<Tag>newArrayList(Tag.create(K1, V1), Tag.create(K2, V2)).iterator();
-              }
-
-              @Override
-              public TagScope getTagScope() {
-                return TagScope.LOCAL;
               }
             })
         .addEqualityGroup(tagger.emptyBuilder().put(K1, V1).put(K2, V1).build())

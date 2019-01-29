@@ -26,6 +26,7 @@ import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagKey.TagScope;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagsComponent;
@@ -53,10 +54,10 @@ public class TagContextSerializationTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private static final TagKey K1 = TagKey.create("k1");
-  private static final TagKey K2 = TagKey.create("k2");
-  private static final TagKey K3 = TagKey.create("k3");
-  private static final TagKey K4 = TagKey.create("k4");
+  private static final TagKey K1 = TagKey.create("k1", TagScope.REQUEST);
+  private static final TagKey K2 = TagKey.create("k2", TagScope.REQUEST);
+  private static final TagKey K3 = TagKey.create("k3", TagScope.REQUEST);
+  private static final TagKey K4 = TagKey.create("k4", TagScope.REQUEST);
 
   private static final TagValue V1 = TagValue.create("v1");
   private static final TagValue V2 = TagValue.create("v2");
@@ -90,7 +91,7 @@ public class TagContextSerializationTest {
 
   @Test
   public void testSerializeTooLargeTagContext() throws TagContextSerializationException {
-    TagContextBuilder builder = tagger.emptyRequestScopeBuilder();
+    TagContextBuilder builder = tagger.emptyBuilder();
     for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
       // Each tag will be with format {key : "0123", value : "0123"}, so the length of it is 8.
       String str;
@@ -103,11 +104,11 @@ public class TagContextSerializationTest {
       } else {
         str = String.valueOf(i);
       }
-      builder.put(TagKey.create(str), TagValue.create(str));
+      builder.put(TagKey.create(str, TagScope.REQUEST), TagValue.create(str));
     }
     // The last tag will be of size 9, so the total size of the TagContext (8193) will be one byte
     // more than limit.
-    builder.put(TagKey.create("last"), TagValue.create("last1"));
+    builder.put(TagKey.create("last", TagScope.REQUEST), TagValue.create("last1"));
 
     TagContext tagContext = builder.build();
     thrown.expect(TagContextSerializationException.class);
@@ -116,7 +117,7 @@ public class TagContextSerializationTest {
   }
 
   private void testSerialize(Tag... tags) throws IOException, TagContextSerializationException {
-    TagContextBuilder builder = tagger.emptyRequestScopeBuilder();
+    TagContextBuilder builder = tagger.emptyBuilder();
     for (Tag tag : tags) {
       builder.put(tag.getKey(), tag.getValue());
     }

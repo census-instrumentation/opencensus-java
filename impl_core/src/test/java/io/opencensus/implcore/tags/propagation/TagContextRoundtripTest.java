@@ -22,6 +22,7 @@ import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagKey.TagScope;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagsComponent;
@@ -34,9 +35,9 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TagContextRoundtripTest {
 
-  private static final TagKey K1 = TagKey.create("k1");
-  private static final TagKey K2 = TagKey.create("k2");
-  private static final TagKey K3 = TagKey.create("k3");
+  private static final TagKey K1 = TagKey.create("k1", TagScope.REQUEST);
+  private static final TagKey K2 = TagKey.create("k2", TagScope.REQUEST);
+  private static final TagKey K3 = TagKey.create("k3", TagScope.REQUEST);
 
   private static final TagValue V_EMPTY = TagValue.create("");
   private static final TagValue V1 = TagValue.create("v1");
@@ -50,16 +51,15 @@ public class TagContextRoundtripTest {
 
   @Test
   public void testRoundtripSerialization_NormalTagContext() throws Exception {
-    TagContextBuilder requestCtxBuilder = tagger.emptyRequestScopeBuilder();
-    testRoundtripSerialization(requestCtxBuilder.build());
-    testRoundtripSerialization(requestCtxBuilder.put(K1, V1).build());
-    testRoundtripSerialization(requestCtxBuilder.put(K1, V1).put(K2, V2).put(K3, V3).build());
-    testRoundtripSerialization(requestCtxBuilder.put(K1, V_EMPTY).build());
+    testRoundtripSerialization(tagger.emptyBuilder().build());
+    testRoundtripSerialization(tagger.emptyBuilder().put(K1, V1).build());
+    testRoundtripSerialization(tagger.emptyBuilder().put(K1, V1).put(K2, V2).put(K3, V3).build());
+    testRoundtripSerialization(tagger.emptyBuilder().put(K1, V_EMPTY).build());
   }
 
   @Test
   public void testRoundtrip_TagContextWithMaximumSize() throws Exception {
-    TagContextBuilder builder = tagger.emptyRequestScopeBuilder();
+    TagContextBuilder builder = tagger.emptyBuilder();
     for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8; i++) {
       // Each tag will be with format {key : "0123", value : "0123"}, so the length of it is 8.
       // Add 1024 tags, the total size should just be 8192.
@@ -73,7 +73,7 @@ public class TagContextRoundtripTest {
       } else {
         str = "" + i;
       }
-      builder.put(TagKey.create(str), TagValue.create(str));
+      builder.put(TagKey.create(str, TagScope.REQUEST), TagValue.create(str));
     }
     testRoundtripSerialization(builder.build());
   }

@@ -19,7 +19,6 @@ package io.opencensus.tags;
 import io.opencensus.common.Scope;
 import io.opencensus.internal.NoopScope;
 import io.opencensus.internal.Utils;
-import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.Collections;
@@ -164,12 +163,6 @@ final class NoopTags {
     }
 
     @Override
-    public TagContextBuilder setTagScope(TagScope tagScope) {
-      Utils.checkNotNull(tagScope, "tagScope");
-      return this;
-    }
-
-    @Override
     public TagContext build() {
       return getNoopTagContext();
     }
@@ -188,11 +181,6 @@ final class NoopTags {
     @Override
     protected Iterator<Tag> getIterator() {
       return Collections.<Tag>emptySet().iterator();
-    }
-
-    @Override
-    public TagScope getTagScope() {
-      return TagScope.LOCAL;
     }
   }
 

@@ -41,7 +41,6 @@ import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -219,11 +218,6 @@ final class StatsTestUtil {
     @Override
     protected Iterator<Tag> getIterator() {
       return tags.iterator();
-    }
-
-    @Override
-    public TagScope getTagScope() {
-      return TagScope.LOCAL;
     }
   }
 }

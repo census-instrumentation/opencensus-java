@@ -19,7 +19,6 @@ package io.opencensus.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
-import io.opencensus.tags.TagContextBuilder.TagScope;
 import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,11 +37,6 @@ public final class InternalUtilsTest {
           @Override
           protected Iterator<Tag> getIterator() {
             return iterator;
-          }
-
-          @Override
-          public TagScope getTagScope() {
-            return TagScope.LOCAL;
           }
         };
     assertThat(InternalUtils.getTags(ctx)).isSameAs(iterator);

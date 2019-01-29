@@ -26,7 +26,6 @@ import io.opencensus.implcore.internal.NoopScope;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
-import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
@@ -313,11 +312,6 @@ public class TaggerImplTest {
     @Override
     protected Iterator<Tag> getIterator() {
       return tags.iterator();
-    }
-
-    @Override
-    public TagScope getTagScope() {
-      return TagScope.LOCAL;
     }
   }
 }

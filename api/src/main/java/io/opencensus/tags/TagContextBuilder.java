@@ -45,15 +45,6 @@ public abstract class TagContextBuilder {
   public abstract TagContextBuilder remove(TagKey key);
 
   /**
-   * Sets {@link TagScope} for this {@link TagContextBuilder}.
-   *
-   * @param tagScope the {@code TagScope} to be used for this {@code TagContextBuilder}.
-   * @return this
-   * @since 0.19
-   */
-  public abstract TagContextBuilder setTagScope(TagScope tagScope);
-
-  /**
    * Creates a {@code TagContext} from this builder.
    *
    * @return a {@code TagContext} with the same tags as this builder.
@@ -71,33 +62,4 @@ public abstract class TagContextBuilder {
    * @since 0.8
    */
   public abstract Scope buildScoped();
-
-  /**
-   * {@link TagScope} is used to determine the scope of a Tag.
-   *
-   * <p>The values for the TagScope are {@link TagScope#LOCAL} or {@link TagScope#REQUEST}.
-   *
-   * @since 0.19
-   */
-  public enum TagScope {
-
-    /**
-     * {@link TagContext}s with {@code LOCAL} scope are used within the process it created. Such
-     * tags are not propagated across process boundaries. Even if the process is reentrant the tag
-     * MUST be excluded from propagation when the call leaves the process.
-     *
-     * @since 0.19
-     */
-    LOCAL,
-
-    /**
-     * If a {@link TagContext} is created with the {@code REQUEST} scope then it is propagated
-     * across process boundaries subject to outgoing and incoming (on remote side) filter criteria.
-     * See TagPropagationFilter in [Tag Propagation](#Tag Propagation). Typically {@code REQUEST}
-     * tags represents a request, processing of which may span multiple entities.
-     *
-     * @since 0.19
-     */
-    REQUEST
-  }
 }

@@ -20,6 +20,7 @@ import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagKey.TagScope;
 
 /**
  * Constants for collecting rpc stats.
@@ -35,7 +36,8 @@ public final class RpcMeasureConstants {
    * @since 0.8
    * @deprecated in favor of {@link #GRPC_CLIENT_STATUS} and {@link #GRPC_SERVER_STATUS}.
    */
-  @Deprecated public static final TagKey RPC_STATUS = TagKey.create("canonical_status");
+  @Deprecated
+  public static final TagKey RPC_STATUS = TagKey.create("canonical_status", TagScope.REQUEST);
 
   /**
    * Tag key that represents a gRPC method.
@@ -43,7 +45,7 @@ public final class RpcMeasureConstants {
    * @since 0.8
    * @deprecated in favor of {@link #GRPC_CLIENT_METHOD} and {@link #GRPC_SERVER_METHOD}.
    */
-  @Deprecated public static final TagKey RPC_METHOD = TagKey.create("method");
+  @Deprecated public static final TagKey RPC_METHOD = TagKey.create("method", TagScope.REQUEST);
 
   /**
    * Tag key that represents a client gRPC canonical status. Refer to
@@ -54,7 +56,8 @@ public final class RpcMeasureConstants {
    *
    * @since 0.13
    */
-  public static final TagKey GRPC_CLIENT_STATUS = TagKey.create("grpc_client_status");
+  public static final TagKey GRPC_CLIENT_STATUS =
+      TagKey.create("grpc_client_status", TagScope.REQUEST);
 
   /**
    * Tag key that represents a server gRPC canonical status. Refer to
@@ -65,7 +68,8 @@ public final class RpcMeasureConstants {
    *
    * @since 0.13
    */
-  public static final TagKey GRPC_SERVER_STATUS = TagKey.create("grpc_server_status");
+  public static final TagKey GRPC_SERVER_STATUS =
+      TagKey.create("grpc_server_status", TagScope.REQUEST);
 
   /**
    * Tag key that represents a client gRPC method.
@@ -75,7 +79,8 @@ public final class RpcMeasureConstants {
    *
    * @since 0.13
    */
-  public static final TagKey GRPC_CLIENT_METHOD = TagKey.create("grpc_client_method");
+  public static final TagKey GRPC_CLIENT_METHOD =
+      TagKey.create("grpc_client_method", TagScope.REQUEST);
 
   /**
    * Tag key that represents a server gRPC method.
@@ -85,7 +90,8 @@ public final class RpcMeasureConstants {
    *
    * @since 0.13
    */
-  public static final TagKey GRPC_SERVER_METHOD = TagKey.create("grpc_server_method");
+  public static final TagKey GRPC_SERVER_METHOD =
+      TagKey.create("grpc_server_method", TagScope.REQUEST);
 
   // Constants used to define the following Measures.
 

@@ -18,7 +18,6 @@ package io.opencensus.implcore.tags;
 
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextBuilder.TagScope;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.util.Collections;
@@ -32,26 +31,17 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class TagMapImpl extends TagContext {
 
-  public static final TagMapImpl EMPTY =
-      new TagMapImpl(Collections.<TagKey, TagValue>emptyMap(), TagScope.LOCAL);
+  public static final TagMapImpl EMPTY = new TagMapImpl(Collections.<TagKey, TagValue>emptyMap());
 
   // The types of the TagKey and value must match for each entry.
   private final Map<TagKey, TagValue> tags;
 
-  private final TagScope tagScope;
-
-  public TagMapImpl(Map<? extends TagKey, ? extends TagValue> tags, TagScope tagScope) {
+  public TagMapImpl(Map<? extends TagKey, ? extends TagValue> tags) {
     this.tags = Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags));
-    this.tagScope = tagScope;
   }
 
   public Map<TagKey, TagValue> getTags() {
     return tags;
-  }
-
-  @Override
-  public TagScope getTagScope() {
-    return tagScope;
   }
 
   @Override

@@ -54,14 +54,37 @@ public abstract class TagKey {
    *   <li>It can only contain printable ASCII characters.
    * </ol>
    *
+   * <p>Equivalent to {@code create(name, TagScope.LOCAL)}.
+   *
    * @param name the name of the key.
    * @return a {@code TagKey} with the given name.
    * @throws IllegalArgumentException if the name is not valid.
    * @since 0.8
    */
   public static TagKey create(String name) {
+    return create(name, TagScope.LOCAL);
+  }
+
+  /**
+   * Constructs a {@code TagKey} with the given name and {@link TagScope}.
+   *
+   * <p>The name must meet the following requirements:
+   *
+   * <ol>
+   *   <li>It cannot be longer than {@link #MAX_LENGTH}.
+   *   <li>It can only contain printable ASCII characters.
+   * </ol>
+   *
+   * @param name the name of the key.
+   * @param tagScope the tag scope of the key.
+   * @return a {@code TagKey} with the given name and tag scope.
+   * @throws IllegalArgumentException if the name is not valid.
+   * @since 0.20
+   */
+  public static TagKey create(String name, TagScope tagScope) {
     Utils.checkArgument(isValid(name), "Invalid TagKey name: %s", name);
-    return new AutoValue_TagKey(name);
+    Utils.checkNotNull(tagScope, "tagScope");
+    return new AutoValue_TagKey(name, tagScope);
   }
 
   /**
@@ -73,6 +96,14 @@ public abstract class TagKey {
   public abstract String getName();
 
   /**
+   * Returns the {@link TagScope} of this {@link TagContext}.
+   *
+   * @return the {@code TagScope} of this {@code TagContext}.
+   * @since 0.20
+   */
+  public abstract TagScope getTagScope();
+
+  /**
    * Determines whether the given {@code String} is a valid tag key.
    *
    * @param name the tag key name to be validated.
@@ -80,5 +111,34 @@ public abstract class TagKey {
    */
   private static boolean isValid(String name) {
     return !name.isEmpty() && name.length() <= MAX_LENGTH && StringUtils.isPrintableString(name);
+  }
+
+  /**
+   * {@link TagScope} is used to determine the scope of a Tag.
+   *
+   * <p>The values for the TagScope are {@link TagScope#LOCAL} or {@link TagScope#REQUEST}.
+   *
+   * @since 0.20
+   */
+  public enum TagScope {
+
+    /**
+     * {@link TagKey}s with {@code LOCAL} scope are used within the process it created. Such tags
+     * are not propagated across process boundaries. Even if the process is reentrant the tag MUST
+     * be excluded from propagation when the call leaves the process.
+     *
+     * @since 0.20
+     */
+    LOCAL,
+
+    /**
+     * If a {@link TagKey} is created with the {@code REQUEST} scope then it is propagated across
+     * process boundaries subject to outgoing and incoming (on remote side) filter criteria. See
+     * TagPropagationFilter in [Tag Propagation](#Tag Propagation). Typically {@code REQUEST} tags
+     * represents a request, processing of which may span multiple entities.
+     *
+     * @since 0.20
+     */
+    REQUEST
   }
 }

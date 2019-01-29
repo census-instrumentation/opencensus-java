@@ -16,7 +16,6 @@
 
 package io.opencensus.tags;
 
-import io.opencensus.tags.TagContextBuilder.TagScope;
 import java.util.HashMap;
 import java.util.Iterator;
 import javax.annotation.Nullable;
@@ -49,14 +48,6 @@ public abstract class TagContext {
   // The stats and tagging implementations can access any TagContext's tags through
   // io.opencensus.tags.InternalUtils.getTags, which calls this method.
   protected abstract Iterator<Tag> getIterator();
-
-  /**
-   * Returns the {@link TagScope} of this {@link TagContext}.
-   *
-   * @return the {@code TagScope} of this {@code TagContext}.
-   * @since 0.19
-   */
-  public abstract TagScope getTagScope();
 
   @Override
   public String toString() {
