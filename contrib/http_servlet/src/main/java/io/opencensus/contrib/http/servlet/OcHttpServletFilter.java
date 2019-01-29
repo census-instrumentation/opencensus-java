@@ -18,6 +18,7 @@ package io.opencensus.contrib.http.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.common.Scope;
 import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.contrib.http.HttpServerHandler;
 import io.opencensus.trace.Tracing;
@@ -96,7 +97,12 @@ public class OcHttpServletFilter implements Filter {
         handler.handleMessageReceived(context, length);
       }
 
-      chain.doFilter(httpReq, httpResp);
+      Scope scope = Tracing.getTracer().withSpan(handler.getSpanFromContext(context));
+      try {
+        chain.doFilter(httpReq, httpResp);
+      } finally {
+        scope.close();
+      }
 
       if (httpReq.isAsyncStarted()) {
         OcHttpServletListener listener = new OcHttpServletListener(handler, context);
