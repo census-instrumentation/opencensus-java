@@ -159,3 +159,28 @@ $ ./target/appassembler/bin/StackdriverQuickstart
 ```
 $ ./bazel-bin/StackdriverQuickstart
 ```
+
+## To run HTTP Server and Client
+
+`HttpJettyServer` is a web service using Jetty Server on top of http-servlet.
+`HttpJettyClient` is a web client using Jetty Client that sends request to `HttpettyServer`.
+Both `HttpJettyServer` and `HttpJettyClient` are instrumented with OpenCensus.
+
+Traces from both client and server can be viewed in their respective logs on console.
+Stats are available from Prometheus server running at
+- http://localhost:9091/metrics - for client stats
+- http://localhost:9090/metrics - for server stats
+  
+
+### Gradle
+```
+$ ./build/install/opencensus-examples/bin/HttpJettyServer
+$ ./build/install/opencensus-examples/bin/HttpJettyClient
+```
+
+### Maven
+```
+$ ./target/appassembler/bin/HttpJettyServer
+$ ./target/appassembler/bin/HttpJettyClient
+```
+
