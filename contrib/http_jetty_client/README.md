@@ -33,52 +33,8 @@ compile 'io.opencensus:opencensus-contrib-http-jetty-client:0.19.0'
 
 ## Instrumenting Jetty Http Client
 
-Users can instrument Jetty Http Client by simply creating HttpClient using wrapper OcJettyHttpClient.
+See [http-client][httpclient-code] example. For build and run instruction click [here][httpclient-run].
 
-Below is an example of how it is instrumented.
-
-```java
-
-import io.opencensus.contrib.http.jetty.client.OcJettyHttpClient;
-import io.opencensus.contrib.http.util.HttpViews;
-import io.opencensus.exporter.stats.prometheus.PrometheusStatsCollector;
-import io.opencensus.exporter.trace.logging.LoggingTraceExporter;
-
-
-class Application {
-  private static void initStatsExporter() throws IOException {
-    
-    HttpViews.registerAllClientViews();
-    
-    // Register stats exporter for desired backend.
-    PrometheusStatsCollector.createAndRegister();
-    HTTPServer prometheusServer = new HTTPServer(9091, true);
-  }
-
-  public static void main(String[] args) throws Exception {
-    BasicConfigurator.configure();
-
-    // Register trace exporter for desired backend. 
-    LoggingTraceExporter.register();
-
-    // Initialize Stats Exporter
-    initStatsExporter();
-
-    OcJettyHttpClient httpClient = new OcJettyHttpClient();
-
-    httpClient.start();
-
-    HttpRequest request =
-        (HttpRequest) httpClient.newRequest("http://example.com/").method(HttpMethod.GET);
-    request.send();
-
-    HttpRequest postRequest =
-        (HttpRequest) httpClient.newRequest("http://example.com/").method(HttpMethod.POST);
-    postRequest.content(new StringContentProvider("{\"hello\": \"world\"}"), "application/json");
-    postRequest.send();
-  }
-}
-```
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
@@ -86,3 +42,5 @@ class Application {
 [appveyor-url]: https://ci.appveyor.com/project/opencensusjavateam/opencensus-java/branch/master
 [maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-http-jetty-client/badge.svg
 [maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-jetty-client
+[httpclient-code]: https://github.com/census-instrumentation/opencensus-java/blob/master/examples/src/main/java/io/opencensus/examples/http/jetty/client/HelloWorldClient.java
+[httpclient-run]: https://github.com/census-instrumentation/opencensus-java/blob/master/examples/README.md#to-run-http-server-and-client
