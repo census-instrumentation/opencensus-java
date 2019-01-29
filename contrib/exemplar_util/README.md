@@ -17,14 +17,14 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-exemplar-util</artifactId>
-    <version>0.18.0</version>
+    <version>0.19.0</version>
   </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-contrib-exemplar-util:0.18.0'
+compile 'io.opencensus:opencensus-contrib-exemplar-util:0.19.0'
 ```
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
