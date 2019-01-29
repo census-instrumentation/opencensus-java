@@ -1,10 +1,12 @@
 ## Unreleased
+- Add OpenCensus Java OC-Agent Trace Exporter.
+- Add OpenCensus Java OC-Agent Metrics Exporter.
+
+# 0.19.0 - 2019-01-28
 - Add an artifact `opencensus-contrib-http-jetty-client` for instrumenting jetty http client. Add extractor for Jetty Client.
 - Add an artifact `opencensus-contrib-http-servlets` for instrumenting http servlets. Add extractor for Http Servlets.
 - Add support generic http server handler.
 - Add support for generic http client handler.
-- Add OpenCensus Java OC-Agent Trace Exporter.
-- Add OpenCensus Java OC-Agent Metrics Exporter.
 - Add ability to filter metrics collected from Dropwizard registry.
 - Add an util artifact opencensus-contrib-dropwizard5 to translate Dropwizard metrics5 to OpenCensus.
 - Add metrics util package to be shared by all metrics exporters.
