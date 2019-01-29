@@ -48,11 +48,9 @@ dependencies {
             "io.opencensus:opencensus-api:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-zpages:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-grpc-metrics:${opencensusVersion}",
-
-            // [TODO:rghetia] uncomment when 0.19.0 is released.
-            // "io.opencensus:opencensus-contrib-http-util:${opencensusVersion}",
-            // "io.opencensus:opencensus-contrib-http-servlet:${opencensusVersion}",
-            // "io.opencensus:opencensus-contrib-http-jetty-client:${opencensusVersion}",
+            "io.opencensus:opencensus-contrib-http-util:${opencensusVersion}",
+            "io.opencensus:opencensus-contrib-http-servlet:${opencensusVersion}",
+            "io.opencensus:opencensus-contrib-http-jetty-client:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-stats-prometheus:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-stats-stackdriver:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-trace-jaeger:${opencensusVersion}",
@@ -105,8 +103,6 @@ sourceSets {
     main {
         java {
             srcDir 'src'
-            // [TODO:rghetia] remove the exclusion after 0.19.0 is released.
-            exclude { FileTreeElement e -> e.path.contains('http/jetty/') }
             srcDirs 'build/generated/source/proto/main/grpc'
             srcDirs 'build/generated/source/proto/main/java'
         }
@@ -227,20 +223,19 @@ task longGaugeQuickstart(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
 }
 
-// [TODO:rghetia] uncomment when 0.19.0 is released.
-//task httpJettyServer(type: CreateStartScripts) {
-//    mainClassName = 'io.opencensus.examples.http.jetty.server.HelloWorldServer'
-//    applicationName = 'HttpJettyServer'
-//    outputDir = new File(project.buildDir, 'tmp')
-//    classpath = jar.outputs.files + project.configurations.runtime
-//}
-//
-//task httpJettyClient(type: CreateStartScripts) {
-//    mainClassName = 'io.opencensus.examples.http.jetty.client.HelloWorldClient'
-//    applicationName = 'HttpJettyClient'
-//    outputDir = new File(project.buildDir, 'tmp')
-//    classpath = jar.outputs.files + project.configurations.runtime
-//}
+task httpJettyServer(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.http.jetty.server.HelloWorldServer'
+    applicationName = 'HttpJettyServer'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task httpJettyClient(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.http.jetty.client.HelloWorldClient'
+    applicationName = 'HttpJettyClient'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
 
 applicationDistribution.into('bin') {
     from(multiSpansTracing)
@@ -257,8 +252,7 @@ applicationDistribution.into('bin') {
     from(derivedLongGaugeQuickstart)
     from(doubleGaugeQuickstart)
     from(longGaugeQuickstart)
-// [TODO:rghetia] uncomment when 0.19.0 is released.
-//    from(httpJettyServer)
-//    from(httpJettyClient)
+    from(httpJettyServer)
+    from(httpJettyClient)
     fileMode = 0755
 }
