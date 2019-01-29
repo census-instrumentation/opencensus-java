@@ -38,7 +38,7 @@ final class OcAgentNodeUtils {
 
   // The current version of the OpenCensus OC-Agent Exporter.
   @VisibleForTesting
-  static final String OC_AGENT_EXPORTER_VERSION = "0.19.0-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
+  static final String OC_AGENT_EXPORTER_VERSION = "0.20.0-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
 
   @Nullable
   private static final io.opencensus.resource.Resource AUTO_DETECTED_RESOURCE =
