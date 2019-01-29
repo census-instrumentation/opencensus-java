@@ -60,10 +60,6 @@ case "$TASK" in
   "BUILD_EXAMPLES_MAVEN")
     pushd examples && mvn clean package appassembler:assemble -e && popd
     ;;
-  "BUILD_EXAMPLES_BAZEL")
-    # TODO [:rghetia] figure out proper fix.
-    pushd examples && bazel clean && bazel build :all --incompatible_package_name_is_a_function=false && popd
-    ;;
   *)
     echo "Unknown task $TASK"
     exit 1

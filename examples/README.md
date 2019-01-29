@@ -12,11 +12,6 @@ $ ./gradlew installDist
 $ mvn package appassembler:assemble
 ```
 
-### Bazel
-```
-$ bazel build :all
-```
-
 ## To run "TagContextExample" use
 
 ### Gradle
@@ -29,11 +24,6 @@ $ ./build/install/opencensus-examples/bin/TagContextExample
 $ ./target/appassembler/bin/TagContextExample
 ```
 
-### Bazel
-```
-$ ./bazel-bin/TagContextExample
-```
-
 ## To run "ZPagesTester"
 
 ### Gradle
@@ -44,11 +34,6 @@ $ ./build/install/opencensus-examples/bin/ZPagesTester
 ### Maven
 ```
 $ ./target/appassembler/bin/ZPagesTester
-```
-
-### Bazel
-```
-$ ./bazel-bin/ZPagesTester
 ```
 
 Available pages:
@@ -72,11 +57,6 @@ $ ./build/install/opencensus-examples/bin/QuickStart
 ### Maven
 ```
 $ ./target/appassembler/bin/QuickStart
-```
-
-### Bazel
-```
-$ ./bazel-bin/QuickStart
 ```
 
 ## To run "gRPC Hello World" example use
@@ -106,12 +86,6 @@ $ ./target/appassembler/bin/HelloWorldServer serverPort cloudProjectId zPagePort
 $ ./target/appassembler/bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
 ```
 
-### Bazel
-```
-$ ./bazel-bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
-$ ./bazel-bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
-```
-
 ## To run "Repl" example
 
 See the full tutorial on [OpenCensus website](https://opencensus.io/quickstart/java/metrics/).
@@ -126,11 +100,6 @@ $ ./build/install/opencensus-examples/bin/Repl
 ### Maven
 ```
 $ ./target/appassembler/bin/Repl
-```
-
-### Bazel
-```
-$ ./bazel-bin/Repl
 ```
 
 Then start the Prometheus process:
@@ -153,11 +122,6 @@ $ ./build/install/opencensus-examples/bin/StackdriverQuickstart
 ### Maven
 ```
 $ ./target/appassembler/bin/StackdriverQuickstart
-```
-
-### Bazel
-```
-$ ./bazel-bin/StackdriverQuickstart
 ```
 
 ## To run HTTP Server and Client
@@ -183,4 +147,3 @@ $ ./build/install/opencensus-examples/bin/HttpJettyClient
 $ ./target/appassembler/bin/HttpJettyServer
 $ ./target/appassembler/bin/HttpJettyClient
 ```
-
