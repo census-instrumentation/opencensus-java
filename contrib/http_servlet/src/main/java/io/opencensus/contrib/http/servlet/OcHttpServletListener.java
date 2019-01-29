@@ -19,12 +19,9 @@ package io.opencensus.contrib.http.servlet;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.common.Scope;
 import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.contrib.http.HttpServerHandler;
-import io.opencensus.trace.Tracing;
 import java.io.Closeable;
-import javax.annotation.Nullable;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
@@ -40,7 +37,6 @@ public final class OcHttpServletListener implements Closeable, AsyncListener {
   private final HttpRequestContext context;
   private final HttpServerHandler<HttpServletRequest, HttpServletResponse, HttpServletRequest>
       handler;
-  @Nullable private Scope scope = null;
 
   OcHttpServletListener(
       HttpServerHandler<HttpServletRequest, HttpServletResponse, HttpServletRequest> handler,
@@ -60,9 +56,6 @@ public final class OcHttpServletListener implements Closeable, AsyncListener {
     if (response instanceof HttpServletResponse) {
       OcHttpServletUtil.recordMessageSentEvent(handler, context, (HttpServletResponse) response);
     }
-    if (scope != null) {
-      scope.close();
-    }
     handler.handleEnd(
         context,
         (HttpServletRequest) event.getSuppliedRequest(),
@@ -73,9 +66,6 @@ public final class OcHttpServletListener implements Closeable, AsyncListener {
 
   @Override
   public void onError(AsyncEvent event) {
-    if (scope != null) {
-      scope.close();
-    }
     handler.handleEnd(
         context,
         (HttpServletRequest) event.getSuppliedRequest(),
@@ -89,16 +79,12 @@ public final class OcHttpServletListener implements Closeable, AsyncListener {
   public void onStartAsync(AsyncEvent event) {
     AsyncContext eventAsyncContext = event.getAsyncContext();
     if (eventAsyncContext != null) {
-      this.scope = Tracing.getTracer().withSpan(handler.getSpanFromContext(context));
       eventAsyncContext.addListener(this, event.getSuppliedRequest(), event.getSuppliedResponse());
     }
   }
 
   @Override
   public void onTimeout(AsyncEvent event) {
-    if (scope != null) {
-      scope.close();
-    }
     handler.handleEnd(
         context,
         (HttpServletRequest) event.getSuppliedRequest(),
