@@ -44,6 +44,11 @@ public final class TracerImpl extends Tracer {
   }
 
   @Override
+  public SpanBuilder spanBuilderFromContext(String spanName, @Nullable SpanContext context) {
+   return SpanBuilderImpl.createFromContext(spanName, context, spanBuilderOptions);
+  }
+
+  @Override
   public SpanBuilder spanBuilderWithRemoteParent(
       String spanName, @Nullable SpanContext remoteParentSpanContext) {
     return SpanBuilderImpl.createWithRemoteParent(

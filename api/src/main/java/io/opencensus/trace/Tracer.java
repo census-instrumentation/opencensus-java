@@ -327,6 +327,8 @@ public abstract class Tracer {
    */
   public abstract SpanBuilder spanBuilderWithExplicitParent(String spanName, @Nullable Span parent);
 
+  public abstract SpanBuilder spanBuilderFromContext(String spanName, SpanContext context);
+
   /**
    * Returns a {@link SpanBuilder} to create and start a new child {@link Span} (or root if parent
    * is {@link SpanContext#INVALID} or {@code null}), with parent being the remote {@link Span}
@@ -355,6 +357,11 @@ public abstract class Tracer {
     @Override
     public SpanBuilder spanBuilderWithExplicitParent(String spanName, @Nullable Span parent) {
       return NoopSpanBuilder.createWithParent(spanName, parent);
+    }
+
+    @Override
+    public SpanBuilder spanBuilderFromContext(String spanName, SpanContext context) {
+      return NoopSpanBuilder.createFromContext(spanName, context);
     }
 
     @Override

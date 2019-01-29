@@ -324,6 +324,10 @@ public abstract class SpanBuilder {
       return new NoopSpanBuilder(spanName);
     }
 
+    static NoopSpanBuilder createFromContext(String spanName, @Nullable SpanContext context) {
+      return new NoopSpanBuilder(spanName);
+    }
+
     @Override
     public Span startSpan() {
       return BlankSpan.INSTANCE;
