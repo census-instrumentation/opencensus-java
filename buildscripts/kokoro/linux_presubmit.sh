@@ -18,7 +18,6 @@ valid_tasks() {
   echo "Valid tasks are"
   echo ""
   echo "- BUILD"
-  echo "- BUILD_EXAMPLES_BAZEL"
   echo "- BUILD_EXAMPLES_GRADLE"
   echo "- BUILD_EXAMPLES_MAVEN"
   echo "- CHECKER_FRAMEWORK"
@@ -66,9 +65,6 @@ case "$TASK" in
     ;;
   "BUILD_EXAMPLES_MAVEN")
     pushd examples && mvn clean package appassembler:assemble -e && popd
-    ;;
-  "BUILD_EXAMPLES_BAZEL")
-    pushd examples && bazel clean && bazel build :all && popd
     ;;
   *)
     set +x
