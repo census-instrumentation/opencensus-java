@@ -78,14 +78,9 @@ public final class OcHttpServletListener implements Closeable, AsyncListener {
   }
 
   @Override
-  @SuppressWarnings(
-      "MustBeClosedChecker") // Close will happen in onTimeout or onError or onComplete method
   public void onStartAsync(AsyncEvent event) {
     AsyncContext eventAsyncContext = event.getAsyncContext();
     if (eventAsyncContext != null) {
-      eventAsyncContext.getRequest();
-      ServletRequest request = event.getSuppliedRequest();
-      request.setAttribute(OcHttpServletUtil.OPENCENSUS_SERVLET_LISTENER, this);
       eventAsyncContext.addListener(this, event.getSuppliedRequest(), event.getSuppliedResponse());
     }
   }
