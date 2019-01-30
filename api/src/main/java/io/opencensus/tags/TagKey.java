@@ -96,9 +96,9 @@ public abstract class TagKey {
   public abstract String getName();
 
   /**
-   * Returns the {@link TagScope} of this {@link TagContext}.
+   * Returns the {@link TagScope} of this {@link TagKey}.
    *
-   * @return the {@code TagScope} of this {@code TagContext}.
+   * @return the {@code TagScope} of this {@code TagKey}.
    * @since 0.20
    */
   public abstract TagScope getTagScope();
