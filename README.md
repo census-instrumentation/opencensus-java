@@ -37,12 +37,12 @@ For Maven add to your `pom.xml`:
 ```
 
 For Gradle add to your dependencies:
-```gradle
+```groovy
 compile 'io.opencensus:opencensus-api:0.19.0'
 ```
 
 For Bazel add the following lines to the WORKSPACE file:
-```
+```bazel
 maven_jar(
     name = "io_opencensus_opencensus_api",
     artifact = "io.opencensus:opencensus-api:0.15.0",
@@ -210,7 +210,7 @@ For Maven add to your `pom.xml`:
 ```
 
 For Gradle add to your dependencies:
-```gradle
+```groovy
 compile 'io.opencensus:opencensus-api:0.19.0'
 runtime 'io.opencensus:opencensus-impl:0.19.0'
 ```

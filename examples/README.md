@@ -3,37 +3,37 @@
 ## To build the examples use
 
 ### Gradle
-```
-$ ./gradlew installDist
+```bash
+./gradlew installDist
 ```
 
 ### Maven
-```
-$ mvn package appassembler:assemble
+```bash
+mvn package appassembler:assemble
 ```
 
 ## To run "TagContextExample" use
 
 ### Gradle
-```
-$ ./build/install/opencensus-examples/bin/TagContextExample
+```bash
+./build/install/opencensus-examples/bin/TagContextExample
 ```
 
 ### Maven
-```
-$ ./target/appassembler/bin/TagContextExample
+```bash
+./target/appassembler/bin/TagContextExample
 ```
 
 ## To run "ZPagesTester"
 
 ### Gradle
-```
-$ ./build/install/opencensus-examples/bin/ZPagesTester
+```bash
+./build/install/opencensus-examples/bin/ZPagesTester
 ```
 
 ### Maven
-```
-$ ./target/appassembler/bin/ZPagesTester
+```bash
+./target/appassembler/bin/ZPagesTester
 ```
 
 Available pages:
@@ -50,13 +50,13 @@ Available pages:
 ## To run "QuickStart" example use
 
 ### Gradle
-```
-$ ./build/install/opencensus-examples/bin/QuickStart
+```bash
+./build/install/opencensus-examples/bin/QuickStart
 ```
 
 ### Maven
-```
-$ ./target/appassembler/bin/QuickStart
+```bash
+./target/appassembler/bin/QuickStart
 ```
 
 ## To run "gRPC Hello World" example use
@@ -75,15 +75,15 @@ will be used:
 However, if you want to specify any of these arguements, please make sure they are in order.
 
 ### Gradle
-```
-$ ./build/install/opencensus-examples/bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
-$ ./build/install/opencensus-examples/bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
+```bash
+./build/install/opencensus-examples/bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
+./build/install/opencensus-examples/bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
 ```
 
 ### Maven
-```
-$ ./target/appassembler/bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
-$ ./target/appassembler/bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
+```bash
+./target/appassembler/bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
+./target/appassembler/bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
 ```
 
 ## To run "Repl" example
@@ -93,19 +93,19 @@ See the full tutorial on [OpenCensus website](https://opencensus.io/quickstart/j
 First run:
 
 ### Gradle
-```
-$ ./build/install/opencensus-examples/bin/Repl
+```bash
+./build/install/opencensus-examples/bin/Repl
 ```
 
 ### Maven
-```
-$ ./target/appassembler/bin/Repl
+```bash
+./target/appassembler/bin/Repl
 ```
 
 Then start the Prometheus process:
-```
-$ cd src/main/java/io/opencensus/examples/quickstart/
-$ prometheus --config.file=prometheus.yaml
+```bash
+cd src/main/java/io/opencensus/examples/quickstart/
+prometheus --config.file=prometheus.yaml
 ```
 
 Stats will be shown on Prometheus UI on http://localhost:9090.
@@ -115,13 +115,13 @@ Stats will be shown on Prometheus UI on http://localhost:9090.
 See the full tutorial on [OpenCensus website](https://opencensus.io/guides/exporters/supported-exporters/java/stackdriver/).
 
 ### Gradle
-```
-$ ./build/install/opencensus-examples/bin/StackdriverQuickstart
+```bash
+./build/install/opencensus-examples/bin/StackdriverQuickstart
 ```
 
 ### Maven
 ```
-$ ./target/appassembler/bin/StackdriverQuickstart
+./target/appassembler/bin/StackdriverQuickstart
 ```
 
 ## To run HTTP Server and Client
@@ -137,13 +137,13 @@ Stats are available from Prometheus server running at
   
 
 ### Gradle
-```
-$ ./build/install/opencensus-examples/bin/HttpJettyServer
-$ ./build/install/opencensus-examples/bin/HttpJettyClient
+```bash
+./build/install/opencensus-examples/bin/HttpJettyServer
+./build/install/opencensus-examples/bin/HttpJettyClient
 ```
 
 ### Maven
-```
-$ ./target/appassembler/bin/HttpJettyServer
-$ ./target/appassembler/bin/HttpJettyClient
+```bash
+./target/appassembler/bin/HttpJettyServer
+./target/appassembler/bin/HttpJettyClient
 ```
