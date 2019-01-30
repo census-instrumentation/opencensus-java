@@ -18,13 +18,17 @@ package io.opencensus.contrib.http.servlet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.errorprone.annotations.MustBeClosed;
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.common.Scope;
 import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.contrib.http.HttpServerHandler;
+import io.opencensus.trace.Tracing;
 import java.io.Closeable;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
+import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -79,6 +83,9 @@ public final class OcHttpServletListener implements Closeable, AsyncListener {
   public void onStartAsync(AsyncEvent event) {
     AsyncContext eventAsyncContext = event.getAsyncContext();
     if (eventAsyncContext != null) {
+      eventAsyncContext.getRequest();
+      ServletRequest request = event.getSuppliedRequest();
+      request.setAttribute(OcHttpServletUtil.OPENCENSUS_SERVLET_LISTENER, this);
       eventAsyncContext.addListener(this, event.getSuppliedRequest(), event.getSuppliedResponse());
     }
   }
@@ -90,5 +97,10 @@ public final class OcHttpServletListener implements Closeable, AsyncListener {
         (HttpServletRequest) event.getSuppliedRequest(),
         (HttpServletResponse) event.getSuppliedResponse(),
         null);
+  }
+
+  @MustBeClosed
+  Scope withSpan() {
+    return Tracing.getTracer().withSpan(handler.getSpanFromContext(context));
   }
 }
