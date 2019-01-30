@@ -11,7 +11,7 @@ The *OpenCensus Datadog Trace Exporter* is a trace exporter that exports data to
 
 Datadog collects traces using a local agent, which forwards them to the Datadog automatic tracing. Instructions for setting up the agent can be found [in the Datadog docs](https://docs.datadoghq.com/agent/?tab=agentv6).
 
-### Hello Stan
+### Hello Datadog
 
 #### Add the dependencies to your project
 
@@ -40,7 +40,7 @@ For Maven add to your `pom.xml`:
 For Gradle add to your dependencies:
 ```groovy
 compile 'io.opencensus:opencensus-api:0.19.0'
-compile 'io.opencensus:opencensus-exporter-trace-instana:0.19.0'
+compile 'io.opencensus:opencensus-exporter-trace-datadog:0.19.0'
 runtime 'io.opencensus:opencensus-impl:0.19.0'
 ```
 
