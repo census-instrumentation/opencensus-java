@@ -40,7 +40,8 @@ public class MonitoredResourceTest {
   @Test
   public void testAwsEc2InstanceMonitoredResource() {
     MonitoredResource.AwsEc2InstanceMonitoredResource resource =
-        MonitoredResource.AwsEc2InstanceMonitoredResource.create(AWS_ACCOUNT, AWS_INSTANCE, AWS_REGION);
+        MonitoredResource.AwsEc2InstanceMonitoredResource.create(
+            AWS_ACCOUNT, AWS_INSTANCE, AWS_REGION);
     assertThat(resource.getResourceType()).isEqualTo(ResourceType.AWS_EC2_INSTANCE);
     assertThat(resource.getAccount()).isEqualTo(AWS_ACCOUNT);
     assertThat(resource.getInstanceId()).isEqualTo(AWS_INSTANCE);
@@ -50,7 +51,8 @@ public class MonitoredResourceTest {
   @Test
   public void testGcpGceInstanceMonitoredResource() {
     MonitoredResource.GcpGceInstanceMonitoredResource resource =
-        MonitoredResource.GcpGceInstanceMonitoredResource.create(GCP_PROJECT, GCP_INSTANCE, GCP_ZONE);
+        MonitoredResource.GcpGceInstanceMonitoredResource.create(
+            GCP_PROJECT, GCP_INSTANCE, GCP_ZONE);
     assertThat(resource.getResourceType()).isEqualTo(ResourceType.GCP_GCE_INSTANCE);
     assertThat(resource.getAccount()).isEqualTo(GCP_PROJECT);
     assertThat(resource.getInstanceId()).isEqualTo(GCP_INSTANCE);

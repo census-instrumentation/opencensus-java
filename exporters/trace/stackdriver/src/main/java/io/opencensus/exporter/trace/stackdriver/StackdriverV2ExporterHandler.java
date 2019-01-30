@@ -42,12 +42,7 @@ import io.opencensus.common.Functions;
 import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
-import io.opencensus.contrib.monitoredresource.util.ResourceType;
+import io.opencensus.contrib.monitoredresource.util.*;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.MessageEvent.Type;
@@ -73,6 +68,10 @@ import java.util.Map.Entry;
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
 */
+
+// Import all monitoredresource.util package to avoid deprecated import warning until this class is
+// changed to the new Resource API.
+// TODO: Remove this when change the class to use Resource instead of MonitoredResource.
 
 /** Exporter to Stackdriver Trace API v2. */
 @SuppressWarnings("deprecation")
@@ -333,8 +332,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     ResourceType resourceType = resource.getResourceType();
     switch (resourceType) {
       case AWS_EC2_INSTANCE:
-        AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
-            (AwsEc2InstanceMonitoredResource) resource;
+        MonitoredResource.AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
+            (MonitoredResource.AwsEc2InstanceMonitoredResource) resource;
         putToResourceAttributeMap(
             resourceLabels,
             resourceType,
@@ -352,8 +351,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             "aws:" + awsEc2InstanceMonitoredResource.getRegion());
         return Collections.unmodifiableMap(resourceLabels);
       case GCP_GCE_INSTANCE:
-        GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
-            (GcpGceInstanceMonitoredResource) resource;
+        MonitoredResource.GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
+            (MonitoredResource.GcpGceInstanceMonitoredResource) resource;
         putToResourceAttributeMap(
             resourceLabels,
             resourceType,
@@ -368,8 +367,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             resourceLabels, resourceType, "zone", gcpGceInstanceMonitoredResource.getZone());
         return Collections.unmodifiableMap(resourceLabels);
       case GCP_GKE_CONTAINER:
-        GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
-            (GcpGkeContainerMonitoredResource) resource;
+        MonitoredResource.GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
+            (MonitoredResource.GcpGkeContainerMonitoredResource) resource;
         putToResourceAttributeMap(
             resourceLabels,
             resourceType,
