@@ -63,7 +63,7 @@ To enable the *OpenCensus Agent for Java* for your application, add the option
 `-javaagent:path/to/opencensus-contrib-agent-X.Y.Z.jar` to the invocation of the `java`
 executable as shown in the following example. Replace `X.Y.Z` with the actual version number.
 
-```shell
+```bash
 java -javaagent:path/to/opencensus-contrib-agent-X.Y.Z.jar ...
 ```
 
@@ -80,7 +80,7 @@ ways](https://github.com/lightbend/config/blob/7cae92d3ae3ff9d06f1db43800232d2f7
 For example, to disable the automatic context propagation for Executors, add a system property as
 follows:
 
-```shell
+```bash
 java -javaagent:path/to/opencensus-contrib-agent-X.Y.Z.jar \
      -Dopencensus.contrib.agent.context-propagation.executor.enabled=false \
      ...

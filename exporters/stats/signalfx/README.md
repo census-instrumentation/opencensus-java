@@ -45,7 +45,7 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 
-```
+```groovy
 compile 'io.opencensus:opencensus-api:0.19.0'
 compile 'io.opencensus:opencensus-exporter-stats-signalfx:0.19.0'
 runtime 'io.opencensus:opencensus-impl:0.19.0'

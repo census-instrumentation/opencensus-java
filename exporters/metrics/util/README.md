@@ -23,7 +23,7 @@ For Maven add to your `pom.xml`:
 ```
 
 For Gradle add to your dependencies:
-```gradle
+```groovy
 compile 'io.opencensus:opencensus-api:0.19.0'
 compile 'io.opencensus:opencensus-exporter-metrics-util:0.19.0'
 ```

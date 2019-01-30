@@ -22,7 +22,7 @@ For Maven add to your `pom.xml`:
 ```
 
 For Gradle add to your dependencies:
-```gradle
+```groovy
 compile 'io.opencensus:opencensus-contrib-grpc-util:0.19.0'
 ```
 
