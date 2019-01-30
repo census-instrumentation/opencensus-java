@@ -21,7 +21,9 @@ package io.opencensus.contrib.monitoredresource.util;
  * automatically detected by OpenCensus.
  *
  * @since 0.13
+ * @deprecated Use {@link ResourceKeyConstants}.
  */
+@Deprecated
 public enum ResourceType {
 
   /**
