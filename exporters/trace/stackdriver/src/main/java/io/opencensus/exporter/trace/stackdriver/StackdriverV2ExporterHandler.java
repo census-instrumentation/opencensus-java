@@ -42,7 +42,6 @@ import io.opencensus.common.Functions;
 import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
-import io.opencensus.contrib.monitoredresource.util.*;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.MessageEvent.Type;
@@ -68,10 +67,6 @@ import java.util.Map.Entry;
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
 */
-
-// Import all monitoredresource.util package to avoid deprecated import warning until this class is
-// changed to the new Resource API.
-// TODO: Remove this when change the class to use Resource instead of MonitoredResource.
 
 /** Exporter to Stackdriver Trace API v2. */
 @SuppressWarnings("deprecation")
@@ -100,7 +95,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           .build();
 
   @javax.annotation.Nullable
-  private static final MonitoredResource RESOURCE = MonitoredResourceUtils.getDefaultResource();
+  private static final io.opencensus.contrib.monitoredresource.util.MonitoredResource RESOURCE =
+      io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils.getDefaultResource();
 
   // Only initialize once.
   private static final Map<String, AttributeValue> RESOURCE_LABELS = getResourceLabels(RESOURCE);
@@ -324,16 +320,22 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   @VisibleForTesting
   static Map<String, AttributeValue> getResourceLabels(
-      @javax.annotation.Nullable MonitoredResource resource) {
+      @javax.annotation.Nullable
+          io.opencensus.contrib.monitoredresource.util.MonitoredResource resource) {
     if (resource == null) {
       return Collections.emptyMap();
     }
     Map<String, AttributeValue> resourceLabels = new HashMap<String, AttributeValue>();
-    ResourceType resourceType = resource.getResourceType();
+    io.opencensus.contrib.monitoredresource.util.ResourceType resourceType =
+        resource.getResourceType();
     switch (resourceType) {
       case AWS_EC2_INSTANCE:
-        MonitoredResource.AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
-            (MonitoredResource.AwsEc2InstanceMonitoredResource) resource;
+        io.opencensus.contrib.monitoredresource.util.MonitoredResource
+                .AwsEc2InstanceMonitoredResource
+            awsEc2InstanceMonitoredResource =
+                (io.opencensus.contrib.monitoredresource.util.MonitoredResource
+                        .AwsEc2InstanceMonitoredResource)
+                    resource;
         putToResourceAttributeMap(
             resourceLabels,
             resourceType,
@@ -351,8 +353,12 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             "aws:" + awsEc2InstanceMonitoredResource.getRegion());
         return Collections.unmodifiableMap(resourceLabels);
       case GCP_GCE_INSTANCE:
-        MonitoredResource.GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
-            (MonitoredResource.GcpGceInstanceMonitoredResource) resource;
+        io.opencensus.contrib.monitoredresource.util.MonitoredResource
+                .GcpGceInstanceMonitoredResource
+            gcpGceInstanceMonitoredResource =
+                (io.opencensus.contrib.monitoredresource.util.MonitoredResource
+                        .GcpGceInstanceMonitoredResource)
+                    resource;
         putToResourceAttributeMap(
             resourceLabels,
             resourceType,
@@ -367,8 +373,12 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             resourceLabels, resourceType, "zone", gcpGceInstanceMonitoredResource.getZone());
         return Collections.unmodifiableMap(resourceLabels);
       case GCP_GKE_CONTAINER:
-        MonitoredResource.GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
-            (MonitoredResource.GcpGkeContainerMonitoredResource) resource;
+        io.opencensus.contrib.monitoredresource.util.MonitoredResource
+                .GcpGkeContainerMonitoredResource
+            gcpGkeContainerMonitoredResource =
+                (io.opencensus.contrib.monitoredresource.util.MonitoredResource
+                        .GcpGkeContainerMonitoredResource)
+                    resource;
         putToResourceAttributeMap(
             resourceLabels,
             resourceType,
@@ -400,7 +410,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   private static void putToResourceAttributeMap(
       Map<String, AttributeValue> map,
-      ResourceType resourceType,
+      io.opencensus.contrib.monitoredresource.util.ResourceType resourceType,
       String attributeName,
       String attributeValue) {
     map.put(
@@ -409,11 +419,14 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   }
 
   @VisibleForTesting
-  static String createResourceLabelKey(ResourceType resourceType, String resourceAttribute) {
+  static String createResourceLabelKey(
+      io.opencensus.contrib.monitoredresource.util.ResourceType resourceType,
+      String resourceAttribute) {
     return String.format("g.co/r/%s/%s", mapToStringResourceType(resourceType), resourceAttribute);
   }
 
-  private static String mapToStringResourceType(ResourceType resourceType) {
+  private static String mapToStringResourceType(
+      io.opencensus.contrib.monitoredresource.util.ResourceType resourceType) {
     switch (resourceType) {
       case GCP_GCE_INSTANCE:
         return "gce_instance";
