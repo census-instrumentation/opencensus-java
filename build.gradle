@@ -44,12 +44,9 @@ subprojects {
     apply plugin: 'net.ltgt.apt-idea'
     apply plugin: "me.champeau.gradle.jmh"
     apply plugin: "io.morethan.jmhreport"
-    // Plugins that require java8
-    if (JavaVersion.current().isJava8Compatible()) {
-        if (useErrorProne) {
-            apply plugin: "net.ltgt.errorprone"
-        }
-        apply plugin: 'com.github.sherter.google-java-format'
+    apply plugin: 'com.github.sherter.google-java-format'
+    if (useErrorProne) {
+        apply plugin: "net.ltgt.errorprone"
     }
 
     group = "io.opencensus"
@@ -81,36 +78,34 @@ subprojects {
         // https://groups.google.com/forum/#!topic/bazel-discuss/_R3A9TJSoPM
         it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-processing"]
         if (useErrorProne) {
-            if (JavaVersion.current().isJava8Compatible()) {
-                it.options.compilerArgs += ["-XepAllDisabledChecksAsWarnings", "-XepDisableWarningsInGeneratedCode"]
+            it.options.compilerArgs += ["-XepAllDisabledChecksAsWarnings", "-XepDisableWarningsInGeneratedCode"]
 
-                // -XepDisableWarningsInGeneratedCode doesn't suppress all warnings in generated
-                // protocol buffer code.
-                it.options.compilerArgs += ["-XepExcludedPaths:.*/gen_gradle/.*"]
+            // -XepDisableWarningsInGeneratedCode doesn't suppress all warnings in generated
+            // protocol buffer code.
+            it.options.compilerArgs += ["-XepExcludedPaths:.*/gen_gradle/.*"]
 
-                // MutableMethodReturnType can suggest returning Guava types from
-                // API methods (https://github.com/google/error-prone/issues/982).
-                it.options.compilerArgs += ["-Xep:MutableMethodReturnType:OFF"]
+            // MutableMethodReturnType can suggest returning Guava types from
+            // API methods (https://github.com/google/error-prone/issues/982).
+            it.options.compilerArgs += ["-Xep:MutableMethodReturnType:OFF"]
 
-                // ReturnMissingNullable conflicts with Checker Framework null analysis.
-                it.options.compilerArgs += ["-Xep:ReturnMissingNullable:OFF"]
+            // ReturnMissingNullable conflicts with Checker Framework null analysis.
+            it.options.compilerArgs += ["-Xep:ReturnMissingNullable:OFF"]
 
-                // OpenCensus doesn't currently use Var annotations.
-                it.options.compilerArgs += ["-Xep:Var:OFF"]
+            // OpenCensus doesn't currently use Var annotations.
+            it.options.compilerArgs += ["-Xep:Var:OFF"]
 
-                // ImmutableRefactoring suggests using com.google.errorprone.annotations.Immutable,
-                // but OpenCensus currently uses javax.annotation.concurrent.Immutable
-                it.options.compilerArgs += ["-Xep:ImmutableRefactoring:OFF"]
+            // ImmutableRefactoring suggests using com.google.errorprone.annotations.Immutable,
+            // but OpenCensus currently uses javax.annotation.concurrent.Immutable
+            it.options.compilerArgs += ["-Xep:ImmutableRefactoring:OFF"]
 
-                // This check causes a NullPointerException
-                // (https://github.com/google/error-prone/issues/1138).
-                it.options.compilerArgs += ["-Xep:NullableDereference:OFF"]
+            // This check causes a NullPointerException
+            // (https://github.com/google/error-prone/issues/1138).
+            it.options.compilerArgs += ["-Xep:NullableDereference:OFF"]
 
-                // ExpectedExceptionRefactoring and TestExceptionRefactoring suggest using
-                // assertThrows, but assertThrows only works well with lambdas.
-                it.options.compilerArgs += ["-Xep:ExpectedExceptionRefactoring:OFF"]
-                it.options.compilerArgs += ["-Xep:TestExceptionRefactoring:OFF"]
-            }
+            // ExpectedExceptionRefactoring and TestExceptionRefactoring suggest using
+            // assertThrows, but assertThrows only works well with lambdas.
+            it.options.compilerArgs += ["-Xep:ExpectedExceptionRefactoring:OFF"]
+            it.options.compilerArgs += ["-Xep:TestExceptionRefactoring:OFF"]
         }
         if (useCheckerFramework) {
             it.options.compilerArgs += [
@@ -126,12 +121,6 @@ subprojects {
         if (!JavaVersion.current().isJava9() && !useErrorProne) {
             // TODO(sebright): Enable -Werror for Java 9 once we upgrade AutoValue (issue #1017).
             it.options.compilerArgs += ["-Werror"]
-        }
-        if (JavaVersion.current().isJava7()) {
-            // Suppress all deprecation warnings with Java 7, since there are some bugs in its handling of
-            // @SuppressWarnings. See
-            // https://stackoverflow.com/questions/26921774/how-to-avoid-deprecation-warnings-when-suppresswarningsdeprecation-doesnt
-            it.options.compilerArgs += ["-Xlint:-deprecation"]
         }
         if (JavaVersion.current().isJava9()) {
             // TODO(sebright): Currently, building with Java 9 produces the following "options" warnings:
@@ -273,7 +262,7 @@ subprojects {
                 libraries.mockito,
                 libraries.truth
 
-        if (useErrorProne && JavaVersion.current().isJava8Compatible()) {
+        if (useErrorProne) {
             // The ErrorProne plugin defaults to the latest, which would break our
             // build if error prone releases a new version with a new check
             errorprone "com.google.errorprone:error_prone_core:${errorProneVersion}"
@@ -318,27 +307,19 @@ subprojects {
         configProperties["rootDir"] = rootDir
     }
 
-    // Disable checkstyle if no java8.
-    checkstyleMain.enabled = JavaVersion.current().isJava8Compatible()
-    checkstyleTest.enabled = JavaVersion.current().isJava8Compatible()
-    checkstyleJmh.enabled = JavaVersion.current().isJava8Compatible()
+    googleJavaFormat {
+        toolVersion '1.7'
+    }
 
-    // Google formatter works only on java8.
-    if (JavaVersion.current().isJava8Compatible()) {
-        googleJavaFormat {
-            toolVersion '1.7'
+    afterEvaluate {  // Allow subproject to add more source sets.
+        tasks.googleJavaFormat {
+            source = sourceSets*.allJava
+            include '**/*.java'
         }
 
-        afterEvaluate {  // Allow subproject to add more source sets.
-            tasks.googleJavaFormat {
-                source = sourceSets*.allJava
-                include '**/*.java'
-            }
-
-            tasks.verifyGoogleJavaFormat {
-                source = sourceSets*.allJava
-                include '**/*.java'
-            }
+        tasks.verifyGoogleJavaFormat {
+            source = sourceSets*.allJava
+            include '**/*.java'
         }
     }
 

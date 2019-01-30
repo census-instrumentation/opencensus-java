@@ -5,17 +5,6 @@ description = 'OpenCensus Trace Jaeger Exporter'
     it.targetCompatibility = 1.6
 }
 
-// Docker tests require JDK 8+
-sourceSets {
-    test {
-        java {
-            if (!JavaVersion.current().isJava8Compatible()) {
-                exclude '**/JaegerExporterHandlerIntegrationTest.java'
-            }
-        }
-    }
-}
-
 dependencies {
     compile project(':opencensus-api'),
             libraries.guava

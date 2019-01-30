@@ -156,9 +156,6 @@ dependencies {
   integrationTestRuntime project(':opencensus-impl-lite')
 }
 
-// Disable checkstyle for integration tests if not java8.
-checkstyleIntegrationTest.enabled = JavaVersion.current().isJava8Compatible()
-
 // Disable findbugs for integration tests, too.
 findbugsIntegrationTest.enabled = false
 
