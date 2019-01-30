@@ -16,9 +16,6 @@
 
 package io.opencensus.contrib.monitoredresource.util;
 
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
 import io.opencensus.resource.Resource;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +41,13 @@ public final class MonitoredResourceUtils {
   @Nullable
   public static MonitoredResource getDefaultResource() {
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      return GcpGkeContainerMonitoredResource.autoDetectResource();
+      return MonitoredResource.GcpGkeContainerMonitoredResource.autoDetectResource();
     }
     if (GcpMetadataConfig.getInstanceId() != null) {
-      return GcpGceInstanceMonitoredResource.autoDetectResource();
+      return MonitoredResource.GcpGceInstanceMonitoredResource.autoDetectResource();
     }
     if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      return AwsEc2InstanceMonitoredResource.autoDetectResource();
+      return MonitoredResource.AwsEc2InstanceMonitoredResource.autoDetectResource();
     }
     return null;
   }
