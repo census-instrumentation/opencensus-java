@@ -75,6 +75,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /** Exporter to Stackdriver Trace API v2. */
+@SuppressWarnings("deprecation")
 final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   private static final Tracer tracer = Tracing.getTracer();
@@ -100,7 +101,6 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           .build();
 
   @javax.annotation.Nullable
-  @SuppressWarnings("deprecation")
   private static final MonitoredResource RESOURCE = MonitoredResourceUtils.getDefaultResource();
 
   // Only initialize once.

@@ -44,13 +44,13 @@ public final class MonitoredResourceUtils {
   @Nullable
   public static MonitoredResource getDefaultResource() {
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      return GcpGkeContainerMonitoredResource.create();
+      return GcpGkeContainerMonitoredResource.autoDetectResource();
     }
     if (GcpMetadataConfig.getInstanceId() != null) {
-      return GcpGceInstanceMonitoredResource.create();
+      return GcpGceInstanceMonitoredResource.autoDetectResource();
     }
     if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      return AwsEc2InstanceMonitoredResource.create();
+      return AwsEc2InstanceMonitoredResource.autoDetectResource();
     }
     return null;
   }
@@ -66,15 +66,16 @@ public final class MonitoredResourceUtils {
   public static Resource detectResource() {
     List<Resource> resourceList = new ArrayList<Resource>();
     resourceList.add(Resource.createFromEnvironmentVariables());
-
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      resourceList.add(GcpGkeContainerMonitoredResource.createResource());
-    } else if (GcpMetadataConfig.getInstanceId() != null) {
-      resourceList.add(GcpGceInstanceMonitoredResource.createResource());
+      resourceList.add(K8sContainerResource.detect());
     }
-
+    // This can be true even if this is k8s container in case of GKE and we want to merge these
+    // resources.
+    if (GcpMetadataConfig.getInstanceId() != null) {
+      resourceList.add(GcpGceInstanceResource.detect());
+    }
     if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      resourceList.add(AwsEc2InstanceMonitoredResource.createResource());
+      resourceList.add(AwsEc2InstanceResource.detect());
     }
     return Resource.mergeResources(resourceList);
   }

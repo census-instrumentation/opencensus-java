@@ -20,7 +20,10 @@ package io.opencensus.contrib.monitoredresource.util;
  * Constants for collecting resource information.
  *
  * @since 0.18
+ * @deprecated use constant values from resource helper {@link AwsEc2InstanceResource}, {@link
+ *     GcpGceInstanceResource} and {@link K8sContainerResource}.
  */
+@Deprecated
 public final class ResourceKeyConstants {
 
   /**
@@ -28,28 +31,28 @@ public final class ResourceKeyConstants {
    *
    * @since 0.18
    */
-  public static final String AWS_EC2_INSTANCE_TYPE = "aws.com/ec2/instance";
+  public static final String AWS_EC2_INSTANCE_TYPE = AwsEc2InstanceResource.TYPE;
 
   /**
    * AWS key that represents a region for the VM.
    *
    * @since 0.18
    */
-  public static final String AWS_REGION_KEY = "aws.com/ec2/region";
+  public static final String AWS_REGION_KEY = AwsEc2InstanceResource.REGION_KEY;
 
   /**
    * AWS key that represents the AWS account number for the VM.
    *
    * @since 0.18
    */
-  public static final String AWS_ACCOUNT_KEY = "aws.com/ec2/account_id";
+  public static final String AWS_ACCOUNT_KEY = AwsEc2InstanceResource.ACCOUNT_ID_KEY;
 
   /**
    * AWS key that represents the VM instance identifier assigned by AWS.
    *
    * @since 0.18
    */
-  public static final String AWS_INSTANCE_ID_KEY = "aws.com/ec2/instance_id";
+  public static final String AWS_INSTANCE_ID_KEY = AwsEc2InstanceResource.INSTANCE_ID_KEY;
 
   /**
    * AWS key that represents a prefix for region value.
@@ -63,49 +66,49 @@ public final class ResourceKeyConstants {
    *
    * @since 0.18
    */
-  public static final String GCP_GCE_INSTANCE_TYPE = "cloud.google.com/gce/instance";
+  public static final String GCP_GCE_INSTANCE_TYPE = GcpGceInstanceResource.TYPE;
 
   /**
    * GCP GCE key that represents the GCP account number for the instance.
    *
    * @since 0.18
    */
-  public static final String GCP_ACCOUNT_ID_KEY = "cloud.google.com/gce/project_id";
+  public static final String GCP_ACCOUNT_ID_KEY = GcpGceInstanceResource.PROJECT_ID_KEY;
 
   /**
    * GCP GCE key that represents the numeric VM instance identifier assigned by GCE.
    *
    * @since 0.18
    */
-  public static final String GCP_INSTANCE_ID_KEY = "cloud.google.com/gce/instance_id";
+  public static final String GCP_INSTANCE_ID_KEY = GcpGceInstanceResource.INSTANCE_ID_KEY;
 
   /**
    * GCP GCE key that represents the GCE zone in which the VM is running.
    *
    * @since 0.18
    */
-  public static final String GCP_ZONE_KEY = "cloud.google.com/gce/zone";
+  public static final String GCP_ZONE_KEY = GcpGceInstanceResource.ZONE_KEY;
 
   /**
    * Kubernetes resources key that represents a type of the resource.
    *
    * @since 0.18
    */
-  public static final String K8S_CONTAINER_TYPE = "k8s.io/container";
+  public static final String K8S_CONTAINER_TYPE = K8sContainerResource.TYPE;
 
   /**
    * Kubernetes resources key that represents the name for the cluster the container is running in.
    *
    * @since 0.18
    */
-  public static final String K8S_CLUSTER_NAME_KEY = "k8s.io/cluster/name";
+  public static final String K8S_CLUSTER_NAME_KEY = K8sContainerResource.CLUSTER_NAME_KEY;
 
   /**
    * Kubernetes resources key that represents the name of the container.
    *
    * @since 0.18
    */
-  public static final String K8S_CONTAINER_NAME_KEY = "k8s.io/container/name";
+  public static final String K8S_CONTAINER_NAME_KEY = K8sContainerResource.CONTAINER_NAME_KEY;
 
   /**
    * Kubernetes resources key that represents the identifier for the GCE instance the container is
@@ -113,7 +116,7 @@ public final class ResourceKeyConstants {
    *
    * @since 0.18
    */
-  public static final String K8S_NAMESPACE_NAME_KEY = "k8s.io/namespace/name";
+  public static final String K8S_NAMESPACE_NAME_KEY = K8sContainerResource.NAMESPACE_NAME_KEY;
 
   /**
    * Kubernetes resources key that represents the identifier for the pod the container is running
@@ -121,7 +124,7 @@ public final class ResourceKeyConstants {
    *
    * @since 0.18
    */
-  public static final String K8S_POD_NAME_KEY = "k8s.io/pod/name";
+  public static final String K8S_POD_NAME_KEY = K8sContainerResource.POD_NAME_KEY;
 
   private ResourceKeyConstants() {}
 }

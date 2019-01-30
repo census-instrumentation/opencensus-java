@@ -16,11 +16,10 @@
 
 package io.opencensus.contrib.monitoredresource.util;
 
-import com.google.auto.value.AutoValue;
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import io.opencensus.resource.Resource;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -29,8 +28,10 @@ import javax.annotation.concurrent.Immutable;
  * values.
  *
  * @since 0.13
+ * @deprecated use {@link Resource}.
  */
 @Immutable
+@Deprecated
 public abstract class MonitoredResource {
 
   MonitoredResource() {}
@@ -43,20 +44,6 @@ public abstract class MonitoredResource {
    */
   public abstract ResourceType getResourceType();
 
-  /*
-   * Returns the first of two given parameters that is not null, if either is, or otherwise
-   * throws a NullPointerException.
-   */
-  private static <T> T firstNonNull(@Nullable T first, @Nullable T second) {
-    if (first != null) {
-      return first;
-    }
-    if (second != null) {
-      return second;
-    }
-    throw new NullPointerException("Both parameters are null");
-  }
-
   // TODO(songya): consider using a tagged union match() approach (that will introduce
   // dependency on opencensus-api).
 
@@ -64,17 +51,12 @@ public abstract class MonitoredResource {
    * {@link MonitoredResource} for AWS EC2 instance.
    *
    * @since 0.13
+   * @deprecated use {@link Resource}.
    */
   @Immutable
-  @AutoValue
-  public abstract static class AwsEc2InstanceMonitoredResource extends MonitoredResource {
-
-    private static final String AWS_ACCOUNT =
-        firstNonNull(AwsIdentityDocUtils.getValueFromAwsIdentityDocument("accountId"), "");
-    private static final String AWS_INSTANCE_ID =
-        firstNonNull(AwsIdentityDocUtils.getValueFromAwsIdentityDocument("instanceId"), "");
-    private static final String AWS_REGION =
-        firstNonNull(AwsIdentityDocUtils.getValueFromAwsIdentityDocument("region"), "");
+  @Deprecated
+  public static final class AwsEc2InstanceMonitoredResource extends MonitoredResource {
+    private final Map<String, String> awsInstanceLabels;
 
     @Override
     public ResourceType getResourceType() {
@@ -87,7 +69,9 @@ public abstract class MonitoredResource {
      * @return the AWS account ID.
      * @since 0.13
      */
-    public abstract String getAccount();
+    public String getAccount() {
+      return firstNonNull(awsInstanceLabels.get(AwsEc2InstanceResource.ACCOUNT_ID_KEY), "");
+    }
 
     /**
      * Returns the AWS EC2 instance ID.
@@ -95,7 +79,9 @@ public abstract class MonitoredResource {
      * @return the AWS EC2 instance ID.
      * @since 0.13
      */
-    public abstract String getInstanceId();
+    public String getInstanceId() {
+      return firstNonNull(awsInstanceLabels.get(AwsEc2InstanceResource.INSTANCE_ID_KEY), "");
+    }
 
     /**
      * Returns the AWS region.
@@ -103,7 +89,9 @@ public abstract class MonitoredResource {
      * @return the AWS region.
      * @since 0.13
      */
-    public abstract String getRegion();
+    public String getRegion() {
+      return firstNonNull(awsInstanceLabels.get(AwsEc2InstanceResource.REGION_KEY), "");
+    }
 
     /**
      * Returns an {@link AwsEc2InstanceMonitoredResource}.
@@ -116,20 +104,16 @@ public abstract class MonitoredResource {
      */
     public static AwsEc2InstanceMonitoredResource create(
         String account, String instanceId, String region) {
-      return new AutoValue_MonitoredResource_AwsEc2InstanceMonitoredResource(
-          account, instanceId, region);
+      return new AwsEc2InstanceMonitoredResource(
+          AwsEc2InstanceResource.create(account, region, instanceId).getLabels());
     }
 
-    static AwsEc2InstanceMonitoredResource create() {
-      return create(AWS_ACCOUNT, AWS_INSTANCE_ID, AWS_REGION);
+    static AwsEc2InstanceMonitoredResource autoDetectResource() {
+      return new AwsEc2InstanceMonitoredResource(AwsEc2InstanceResource.detect().getLabels());
     }
 
-    static Resource createResource() {
-      Map<String, String> labels = new LinkedHashMap<String, String>();
-      labels.put(ResourceKeyConstants.AWS_REGION_KEY, AWS_REGION);
-      labels.put(ResourceKeyConstants.AWS_ACCOUNT_KEY, AWS_ACCOUNT);
-      labels.put(ResourceKeyConstants.AWS_INSTANCE_ID_KEY, AWS_INSTANCE_ID);
-      return Resource.create(ResourceKeyConstants.AWS_EC2_INSTANCE_TYPE, labels);
+    private AwsEc2InstanceMonitoredResource(Map<String, String> awsInstanceLabels) {
+      this.awsInstanceLabels = awsInstanceLabels;
     }
   }
 
@@ -137,15 +121,12 @@ public abstract class MonitoredResource {
    * {@link MonitoredResource} for GCP GCE instance.
    *
    * @since 0.13
+   * @deprecated use {@link Resource}.
    */
   @Immutable
-  @AutoValue
-  public abstract static class GcpGceInstanceMonitoredResource extends MonitoredResource {
-
-    private static final String GCP_ACCOUNT_ID = firstNonNull(GcpMetadataConfig.getProjectId(), "");
-    private static final String GCP_INSTANCE_ID =
-        firstNonNull(GcpMetadataConfig.getInstanceId(), "");
-    private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
+  @Deprecated
+  public static final class GcpGceInstanceMonitoredResource extends MonitoredResource {
+    private final Map<String, String> gcpInstanceLabels;
 
     @Override
     public ResourceType getResourceType() {
@@ -158,7 +139,9 @@ public abstract class MonitoredResource {
      * @return the GCP account number for the instance.
      * @since 0.13
      */
-    public abstract String getAccount();
+    public String getAccount() {
+      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.PROJECT_ID_KEY), "");
+    }
 
     /**
      * Returns the GCP GCE instance ID.
@@ -166,7 +149,9 @@ public abstract class MonitoredResource {
      * @return the GCP GCE instance ID.
      * @since 0.13
      */
-    public abstract String getInstanceId();
+    public String getInstanceId() {
+      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.INSTANCE_ID_KEY), "");
+    }
 
     /**
      * Returns the GCP zone.
@@ -174,7 +159,9 @@ public abstract class MonitoredResource {
      * @return the GCP zone.
      * @since 0.13
      */
-    public abstract String getZone();
+    public String getZone() {
+      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.ZONE_KEY), "");
+    }
 
     /**
      * Returns a {@link GcpGceInstanceMonitoredResource}.
@@ -187,20 +174,16 @@ public abstract class MonitoredResource {
      */
     public static GcpGceInstanceMonitoredResource create(
         String account, String instanceId, String zone) {
-      return new AutoValue_MonitoredResource_GcpGceInstanceMonitoredResource(
-          account, instanceId, zone);
+      return new GcpGceInstanceMonitoredResource(
+          GcpGceInstanceResource.create(account, zone, instanceId).getLabels());
     }
 
-    static GcpGceInstanceMonitoredResource create() {
-      return create(GCP_ACCOUNT_ID, GCP_INSTANCE_ID, GCP_ZONE);
+    static GcpGceInstanceMonitoredResource autoDetectResource() {
+      return new GcpGceInstanceMonitoredResource(GcpGceInstanceResource.detect().getLabels());
     }
 
-    static Resource createResource() {
-      Map<String, String> labels = new LinkedHashMap<String, String>();
-      labels.put(ResourceKeyConstants.GCP_ACCOUNT_ID_KEY, GCP_ACCOUNT_ID);
-      labels.put(ResourceKeyConstants.GCP_INSTANCE_ID_KEY, GCP_INSTANCE_ID);
-      labels.put(ResourceKeyConstants.GCP_ZONE_KEY, GCP_ZONE);
-      return Resource.create(ResourceKeyConstants.GCP_GCE_INSTANCE_TYPE, labels);
+    private GcpGceInstanceMonitoredResource(Map<String, String> gcpInstanceLabels) {
+      this.gcpInstanceLabels = gcpInstanceLabels;
     }
   }
 
@@ -208,21 +191,13 @@ public abstract class MonitoredResource {
    * {@link MonitoredResource} for GCP GKE container.
    *
    * @since 0.13
+   * @deprecated use {@link Resource}.
    */
   @Immutable
-  @AutoValue
-  public abstract static class GcpGkeContainerMonitoredResource extends MonitoredResource {
-
-    private static final String GCP_ACCOUNT_ID = firstNonNull(GcpMetadataConfig.getProjectId(), "");
-    private static final String GCP_CLUSTER_NAME =
-        firstNonNull(GcpMetadataConfig.getClusterName(), "");
-    private static final String GCP_CONTAINER_NAME =
-        firstNonNull(System.getenv("CONTAINER_NAME"), "");
-    private static final String GCP_NAMESPACE_ID = firstNonNull(System.getenv("NAMESPACE"), "");
-    private static final String GCP_INSTANCE_ID =
-        firstNonNull(GcpMetadataConfig.getInstanceId(), "");
-    private static final String GCP_POD_ID = firstNonNull(System.getenv("HOSTNAME"), "");
-    private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
+  @Deprecated
+  public static final class GcpGkeContainerMonitoredResource extends MonitoredResource {
+    private final Map<String, String> k8sContainerLabels;
+    private final Map<String, String> gcpInstanceLabels;
 
     @Override
     public ResourceType getResourceType() {
@@ -235,7 +210,9 @@ public abstract class MonitoredResource {
      * @return the GCP account number for the instance.
      * @since 0.13
      */
-    public abstract String getAccount();
+    public String getAccount() {
+      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.PROJECT_ID_KEY), "");
+    }
 
     /**
      * Returns the GCP GKE cluster name.
@@ -243,7 +220,9 @@ public abstract class MonitoredResource {
      * @return the GCP GKE cluster name.
      * @since 0.13
      */
-    public abstract String getClusterName();
+    public String getClusterName() {
+      return firstNonNull(k8sContainerLabels.get(K8sContainerResource.CLUSTER_NAME_KEY), "");
+    }
 
     /**
      * Returns the GCP GKE container name.
@@ -251,7 +230,9 @@ public abstract class MonitoredResource {
      * @return the GCP GKE container name.
      * @since 0.13
      */
-    public abstract String getContainerName();
+    public String getContainerName() {
+      return firstNonNull(k8sContainerLabels.get(K8sContainerResource.CONTAINER_NAME_KEY), "");
+    }
 
     /**
      * Returns the GCP GKE namespace ID.
@@ -259,7 +240,9 @@ public abstract class MonitoredResource {
      * @return the GCP GKE namespace ID.
      * @since 0.13
      */
-    public abstract String getNamespaceId();
+    public String getNamespaceId() {
+      return firstNonNull(k8sContainerLabels.get(K8sContainerResource.NAMESPACE_NAME_KEY), "");
+    }
 
     /**
      * Returns the GCP GKE instance ID.
@@ -267,7 +250,9 @@ public abstract class MonitoredResource {
      * @return the GCP GKE instance ID.
      * @since 0.13
      */
-    public abstract String getInstanceId();
+    public String getInstanceId() {
+      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.INSTANCE_ID_KEY), "");
+    }
 
     /**
      * Returns the GCP GKE Pod ID.
@@ -275,7 +260,9 @@ public abstract class MonitoredResource {
      * @return the GCP GKE Pod ID.
      * @since 0.13
      */
-    public abstract String getPodId();
+    public String getPodId() {
+      return firstNonNull(k8sContainerLabels.get(K8sContainerResource.POD_NAME_KEY), "");
+    }
 
     /**
      * Returns the GCP zone.
@@ -283,7 +270,9 @@ public abstract class MonitoredResource {
      * @return the GCP zone.
      * @since 0.13
      */
-    public abstract String getZone();
+    public String getZone() {
+      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.ZONE_KEY), "");
+    }
 
     /**
      * Returns a {@link GcpGkeContainerMonitoredResource}.
@@ -306,30 +295,21 @@ public abstract class MonitoredResource {
         String instanceId,
         String podId,
         String zone) {
-      return new AutoValue_MonitoredResource_GcpGkeContainerMonitoredResource(
-          account, clusterName, containerName, namespaceId, instanceId, podId, zone);
+      return new GcpGkeContainerMonitoredResource(
+          K8sContainerResource.create(clusterName, namespaceId, podId, containerName).getLabels(),
+          GcpGceInstanceResource.create(account, zone, instanceId).getLabels());
     }
 
-    static GcpGkeContainerMonitoredResource create() {
-      return create(
-          GCP_ACCOUNT_ID,
-          GCP_CLUSTER_NAME,
-          GCP_CONTAINER_NAME,
-          GCP_NAMESPACE_ID,
-          GCP_INSTANCE_ID,
-          GCP_POD_ID,
-          GCP_ZONE);
+    static GcpGkeContainerMonitoredResource autoDetectResource() {
+      return new GcpGkeContainerMonitoredResource(
+          K8sContainerResource.detect().getLabels(), GcpGceInstanceResource.detect().getLabels());
     }
 
-    static Resource createResource() {
-      Map<String, String> labels = new LinkedHashMap<String, String>();
-      labels.put(ResourceKeyConstants.GCP_ACCOUNT_ID_KEY, GCP_ACCOUNT_ID);
-      labels.put(ResourceKeyConstants.GCP_ZONE_KEY, GCP_ZONE);
-      labels.put(ResourceKeyConstants.K8S_CLUSTER_NAME_KEY, GCP_CLUSTER_NAME);
-      labels.put(ResourceKeyConstants.K8S_CONTAINER_NAME_KEY, GCP_CONTAINER_NAME);
-      labels.put(ResourceKeyConstants.K8S_NAMESPACE_NAME_KEY, GCP_NAMESPACE_ID);
-      labels.put(ResourceKeyConstants.K8S_POD_NAME_KEY, GCP_POD_ID);
-      return Resource.create(ResourceKeyConstants.K8S_CONTAINER_TYPE, labels);
+    private GcpGkeContainerMonitoredResource(
+        Map<String, String> k8sContainerLabels, Map<String, String> gcpInstanceLabels) {
+
+      this.k8sContainerLabels = k8sContainerLabels;
+      this.gcpInstanceLabels = gcpInstanceLabels;
     }
   }
 }
