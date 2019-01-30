@@ -410,7 +410,7 @@ final class StackdriverExportUtils {
       return;
     }
 
-    Map<String, String> mappings = null;
+    Map<String, String> mappings;
     switch (type) {
       case ResourceKeyConstants.GCP_GCE_INSTANCE_TYPE:
         builder.setType(GCP_GCE_INSTANCE);
@@ -429,17 +429,12 @@ final class StackdriverExportUtils {
         return;
     }
 
-    if (mappings != null) {
-      Map<String, String> resLabels = autoDetectedResource.getLabels();
-      for (Map.Entry<String, String> entry : mappings.entrySet()) {
-        if (entry.getValue() != null && resLabels.containsKey(entry.getValue())) {
-          builder.putLabels(entry.getKey(), resLabels.get(entry.getValue()));
-        }
+    Map<String, String> resLabels = autoDetectedResource.getLabels();
+    for (Map.Entry<String, String> entry : mappings.entrySet()) {
+      if (entry.getValue() != null && resLabels.containsKey(entry.getValue())) {
+        builder.putLabels(entry.getKey(), resLabels.get(entry.getValue()));
       }
-      return;
     }
-
-    throw new IllegalArgumentException("Unknown subclass of MonitoredResource.");
   }
 
   @VisibleForTesting
