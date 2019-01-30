@@ -93,6 +93,18 @@ Use these commands to run Checker Framework null analysis:
 
 `gradlew.bat clean assemble -PcheckerFramework`
 
+Run the following command to install a local snapshot of OpenCensus. This 
+can be a very useful tool for testing changes locally against another 
+project that uses OpenCensus.
+
+### OS X or Linux
+
+`./gradlew install`
+
+### Windows
+
+`gradlew.bat install`
+
 ### Checker Framework null analysis
 
 OpenCensus uses the [Checker Framework](https://checkerframework.org/) to
