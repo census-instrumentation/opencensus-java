@@ -5,10 +5,6 @@ language: java
 matrix:
   fast_finish: true
   include:
-  - jdk: openjdk7
-    env: TASK=BUILD
-    os: linux
-
   - jdk: oraclejdk8
     env: TASK=BUILD
     os: linux
