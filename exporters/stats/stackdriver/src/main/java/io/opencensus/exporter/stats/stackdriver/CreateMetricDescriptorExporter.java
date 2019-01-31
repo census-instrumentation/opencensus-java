@@ -19,6 +19,7 @@ package io.opencensus.exporter.stats.stackdriver;
 import com.google.api.MetricDescriptor;
 import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
+import com.google.common.collect.ImmutableSet;
 import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.ProjectName;
 import io.opencensus.exporter.metrics.util.MetricExporter;
@@ -40,6 +41,8 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
   private static final Tracer tracer = Tracing.getTracer();
   private static final Logger logger =
       Logger.getLogger(CreateMetricDescriptorExporter.class.getName());
+  private static final ImmutableSet<String> SUPPORTED_EXTERNAL_DOMAINS =
+      ImmutableSet.<String>of("custom.googleapis.com/", "external.googleapis.com/");
 
   private final String projectId;
   private final ProjectName projectName;
@@ -68,8 +71,9 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
   // exact same metric has already been registered. Returns false otherwise.
   private boolean registerMetricDescriptor(
       io.opencensus.metrics.export.MetricDescriptor metricDescriptor) {
+    String metricName = metricDescriptor.getName();
     io.opencensus.metrics.export.MetricDescriptor existingMetricDescriptor =
-        registeredMetricDescriptors.get(metricDescriptor.getName());
+        registeredMetricDescriptors.get(metricName);
     if (existingMetricDescriptor != null) {
       if (existingMetricDescriptor.equals(metricDescriptor)) {
         // Ignore metricDescriptor that are already registered.
@@ -82,7 +86,10 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
         return false;
       }
     }
-    registeredMetricDescriptors.put(metricDescriptor.getName(), metricDescriptor);
+    registeredMetricDescriptors.put(metricName, metricDescriptor);
+    if (!isSupportedExternalMetric(metricName)) {
+      return true; // skip creating metric descriptor for stackdriver built-in metrics.
+    }
 
     Span span = tracer.getCurrentSpan();
     span.addAnnotation("Create Stackdriver Metric.");
@@ -139,5 +146,14 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
       }
     }
     nextExporter.export(registeredMetrics);
+  }
+
+  private static boolean isSupportedExternalMetric(String metricName) {
+    for (String domain : SUPPORTED_EXTERNAL_DOMAINS) {
+      if (metricName.startsWith(domain)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
