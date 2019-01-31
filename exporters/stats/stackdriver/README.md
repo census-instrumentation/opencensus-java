@@ -30,17 +30,17 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.19.0</version>
+    <version>0.19.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-exporter-stats-stackdriver</artifactId>
-    <version>0.19.0</version>
+    <version>0.19.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.19.0</version>
+    <version>0.19.1</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -48,9 +48,9 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.19.0'
-compile 'io.opencensus:opencensus-exporter-stats-stackdriver:0.19.0'
-runtime 'io.opencensus:opencensus-impl:0.19.0'
+compile 'io.opencensus:opencensus-api:0.19.1'
+compile 'io.opencensus:opencensus-exporter-stats-stackdriver:0.19.1'
+runtime 'io.opencensus:opencensus-impl:0.19.1'
 ```
 
 #### Register the exporter
