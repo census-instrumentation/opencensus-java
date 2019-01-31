@@ -55,13 +55,6 @@ public final class ResourceKeyConstants {
   public static final String AWS_INSTANCE_ID_KEY = AwsEc2InstanceResource.INSTANCE_ID_KEY;
 
   /**
-   * AWS key that represents a prefix for region value.
-   *
-   * @since 0.18
-   */
-  public static final String AWS_REGION_VALUE_PREFIX = "aws:";
-
-  /**
    * GCP GCE key that represents a type of the resource.
    *
    * @since 0.18
