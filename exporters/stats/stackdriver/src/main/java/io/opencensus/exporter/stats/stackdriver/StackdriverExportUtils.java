@@ -86,6 +86,7 @@ final class StackdriverExportUtils {
   private static final String GCP_GCE_INSTANCE = "gce_instance";
   private static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
   private static final String GLOBAL = "global";
+  @VisibleForTesting static final String AWS_REGION_VALUE_PREFIX = "aws:";
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
   private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
@@ -434,7 +435,13 @@ final class StackdriverExportUtils {
     Map<String, String> resLabels = autoDetectedResource.getLabels();
     for (Map.Entry<String, String> entry : mappings.entrySet()) {
       if (entry.getValue() != null && resLabels.containsKey(entry.getValue())) {
-        builder.putLabels(entry.getKey(), resLabels.get(entry.getValue()));
+        String resourceLabelKey = entry.getKey();
+        String resourceLabelValue = resLabels.get(entry.getValue());
+        if (AwsEc2InstanceResource.TYPE.equals(type) && "region".equals(resourceLabelKey)) {
+          // Add "aws:" prefix to AWS EC2 region label. This is Stackdriver specific requirement.
+          resourceLabelValue = AWS_REGION_VALUE_PREFIX + resourceLabelValue;
+        }
+        builder.putLabels(resourceLabelKey, resourceLabelValue);
       }
     }
   }

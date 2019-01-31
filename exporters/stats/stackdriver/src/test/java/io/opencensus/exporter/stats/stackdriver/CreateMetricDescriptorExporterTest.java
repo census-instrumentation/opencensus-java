@@ -55,8 +55,10 @@ import org.mockito.MockitoAnnotations;
 @RunWith(JUnit4.class)
 public class CreateMetricDescriptorExporterTest {
   private static final String PROJECT_ID = "projectId";
-  private static final String METRIC_NAME = "my_metric";
-  private static final String METRIC_NAME_2 = "my_metric_2";
+
+  private static final String METRIC_NAME = CUSTOM_OPENCENSUS_DOMAIN + "my_metric";
+  private static final String METRIC_NAME_2 = CUSTOM_OPENCENSUS_DOMAIN + "my_metric_2";
+  private static final String METRIC_NAME_3 = "bigquery.googleapis.com/query/count";
   private static final String METRIC_DESCRIPTION = "metric_description";
   private static final String METRIC_DESCRIPTION_2 = "metric_description2";
   private static final String METRIC_UNIT = "us";
@@ -78,6 +80,11 @@ public class CreateMetricDescriptorExporterTest {
       io.opencensus.metrics.export.MetricDescriptor.create(
           METRIC_NAME, METRIC_DESCRIPTION_2, METRIC_UNIT, Type.CUMULATIVE_INT64, LABEL_KEY);
 
+  // Stackdriver built-in metric.
+  private static final io.opencensus.metrics.export.MetricDescriptor METRIC_DESCRIPTOR_4 =
+      io.opencensus.metrics.export.MetricDescriptor.create(
+          METRIC_NAME_3, METRIC_DESCRIPTION, METRIC_UNIT, Type.CUMULATIVE_INT64, LABEL_KEY);
+
   private static final Value VALUE_LONG = Value.longValue(12345678);
   private static final Timestamp TIMESTAMP = Timestamp.fromMillis(3000);
   private static final Timestamp TIMESTAMP_2 = Timestamp.fromMillis(1000);
@@ -92,6 +99,8 @@ public class CreateMetricDescriptorExporterTest {
       Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_2, CUMULATIVE_TIME_SERIES);
   private static final Metric METRIC_3 =
       Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_3, CUMULATIVE_TIME_SERIES);
+  private static final Metric METRIC_4 =
+      Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_4, CUMULATIVE_TIME_SERIES);
 
   @Mock private MetricServiceStub mockStub;
 
@@ -183,7 +192,7 @@ public class CreateMetricDescriptorExporterTest {
   }
 
   @Test
-  public void doNotCreateMetricDescriptorForRegisteredeMetric() {
+  public void doNotCreateMetricDescriptorForRegisteredMetric() {
     FakeMetricExporter fakeMetricExporter = new FakeMetricExporter();
     CreateMetricDescriptorExporter exporter =
         new CreateMetricDescriptorExporter(
@@ -195,6 +204,19 @@ public class CreateMetricDescriptorExporterTest {
     exporter.export(Collections.singletonList(METRIC));
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     assertThat(fakeMetricExporter.getLastExported()).containsExactly(METRIC);
+  }
+
+  @Test
+  public void doNotCreateMetricDescriptorForBuiltInMetric() {
+    FakeMetricExporter fakeMetricExporter = new FakeMetricExporter();
+    CreateMetricDescriptorExporter exporter =
+        new CreateMetricDescriptorExporter(
+            PROJECT_ID, new FakeMetricServiceClient(mockStub), null, fakeMetricExporter);
+    exporter.export(Collections.singletonList(METRIC_4));
+
+    // Should not create MetricDescriptor for built-in metrics, but TimeSeries should be uploaded.
+    verify(mockStub, times(0)).createMetricDescriptorCallable();
+    assertThat(fakeMetricExporter.getLastExported()).containsExactly(METRIC_4);
   }
 
   private static final class FakeMetricExporter extends MetricExporter {

@@ -702,7 +702,8 @@ public class StackdriverExportUtilsTest {
     Map<String, String> expectedResourceLabels = new HashMap<String, String>();
     expectedResourceLabels.put("project_id", "proj1");
     expectedResourceLabels.put("instance_id", "instance1");
-    expectedResourceLabels.put("region", "region1");
+    expectedResourceLabels.put(
+        "region", StackdriverExportUtils.AWS_REGION_VALUE_PREFIX + "region1");
     expectedResourceLabels.put("aws_account", "account1");
 
     Resource resource = Resource.create(AwsEc2InstanceResource.TYPE, resourceLabels);
