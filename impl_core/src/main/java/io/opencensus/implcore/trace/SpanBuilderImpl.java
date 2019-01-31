@@ -69,18 +69,26 @@ final class SpanBuilderImpl extends SpanBuilder {
     TraceParams activeTraceParams = options.traceConfig.getActiveTraceParams();
     Random random = options.randomHandler.current();
     TraceId traceId;
-    SpanId spanId = SpanId.generateRandomId(random);
+    SpanId spanId;
     SpanId parentSpanId = null;
     // TODO(bdrutu): Handle tracestate correctly not just propagate.
     Tracestate tracestate = TRACESTATE_DEFAULT;
-    if (parent == null || !parent.isValid()) {
+
+    if (remoteParentSpanContext != null && remoteParentSpanContext.isValid()) {
+      traceId = remoteParentSpanContext.getTraceId();
+      spanId = remoteParentSpanContext.getSpanId();
+      tracestate = remoteParentSpanContext.getTracestate();
+    }
+    else if (parent == null || !parent.isValid()) {
       // New root span.
       traceId = TraceId.generateRandomId(random);
+      spanId = SpanId.generateRandomId(random);
       // This is a root span so no remote or local parent.
       hasRemoteParent = null;
     } else {
       // New child span.
       traceId = parent.getTraceId();
+      spanId = SpanId.generateRandomId(random);
       parentSpanId = parent.getSpanId();
       tracestate = parent.getTracestate();
     }
