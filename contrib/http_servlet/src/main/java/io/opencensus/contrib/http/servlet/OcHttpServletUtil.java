@@ -89,7 +89,7 @@ public class OcHttpServletUtil {
    * @return an object that defines a scope where the span associated with the given {@link
    *     ServletRequest} will be set to the current Context.
    * @throws NullPointerException if {@code request} is {@code null}.
-   * @since 0.19.1
+   * @since 0.20.0
    */
   @MustBeClosed
   public static Scope withScope(ServletRequest request) throws NullPointerException {
