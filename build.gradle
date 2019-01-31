@@ -425,6 +425,7 @@ subprojects {
                  'opencensus-contrib-exemplar-util',
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
+                 'opencensus-contrib-http-jaxrs',
                  'opencensus-contrib-http-jetty-client',
                  'opencensus-contrib-http-servlet',
                  'opencensus-contrib-http-util',
