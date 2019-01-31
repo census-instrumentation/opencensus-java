@@ -92,6 +92,9 @@ public class OcHttpServletFilter implements Filter {
       HttpServletResponse httpResp = (HttpServletResponse) response;
 
       HttpRequestContext context = handler.handleStart(httpReq, httpReq);
+      OcHttpServletListener listener = new OcHttpServletListener(handler, context);
+      httpReq.setAttribute(OcHttpServletUtil.OPENCENSUS_SERVLET_LISTENER, listener);
+
       int length = httpReq.getContentLength();
       if (length > 0) {
         handler.handleMessageReceived(context, length);
@@ -105,7 +108,6 @@ public class OcHttpServletFilter implements Filter {
       }
 
       if (httpReq.isAsyncStarted()) {
-        OcHttpServletListener listener = new OcHttpServletListener(handler, context);
         AsyncContext async = httpReq.getAsyncContext();
         async.addListener(listener, httpReq, httpResp);
       } else {

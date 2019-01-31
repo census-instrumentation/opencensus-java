@@ -18,9 +18,12 @@ package io.opencensus.contrib.http.servlet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.errorprone.annotations.MustBeClosed;
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.common.Scope;
 import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.contrib.http.HttpServerHandler;
+import io.opencensus.trace.Tracing;
 import java.io.Closeable;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
@@ -74,8 +77,6 @@ public final class OcHttpServletListener implements Closeable, AsyncListener {
   }
 
   @Override
-  @SuppressWarnings(
-      "MustBeClosedChecker") // Close will happen in onTimeout or onError or onComplete method
   public void onStartAsync(AsyncEvent event) {
     AsyncContext eventAsyncContext = event.getAsyncContext();
     if (eventAsyncContext != null) {
@@ -90,5 +91,10 @@ public final class OcHttpServletListener implements Closeable, AsyncListener {
         (HttpServletRequest) event.getSuppliedRequest(),
         (HttpServletResponse) event.getSuppliedResponse(),
         null);
+  }
+
+  @MustBeClosed
+  Scope withSpan() {
+    return Tracing.getTracer().withSpan(handler.getSpanFromContext(context));
   }
 }
