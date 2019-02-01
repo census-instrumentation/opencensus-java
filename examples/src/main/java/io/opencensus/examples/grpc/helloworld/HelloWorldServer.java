@@ -138,7 +138,7 @@ public class HelloWorldServer {
       StackdriverStatsExporter.createAndRegister(
           StackdriverStatsConfiguration.builder()
               .setProjectId(cloudProjectId)
-              .setExportInterval(Duration.create(15, 0))
+              .setExportInterval(Duration.create(60, 0))
               .build());
     }
 
