@@ -118,8 +118,7 @@ subprojects {
         // Protobuf-generated code produces some warnings.
         // https://github.com/google/protobuf/issues/2718
         it.options.compilerArgs += ["-Xlint:-cast"]
-        if (!JavaVersion.current().isJava9() && !useErrorProne) {
-            // TODO(sebright): Enable -Werror for Java 9 once we upgrade AutoValue (issue #1017).
+        if (!useErrorProne) {
             it.options.compilerArgs += ["-Werror"]
         }
         if (JavaVersion.current().isJava9()) {
@@ -156,7 +155,7 @@ subprojects {
     ext {
         appengineVersion = '1.9.71'
         aspectjVersion = '1.8.11'
-        autoValueVersion = '1.4'
+        autoValueVersion = '1.5.3'
         findBugsAnnotationsVersion = '3.0.1'
         findBugsJsr305Version = '3.0.2'
         errorProneVersion = '2.3.2'
@@ -251,10 +250,10 @@ subprojects {
             checkerFrameworkJavac "org.checkerframework:compiler:${checkerFrameworkCompilerVersion}"
             compileOnly "org.checkerframework:checker:${checkerFrameworkVersion}"
             compile "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
-            compileOnly libraries.auto_value
         }
 
-        compileOnly libraries.errorprone,
+        compileOnly libraries.auto_value,
+                libraries.errorprone,
                 libraries.jsr305
 
         testCompile libraries.guava_testlib,
