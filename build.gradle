@@ -161,7 +161,7 @@ subprojects {
         findBugsJsr305Version = '3.0.2'
         errorProneVersion = '2.3.2'
         grpcVersion = '1.18.0'
-        guavaVersion = '25.1-android'
+        guavaVersion = '26.0-android'
         googleAuthVersion = '0.13.0'
         googleCloudBetaVersion = '0.79.0-beta'
         googleCloudGaVersion = '1.61.0'
