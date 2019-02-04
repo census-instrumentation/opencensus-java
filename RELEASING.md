@@ -145,7 +145,7 @@ gone through code review. For the current release use:
 $ git checkout -b v$MAJOR.$MINOR.$PATCH tags/v$MAJOR.$MINOR.$PATCH
 ```
 
-### Initial Deployment
+### Building and Deploying
 
 The following command will build the whole project and upload it to Maven
 Central. Parallel building [is not safe during
@@ -241,6 +241,13 @@ $ git commit -a -m "Update release versions for all readme and build files."
 on master branch. Once that PR is merged, cherry-pick the commit and create another PR to the 
 release branch (branch v$MAJOR.$MINOR.x).
 
+## Patch Release
+All patch releases should include only bug-fixes, and must avoid adding/modifying the public APIs.
+To cherry-pick one commit use the following command:
+```bash
+$ COMMIT=1224f0a # Set the right commit hash.
+$ git cherry-pick -x $COMMIT
+```
 
 ## Known Issues
 
