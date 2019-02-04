@@ -482,11 +482,6 @@ subprojects {
         }
     }
 
-// TODO[rghetia]: remove this in a differnt PR when the artifact http-jetty-client is ready.
-    tasks.javadoc.onlyIf {
-       project.name != 'opencensus-contrib-http-jetty-client'
-    }
-
     // For projects that depend on gRPC during test execution, make sure to
     // also configure ALPN if running on a platform (e.g. FreeBSD) that is not
     // supported by io.netty:netty-tcnative-boringssl-static:jar. Also see:
