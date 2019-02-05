@@ -28,18 +28,30 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+/** Implementation of {@link TagContext}. */
 @Immutable
 public final class TagMapImpl extends TagContext {
 
+  /** Empty {@link TagMapImpl} with no tags. */
   public static final TagMapImpl EMPTY = new TagMapImpl(Collections.<TagKey, TagValue>emptyMap());
 
   // The types of the TagKey and value must match for each entry.
   private final Map<TagKey, TagValue> tags;
 
+  /**
+   * Creates a new {@link TagMapImpl} with the given tags.
+   *
+   * @param tags the initial tags for this {@code TagMapImpl}.
+   */
   public TagMapImpl(Map<? extends TagKey, ? extends TagValue> tags) {
     this.tags = Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags));
   }
 
+  /**
+   * Returns the tags of this {@link TagMapImpl}.
+   *
+   * @return the tags.
+   */
   public Map<TagKey, TagValue> getTags() {
     return tags;
   }
