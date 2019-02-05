@@ -13,3 +13,10 @@ javadoc {
     exclude 'io/opencensus/internal/**'
     exclude 'io/opencensus/trace/internal/**'
 }
+
+animalsniffer {
+    sourceSets = [
+            sourceSets.main,
+            sourceSets.test
+    ]
+}
