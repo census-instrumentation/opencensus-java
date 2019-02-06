@@ -245,8 +245,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_CLIENT_SENT_BYTES_PER_RPC}.
    */
   @Deprecated
-  public static final MeasureDouble RPC_CLIENT_REQUEST_BYTES =
-      Measure.MeasureDouble.create("grpc.io/client/request_bytes", "Request bytes", BYTE);
+  public static final MeasureDouble RPC_CLIENT_REQUEST_BYTES = GRPC_CLIENT_SENT_BYTES_PER_RPC;
 
   /**
    * {@link Measure} for gRPC client response bytes.
@@ -255,8 +254,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_CLIENT_RECEIVED_BYTES_PER_RPC}.
    */
   @Deprecated
-  public static final MeasureDouble RPC_CLIENT_RESPONSE_BYTES =
-      Measure.MeasureDouble.create("grpc.io/client/response_bytes", "Response bytes", BYTE);
+  public static final MeasureDouble RPC_CLIENT_RESPONSE_BYTES = GRPC_CLIENT_RECEIVED_BYTES_PER_RPC;
 
   /**
    * {@link Measure} for gRPC client roundtrip latency in milliseconds.
@@ -265,9 +263,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_CLIENT_ROUNDTRIP_LATENCY}.
    */
   @Deprecated
-  public static final MeasureDouble RPC_CLIENT_ROUNDTRIP_LATENCY =
-      Measure.MeasureDouble.create(
-          "grpc.io/client/roundtrip_latency", "RPC roundtrip latency msec", MILLISECOND);
+  public static final MeasureDouble RPC_CLIENT_ROUNDTRIP_LATENCY = GRPC_CLIENT_ROUNDTRIP_LATENCY;
 
   /**
    * {@link Measure} for gRPC client server elapsed time in milliseconds.
@@ -276,9 +272,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_CLIENT_SERVER_LATENCY}.
    */
   @Deprecated
-  public static final MeasureDouble RPC_CLIENT_SERVER_ELAPSED_TIME =
-      Measure.MeasureDouble.create(
-          "grpc.io/client/server_elapsed_time", "Server elapsed time in msecs", MILLISECOND);
+  public static final MeasureDouble RPC_CLIENT_SERVER_ELAPSED_TIME = GRPC_CLIENT_SERVER_LATENCY;
 
   /**
    * {@link Measure} for gRPC client uncompressed request bytes.
@@ -309,9 +303,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_CLIENT_STARTED_RPCS}.
    */
   @Deprecated
-  public static final MeasureLong RPC_CLIENT_STARTED_COUNT =
-      Measure.MeasureLong.create(
-          "grpc.io/client/started_count", "Number of client RPCs (streams) started", COUNT);
+  public static final MeasureLong RPC_CLIENT_STARTED_COUNT = GRPC_CLIENT_STARTED_RPCS;
 
   /**
    * {@link Measure} for number of finished client RPCs.
@@ -332,9 +324,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_CLIENT_SENT_MESSAGES_PER_RPC}.
    */
   @Deprecated
-  public static final MeasureLong RPC_CLIENT_REQUEST_COUNT =
-      Measure.MeasureLong.create(
-          "grpc.io/client/request_count", "Number of client RPC request messages", COUNT);
+  public static final MeasureLong RPC_CLIENT_REQUEST_COUNT = GRPC_CLIENT_SENT_MESSAGES_PER_RPC;
 
   /**
    * {@link Measure} for client RPC response message counts.
@@ -343,9 +333,7 @@ public final class RpcMeasureConstants {
    * @since 0.8
    */
   @Deprecated
-  public static final MeasureLong RPC_CLIENT_RESPONSE_COUNT =
-      Measure.MeasureLong.create(
-          "grpc.io/client/response_count", "Number of client RPC response messages", COUNT);
+  public static final MeasureLong RPC_CLIENT_RESPONSE_COUNT = GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC;
 
   // RPC server Measures.
 
@@ -454,7 +442,7 @@ public final class RpcMeasureConstants {
   public static final MeasureLong GRPC_SERVER_STARTED_RPCS =
       Measure.MeasureLong.create(
           "grpc.io/server/started_rpcs", "Number of started server RPCs.", COUNT);
-  
+
   /**
    * {@link Measure} for gRPC server error counts.
    *
@@ -473,8 +461,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_BYTES_PER_RPC}.
    */
   @Deprecated
-  public static final MeasureDouble RPC_SERVER_REQUEST_BYTES =
-      Measure.MeasureDouble.create("grpc.io/server/request_bytes", "Request bytes", BYTE);
+  public static final MeasureDouble RPC_SERVER_REQUEST_BYTES = GRPC_SERVER_RECEIVED_BYTES_PER_RPC;
 
   /**
    * {@link Measure} for gRPC server response bytes.
@@ -483,8 +470,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_SERVER_SENT_BYTES_PER_RPC}.
    */
   @Deprecated
-  public static final MeasureDouble RPC_SERVER_RESPONSE_BYTES =
-      Measure.MeasureDouble.create("grpc.io/server/response_bytes", "Response bytes", BYTE);
+  public static final MeasureDouble RPC_SERVER_RESPONSE_BYTES = GRPC_SERVER_SENT_BYTES_PER_RPC;
 
   /**
    * {@link Measure} for gRPC server elapsed time in milliseconds.
@@ -504,9 +490,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_SERVER_SERVER_LATENCY}.
    */
   @Deprecated
-  public static final MeasureDouble RPC_SERVER_SERVER_LATENCY =
-      Measure.MeasureDouble.create(
-          "grpc.io/server/server_latency", "Latency in msecs", MILLISECOND);
+  public static final MeasureDouble RPC_SERVER_SERVER_LATENCY = GRPC_SERVER_SERVER_LATENCY;
 
   /**
    * {@link Measure} for gRPC server uncompressed request bytes.
@@ -537,9 +521,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_SERVER_STARTED_RPCS}.
    */
   @Deprecated
-  public static final MeasureLong RPC_SERVER_STARTED_COUNT =
-      Measure.MeasureLong.create(
-          "grpc.io/server/started_count", "Number of server RPCs (streams) started", COUNT);
+  public static final MeasureLong RPC_SERVER_STARTED_COUNT = GRPC_SERVER_STARTED_RPCS;
 
   /**
    * {@link Measure} for number of finished server RPCs.
@@ -560,9 +542,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC}.
    */
   @Deprecated
-  public static final MeasureLong RPC_SERVER_REQUEST_COUNT =
-      Measure.MeasureLong.create(
-          "grpc.io/server/request_count", "Number of server RPC request messages", COUNT);
+  public static final MeasureLong RPC_SERVER_REQUEST_COUNT = GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC;
 
   /**
    * {@link Measure} for server RPC response message counts.
@@ -571,10 +551,7 @@ public final class RpcMeasureConstants {
    * @deprecated in favor of {@link #GRPC_SERVER_SENT_MESSAGES_PER_RPC}.
    */
   @Deprecated
-  public static final MeasureLong RPC_SERVER_RESPONSE_COUNT =
-      Measure.MeasureLong.create(
-          "grpc.io/server/response_count", "Number of server RPC response messages", COUNT);
-
+  public static final MeasureLong RPC_SERVER_RESPONSE_COUNT = GRPC_SERVER_SENT_MESSAGES_PER_RPC;
 
   private RpcMeasureConstants() {}
 }
