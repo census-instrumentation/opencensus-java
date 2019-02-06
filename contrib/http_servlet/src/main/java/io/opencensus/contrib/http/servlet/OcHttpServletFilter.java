@@ -19,10 +19,12 @@ package io.opencensus.contrib.http.servlet;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.common.Scope;
+import io.opencensus.contrib.http.HttpExtractor;
 import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.contrib.http.HttpServerHandler;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.propagation.TextFormat;
 import io.opencensus.trace.propagation.TextFormat.Getter;
 import java.io.IOException;
 import javax.annotation.Nullable;
@@ -30,6 +32,7 @@ import javax.servlet.AsyncContext;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -44,6 +47,34 @@ import javax.servlet.http.HttpServletResponse;
  */
 @ExperimentalApi
 public class OcHttpServletFilter implements Filter {
+
+  /**
+   * Set optional OC_TRACE_PROPAGATOR attribute in {@link ServletContext} with {@link TextFormat}
+   * propagator. By default {@code TraceContextFormat} is used to propagate trace context.
+   *
+   * @since 0.20
+   */
+  public static final String OC_TRACE_PROPAGATOR = "opencensus.trace_propagator";
+
+  /**
+   * Set optional OC_EXTRACTOR attribute in {@link ServletContext} with {@link HttpExtractor}
+   * customExtractor. Default extractor is used if custom extractor is not provided.
+   *
+   * @since 0.20
+   */
+  public static final String OC_EXTRACTOR = "opencensus.extractor";
+
+  /**
+   * Set optional OC_PUBLIC_ENDPOINT attribute in {@link ServletContext} with {@link Boolean}
+   * publicEndpoint. set to true for publicly accessible HTTP(S) server. If true then incoming *
+   * tracecontext will be added as a link instead of as a parent. By default it is set to true.
+   *
+   * @since 0.20
+   */
+  public static final String OC_PUBLIC_ENDPOINT = "opencensus.public_endpoint";
+
+  static final String EXCEPTION_MESSAGE = "Invalid value for attribute ";
+
   @VisibleForTesting
   static final Getter<HttpServletRequest> getter =
       new Getter<HttpServletRequest>() {
@@ -66,21 +97,65 @@ public class OcHttpServletFilter implements Filter {
 
   static HttpServerHandler<HttpServletRequest, HttpServletResponse, HttpServletRequest>
       buildHttpServerHandler() {
-    return new HttpServerHandler<HttpServletRequest, HttpServletResponse, HttpServletRequest>(
-        Tracing.getTracer(),
-        // TODO[rghetia]:
-        // 1. provide options to configure custom extractor, propagator and endpoint.
+    return buildHttpServerHandlerWithOptions(
         new OcHttpServletExtractor(),
         Tracing.getPropagationComponent().getTraceContextFormat(),
-        getter,
-        true);
+        /* publicEndpoint= */ true);
+  }
+
+  static HttpServerHandler<HttpServletRequest, HttpServletResponse, HttpServletRequest>
+      buildHttpServerHandlerWithOptions(
+          HttpExtractor<HttpServletRequest, HttpServletResponse> extractor,
+          TextFormat propagator,
+          Boolean publicEndpoint) {
+    return new HttpServerHandler<HttpServletRequest, HttpServletResponse, HttpServletRequest>(
+        Tracing.getTracer(), extractor, propagator, getter, publicEndpoint);
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void init(FilterConfig filterConfig) throws ServletException {
     if (handler == null) {
       throw new ServletException("Failed to build HttpServerHandler");
     }
+    TextFormat propagator = null;
+    HttpExtractor<HttpServletRequest, HttpServletResponse> extractor = null;
+    Boolean publicEndpoint = null;
+
+    ServletContext context = filterConfig.getServletContext();
+    Object obj = context.getAttribute(OC_TRACE_PROPAGATOR);
+    if (obj != null) {
+      if (obj instanceof TextFormat) {
+        propagator = (TextFormat) obj;
+      } else {
+        throw new ServletException(EXCEPTION_MESSAGE + OC_TRACE_PROPAGATOR);
+      }
+    } else {
+      propagator = Tracing.getPropagationComponent().getTraceContextFormat();
+    }
+
+    obj = context.getAttribute(OC_EXTRACTOR);
+    if (obj != null) {
+      if (obj instanceof HttpExtractor) {
+        extractor = (HttpExtractor<HttpServletRequest, HttpServletResponse>) obj;
+      } else {
+        throw new ServletException(EXCEPTION_MESSAGE + OC_EXTRACTOR);
+      }
+    } else {
+      extractor = new OcHttpServletExtractor();
+    }
+
+    obj = context.getAttribute(OC_PUBLIC_ENDPOINT);
+    if (obj != null) {
+      if (obj instanceof Boolean) {
+        publicEndpoint = (Boolean) obj;
+      } else {
+        throw new ServletException(EXCEPTION_MESSAGE + OC_PUBLIC_ENDPOINT);
+      }
+    } else {
+      publicEndpoint = true;
+    }
+    handler = buildHttpServerHandlerWithOptions(extractor, propagator, publicEndpoint);
   }
 
   @Override
