@@ -113,6 +113,121 @@ public final class RpcMeasureConstants {
   // RPC client Measures.
 
   /**
+   * {@link Measure} for total bytes sent across all request messages per RPC.
+   *
+   * @since 0.13
+   */
+  public static final MeasureDouble GRPC_CLIENT_SENT_BYTES_PER_RPC =
+      Measure.MeasureDouble.create(
+          "grpc.io/client/sent_bytes_per_rpc",
+          "Total bytes sent across all request messages per RPC",
+          BYTE);
+
+  /**
+   * {@link Measure} for total bytes received across all response messages per RPC.
+   *
+   * @since 0.13
+   */
+  public static final MeasureDouble GRPC_CLIENT_RECEIVED_BYTES_PER_RPC =
+      Measure.MeasureDouble.create(
+          "grpc.io/client/received_bytes_per_rpc",
+          "Total bytes received across all response messages per RPC",
+          BYTE);
+
+  /**
+   * {@link Measure} for total bytes sent per method, recorded real-time as bytes are sent.
+   *
+   * @since 0.18
+   */
+  public static final MeasureDouble GRPC_CLIENT_SENT_BYTES_PER_METHOD =
+      Measure.MeasureDouble.create(
+          "grpc.io/client/sent_bytes_per_method",
+          "Total bytes sent per method, recorded real-time as bytes are sent.",
+          BYTE);
+
+  /**
+   * {@link Measure} for total bytes received per method, recorded real-time as bytes are received.
+   *
+   * @since 0.18
+   */
+  public static final MeasureDouble GRPC_CLIENT_RECEIVED_BYTES_PER_METHOD =
+      Measure.MeasureDouble.create(
+          "grpc.io/client/received_bytes_per_method",
+          "Total bytes received per method, recorded real-time as bytes are received.",
+          BYTE);
+
+  /**
+   * {@link Measure} for total client sent messages.
+   *
+   * @since 0.18
+   */
+  public static final MeasureLong GRPC_CLIENT_SENT_MESSAGES_PER_METHOD =
+      Measure.MeasureLong.create(
+          "grpc.io/client/sent_messages_per_method", "Total messages sent per method.", COUNT);
+
+  /**
+   * {@link Measure} for total client received messages.
+   *
+   * @since 0.18
+   */
+  public static final MeasureLong GRPC_CLIENT_RECEIVED_MESSAGES_PER_METHOD =
+      Measure.MeasureLong.create(
+          "grpc.io/client/received_messages_per_method",
+          "Total messages received per method.",
+          COUNT);
+
+  /**
+   * {@link Measure} for gRPC client roundtrip latency in milliseconds.
+   *
+   * @since 0.13
+   */
+  public static final MeasureDouble GRPC_CLIENT_ROUNDTRIP_LATENCY =
+      Measure.MeasureDouble.create(
+          "grpc.io/client/roundtrip_latency",
+          "Time between first byte of request sent to last byte of response received, "
+              + "or terminal error.",
+          MILLISECOND);
+
+  /**
+   * {@link Measure} for number of messages sent in the RPC.
+   *
+   * @since 0.13
+   */
+  public static final MeasureLong GRPC_CLIENT_SENT_MESSAGES_PER_RPC =
+      Measure.MeasureLong.create(
+          "grpc.io/client/sent_messages_per_rpc", "Number of messages sent in the RPC", COUNT);
+
+  /**
+   * {@link Measure} for number of response messages received per RPC.
+   *
+   * @since 0.13
+   */
+  public static final MeasureLong GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC =
+      Measure.MeasureLong.create(
+          "grpc.io/client/received_messages_per_rpc",
+          "Number of response messages received per RPC",
+          COUNT);
+
+  /**
+   * {@link Measure} for gRPC server latency in milliseconds.
+   *
+   * @since 0.13
+   */
+  public static final MeasureDouble GRPC_CLIENT_SERVER_LATENCY =
+      Measure.MeasureDouble.create(
+          "grpc.io/client/server_latency", "Server latency in msecs", MILLISECOND);
+
+  /**
+   * {@link Measure} for total number of client RPCs ever opened, including those that have not
+   * completed.
+   *
+   * @since 0.14
+   */
+  public static final MeasureLong GRPC_CLIENT_STARTED_RPCS =
+      Measure.MeasureLong.create(
+          "grpc.io/client/started_rpcs", "Number of started client RPCs.", COUNT);
+
+  /**
    * {@link Measure} for gRPC client error counts.
    *
    * @since 0.8
@@ -232,26 +347,28 @@ public final class RpcMeasureConstants {
       Measure.MeasureLong.create(
           "grpc.io/client/response_count", "Number of client RPC response messages", COUNT);
 
+  // RPC server Measures.
+
   /**
-   * {@link Measure} for total bytes sent across all request messages per RPC.
+   * {@link Measure} for total bytes sent across all response messages per RPC.
    *
    * @since 0.13
    */
-  public static final MeasureDouble GRPC_CLIENT_SENT_BYTES_PER_RPC =
+  public static final MeasureDouble GRPC_SERVER_SENT_BYTES_PER_RPC =
       Measure.MeasureDouble.create(
-          "grpc.io/client/sent_bytes_per_rpc",
-          "Total bytes sent across all request messages per RPC",
+          "grpc.io/server/sent_bytes_per_rpc",
+          "Total bytes sent across all response messages per RPC",
           BYTE);
 
   /**
-   * {@link Measure} for total bytes received across all response messages per RPC.
+   * {@link Measure} for total bytes received across all messages per RPC.
    *
    * @since 0.13
    */
-  public static final MeasureDouble GRPC_CLIENT_RECEIVED_BYTES_PER_RPC =
+  public static final MeasureDouble GRPC_SERVER_RECEIVED_BYTES_PER_RPC =
       Measure.MeasureDouble.create(
-          "grpc.io/client/received_bytes_per_rpc",
-          "Total bytes received across all response messages per RPC",
+          "grpc.io/server/received_bytes_per_rpc",
+          "Total bytes received across all messages per RPC",
           BYTE);
 
   /**
@@ -259,9 +376,9 @@ public final class RpcMeasureConstants {
    *
    * @since 0.18
    */
-  public static final MeasureDouble GRPC_CLIENT_SENT_BYTES_PER_METHOD =
+  public static final MeasureDouble GRPC_SERVER_SENT_BYTES_PER_METHOD =
       Measure.MeasureDouble.create(
-          "grpc.io/client/sent_bytes_per_method",
+          "grpc.io/server/sent_bytes_per_method",
           "Total bytes sent per method, recorded real-time as bytes are sent.",
           BYTE);
 
@@ -270,62 +387,50 @@ public final class RpcMeasureConstants {
    *
    * @since 0.18
    */
-  public static final MeasureDouble GRPC_CLIENT_RECEIVED_BYTES_PER_METHOD =
+  public static final MeasureDouble GRPC_SERVER_RECEIVED_BYTES_PER_METHOD =
       Measure.MeasureDouble.create(
-          "grpc.io/client/received_bytes_per_method",
+          "grpc.io/server/received_bytes_per_method",
           "Total bytes received per method, recorded real-time as bytes are received.",
           BYTE);
 
   /**
-   * {@link Measure} for total client sent messages.
+   * {@link Measure} for total server sent messages.
    *
    * @since 0.18
    */
-  public static final MeasureLong GRPC_CLIENT_SENT_MESSAGES_PER_METHOD =
+  public static final MeasureLong GRPC_SERVER_SENT_MESSAGES_PER_METHOD =
       Measure.MeasureLong.create(
-          "grpc.io/client/sent_messages_per_method", "Total messages sent per method.", COUNT);
+          "grpc.io/server/sent_messages_per_method", "Total messages sent per method.", COUNT);
 
   /**
-   * {@link Measure} for total client received messages.
+   * {@link Measure} for total server received messages.
    *
    * @since 0.18
    */
-  public static final MeasureLong GRPC_CLIENT_RECEIVED_MESSAGES_PER_METHOD =
+  public static final MeasureLong GRPC_SERVER_RECEIVED_MESSAGES_PER_METHOD =
       Measure.MeasureLong.create(
-          "grpc.io/client/received_messages_per_method",
+          "grpc.io/server/received_messages_per_method",
           "Total messages received per method.",
           COUNT);
 
   /**
-   * {@link Measure} for gRPC client roundtrip latency in milliseconds.
+   * {@link Measure} for number of messages sent in each RPC.
    *
    * @since 0.13
    */
-  public static final MeasureDouble GRPC_CLIENT_ROUNDTRIP_LATENCY =
-      Measure.MeasureDouble.create(
-          "grpc.io/client/roundtrip_latency",
-          "Time between first byte of request sent to last byte of response received, "
-              + "or terminal error.",
-          MILLISECOND);
+  public static final MeasureLong GRPC_SERVER_SENT_MESSAGES_PER_RPC =
+      Measure.MeasureLong.create(
+          "grpc.io/server/sent_messages_per_rpc", "Number of messages sent in each RPC", COUNT);
 
   /**
-   * {@link Measure} for number of messages sent in the RPC.
+   * {@link Measure} for number of messages received in each RPC.
    *
    * @since 0.13
    */
-  public static final MeasureLong GRPC_CLIENT_SENT_MESSAGES_PER_RPC =
+  public static final MeasureLong GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC =
       Measure.MeasureLong.create(
-          "grpc.io/client/sent_messages_per_rpc", "Number of messages sent in the RPC", COUNT);
-
-  /**
-   * {@link Measure} for number of response messages received per RPC.
-   *
-   * @since 0.13
-   */
-  public static final MeasureLong GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC =
-      Measure.MeasureLong.create(
-          "grpc.io/client/received_messages_per_rpc",
-          "Number of response messages received per RPC",
+          "grpc.io/server/received_messages_per_rpc",
+          "Number of messages received in each RPC",
           COUNT);
 
   /**
@@ -333,22 +438,23 @@ public final class RpcMeasureConstants {
    *
    * @since 0.13
    */
-  public static final MeasureDouble GRPC_CLIENT_SERVER_LATENCY =
+  public static final MeasureDouble GRPC_SERVER_SERVER_LATENCY =
       Measure.MeasureDouble.create(
-          "grpc.io/client/server_latency", "Server latency in msecs", MILLISECOND);
+          "grpc.io/server/server_latency",
+          "Time between first byte of request received to last byte of response sent, "
+              + "or terminal error.",
+          MILLISECOND);
 
   /**
-   * {@link Measure} for total number of client RPCs ever opened, including those that have not
+   * {@link Measure} for total number of server RPCs ever opened, including those that have not
    * completed.
    *
    * @since 0.14
    */
-  public static final MeasureLong GRPC_CLIENT_STARTED_RPCS =
+  public static final MeasureLong GRPC_SERVER_STARTED_RPCS =
       Measure.MeasureLong.create(
-          "grpc.io/client/started_rpcs", "Number of started client RPCs.", COUNT);
-
-  // RPC server Measures.
-
+          "grpc.io/server/started_rpcs", "Number of started server RPCs.", COUNT);
+  
   /**
    * {@link Measure} for gRPC server error counts.
    *
@@ -469,111 +575,6 @@ public final class RpcMeasureConstants {
       Measure.MeasureLong.create(
           "grpc.io/server/response_count", "Number of server RPC response messages", COUNT);
 
-  /**
-   * {@link Measure} for total bytes sent across all response messages per RPC.
-   *
-   * @since 0.13
-   */
-  public static final MeasureDouble GRPC_SERVER_SENT_BYTES_PER_RPC =
-      Measure.MeasureDouble.create(
-          "grpc.io/server/sent_bytes_per_rpc",
-          "Total bytes sent across all response messages per RPC",
-          BYTE);
-
-  /**
-   * {@link Measure} for total bytes received across all messages per RPC.
-   *
-   * @since 0.13
-   */
-  public static final MeasureDouble GRPC_SERVER_RECEIVED_BYTES_PER_RPC =
-      Measure.MeasureDouble.create(
-          "grpc.io/server/received_bytes_per_rpc",
-          "Total bytes received across all messages per RPC",
-          BYTE);
-
-  /**
-   * {@link Measure} for total bytes sent per method, recorded real-time as bytes are sent.
-   *
-   * @since 0.18
-   */
-  public static final MeasureDouble GRPC_SERVER_SENT_BYTES_PER_METHOD =
-      Measure.MeasureDouble.create(
-          "grpc.io/server/sent_bytes_per_method",
-          "Total bytes sent per method, recorded real-time as bytes are sent.",
-          BYTE);
-
-  /**
-   * {@link Measure} for total bytes received per method, recorded real-time as bytes are received.
-   *
-   * @since 0.18
-   */
-  public static final MeasureDouble GRPC_SERVER_RECEIVED_BYTES_PER_METHOD =
-      Measure.MeasureDouble.create(
-          "grpc.io/server/received_bytes_per_method",
-          "Total bytes received per method, recorded real-time as bytes are received.",
-          BYTE);
-
-  /**
-   * {@link Measure} for total server sent messages.
-   *
-   * @since 0.18
-   */
-  public static final MeasureLong GRPC_SERVER_SENT_MESSAGES_PER_METHOD =
-      Measure.MeasureLong.create(
-          "grpc.io/server/sent_messages_per_method", "Total messages sent per method.", COUNT);
-
-  /**
-   * {@link Measure} for total server received messages.
-   *
-   * @since 0.18
-   */
-  public static final MeasureLong GRPC_SERVER_RECEIVED_MESSAGES_PER_METHOD =
-      Measure.MeasureLong.create(
-          "grpc.io/server/received_messages_per_method",
-          "Total messages received per method.",
-          COUNT);
-
-  /**
-   * {@link Measure} for number of messages sent in each RPC.
-   *
-   * @since 0.13
-   */
-  public static final MeasureLong GRPC_SERVER_SENT_MESSAGES_PER_RPC =
-      Measure.MeasureLong.create(
-          "grpc.io/server/sent_messages_per_rpc", "Number of messages sent in each RPC", COUNT);
-
-  /**
-   * {@link Measure} for number of messages received in each RPC.
-   *
-   * @since 0.13
-   */
-  public static final MeasureLong GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC =
-      Measure.MeasureLong.create(
-          "grpc.io/server/received_messages_per_rpc",
-          "Number of messages received in each RPC",
-          COUNT);
-
-  /**
-   * {@link Measure} for gRPC server latency in milliseconds.
-   *
-   * @since 0.13
-   */
-  public static final MeasureDouble GRPC_SERVER_SERVER_LATENCY =
-      Measure.MeasureDouble.create(
-          "grpc.io/server/server_latency",
-          "Time between first byte of request received to last byte of response sent, "
-              + "or terminal error.",
-          MILLISECOND);
-
-  /**
-   * {@link Measure} for total number of server RPCs ever opened, including those that have not
-   * completed.
-   *
-   * @since 0.14
-   */
-  public static final MeasureLong GRPC_SERVER_STARTED_RPCS =
-      Measure.MeasureLong.create(
-          "grpc.io/server/started_rpcs", "Number of started server RPCs.", COUNT);
 
   private RpcMeasureConstants() {}
 }
