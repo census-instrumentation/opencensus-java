@@ -16,6 +16,9 @@
 
 package io.opencensus.examples.http.jetty.server;
 
+import static io.opencensus.contrib.http.servlet.OcHttpServletFilter.OC_PUBLIC_ENDPOINT;
+import static io.opencensus.contrib.http.servlet.OcHttpServletFilter.OC_TRACE_PROPAGATOR;
+
 import io.opencensus.contrib.http.servlet.OcHttpServletFilter;
 import io.opencensus.contrib.http.util.HttpViews;
 import io.opencensus.exporter.stats.prometheus.PrometheusStatsCollector;
@@ -44,7 +47,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 /** Sample application that shows how to instrument jetty server. */
 public class HelloWorldServer extends AbstractHandler {
@@ -179,18 +182,32 @@ public class HelloWorldServer extends AbstractHandler {
   public static void main(String[] args) throws Exception {
     initTracing();
     initStatsExporter();
-    ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-    context.setContextPath("/");
 
     Server server = new Server(8080);
-    ServletHandler handler = new ServletHandler();
-    server.setHandler(handler);
+    ServletContextHandler contextHandler =
+        new ServletContextHandler(ServletContextHandler.SESSIONS);
+    contextHandler.setContextPath("/");
+    ServletHolder sh = new ServletHolder(new HelloServlet());
+    contextHandler.addServlet(sh, "/*");
 
-    handler.addFilterWithMapping(
-        OcHttpServletFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
-    handler.addServletWithMapping(HelloServlet.class, "/*");
+    // Enable tracing by adding OcHttpServleFilter for all path
+    contextHandler.addFilter(OcHttpServletFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
-    server.start();
-    server.join();
+    // Uncomment following line to use B3Format for trace context propagation.
+    contextHandler.setAttribute(
+       OC_TRACE_PROPAGATOR, Tracing.getPropagationComponent().getB3Format());
+
+    // If the endpoint for http request is not public then this attribute to false.
+    // By default publicEndpoint is set to true and incoming trace context is added as a link
+    // instead of as a parent.
+    contextHandler.setAttribute(OC_PUBLIC_ENDPOINT, false);
+
+    server.setHandler(contextHandler);
+    try {
+      server.start();
+      server.join();
+    } catch (Exception e) {
+      logger.error("Failed to start application", e);
+    }
   }
 }
