@@ -302,8 +302,7 @@ public final class RpcMeasureConstants {
    * @since 0.8
    * @deprecated in favor of {@link #GRPC_CLIENT_STARTED_RPCS}.
    */
-  @Deprecated
-  public static final MeasureLong RPC_CLIENT_STARTED_COUNT = GRPC_CLIENT_STARTED_RPCS;
+  @Deprecated public static final MeasureLong RPC_CLIENT_STARTED_COUNT = GRPC_CLIENT_STARTED_RPCS;
 
   /**
    * {@link Measure} for number of finished client RPCs.
@@ -520,8 +519,7 @@ public final class RpcMeasureConstants {
    * @since 0.8
    * @deprecated in favor of {@link #GRPC_SERVER_STARTED_RPCS}.
    */
-  @Deprecated
-  public static final MeasureLong RPC_SERVER_STARTED_COUNT = GRPC_SERVER_STARTED_RPCS;
+  @Deprecated public static final MeasureLong RPC_SERVER_STARTED_COUNT = GRPC_SERVER_STARTED_RPCS;
 
   /**
    * {@link Measure} for number of finished server RPCs.
