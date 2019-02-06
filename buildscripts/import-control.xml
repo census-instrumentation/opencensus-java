@@ -175,6 +175,7 @@ General guidelines on imports:
   <subpackage name="exporter">
     <allow pkg="com.google.common"/>
     <allow pkg="io.opencensus.common"/>
+    <allow pkg="io.opencensus.resource"/>
     <subpackage name="metrics">
       <subpackage name="ocagent">
         <allow pkg="com.google.protobuf"/>
@@ -184,7 +185,6 @@ General guidelines on imports:
         <allow pkg="io.opencensus.exporter.metrics.ocagent"/>
         <allow pkg="io.opencensus.metrics"/>
         <allow pkg="io.opencensus.proto"/>
-        <allow pkg="io.opencensus.resource"/>
       </subpackage>
       <subpackage name="util">
         <allow pkg="io.opencensus.exporter.metrics.util"/>
@@ -210,7 +210,6 @@ General guidelines on imports:
         <allow pkg="io.opencensus.exporter.stats.stackdriver"/>
         <allow pkg="io.opencensus.trace"/>
         <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
-        <allow pkg="io.opencensus.resource"/>
       </subpackage>
     </subpackage>
     <subpackage name="trace">

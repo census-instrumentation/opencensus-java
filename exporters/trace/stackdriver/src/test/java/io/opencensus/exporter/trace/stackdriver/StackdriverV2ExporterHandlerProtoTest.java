@@ -17,9 +17,6 @@
 package io.opencensus.exporter.trace.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.opencensus.contrib.monitoredresource.util.ResourceType.AWS_EC2_INSTANCE;
-import static io.opencensus.contrib.monitoredresource.util.ResourceType.GCP_GCE_INSTANCE;
-import static io.opencensus.contrib.monitoredresource.util.ResourceType.GCP_GKE_CONTAINER;
 import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.createResourceLabelKey;
 import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.toStringAttributeValueProto;
 
@@ -36,10 +33,10 @@ import com.google.devtools.cloudtrace.v2.StackTrace;
 import com.google.devtools.cloudtrace.v2.TruncatableString;
 import com.google.protobuf.Int32Value;
 import io.opencensus.common.Timestamp;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.AwsEc2InstanceResource;
+import io.opencensus.contrib.monitoredresource.util.GcpGceInstanceResource;
+import io.opencensus.contrib.monitoredresource.util.K8sContainerResource;
+import io.opencensus.resource.Resource;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.Span.Kind;
@@ -48,6 +45,7 @@ import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanData.TimedEvent;
 import io.opencensus.trace.export.SpanData.TimedEvents;
@@ -104,7 +102,8 @@ public final class StackdriverV2ExporterHandlerProtoTest {
   private static final SpanId spanId = SpanId.fromLowerBase16(SPAN_ID);
   private static final TraceId traceId = TraceId.fromLowerBase16(TRACE_ID);
   private static final TraceOptions traceOptions = TraceOptions.DEFAULT;
-  private static final SpanContext spanContext = SpanContext.create(traceId, spanId, traceOptions);
+  private static final SpanContext spanContext =
+      SpanContext.create(traceId, spanId, traceOptions, Tracestate.builder().build());
 
   private static final List<TimedEvent<Annotation>> annotationsList =
       ImmutableList.of(
@@ -131,50 +130,38 @@ public final class StackdriverV2ExporterHandlerProtoTest {
       TimedEvents.create(networkEventsList, DROPPED_NETWORKEVENTS_COUNT);
   private static final SpanData.Links links = SpanData.Links.create(linksList, DROPPED_LINKS_COUNT);
   private static final Map<String, AttributeValue> EMPTY_RESOURCE_LABELS = Collections.emptyMap();
-  private static final AwsEc2InstanceMonitoredResource AWS_EC2_INSTANCE_MONITORED_RESOURCE =
-      AwsEc2InstanceMonitoredResource.create("my-project", "my-instance", "us-east-1");
-  private static final GcpGceInstanceMonitoredResource GCP_GCE_INSTANCE_MONITORED_RESOURCE =
-      GcpGceInstanceMonitoredResource.create("my-project", "my-instance", "us-east1");
-  private static final GcpGkeContainerMonitoredResource GCP_GKE_CONTAINER_MONITORED_RESOURCE =
-      GcpGkeContainerMonitoredResource.create(
-          "my-project", "cluster", "container", "namespace", "my-instance", "pod", "us-east1");
-  private static final ImmutableMap<String, AttributeValue> AWS_RESOURCE_LABELS =
+  private static final Resource AWS_EC2_INSTANCE_RESOURCE =
+      AwsEc2InstanceResource.create("my-project", "us-east-1", "my-instance");
+  private static final Resource GCP_GCE_INSTANCE_RESOURCE =
+      GcpGceInstanceResource.create("my-project", "us-east1", "my-instance");
+  private static final Resource K8S_CONTAINER_RESOURCE =
+      K8sContainerResource.create("cluster", "namespace", "pod", "container");
+  private static final ImmutableMap<String, AttributeValue> EC2_RESOURCE_LABELS =
       ImmutableMap.of(
-          createResourceLabelKey(AWS_EC2_INSTANCE, "aws_account"),
+          createResourceLabelKey(AwsEc2InstanceResource.ACCOUNT_ID_KEY),
           toStringAttributeValueProto("my-project"),
-          createResourceLabelKey(AWS_EC2_INSTANCE, "instance_id"),
-          toStringAttributeValueProto("my-instance"),
-          createResourceLabelKey(AWS_EC2_INSTANCE, "region"),
-          toStringAttributeValueProto("aws:us-east-1"));
+          createResourceLabelKey(AwsEc2InstanceResource.REGION_KEY),
+          toStringAttributeValueProto("us-east-1"),
+          createResourceLabelKey(AwsEc2InstanceResource.INSTANCE_ID_KEY),
+          toStringAttributeValueProto("my-instance"));
   private static final ImmutableMap<String, AttributeValue> GCE_RESOURCE_LABELS =
       ImmutableMap.of(
-          createResourceLabelKey(GCP_GCE_INSTANCE, "project_id"),
+          createResourceLabelKey(GcpGceInstanceResource.PROJECT_ID_KEY),
           toStringAttributeValueProto("my-project"),
-          createResourceLabelKey(GCP_GCE_INSTANCE, "instance_id"),
-          toStringAttributeValueProto("my-instance"),
-          createResourceLabelKey(GCP_GCE_INSTANCE, "zone"),
-          toStringAttributeValueProto("us-east1"));
-  private static final ImmutableMap<String, AttributeValue> GKE_RESOURCE_LABELS =
-      ImmutableMap.<String, AttributeValue>builder()
-          .put(
-              createResourceLabelKey(GCP_GKE_CONTAINER, "project_id"),
-              toStringAttributeValueProto("my-project"))
-          .put(
-              createResourceLabelKey(GCP_GKE_CONTAINER, "cluster_name"),
-              toStringAttributeValueProto("cluster"))
-          .put(
-              createResourceLabelKey(GCP_GKE_CONTAINER, "container_name"),
-              toStringAttributeValueProto("container"))
-          .put(
-              createResourceLabelKey(GCP_GKE_CONTAINER, "namespace_name"),
-              toStringAttributeValueProto("namespace"))
-          .put(
-              createResourceLabelKey(GCP_GKE_CONTAINER, "pod_name"),
-              toStringAttributeValueProto("pod"))
-          .put(
-              createResourceLabelKey(GCP_GKE_CONTAINER, "location"),
-              toStringAttributeValueProto("us-east1"))
-          .build();
+          createResourceLabelKey(GcpGceInstanceResource.ZONE_KEY),
+          toStringAttributeValueProto("us-east1"),
+          createResourceLabelKey(GcpGceInstanceResource.INSTANCE_ID_KEY),
+          toStringAttributeValueProto("my-instance"));
+  private static final ImmutableMap<String, AttributeValue> K8S_RESOURCE_LABELS =
+      ImmutableMap.of(
+          createResourceLabelKey(K8sContainerResource.CLUSTER_NAME_KEY),
+          toStringAttributeValueProto("cluster"),
+          createResourceLabelKey(K8sContainerResource.NAMESPACE_NAME_KEY),
+          toStringAttributeValueProto("namespace"),
+          createResourceLabelKey(K8sContainerResource.POD_NAME_KEY),
+          toStringAttributeValueProto("pod"),
+          createResourceLabelKey(K8sContainerResource.CONTAINER_NAME_KEY),
+          toStringAttributeValueProto("container"));
 
   private StackdriverV2ExporterHandler handler;
 
@@ -321,22 +308,33 @@ public final class StackdriverV2ExporterHandlerProtoTest {
   }
 
   @Test
-  public void getResourceLabels_AwsEc2ResourceLabels() {
-    testGetResourceLabels(AWS_EC2_INSTANCE_MONITORED_RESOURCE, AWS_RESOURCE_LABELS);
+  public void getResourceLabels_AwsEc2InstanceResourceLabels() {
+    testGetResourceLabels(AWS_EC2_INSTANCE_RESOURCE, EC2_RESOURCE_LABELS);
   }
 
   @Test
-  public void getResourceLabels_GceResourceLabels() {
-    testGetResourceLabels(GCP_GCE_INSTANCE_MONITORED_RESOURCE, GCE_RESOURCE_LABELS);
+  public void getResourceLabels_GceInstanceResourceLabels() {
+    testGetResourceLabels(GCP_GCE_INSTANCE_RESOURCE, GCE_RESOURCE_LABELS);
   }
 
   @Test
-  public void getResourceLabels_GkeResourceLabels() {
-    testGetResourceLabels(GCP_GKE_CONTAINER_MONITORED_RESOURCE, GKE_RESOURCE_LABELS);
+  public void getResourceLabels_K8sInstanceResourceLabels() {
+    testGetResourceLabels(K8S_CONTAINER_RESOURCE, K8S_RESOURCE_LABELS);
+  }
+
+  @Test
+  public void getResourceLabels_GkeContainerResourceLabels() {
+    testGetResourceLabels(
+        Resource.mergeResources(
+            ImmutableList.of(K8S_CONTAINER_RESOURCE, GCP_GCE_INSTANCE_RESOURCE)),
+        ImmutableMap.<String, AttributeValue>builder()
+            .putAll(K8S_RESOURCE_LABELS)
+            .putAll(GCE_RESOURCE_LABELS)
+            .build());
   }
 
   private static void testGetResourceLabels(
-      MonitoredResource resource, Map<String, AttributeValue> expectedLabels) {
+      Resource resource, Map<String, AttributeValue> expectedLabels) {
     Map<String, AttributeValue> actualLabels =
         StackdriverV2ExporterHandler.getResourceLabels(resource);
     assertThat(actualLabels).containsExactlyEntriesIn(expectedLabels);
@@ -361,9 +359,9 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             endTimestamp);
     Span span =
         handler.generateSpan(
-            spanData, AWS_RESOURCE_LABELS, Collections.<String, AttributeValue>emptyMap());
+            spanData, EC2_RESOURCE_LABELS, Collections.<String, AttributeValue>emptyMap());
     Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMapMap();
-    assertThat(attributeMap.entrySet()).containsAllIn(AWS_RESOURCE_LABELS.entrySet());
+    assertThat(attributeMap.entrySet()).containsAllIn(EC2_RESOURCE_LABELS.entrySet());
   }
 
   @Test
@@ -548,11 +546,11 @@ public final class StackdriverV2ExporterHandlerProtoTest {
   public void addFixedAttributes() {
     final ImmutableMap<String, AttributeValue> fixedAttributes =
         ImmutableMap.of(
-            createResourceLabelKey(AWS_EC2_INSTANCE, "string_attr"),
+            "string_attr_key",
             toStringAttributeValueProto("my-project"),
-            createResourceLabelKey(AWS_EC2_INSTANCE, "long_attr"),
+            "long_attr_key",
             AttributeValue.newBuilder().setIntValue(1234).build(),
-            createResourceLabelKey(AWS_EC2_INSTANCE, "bool_attr"),
+            "bool_attr_key",
             AttributeValue.newBuilder().setBoolValue(true).build());
 
     SpanData spanData =

@@ -42,6 +42,8 @@ import io.opencensus.common.Functions;
 import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
+import io.opencensus.resource.Resource;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.MessageEvent.Type;
@@ -60,6 +62,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -69,7 +72,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /** Exporter to Stackdriver Trace API v2. */
-@SuppressWarnings("deprecation")
 final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   private static final Tracer tracer = Tracing.getTracer();
@@ -94,12 +96,9 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           .put("http.status_code", "/http/status_code")
           .build();
 
-  @javax.annotation.Nullable
-  private static final io.opencensus.contrib.monitoredresource.util.MonitoredResource RESOURCE =
-      io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils.getDefaultResource();
-
   // Only initialize once.
-  private static final Map<String, AttributeValue> RESOURCE_LABELS = getResourceLabels(RESOURCE);
+  private static final Map<String, AttributeValue> RESOURCE_LABELS =
+      getResourceLabels(MonitoredResourceUtils.detectResource());
 
   // Constant functions for AttributeValue.
   private static final Function<String, /*@Nullable*/ AttributeValue> stringAttributeValueFunction =
@@ -320,122 +319,25 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   @VisibleForTesting
   static Map<String, AttributeValue> getResourceLabels(
-      @javax.annotation.Nullable
-          io.opencensus.contrib.monitoredresource.util.MonitoredResource resource) {
+      @javax.annotation.Nullable Resource resource) {
     if (resource == null) {
       return Collections.emptyMap();
     }
-    Map<String, AttributeValue> resourceLabels = new HashMap<String, AttributeValue>();
-    io.opencensus.contrib.monitoredresource.util.ResourceType resourceType =
-        resource.getResourceType();
-    switch (resourceType) {
-      case AWS_EC2_INSTANCE:
-        io.opencensus.contrib.monitoredresource.util.MonitoredResource
-                .AwsEc2InstanceMonitoredResource
-            awsEc2InstanceMonitoredResource =
-                (io.opencensus.contrib.monitoredresource.util.MonitoredResource
-                        .AwsEc2InstanceMonitoredResource)
-                    resource;
-        putToResourceAttributeMap(
-            resourceLabels,
-            resourceType,
-            "aws_account",
-            awsEc2InstanceMonitoredResource.getAccount());
-        putToResourceAttributeMap(
-            resourceLabels,
-            resourceType,
-            "instance_id",
-            awsEc2InstanceMonitoredResource.getInstanceId());
-        putToResourceAttributeMap(
-            resourceLabels,
-            resourceType,
-            "region",
-            "aws:" + awsEc2InstanceMonitoredResource.getRegion());
-        return Collections.unmodifiableMap(resourceLabels);
-      case GCP_GCE_INSTANCE:
-        io.opencensus.contrib.monitoredresource.util.MonitoredResource
-                .GcpGceInstanceMonitoredResource
-            gcpGceInstanceMonitoredResource =
-                (io.opencensus.contrib.monitoredresource.util.MonitoredResource
-                        .GcpGceInstanceMonitoredResource)
-                    resource;
-        putToResourceAttributeMap(
-            resourceLabels,
-            resourceType,
-            "project_id",
-            gcpGceInstanceMonitoredResource.getAccount());
-        putToResourceAttributeMap(
-            resourceLabels,
-            resourceType,
-            "instance_id",
-            gcpGceInstanceMonitoredResource.getInstanceId());
-        putToResourceAttributeMap(
-            resourceLabels, resourceType, "zone", gcpGceInstanceMonitoredResource.getZone());
-        return Collections.unmodifiableMap(resourceLabels);
-      case GCP_GKE_CONTAINER:
-        io.opencensus.contrib.monitoredresource.util.MonitoredResource
-                .GcpGkeContainerMonitoredResource
-            gcpGkeContainerMonitoredResource =
-                (io.opencensus.contrib.monitoredresource.util.MonitoredResource
-                        .GcpGkeContainerMonitoredResource)
-                    resource;
-        putToResourceAttributeMap(
-            resourceLabels,
-            resourceType,
-            "project_id",
-            gcpGkeContainerMonitoredResource.getAccount());
-        putToResourceAttributeMap(
-            resourceLabels, resourceType, "location", gcpGkeContainerMonitoredResource.getZone());
-        putToResourceAttributeMap(
-            resourceLabels,
-            resourceType,
-            "cluster_name",
-            gcpGkeContainerMonitoredResource.getClusterName());
-        putToResourceAttributeMap(
-            resourceLabels,
-            resourceType,
-            "container_name",
-            gcpGkeContainerMonitoredResource.getContainerName());
-        putToResourceAttributeMap(
-            resourceLabels,
-            resourceType,
-            "namespace_name",
-            gcpGkeContainerMonitoredResource.getNamespaceId());
-        putToResourceAttributeMap(
-            resourceLabels, resourceType, "pod_name", gcpGkeContainerMonitoredResource.getPodId());
-        return Collections.unmodifiableMap(resourceLabels);
+    Map<String, AttributeValue> resourceLabels = new LinkedHashMap<String, AttributeValue>();
+    for (Map.Entry<String, String> entry : resource.getLabels().entrySet()) {
+      putToResourceAttributeMap(resourceLabels, entry.getKey(), entry.getValue());
     }
-    return Collections.emptyMap();
+    return Collections.unmodifiableMap(resourceLabels);
   }
 
   private static void putToResourceAttributeMap(
-      Map<String, AttributeValue> map,
-      io.opencensus.contrib.monitoredresource.util.ResourceType resourceType,
-      String attributeName,
-      String attributeValue) {
-    map.put(
-        createResourceLabelKey(resourceType, attributeName),
-        toStringAttributeValueProto(attributeValue));
+      Map<String, AttributeValue> map, String attributeName, String attributeValue) {
+    map.put(createResourceLabelKey(attributeName), toStringAttributeValueProto(attributeValue));
   }
 
   @VisibleForTesting
-  static String createResourceLabelKey(
-      io.opencensus.contrib.monitoredresource.util.ResourceType resourceType,
-      String resourceAttribute) {
-    return String.format("g.co/r/%s/%s", mapToStringResourceType(resourceType), resourceAttribute);
-  }
-
-  private static String mapToStringResourceType(
-      io.opencensus.contrib.monitoredresource.util.ResourceType resourceType) {
-    switch (resourceType) {
-      case GCP_GCE_INSTANCE:
-        return "gce_instance";
-      case GCP_GKE_CONTAINER:
-        return "k8s_container";
-      case AWS_EC2_INSTANCE:
-        return "aws_ec2_instance";
-    }
-    throw new IllegalArgumentException("Unknown resource type.");
+  static String createResourceLabelKey(String resourceAttribute) {
+    return "g.co/r/" + resourceAttribute;
   }
 
   @VisibleForTesting
