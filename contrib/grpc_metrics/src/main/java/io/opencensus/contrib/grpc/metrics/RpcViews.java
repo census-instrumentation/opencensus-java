@@ -331,7 +331,8 @@ public final class RpcViews {
   }
 
   /**
-   * Registers views for real time metrics reporting for streaming RPCs.
+   * Registers views for real time metrics reporting for streaming RPCs. This views will produce
+   * data only for streaming gRPC calls.
    *
    * @since 0.18
    */
