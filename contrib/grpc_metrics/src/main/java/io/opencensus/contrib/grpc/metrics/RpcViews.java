@@ -127,7 +127,7 @@ public final class RpcViews {
           RpcViewConstants.RPC_SERVER_FINISHED_COUNT_HOUR_VIEW);
 
   @VisibleForTesting
-  static final ImmutableSet<View> RPC_REAL_TIME_METRICS_VIEWS_SET =
+  static final ImmutableSet<View> GRPC_REAL_TIME_METRICS_VIEWS_SET =
       ImmutableSet.of(
           RpcViewConstants.GRPC_CLIENT_SENT_BYTES_PER_METHOD_VIEW,
           RpcViewConstants.GRPC_CLIENT_RECEIVED_BYTES_PER_METHOD_VIEW,
@@ -142,17 +142,13 @@ public final class RpcViews {
   static final ImmutableSet<View> GRPC_CLIENT_BASIC_VIEWS_SET =
       ImmutableSet.of(
           RpcViewConstants.GRPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
-          RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW,
-          RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
-          RpcViewConstants.RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW);
+          RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW);
 
   @VisibleForTesting
   static final ImmutableSet<View> GRPC_SERVER_BASIC_VIEWS_SET =
       ImmutableSet.of(
           RpcViewConstants.GRPC_SERVER_SERVER_LATENCY_VIEW,
-          RpcViewConstants.GRPC_SERVER_STARTED_RPC_VIEW,
-          RpcViewConstants.RPC_SERVER_SERVER_LATENCY_VIEW,
-          RpcViewConstants.RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW);
+          RpcViewConstants.GRPC_SERVER_STARTED_RPC_VIEW);
 
   /**
    * Registers all standard gRPC views.
@@ -341,7 +337,7 @@ public final class RpcViews {
 
   @VisibleForTesting
   static void registerRealTimeMetricsViews(ViewManager viewManager) {
-    for (View view : RPC_REAL_TIME_METRICS_VIEWS_SET) {
+    for (View view : GRPC_REAL_TIME_METRICS_VIEWS_SET) {
       viewManager.registerView(view);
     }
   }
