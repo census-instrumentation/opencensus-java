@@ -17,7 +17,12 @@
 package io.opencensus.contrib.monitoredresource.util;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
+import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
+import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
+import io.opencensus.contrib.resource.util.K8sContainerResource;
 import io.opencensus.resource.Resource;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
@@ -56,7 +61,7 @@ public abstract class MonitoredResource {
   @Immutable
   @Deprecated
   public static final class AwsEc2InstanceMonitoredResource extends MonitoredResource {
-    private final Map<String, String> awsInstanceLabels;
+    private final Map<String, String> labels;
 
     @Override
     public ResourceType getResourceType() {
@@ -70,7 +75,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getAccount() {
-      return firstNonNull(awsInstanceLabels.get(AwsEc2InstanceResource.ACCOUNT_ID_KEY), "");
+      return firstNonNull(labels.get(AwsEc2InstanceResource.ACCOUNT_ID_KEY), "");
     }
 
     /**
@@ -80,7 +85,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getInstanceId() {
-      return firstNonNull(awsInstanceLabels.get(AwsEc2InstanceResource.INSTANCE_ID_KEY), "");
+      return firstNonNull(labels.get(AwsEc2InstanceResource.INSTANCE_ID_KEY), "");
     }
 
     /**
@@ -90,7 +95,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getRegion() {
-      return firstNonNull(awsInstanceLabels.get(AwsEc2InstanceResource.REGION_KEY), "");
+      return firstNonNull(labels.get(AwsEc2InstanceResource.REGION_KEY), "");
     }
 
     /**
@@ -108,12 +113,12 @@ public abstract class MonitoredResource {
           AwsEc2InstanceResource.create(account, region, instanceId).getLabels());
     }
 
-    static AwsEc2InstanceMonitoredResource autoDetectResource() {
-      return new AwsEc2InstanceMonitoredResource(AwsEc2InstanceResource.detect().getLabels());
+    static AwsEc2InstanceMonitoredResource create(Resource resource) {
+      return new AwsEc2InstanceMonitoredResource(resource.getLabels());
     }
 
-    private AwsEc2InstanceMonitoredResource(Map<String, String> awsInstanceLabels) {
-      this.awsInstanceLabels = awsInstanceLabels;
+    private AwsEc2InstanceMonitoredResource(Map<String, String> labels) {
+      this.labels = labels;
     }
   }
 
@@ -126,7 +131,7 @@ public abstract class MonitoredResource {
   @Immutable
   @Deprecated
   public static final class GcpGceInstanceMonitoredResource extends MonitoredResource {
-    private final Map<String, String> gcpInstanceLabels;
+    private final Map<String, String> labels;
 
     @Override
     public ResourceType getResourceType() {
@@ -140,7 +145,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getAccount() {
-      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.PROJECT_ID_KEY), "");
+      return firstNonNull(labels.get(GcpGceInstanceResource.PROJECT_ID_KEY), "");
     }
 
     /**
@@ -150,7 +155,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getInstanceId() {
-      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.INSTANCE_ID_KEY), "");
+      return firstNonNull(labels.get(GcpGceInstanceResource.INSTANCE_ID_KEY), "");
     }
 
     /**
@@ -160,7 +165,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getZone() {
-      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.ZONE_KEY), "");
+      return firstNonNull(labels.get(GcpGceInstanceResource.ZONE_KEY), "");
     }
 
     /**
@@ -178,12 +183,12 @@ public abstract class MonitoredResource {
           GcpGceInstanceResource.create(account, zone, instanceId).getLabels());
     }
 
-    static GcpGceInstanceMonitoredResource autoDetectResource() {
-      return new GcpGceInstanceMonitoredResource(GcpGceInstanceResource.detect().getLabels());
+    static GcpGceInstanceMonitoredResource create(Resource resource) {
+      return new GcpGceInstanceMonitoredResource(resource.getLabels());
     }
 
-    private GcpGceInstanceMonitoredResource(Map<String, String> gcpInstanceLabels) {
-      this.gcpInstanceLabels = gcpInstanceLabels;
+    private GcpGceInstanceMonitoredResource(Map<String, String> labels) {
+      this.labels = labels;
     }
   }
 
@@ -196,8 +201,7 @@ public abstract class MonitoredResource {
   @Immutable
   @Deprecated
   public static final class GcpGkeContainerMonitoredResource extends MonitoredResource {
-    private final Map<String, String> k8sContainerLabels;
-    private final Map<String, String> gcpInstanceLabels;
+    private final Map<String, String> labels;
 
     @Override
     public ResourceType getResourceType() {
@@ -211,7 +215,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getAccount() {
-      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.PROJECT_ID_KEY), "");
+      return firstNonNull(labels.get(GcpGceInstanceResource.PROJECT_ID_KEY), "");
     }
 
     /**
@@ -221,7 +225,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getClusterName() {
-      return firstNonNull(k8sContainerLabels.get(K8sContainerResource.CLUSTER_NAME_KEY), "");
+      return firstNonNull(labels.get(K8sContainerResource.CLUSTER_NAME_KEY), "");
     }
 
     /**
@@ -231,7 +235,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getContainerName() {
-      return firstNonNull(k8sContainerLabels.get(K8sContainerResource.CONTAINER_NAME_KEY), "");
+      return firstNonNull(labels.get(K8sContainerResource.CONTAINER_NAME_KEY), "");
     }
 
     /**
@@ -241,7 +245,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getNamespaceId() {
-      return firstNonNull(k8sContainerLabels.get(K8sContainerResource.NAMESPACE_NAME_KEY), "");
+      return firstNonNull(labels.get(K8sContainerResource.NAMESPACE_NAME_KEY), "");
     }
 
     /**
@@ -251,7 +255,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getInstanceId() {
-      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.INSTANCE_ID_KEY), "");
+      return firstNonNull(labels.get(GcpGceInstanceResource.INSTANCE_ID_KEY), "");
     }
 
     /**
@@ -261,7 +265,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getPodId() {
-      return firstNonNull(k8sContainerLabels.get(K8sContainerResource.POD_NAME_KEY), "");
+      return firstNonNull(labels.get(K8sContainerResource.POD_NAME_KEY), "");
     }
 
     /**
@@ -271,7 +275,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getZone() {
-      return firstNonNull(gcpInstanceLabels.get(GcpGceInstanceResource.ZONE_KEY), "");
+      return firstNonNull(labels.get(GcpGceInstanceResource.ZONE_KEY), "");
     }
 
     /**
@@ -295,21 +299,21 @@ public abstract class MonitoredResource {
         String instanceId,
         String podId,
         String zone) {
-      return new GcpGkeContainerMonitoredResource(
-          K8sContainerResource.create(clusterName, namespaceId, podId, containerName).getLabels(),
-          GcpGceInstanceResource.create(account, zone, instanceId).getLabels());
+      Resource resource =
+          Resource.mergeResources(
+              ImmutableList.of(
+                  K8sContainerResource.create(clusterName, namespaceId, podId, containerName),
+                  GcpGceInstanceResource.create(account, zone, instanceId)));
+
+      return new GcpGkeContainerMonitoredResource(checkNotNull(resource, "resource").getLabels());
     }
 
-    static GcpGkeContainerMonitoredResource autoDetectResource() {
-      return new GcpGkeContainerMonitoredResource(
-          K8sContainerResource.detect().getLabels(), GcpGceInstanceResource.detect().getLabels());
+    static GcpGkeContainerMonitoredResource create(Resource resource) {
+      return new GcpGkeContainerMonitoredResource(resource.getLabels());
     }
 
-    private GcpGkeContainerMonitoredResource(
-        Map<String, String> k8sContainerLabels, Map<String, String> gcpInstanceLabels) {
-
-      this.k8sContainerLabels = k8sContainerLabels;
-      this.gcpInstanceLabels = gcpInstanceLabels;
+    private GcpGkeContainerMonitoredResource(Map<String, String> labels) {
+      this.labels = labels;
     }
   }
 }

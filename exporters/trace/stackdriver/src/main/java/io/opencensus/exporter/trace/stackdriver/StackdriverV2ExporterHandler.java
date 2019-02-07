@@ -42,7 +42,7 @@ import io.opencensus.common.Functions;
 import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
+import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.resource.Resource;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.EndSpanOptions;
@@ -98,7 +98,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   // Only initialize once.
   private static final Map<String, AttributeValue> RESOURCE_LABELS =
-      getResourceLabels(MonitoredResourceUtils.detectResource());
+      getResourceLabels(ResourceUtils.detectResource());
 
   // Constant functions for AttributeValue.
   private static final Function<String, /*@Nullable*/ AttributeValue> stringAttributeValueFunction =

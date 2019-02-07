@@ -1,4 +1,4 @@
-description = 'OpenCensus Monitored Resource Util'
+description = 'OpenCensus Resource Util'
 
 apply plugin: 'java'
 
@@ -9,7 +9,6 @@ apply plugin: 'java'
 
 dependencies {
     compile project(':opencensus-api'),
-            project(':opencensus-contrib-resource-util'),
             libraries.guava
     compileOnly libraries.auto_value
 

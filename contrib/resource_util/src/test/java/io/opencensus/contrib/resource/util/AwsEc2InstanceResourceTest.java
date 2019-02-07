@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.monitoredresource.util;
+package io.opencensus.contrib.resource.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -23,24 +23,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link GcpGceInstanceResource}. */
+/** Unit tests for {@link AwsEc2InstanceResource}. */
 @RunWith(JUnit4.class)
-public class GcpGceInstanceResourceTest {
-  private static final String GCP_PROJECT_ID = "gcp-project";
-  private static final String GCP_INSTANCE_ID = "instance";
-  private static final String GCP_ZONE = "us-east1";
+public class AwsEc2InstanceResourceTest {
+  private static final String AWS_ACCOUNT_ID = "aws-account";
+  private static final String AWS_INSTANCE_ID = "instance";
+  private static final String AWS_REGION = "us-west-2";
 
   @Test
-  public void create_GcpGceInstanceResource() {
-    Resource resource = GcpGceInstanceResource.create(GCP_PROJECT_ID, GCP_ZONE, GCP_INSTANCE_ID);
-    assertThat(resource.getType()).isEqualTo(GcpGceInstanceResource.TYPE);
+  public void create_AwsEc2InstanceResource() {
+    Resource resource = AwsEc2InstanceResource.create(AWS_ACCOUNT_ID, AWS_REGION, AWS_INSTANCE_ID);
+    assertThat(resource.getType()).isEqualTo(AwsEc2InstanceResource.TYPE);
     assertThat(resource.getLabels())
         .containsExactly(
-            GcpGceInstanceResource.PROJECT_ID_KEY,
-            GCP_PROJECT_ID,
-            GcpGceInstanceResource.ZONE_KEY,
-            GCP_ZONE,
-            GcpGceInstanceResource.INSTANCE_ID_KEY,
-            GCP_INSTANCE_ID);
+            AwsEc2InstanceResource.ACCOUNT_ID_KEY,
+            AWS_ACCOUNT_ID,
+            AwsEc2InstanceResource.REGION_KEY,
+            AWS_REGION,
+            AwsEc2InstanceResource.INSTANCE_ID_KEY,
+            AWS_INSTANCE_ID);
   }
 }

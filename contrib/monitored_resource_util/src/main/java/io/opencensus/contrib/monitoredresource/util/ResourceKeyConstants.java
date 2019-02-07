@@ -16,6 +16,10 @@
 
 package io.opencensus.contrib.monitoredresource.util;
 
+import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
+import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
+import io.opencensus.contrib.resource.util.K8sContainerResource;
+
 /**
  * Constants for collecting resource information.
  *

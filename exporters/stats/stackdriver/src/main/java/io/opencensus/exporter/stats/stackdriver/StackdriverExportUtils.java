@@ -37,10 +37,10 @@ import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.contrib.monitoredresource.util.AwsEc2InstanceResource;
-import io.opencensus.contrib.monitoredresource.util.GcpGceInstanceResource;
-import io.opencensus.contrib.monitoredresource.util.K8sContainerResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
+import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
+import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
+import io.opencensus.contrib.resource.util.K8sContainerResource;
+import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Distribution.Bucket;
@@ -395,7 +395,7 @@ final class StackdriverExportUtils {
       builder.putLabels(STACKDRIVER_PROJECT_ID_KEY, MetadataConfig.getProjectId());
     }
 
-    Resource autoDetectedResource = MonitoredResourceUtils.detectResource();
+    Resource autoDetectedResource = ResourceUtils.detectResource();
     if (autoDetectedResource == null || autoDetectedResource.getType() == null) {
       builder.setType(GLOBAL);
       return builder.build();

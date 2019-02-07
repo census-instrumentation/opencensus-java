@@ -16,9 +16,11 @@
 
 package io.opencensus.contrib.monitoredresource.util;
 
+import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
+import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
+import io.opencensus.contrib.resource.util.K8sContainerResource;
+import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.resource.Resource;
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.Nullable;
 
 /**
@@ -26,7 +28,9 @@ import javax.annotation.Nullable;
  * application is running.
  *
  * @since 0.13
+ * @deprecated since 0.20, use {@link ResourceUtils} instead.
  */
+@Deprecated
 public final class MonitoredResourceUtils {
 
   /**
@@ -35,19 +39,22 @@ public final class MonitoredResourceUtils {
    *
    * @return a {@code MonitoredResource}.
    * @since 0.13
-   * @deprecated since 0.18, use {@link #detectResource()} instead.
    */
-  @Deprecated
   @Nullable
   public static MonitoredResource getDefaultResource() {
-    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      return MonitoredResource.GcpGkeContainerMonitoredResource.autoDetectResource();
+    Resource resource = ResourceUtils.detectResource();
+    String resourceType = resource == null ? null : resource.getType();
+    if (resourceType == null) {
+      return null;
     }
-    if (GcpMetadataConfig.getInstanceId() != null) {
-      return MonitoredResource.GcpGceInstanceMonitoredResource.autoDetectResource();
+    if (resourceType.equals(K8sContainerResource.TYPE)) {
+      return MonitoredResource.GcpGkeContainerMonitoredResource.create(resource);
     }
-    if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      return MonitoredResource.AwsEc2InstanceMonitoredResource.autoDetectResource();
+    if (resourceType.equals(GcpGceInstanceResource.TYPE)) {
+      return MonitoredResource.GcpGceInstanceMonitoredResource.create(resource);
+    }
+    if (resourceType.equals(AwsEc2InstanceResource.TYPE)) {
+      return MonitoredResource.AwsEc2InstanceMonitoredResource.create(resource);
     }
     return null;
   }
@@ -61,20 +68,7 @@ public final class MonitoredResourceUtils {
    */
   @Nullable
   public static Resource detectResource() {
-    List<Resource> resourceList = new ArrayList<Resource>();
-    resourceList.add(Resource.createFromEnvironmentVariables());
-    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      resourceList.add(K8sContainerResource.detect());
-    }
-    // This can be true even if this is k8s container in case of GKE and we want to merge these
-    // resources.
-    if (GcpMetadataConfig.getInstanceId() != null) {
-      resourceList.add(GcpGceInstanceResource.detect());
-    }
-    if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      resourceList.add(AwsEc2InstanceResource.detect());
-    }
-    return Resource.mergeResources(resourceList);
+    return ResourceUtils.detectResource();
   }
 
   private MonitoredResourceUtils() {}
