@@ -27,17 +27,17 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.19.1</version>
+    <version>0.19.2</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-exporter-stats-signalfx</artifactId>
-    <version>0.19.1</version>
+    <version>0.19.2</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.19.1</version>
+    <version>0.19.2</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -46,9 +46,9 @@ For Maven add to your `pom.xml`:
 For Gradle add to your dependencies:
 
 ```groovy
-compile 'io.opencensus:opencensus-api:0.19.1'
-compile 'io.opencensus:opencensus-exporter-stats-signalfx:0.19.1'
-runtime 'io.opencensus:opencensus-impl:0.19.1'
+compile 'io.opencensus:opencensus-api:0.19.2'
+compile 'io.opencensus:opencensus-exporter-stats-signalfx:0.19.2'
+runtime 'io.opencensus:opencensus-impl:0.19.2'
 ```
 
 ### Register the exporter
