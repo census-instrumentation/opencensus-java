@@ -33,6 +33,7 @@ include ":opencensus-contrib-http-util"
 include ":opencensus-contrib-log-correlation-log4j2"
 include ":opencensus-contrib-log-correlation-stackdriver"
 include ":opencensus-contrib-monitored-resource-util"
+include ":opencensus-contrib-resource-util"
 include ":opencensus-contrib-spring"
 include ":opencensus-contrib-spring-sleuth-v1x"
 include ":opencensus-contrib-zpages"
@@ -53,7 +54,8 @@ project(':opencensus-contrib-exemplar-util').projectDir = "$rootDir/contrib/exem
 project(':opencensus-contrib-grpc-metrics').projectDir = "$rootDir/contrib/grpc_metrics" as File
 project(':opencensus-contrib-grpc-util').projectDir = "$rootDir/contrib/grpc_util" as File
 project(':opencensus-contrib-http-jaxrs').projectDir = "$rootDir/contrib/http_jaxrs" as File
-project(':opencensus-contrib-http-jetty-client').projectDir = "$rootDir/contrib/http_jetty_client" as File
+project(':opencensus-contrib-http-jetty-client').projectDir =
+        "$rootDir/contrib/http_jetty_client" as File
 project(':opencensus-contrib-http-servlet').projectDir = "$rootDir/contrib/http_servlet" as File
 project(':opencensus-contrib-http-util').projectDir = "$rootDir/contrib/http_util" as File
 project(':opencensus-contrib-log-correlation-log4j2').projectDir =
@@ -62,6 +64,7 @@ project(':opencensus-contrib-log-correlation-stackdriver').projectDir =
         "$rootDir/contrib/log_correlation/stackdriver" as File
 project(':opencensus-contrib-monitored-resource-util').projectDir =
         "$rootDir/contrib/monitored_resource_util" as File
+project(':opencensus-contrib-resource-util').projectDir = "$rootDir/contrib/resource_util" as File
 project(':opencensus-contrib-spring').projectDir = "$rootDir/contrib/spring" as File
 project(':opencensus-contrib-spring-sleuth-v1x').projectDir =
         "$rootDir/contrib/spring_sleuth_v1x" as File

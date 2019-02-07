@@ -18,6 +18,10 @@ package io.opencensus.contrib.monitoredresource.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
+import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
+import io.opencensus.contrib.resource.util.K8sContainerResource;
+import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.resource.Resource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,31 +33,21 @@ public class MonitoredResourceUtilsTest {
 
   @Test
   public void testGetDefaultResource() {
-    MonitoredResource resource = MonitoredResourceUtils.getDefaultResource();
-    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.GCP_GKE_CONTAINER);
-    } else if (GcpMetadataConfig.getInstanceId() != null) {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.GCP_GCE_INSTANCE);
-    } else if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.AWS_EC2_INSTANCE);
-    } else {
-      assertThat(resource).isNull();
+    MonitoredResource monitoredResource = MonitoredResourceUtils.getDefaultResource();
+    Resource resource = ResourceUtils.detectResource();
+    String resourceType = resource == null ? null : resource.getType();
+    if (resourceType == null) {
+      assertThat(monitoredResource).isNull();
+      return;
     }
-  }
-
-  @Test
-  public void testDetectResource() {
-    Resource resource = MonitoredResourceUtils.detectResource();
-    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      assertThat(resource.getType()).isEqualTo(K8sContainerResource.TYPE);
-    } else if (GcpMetadataConfig.getInstanceId() != null) {
-      assertThat(resource.getType()).isEqualTo(GcpGceInstanceResource.TYPE);
-    } else if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      assertThat(resource.getType()).isEqualTo(AwsEc2InstanceResource.TYPE);
+    if (resourceType.equals(K8sContainerResource.TYPE)) {
+      assertThat(monitoredResource.getResourceType()).isEqualTo(ResourceType.GCP_GKE_CONTAINER);
+    } else if (resourceType.equals(GcpGceInstanceResource.TYPE)) {
+      assertThat(monitoredResource.getResourceType()).isEqualTo(ResourceType.GCP_GCE_INSTANCE);
+    } else if (resourceType.equals(AwsEc2InstanceResource.TYPE)) {
+      assertThat(monitoredResource.getResourceType()).isEqualTo(ResourceType.AWS_EC2_INSTANCE);
     } else {
-      assertThat(resource).isNotNull();
-      assertThat(resource.getType()).isNull();
-      assertThat(resource.getLabels()).isEmpty();
+      assertThat(monitoredResource).isNull();
     }
   }
 }

@@ -19,7 +19,7 @@ package io.opencensus.exporter.trace.ocagent;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.common.Timestamp;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
+import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.proto.agent.common.v1.LibraryInfo;
 import io.opencensus.proto.agent.common.v1.LibraryInfo.Language;
 import io.opencensus.proto.agent.common.v1.Node;
@@ -42,7 +42,7 @@ final class OcAgentNodeUtils {
 
   @Nullable
   private static final io.opencensus.resource.Resource AUTO_DETECTED_RESOURCE =
-      MonitoredResourceUtils.detectResource();
+      ResourceUtils.detectResource();
 
   // Creates a Node with information from the OpenCensus library and environment variables.
   static Node getNodeInfo(String serviceName) {

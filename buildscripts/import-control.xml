@@ -154,7 +154,12 @@ General guidelines on imports:
       <allow pkg="io.opencensus.trace"/>
     </subpackage>
     <subpackage name="monitoredresource.util">
+      <allow pkg="io.opencensus.contrib.resource.util"/>
       <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
+      <allow pkg="io.opencensus.resource"/>
+    </subpackage>
+    <subpackage name="resource.util">
+      <allow pkg="io.opencensus.contrib.resource.util"/>
       <allow pkg="io.opencensus.resource"/>
     </subpackage>
     <subpackage name="dropwizard5">
@@ -180,8 +185,8 @@ General guidelines on imports:
       <subpackage name="ocagent">
         <allow pkg="com.google.protobuf"/>
         <allow pkg="io.grpc"/>
-        <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
         <allow pkg="io.opencensus.contrib.opencensus.proto.util"/>
+        <allow pkg="io.opencensus.contrib.resource.util"/>
         <allow pkg="io.opencensus.exporter.metrics.ocagent"/>
         <allow pkg="io.opencensus.metrics"/>
         <allow pkg="io.opencensus.proto"/>
@@ -209,7 +214,7 @@ General guidelines on imports:
         <allow pkg="com.google"/>
         <allow pkg="io.opencensus.exporter.stats.stackdriver"/>
         <allow pkg="io.opencensus.trace"/>
-        <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
+        <allow pkg="io.opencensus.contrib.resource.util"/>
       </subpackage>
     </subpackage>
     <subpackage name="trace">
@@ -225,7 +230,7 @@ General guidelines on imports:
       <subpackage name="ocagent">
         <allow pkg="com.google.protobuf"/>
         <allow pkg="io.grpc"/>
-        <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
+        <allow pkg="io.opencensus.contrib.resource.util"/>
         <allow pkg="io.opencensus.contrib.opencensus.proto.util"/>
         <allow pkg="io.opencensus.exporter.trace.ocagent"/>
         <allow pkg="io.opencensus.proto"/>
@@ -234,7 +239,7 @@ General guidelines on imports:
       <subpackage name="stackdriver">
         <allow pkg="com.google"/>
         <allow pkg="io.opencensus.exporter.trace.stackdriver"/>
-        <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
+        <allow pkg="io.opencensus.contrib.resource.util"/>
       </subpackage>
       <subpackage name="zipkin">
         <allow pkg="io.opencensus.exporter.trace.zipkin"/>
