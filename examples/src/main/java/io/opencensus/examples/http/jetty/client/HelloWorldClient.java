@@ -30,11 +30,16 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.client.HttpRequest;
+import org.eclipse.jetty.client.http.HttpClientTransportOverHTTP;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-/** Sample application that shows how to instrument jetty client. */
+/**
+ * Sample application that shows how to instrument jetty client.
+ */
 public class HelloWorldClient {
+
   private static final Logger logger = Logger.getLogger(HelloWorldClient.class.getName());
 
   private static void initTracing() {
@@ -68,17 +73,34 @@ public class HelloWorldClient {
     initTracing();
     initStatsExporter();
 
-    OcJettyHttpClient httpClient = new OcJettyHttpClient();
+    // Create http client that will trace requests. By default trace context is propagated using
+    // using w3c TraceContext propagator.
+    // To use B3 propagation use following
+    //    OcJettyHttpClient httpClient =
+    //        new OcJettyHttpClient(
+    //            new HttpClientTransportOverHTTP(),
+    //            new SslContextFactory(),
+    //            null,
+    //            Tracing.getPropagationComponent().getB3Format());
+    OcJettyHttpClient httpClient =
+        new OcJettyHttpClient(
+            new HttpClientTransportOverHTTP(),
+            new SslContextFactory(),
+            null,
+            null);
 
     httpClient.start();
 
     do {
       HttpRequest request =
-          (HttpRequest) httpClient.newRequest("http://localhost:8080/").method(HttpMethod.GET);
+          (HttpRequest) httpClient.newRequest("http://localhost:8080/helloworld/request")
+              .method(HttpMethod.GET);
       HttpRequest asyncRequest =
-          (HttpRequest) httpClient.newRequest("http://localhost:8080/async").method(HttpMethod.GET);
+          (HttpRequest) httpClient.newRequest("http://localhost:8080/helloworld/request/async")
+              .method(HttpMethod.GET);
       HttpRequest postRequest =
-          (HttpRequest) httpClient.newRequest("http://localhost:8080/").method(HttpMethod.POST);
+          (HttpRequest) httpClient.newRequest("http://localhost:8080/helloworld/request")
+              .method(HttpMethod.POST);
       postRequest.content(new StringContentProvider("{\"hello\": \"world\"}"), "application/json");
 
       if (request == null) {
