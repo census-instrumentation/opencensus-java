@@ -17,7 +17,6 @@
 package io.opencensus.contrib.monitoredresource.util;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
