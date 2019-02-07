@@ -43,7 +43,10 @@ public final class MonitoredResourceUtils {
   @Nullable
   public static MonitoredResource getDefaultResource() {
     Resource resource = ResourceUtils.detectResource();
-    String resourceType = resource == null ? null : resource.getType();
+    if (resource == null) {
+      return null;
+    }
+    String resourceType = resource.getType();
     if (resourceType == null) {
       return null;
     }

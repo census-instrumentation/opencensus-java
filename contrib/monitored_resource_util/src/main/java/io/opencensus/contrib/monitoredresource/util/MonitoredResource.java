@@ -24,6 +24,7 @@ import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
 import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
 import io.opencensus.contrib.resource.util.K8sContainerResource;
 import io.opencensus.resource.Resource;
+import java.util.Collections;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
@@ -304,8 +305,10 @@ public abstract class MonitoredResource {
               ImmutableList.of(
                   K8sContainerResource.create(clusterName, namespaceId, podId, containerName),
                   GcpGceInstanceResource.create(account, zone, instanceId)));
-
-      return new GcpGkeContainerMonitoredResource(checkNotNull(resource, "resource").getLabels());
+      if (resource == null) {
+        return new GcpGkeContainerMonitoredResource(Collections.<String, String>emptyMap());
+      }
+      return new GcpGkeContainerMonitoredResource(resource.getLabels());
     }
 
     static GcpGkeContainerMonitoredResource create(Resource resource) {
