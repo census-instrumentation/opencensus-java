@@ -203,8 +203,13 @@ $ BUILD_FILES=(
 $ README_FILES=(
   README.md
   contrib/appengine_standard_util/README.md
+  contrib/dropwizard/README.md
+  contrib/dropwizard5/README.md
   contrib/exemplar_util/README.md
   contrib/grpc_util/README.md
+  contrib/http_jaxrs/README.md
+  contrib/http_jetty_client/README.md
+  contrib/http_servlet/README.md
   contrib/http_util/README.md
   contrib/log_correlation/log4j2/README.md
   contrib/log_correlation/stackdriver/README.md
@@ -215,6 +220,7 @@ $ README_FILES=(
   exporters/stats/prometheus/README.md
   exporters/stats/signalfx/README.md
   exporters/stats/stackdriver/README.md
+  exporters/trace/datadog/README.md
   exporters/trace/instana/README.md
   exporters/trace/logging/README.md
   exporters/trace/jaeger/README.md
