@@ -4,7 +4,7 @@
 [![Maven Central][maven-image]][maven-url]
 
 The *OpenCensus Resource Util for Java* is a collection of utilities that defines a set of 
-common resources (aws_ec2_instance, gcp_gce_instance, k8c_container, etc.) and offers auto detection
+common resources (aws_ec2_instance, gcp_gce_instance, k8s_container, etc.) and offers auto detection
 for some of the resources, based on the environment where the application is running.
 
 ## Quickstart
