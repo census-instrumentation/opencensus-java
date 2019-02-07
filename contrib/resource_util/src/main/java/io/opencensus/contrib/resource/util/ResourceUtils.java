@@ -22,10 +22,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 /**
- * Utilities for for auto detecting monitored resource based on the environment where the
- * application is running.
+ * Utilities for auto detecting resource based on the environment where the application is running.
  *
- * @since 0.13
+ * @since 0.20
  */
 public final class ResourceUtils {
 
@@ -34,7 +33,7 @@ public final class ResourceUtils {
    * variables, K8S, GCE and AWS.
    *
    * @return a {@code Resource}.
-   * @since 0.18
+   * @since 0.20
    */
   @Nullable
   public static Resource detectResource() {
@@ -48,6 +47,7 @@ public final class ResourceUtils {
     if (GcpMetadataConfig.getInstanceId() != null) {
       resourceList.add(GcpGceInstanceResource.detect());
     }
+    // This can be true even if this is k8s container in case k8s runs in AWS.
     if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
       resourceList.add(AwsEc2InstanceResource.detect());
     }
