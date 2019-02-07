@@ -31,5 +31,5 @@ compile 'io.opencensus:opencensus-contrib-resource-util:0.20.0'
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/hxthmpkxar4jq4be/branch/master?svg=true
 [appveyor-url]: https://ci.appveyor.com/project/opencensusjavateam/opencensus-java/branch/master
-[maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-dresource-util/badge.svg
+[maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-resource-util/badge.svg
 [maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-resource-util
