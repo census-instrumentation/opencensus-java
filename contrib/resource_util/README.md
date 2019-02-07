@@ -1,10 +1,11 @@
-# OpenCensus Monitored Resources Util
+# OpenCensus Resources Util
 [![Build Status][travis-image]][travis-url]
 [![Windows Build Status][appveyor-image]][appveyor-url]
 [![Maven Central][maven-image]][maven-url]
 
-The *OpenCensus Resource Util for Java* is a collection of utilities for auto detecting
- resource when exporting stats, based on the environment where the application is running.
+The *OpenCensus Resource Util for Java* is a collection of utilities that defines a set of 
+common resources (aws_ec2_instance, gcp_gce_instance, k8c_container, etc.) and offers auto detection
+for some of the resources, based on the environment where the application is running.
 
 ## Quickstart
 
