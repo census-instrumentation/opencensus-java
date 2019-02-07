@@ -197,7 +197,6 @@ latest version.
 ```bash
 $ git checkout -b bump-document-version master
 $ BUILD_FILES=(
-  examples/build.gradle
   examples/pom.xml
   )
 $ README_FILES=(
