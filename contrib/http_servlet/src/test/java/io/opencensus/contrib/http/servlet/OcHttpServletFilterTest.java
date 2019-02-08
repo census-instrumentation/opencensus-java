@@ -131,7 +131,7 @@ public class OcHttpServletFilterTest {
     assertThat(filter.handler).isNotNull();
   }
 
-  void testInitInvalidAttr(String attr) throws ServletException {
+  private void testInitInvalidAttr(String attr) throws ServletException {
     when(mockConfig.getServletContext()).thenReturn(mockServletContext);
     when(mockServletContext.getAttribute(attr)).thenReturn(dummyAttr);
     thrown.expect(ServletException.class);
