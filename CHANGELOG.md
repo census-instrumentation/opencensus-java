@@ -1,6 +1,7 @@
 ## Unreleased
 - Add OpenCensus Java OC-Agent Trace Exporter.
 - Add OpenCensus Java OC-Agent Metrics Exporter.
+- Add config option for Http-Servlet.
 
 # 0.19.0 - 2019-01-28
 - Add an artifact `opencensus-contrib-http-jetty-client` for instrumenting jetty http client. Add extractor for Jetty Client.
