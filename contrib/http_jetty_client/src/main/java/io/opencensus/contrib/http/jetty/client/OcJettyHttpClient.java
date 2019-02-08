@@ -19,10 +19,13 @@ package io.opencensus.contrib.http.jetty.client;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.contrib.http.HttpClientHandler;
+import io.opencensus.contrib.http.HttpExtractor;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.propagation.TextFormat;
 import io.opencensus.trace.propagation.TextFormat.Setter;
 import java.net.URI;
+import javax.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
@@ -35,8 +38,7 @@ import org.eclipse.jetty.client.api.Response;
  */
 @ExperimentalApi
 public final class OcJettyHttpClient extends HttpClient {
-  @VisibleForTesting
-  static final Setter<Request> setter =
+  private static final Setter<Request> setter =
       new Setter<Request>() {
         @Override
         public void put(Request carrier, String key, String value) {
@@ -45,19 +47,41 @@ public final class OcJettyHttpClient extends HttpClient {
       };
 
   private static final Tracer tracer = Tracing.getTracer();
-  private final HttpClientHandler<Request, Response, Request> handler;
+  @VisibleForTesting final HttpClientHandler<Request, Response, Request> handler;
 
   /** Create a new {@code OcJettyHttpClient}. */
   public OcJettyHttpClient() {
     super();
-    OcJettyHttpClientExtractor extractor = new OcJettyHttpClientExtractor();
+    handler = buildHandler(null, null);
+  }
 
-    handler =
-        new HttpClientHandler<Request, Response, Request>(
-            Tracing.getTracer(),
-            extractor,
-            Tracing.getPropagationComponent().getTraceContextFormat(),
-            setter);
+  /**
+   * Create a new {@code OcJettyHttpClient} with given extractor and propagator.
+   *
+   * @param extractor {@link HttpExtractor} to extract request and response specific attributes. If
+   *     it is null then default extractor is used.
+   * @param propagator {@link TextFormat} to propagate trace context to remote peer. If it is null
+   *     then default propagator (TraceContextFormat) is used.
+   * @since 0.20
+   */
+  public OcJettyHttpClient(
+      @Nullable HttpExtractor<Request, Response> extractor, @Nullable TextFormat propagator) {
+    super();
+    handler = buildHandler(extractor, propagator);
+  }
+
+  private static HttpClientHandler<Request, Response, Request> buildHandler(
+      @Nullable HttpExtractor<Request, Response> extractor, @Nullable TextFormat propagator) {
+    if (extractor == null) {
+      extractor = new OcJettyHttpClientExtractor();
+    }
+
+    if (propagator == null) {
+      propagator = Tracing.getPropagationComponent().getTraceContextFormat();
+    }
+
+    return new HttpClientHandler<Request, Response, Request>(
+        Tracing.getTracer(), extractor, propagator, setter);
   }
 
   /**

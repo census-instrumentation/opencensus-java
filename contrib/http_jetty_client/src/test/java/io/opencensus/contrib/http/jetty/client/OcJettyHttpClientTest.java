@@ -18,6 +18,7 @@ package io.opencensus.contrib.http.jetty.client;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.trace.Tracing;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.jetty.client.api.Request;
@@ -35,6 +36,33 @@ public class OcJettyHttpClientTest {
   @Before
   public void setUp() {
     client = new OcJettyHttpClient();
+  }
+
+  @Test
+  public void testOcJettyHttpClientDefault() {
+    OcJettyHttpClient defaultClient = new OcJettyHttpClient();
+    assertThat(defaultClient.handler).isNotNull();
+  }
+
+  @Test
+  public void testOcJettyHttpClientNonDefault() {
+    OcJettyHttpClient defaultClient =
+        new OcJettyHttpClient(
+            new OcJettyHttpClientExtractor(), Tracing.getPropagationComponent().getB3Format());
+    assertThat(defaultClient.handler).isNotNull();
+  }
+
+  @Test
+  public void testOcJettyHttpClientNullExtractor() {
+    OcJettyHttpClient defaultClient =
+        new OcJettyHttpClient(null, Tracing.getPropagationComponent().getB3Format());
+    assertThat(defaultClient.handler).isNotNull();
+  }
+
+  @Test
+  public void testOcJettyHttpClientNullPropagator() {
+    OcJettyHttpClient defaultClient = new OcJettyHttpClient(new OcJettyHttpClientExtractor(), null);
+    assertThat(defaultClient.handler).isNotNull();
   }
 
   @Test
