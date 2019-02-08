@@ -38,8 +38,7 @@ import org.eclipse.jetty.client.api.Response;
  */
 @ExperimentalApi
 public final class OcJettyHttpClient extends HttpClient {
-  @VisibleForTesting
-  static final Setter<Request> setter =
+  private static final Setter<Request> setter =
       new Setter<Request>() {
         @Override
         public void put(Request carrier, String key, String value) {
@@ -48,7 +47,7 @@ public final class OcJettyHttpClient extends HttpClient {
       };
 
   private static final Tracer tracer = Tracing.getTracer();
-  final HttpClientHandler<Request, Response, Request> handler;
+  @VisibleForTesting final HttpClientHandler<Request, Response, Request> handler;
 
   /** Create a new {@code OcJettyHttpClient}. */
   public OcJettyHttpClient() {
