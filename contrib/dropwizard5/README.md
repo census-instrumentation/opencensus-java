@@ -25,7 +25,7 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-dropwizard:0.19.2'
+compile 'io.opencensus:opencensus-contrib-dropwizard5:0.19.2'
 ```
 
 ### And the following code:
