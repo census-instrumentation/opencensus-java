@@ -54,9 +54,11 @@ case "$TASK" in
     ;;
   "BUILD_EXAMPLES_GRADLE")
     pushd examples && ./gradlew clean assemble --stacktrace && ./gradlew check && ./gradlew verGJF && popd
+    pushd examples/spring/servlet && ./gradlew clean assemble --stacktrace && ./gradlew check && ./gradlew verGJF && popd
     ;;
   "BUILD_EXAMPLES_MAVEN")
     pushd examples && mvn clean package appassembler:assemble -e && popd
+    pushd examples/spring/servlet && mvn clean package appassembler:assemble -e && popd
     ;;
   *)
     echo "Unknown task $TASK"

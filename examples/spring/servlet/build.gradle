@@ -1,0 +1,107 @@
+description = 'OpenCensus Examples Spring Servlet'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
+        classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.8"
+    }
+}
+
+apply plugin: "checkstyle"
+apply plugin: 'com.github.sherter.google-java-format'
+apply plugin: 'idea'
+apply plugin: 'java'
+
+// Display the version report using: ./gradlew dependencyUpdates
+// Also see https://github.com/ben-manes/gradle-versions-plugin.
+apply plugin: 'com.github.ben-manes.versions'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+group = "io.opencensus"
+version = "0.24.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
+
+def opencensusVersion = "0.23.0" // LATEST_OPENCENSUS_RELEASE_VERSION
+def prometheusVersion = "0.6.0"
+def httpasyncclientVersion = "4.1.4"
+
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+googleJavaFormat {
+    toolVersion '1.7'
+    source = 'src/main'
+    include '**/*.java'
+}
+
+verifyGoogleJavaFormat {
+    source = 'src/main'
+    include '**/*.java'
+}
+
+// Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
+checkstyle {
+    configFile = file("$rootDir/../../../buildscripts/checkstyle.xml")
+    toolVersion = "8.12"
+    ignoreFailures = false
+    configProperties["rootDir"] = "$rootDir/../../.."
+}
+
+// Disable checkstyle if no java8.
+checkstyleMain.source = 'src/main'
+checkstyleTest.source = 'src/main'
+buildscript {
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+bootJar {
+    mainClassName = 'com.baeldung.Application'
+    baseName = 'opencensus-examples-spring-servlet'
+    version = "0.24.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencyManagement {
+    imports {
+        mavenBom "io.opencensus:opencensus-contrib-spring-starter:${opencensusVersion}"
+    }
+}
+
+dependencies {
+    compile("io.opencensus:opencensus-contrib-spring-starter:${opencensusVersion}")
+
+    compile("io.opencensus:opencensus-exporter-stats-prometheus:${opencensusVersion}",
+            "io.opencensus:opencensus-exporter-trace-logging:${opencensusVersion}",
+            "io.prometheus:simpleclient_httpserver:${prometheusVersion}",
+            "org.apache.httpcomponents:httpasyncclient:${httpasyncclientVersion}")
+}

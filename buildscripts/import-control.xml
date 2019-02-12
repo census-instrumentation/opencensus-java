@@ -330,5 +330,6 @@ General guidelines on imports:
     <allow pkg="org.apache.log4j"/>
     <allow pkg="org.eclipse.jetty"/>
     <allow pkg="javax.servlet"/>
+    <allow pkg="org.springframework"/>
   </subpackage>
 </import-control>
