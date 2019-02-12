@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.springcloud.autoconfig;
+package io.opencensus.contrib.spring.autoconfig;
 
 import io.opencensus.common.ExperimentalApi;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -35,5 +35,13 @@ import org.springframework.core.Ordered;
 @EnableConfigurationProperties(OpenCensusProperties.class)
 @ExperimentalApi
 public class OpenCensusAutoConfiguration {
-  public static final int TRACE_FILTER_ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
+
+  /**
+   * TRACE_FILTER_ORDER determines the order in which {@link
+   * io.opencensus.contrib.spring.instrument.web.HttpServletFilter} is invoked. In order to capture
+   * accurate request processing latency it is desirable that the filter is invoked as early as
+   * possible. However, there may be some security related filters that my need to execute before,
+   * hence +5 is added.
+   */
+  public static final int TRACE_FILTER_ORDER = Ordered.HIGHEST_PRECEDENCE + 5;
 }

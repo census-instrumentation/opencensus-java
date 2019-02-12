@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.springcloud.autoconfig;
+package io.opencensus.contrib.spring.autoconfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

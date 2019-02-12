@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.springcloud.instrument.web;
+package io.opencensus.contrib.spring.instrument.web;
 
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;

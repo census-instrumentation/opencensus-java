@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.springcloud.instrument.web;
+package io.opencensus.contrib.spring.instrument.web;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opencensus.contrib.http.servlet.OcHttpServletFilter;
-import io.opencensus.contrib.springcloud.autoconfig.OpenCensusAutoConfiguration;
+import io.opencensus.contrib.spring.autoconfig.OpenCensusAutoConfiguration;
 import javax.servlet.Filter;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;

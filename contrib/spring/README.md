@@ -139,9 +139,59 @@ span name to be specified.
   }
 ```
 
+
 #### Notes
 
 `opencensus-contrib-spring` support only enables annotations.  You will still need to configure opencensus and register exporters / views.
+
+### Servlet Tracing
+
+Enable tracing on http servlet by simply including spring-starter-opencensus in your dependencies and
+initializing exporter. It automatically traces your http request and collects stats associated with the
+request.
+
+It does require to register exporter and views.
+
+#### Depedencies
+
+##### Maven
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>io.opencensus</groupId>
+            <artifactId>opencensus-contrib-spring-starter</artifactId>
+            <version>0.20.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+<dependencies>
+    <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-contrib-spring-starter</artifactId>
+        <version>0.20.0</version>
+    </dependency>
+</dependencies>
+
+```
+
+##### Gradle
+```gradle
+dependencyManagement {
+    imports {
+        mavenBom "io.opencensus:opencensus-contrib-spring-starter:${opencensusVersion}"
+    }
+}
+dependencies {
+	compile 'io.opencensus:opencensus-contrib-spring:0.20.0'
+}
+```
+
+#### Register Exporters and Views
+
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
