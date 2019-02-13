@@ -29,9 +29,12 @@ import java.io.IOException;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.client.HttpClientTransport;
 import org.eclipse.jetty.client.HttpRequest;
+import org.eclipse.jetty.client.http.HttpClientTransportOverHTTP;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 /** Sample application that shows how to instrument jetty client. */
 public class HelloWorldClient {
@@ -68,7 +71,9 @@ public class HelloWorldClient {
     initTracing();
     initStatsExporter();
 
-    OcJettyHttpClient httpClient = new OcJettyHttpClient();
+    HttpClientTransport transport = new HttpClientTransportOverHTTP();
+    SslContextFactory sslCf = new SslContextFactory();
+    OcJettyHttpClient httpClient = new OcJettyHttpClient(transport, sslCf, null, null);
 
     httpClient.start();
 

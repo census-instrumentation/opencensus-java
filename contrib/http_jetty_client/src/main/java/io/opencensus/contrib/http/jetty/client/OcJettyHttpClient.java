@@ -27,8 +27,10 @@ import io.opencensus.trace.propagation.TextFormat.Setter;
 import java.net.URI;
 import javax.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.HttpClientTransport;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 /**
  * This class is a wrapper to {@link HttpClient}. It enables tracing for all {@link Request} created
@@ -56,8 +58,10 @@ public final class OcJettyHttpClient extends HttpClient {
   }
 
   /**
-   * Create a new {@code OcJettyHttpClient} with given extractor and propagator.
+   * Create a new {@code OcJettyHttpClient} with support for HTTPS, extractor and propagator.
    *
+   * @param transport {@link HttpClientTransport} The transport implementation.
+   * @param sslContextFactory {@link SslContextFactory} Used to configure SSL connectors.
    * @param extractor {@link HttpExtractor} to extract request and response specific attributes. If
    *     it is null then default extractor is used.
    * @param propagator {@link TextFormat} to propagate trace context to remote peer. If it is null
@@ -65,8 +69,11 @@ public final class OcJettyHttpClient extends HttpClient {
    * @since 0.20
    */
   public OcJettyHttpClient(
-      @Nullable HttpExtractor<Request, Response> extractor, @Nullable TextFormat propagator) {
-    super();
+      HttpClientTransport transport,
+      SslContextFactory sslContextFactory,
+      @Nullable HttpExtractor<Request, Response> extractor,
+      @Nullable TextFormat propagator) {
+    super(transport, sslContextFactory);
     handler = buildHandler(extractor, propagator);
   }
 
