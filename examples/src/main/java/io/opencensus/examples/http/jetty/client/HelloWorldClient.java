@@ -68,10 +68,6 @@ public class HelloWorldClient {
     initTracing();
     initStatsExporter();
 
-    // For HTTPS URLs, uncomment the lines below using the SslContextFactory
-    // HttpClientTransport transport = new HttpClientTransportOverHTTP();
-    // SslContextFactory sslCf = new SslContextFactory();
-    // OcJettyHttpClient httpClient = new OcJettyHttpClient(transport, sslCf, null, null);
     OcJettyHttpClient httpClient = new OcJettyHttpClient();
 
     httpClient.start();
