@@ -48,20 +48,24 @@ public class OcJettyHttpClientTest {
   public void testOcJettyHttpClientNonDefault() {
     OcJettyHttpClient defaultClient =
         new OcJettyHttpClient(
-            new OcJettyHttpClientExtractor(), Tracing.getPropagationComponent().getB3Format());
+            null,
+            null,
+            new OcJettyHttpClientExtractor(),
+            Tracing.getPropagationComponent().getB3Format());
     assertThat(defaultClient.handler).isNotNull();
   }
 
   @Test
   public void testOcJettyHttpClientNullExtractor() {
     OcJettyHttpClient defaultClient =
-        new OcJettyHttpClient(null, Tracing.getPropagationComponent().getB3Format());
+        new OcJettyHttpClient(null, null, null, Tracing.getPropagationComponent().getB3Format());
     assertThat(defaultClient.handler).isNotNull();
   }
 
   @Test
   public void testOcJettyHttpClientNullPropagator() {
-    OcJettyHttpClient defaultClient = new OcJettyHttpClient(new OcJettyHttpClientExtractor(), null);
+    OcJettyHttpClient defaultClient =
+        new OcJettyHttpClient(null, null, new OcJettyHttpClientExtractor(), null);
     assertThat(defaultClient.handler).isNotNull();
   }
 
