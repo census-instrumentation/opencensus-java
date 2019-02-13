@@ -19,7 +19,6 @@ package io.opencensus.implcore.stats;
 import static com.google.common.base.Preconditions.checkArgument;
 import static io.opencensus.implcore.stats.RecordUtils.createAggregationMap;
 import static io.opencensus.implcore.stats.RecordUtils.createMutableAggregation;
-import static io.opencensus.implcore.stats.RecordUtils.getTagMap;
 import static io.opencensus.implcore.stats.RecordUtils.getTagValues;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -43,7 +42,7 @@ import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
-import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -93,7 +92,10 @@ abstract class MutableViewData {
 
   /** Record stats with the given tags. */
   abstract void record(
-      TagContext context, double value, Timestamp timestamp, Map<String, String> attachments);
+      Map<TagKey, TagValue> context,
+      double value,
+      Timestamp timestamp,
+      Map<String, String> attachments);
 
   /** Convert this {@link MutableViewData} to {@link ViewData}. */
   abstract ViewData toViewData(Timestamp now, State state);
@@ -146,9 +148,11 @@ abstract class MutableViewData {
 
     @Override
     void record(
-        TagContext context, double value, Timestamp timestamp, Map<String, String> attachments) {
-      List</*@Nullable*/ TagValue> tagValues =
-          getTagValues(getTagMap(context), super.view.getColumns());
+        Map<TagKey, TagValue> tags,
+        double value,
+        Timestamp timestamp,
+        Map<String, String> attachments) {
+      List</*@Nullable*/ TagValue> tagValues = getTagValues(tags, super.view.getColumns());
       if (!tagValueAggregationMap.containsKey(tagValues)) {
         tagValueAggregationMap.put(
             tagValues,
@@ -246,9 +250,11 @@ abstract class MutableViewData {
 
     @Override
     void record(
-        TagContext context, double value, Timestamp timestamp, Map<String, String> attachments) {
-      List</*@Nullable*/ TagValue> tagValues =
-          getTagValues(getTagMap(context), super.view.getColumns());
+        Map<TagKey, TagValue> tags,
+        double value,
+        Timestamp timestamp,
+        Map<String, String> attachments) {
+      List</*@Nullable*/ TagValue> tagValues = getTagValues(tags, super.view.getColumns());
       refreshBucketList(timestamp);
       // It is always the last bucket that does the recording.
       CheckerFrameworkUtils.castNonNull(buckets.peekLast())

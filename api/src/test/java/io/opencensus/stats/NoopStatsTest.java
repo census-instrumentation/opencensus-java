@@ -23,6 +23,7 @@ import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import org.junit.Rule;
@@ -134,5 +135,21 @@ public final class NoopStatsTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("tags");
     measureMap.record(null);
+  }
+
+  @Test
+  public void noopStatsRecorder_RecordWithTags_DisallowNullTagList() {
+    MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("tags");
+    measureMap.recordWithTags(null);
+  }
+
+  @Test
+  public void noopStatsRecorder_RecordWithTags_DisallowNullTag() {
+    MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("tag");
+    measureMap.recordWithTags(Arrays.<Tag>asList(TAG, null));
   }
 }

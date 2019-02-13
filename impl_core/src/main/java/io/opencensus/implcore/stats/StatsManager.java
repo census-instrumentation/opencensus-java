@@ -25,8 +25,10 @@ import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
-import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -63,7 +65,7 @@ final class StatsManager {
     return measureToViewMap.getExportedViews();
   }
 
-  void record(TagContext tags, MeasureMapInternal measurementValues) {
+  void record(Map<TagKey, TagValue> tags, MeasureMapInternal measurementValues) {
     // TODO(songya): consider exposing No-op MeasureMap and use it when stats state is DISABLED, so
     // that we don't need to create actual MeasureMapImpl.
     if (state.getInternal() == State.ENABLED) {
@@ -85,11 +87,11 @@ final class StatsManager {
 
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).
   private static final class StatsEvent implements EventQueue.Entry {
-    private final TagContext tags;
+    private final Map<TagKey, TagValue> tags;
     private final MeasureMapInternal stats;
     private final StatsManager statsManager;
 
-    StatsEvent(StatsManager statsManager, TagContext tags, MeasureMapInternal stats) {
+    StatsEvent(StatsManager statsManager, Map<TagKey, TagValue> tags, MeasureMapInternal stats) {
       this.statsManager = statsManager;
       this.tags = tags;
       this.stats = stats;

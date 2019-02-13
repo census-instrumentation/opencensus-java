@@ -19,7 +19,9 @@ package io.opencensus.stats;
 import io.opencensus.internal.Utils;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
+import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
+import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -89,4 +91,26 @@ public abstract class MeasureMap {
    * @since 0.8
    */
   public abstract void record(TagContext tags);
+
+  /**
+   * Records all of the measures at the same time, with the current {@link TagContext} plus the
+   * additional {@link Tag}s.
+   *
+   * <p>This method records all of the stats in the {@code MeasureMap} every time it is called.
+   *
+   * <p>This is equivalent to calling:
+   *
+   * <pre>{@code
+   * TagContext context = tagger.currentBuilder().put(tagKey, tagValue).build();
+   * measureMap.record(context);
+   * }</pre>
+   *
+   * @param tags additional {@link Tag}s to be recorded against.
+   * @since 0.20
+   */
+  public void recordWithTags(List<Tag> tags) {
+    // Provides a default no-op implementation to avoid breaking other existing sub-classes.
+    Utils.checkNotNull(tags, "tags");
+    Utils.checkListElementNotNull(tags, "tag");
+  }
 }

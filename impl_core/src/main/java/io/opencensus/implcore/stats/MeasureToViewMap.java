@@ -28,7 +28,8 @@ import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measurement;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
-import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -144,7 +145,8 @@ final class MeasureToViewMap {
   }
 
   // Records stats with a set of tags.
-  synchronized void record(TagContext tags, MeasureMapInternal stats, Timestamp timestamp) {
+  synchronized void record(
+      Map<TagKey, TagValue> tags, MeasureMapInternal stats, Timestamp timestamp) {
     Iterator<Measurement> iterator = stats.iterator();
     Map<String, String> attachments = stats.getAttachments();
     while (iterator.hasNext()) {
