@@ -24,6 +24,7 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.unsafe.ContextUtils;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -82,7 +83,8 @@ final class MeasureMapImpl extends MeasureMap {
 
   @Override
   public void recordWithTags(List<Tag> tags) {
-    Map<TagKey, TagValue> allTags = RecordUtils.getTagMap(ContextUtils.TAG_CONTEXT_KEY.get());
+    Map<TagKey, TagValue> allTags =
+        new HashMap<TagKey, TagValue>(RecordUtils.getTagMap(ContextUtils.TAG_CONTEXT_KEY.get()));
     for (Tag tag : tags) {
       allTags.put(tag.getKey(), tag.getValue());
     }
