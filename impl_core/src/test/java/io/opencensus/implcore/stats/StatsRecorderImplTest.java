@@ -279,6 +279,24 @@ public final class StatsRecorderImplTest {
   }
 
   @Test
+  public void recordWithTagMapAndTags() {
+    View view =
+        View.create(VIEW_NAME, "description", MEASURE_DOUBLE, Sum.create(), Arrays.asList(KEY));
+    viewManager.registerView(view);
+    MeasureMap statsRecord = statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, 1.0);
+    TagContext tagContext = new SimpleTagContext(Tag.create(KEY, VALUE));
+    statsRecord.recordWithTags(tagContext, Arrays.asList(Tag.create(KEY, VALUE_2)));
+    ViewData viewData = viewManager.getView(VIEW_NAME);
+
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE_2),
+            StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 1.0)),
+        1e-6);
+  }
+
+  @Test
   public void recordTwice() {
     View view =
         View.create(

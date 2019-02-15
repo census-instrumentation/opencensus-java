@@ -93,8 +93,8 @@ public abstract class MeasureMap {
   public abstract void record(TagContext tags);
 
   /**
-   * Records all of the measures at the same time, with the current {@link TagContext} plus the
-   * additional {@link Tag}s.
+   * Records all of the measures at the same time, with the implicit current {@link TagContext} plus
+   * the additional {@link Tag}s.
    *
    * <p>This method records all of the stats in the {@code MeasureMap} every time it is called.
    *
@@ -110,6 +110,30 @@ public abstract class MeasureMap {
    */
   public void recordWithTags(List<Tag> tags) {
     // Provides a default no-op implementation to avoid breaking other existing sub-classes.
+    Utils.checkNotNull(tags, "tags");
+    Utils.checkListElementNotNull(tags, "tag");
+  }
+
+  /**
+   * Records all of the measures at the same time, with the explicit {@link TagContext} plus the
+   * additional {@link Tag}s.
+   *
+   * <p>This method records all of the stats in the {@code MeasureMap} every time it is called.
+   *
+   * <p>This is equivalent to calling:
+   *
+   * <pre>{@code
+   * TagContext newContext = tagger.toBuilder(tagContext).put(tagKey, tagValue).build();
+   * measureMap.record(context);
+   * }</pre>
+   *
+   * @param tagContext {@link TagContext} associated with the measurements.
+   * @param tags additional {@link Tag}s to be recorded against.
+   * @since 0.20
+   */
+  public void recordWithTags(TagContext tagContext, List<Tag> tags) {
+    // Provides a default no-op implementation to avoid breaking other existing sub-classes.
+    Utils.checkNotNull(tagContext, "tagContext");
     Utils.checkNotNull(tags, "tags");
     Utils.checkListElementNotNull(tags, "tag");
   }

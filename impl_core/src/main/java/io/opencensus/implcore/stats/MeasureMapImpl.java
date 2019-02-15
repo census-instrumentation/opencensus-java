@@ -91,6 +91,16 @@ final class MeasureMapImpl extends MeasureMap {
     recordInternal(allTags);
   }
 
+  @Override
+  public void recordWithTags(TagContext tagContext, List<Tag> tags) {
+    Map<TagKey, TagValue> allTags =
+        new HashMap<TagKey, TagValue>(RecordUtils.getTagMap(tagContext));
+    for (Tag tag : tags) {
+      allTags.put(tag.getKey(), tag.getValue());
+    }
+    recordInternal(allTags);
+  }
+
   private void recordInternal(Map<TagKey, TagValue> tags) {
     if (hasUnsupportedValues) {
       // drop all the recorded values

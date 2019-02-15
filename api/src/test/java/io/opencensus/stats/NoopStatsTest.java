@@ -146,6 +146,14 @@ public final class NoopStatsTest {
   }
 
   @Test
+  public void noopStatsRecorder_RecordWithTags_DisallowNullTagContext() {
+    MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("tagContext");
+    measureMap.recordWithTags(null, Collections.<Tag>emptyList());
+  }
+
+  @Test
   public void noopStatsRecorder_RecordWithTags_DisallowNullTag() {
     MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
     thrown.expect(NullPointerException.class);
