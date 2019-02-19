@@ -25,10 +25,12 @@ import io.opencensus.metrics.export.MetricProducer;
 import io.opencensus.metrics.export.MetricProducerManager;
 import io.opencensus.proto.agent.metrics.v1.ExportMetricsServiceRequest;
 import io.opencensus.proto.agent.metrics.v1.MetricsServiceGrpc;
+import io.opencensus.proto.resource.v1.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -94,12 +96,13 @@ final class OcAgentMetricsExporterWorker implements Runnable {
     ManagedChannel channel = channelBuilder.build();
     MetricsServiceGrpc.MetricsServiceStub stub = MetricsServiceGrpc.newStub(channel);
     exportRpcHandler = OcAgentMetricsServiceExportRpcHandler.create(stub);
-    ExportMetricsServiceRequest firstRequest =
-        ExportMetricsServiceRequest.newBuilder()
-            .setNode(OcAgentNodeUtils.getNodeInfo(serviceName))
-            .setResource(OcAgentNodeUtils.getAutoDetectedResourceProto())
-            .build();
-    exportRpcHandler.onExport(firstRequest);
+    ExportMetricsServiceRequest.Builder builder =
+        ExportMetricsServiceRequest.newBuilder().setNode(OcAgentNodeUtils.getNodeInfo(serviceName));
+    @Nullable Resource resourceProto = OcAgentNodeUtils.getAutoDetectedResourceProto();
+    if (resourceProto != null) {
+      builder.setResource(resourceProto);
+    }
+    exportRpcHandler.onExport(builder.build());
   }
 
   // Polls MetricProducerManager from Metrics library for all registered MetricDescriptors,
@@ -127,11 +130,9 @@ final class OcAgentMetricsExporterWorker implements Runnable {
     }
 
     exportRpcHandler.onExport(
-        ExportMetricsServiceRequest.newBuilder()
-            // TODO(songya): resource proto may not be necessary for following requests.
-            .setResource(OcAgentNodeUtils.getAutoDetectedResourceProto())
-            .addAllMetrics(metricProtos)
-            .build());
+        // For now don't include Resource in the following messages, i.e don't allow Resource to
+        // mutate after the initial message.
+        ExportMetricsServiceRequest.newBuilder().addAllMetrics(metricProtos).build());
   }
 
   private static void sleep(long timeInMillis) {
