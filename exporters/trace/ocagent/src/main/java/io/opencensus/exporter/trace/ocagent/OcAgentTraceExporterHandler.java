@@ -16,6 +16,7 @@
 
 package io.opencensus.exporter.trace.ocagent;
 
+import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter.Handler;
@@ -30,13 +31,14 @@ final class OcAgentTraceExporterHandler extends Handler {
   // private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
 
   OcAgentTraceExporterHandler() {
-    this(null, null, null, null, /* enableConfig= */ true);
+    this(null, null, null, null, null, /* enableConfig= */ true);
   }
 
   OcAgentTraceExporterHandler(
       @Nullable String endPoint,
       @Nullable String serviceName,
       @Nullable Boolean useInsecure,
+      @Nullable SslContext sslContext,
       @Nullable Duration retryInterval,
       boolean enableConfig) {
     // if (endPoint == null) {

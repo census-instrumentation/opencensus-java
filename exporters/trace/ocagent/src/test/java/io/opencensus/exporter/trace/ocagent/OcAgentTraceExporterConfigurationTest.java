@@ -18,7 +18,10 @@ package io.opencensus.exporter.trace.ocagent;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.opencensus.common.Duration;
+import javax.net.ssl.SSLException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -33,25 +36,29 @@ public class OcAgentTraceExporterConfigurationTest {
         OcAgentTraceExporterConfiguration.builder().build();
     assertThat(configuration.getEndPoint()).isNull();
     assertThat(configuration.getServiceName()).isNull();
-    assertThat(configuration.getUseInsecure()).isNull();
+    assertThat(configuration.getUseInsecure()).isTrue();
+    assertThat(configuration.getSslContext()).isNull();
     assertThat(configuration.getRetryInterval()).isNull();
     assertThat(configuration.getEnableConfig()).isTrue();
   }
 
   @Test
-  public void setAndGet() {
+  public void setAndGet() throws SSLException {
     Duration oneMinute = Duration.create(60, 0);
+    SslContext sslContext = SslContextBuilder.forClient().build();
     OcAgentTraceExporterConfiguration configuration =
         OcAgentTraceExporterConfiguration.builder()
             .setEndPoint("192.168.0.1:50051")
             .setServiceName("service")
-            .setUseInsecure(true)
+            .setUseInsecure(false)
+            .setSslContext(sslContext)
             .setRetryInterval(oneMinute)
             .setEnableConfig(false)
             .build();
     assertThat(configuration.getEndPoint()).isEqualTo("192.168.0.1:50051");
     assertThat(configuration.getServiceName()).isEqualTo("service");
-    assertThat(configuration.getUseInsecure()).isTrue();
+    assertThat(configuration.getUseInsecure()).isFalse();
+    assertThat(configuration.getSslContext()).isEqualTo(sslContext);
     assertThat(configuration.getRetryInterval()).isEqualTo(oneMinute);
     assertThat(configuration.getEnableConfig()).isFalse();
   }

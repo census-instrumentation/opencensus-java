@@ -186,6 +186,7 @@ General guidelines on imports:
       <subpackage name="ocagent">
         <allow pkg="com.google.protobuf"/>
         <allow pkg="io.grpc"/>
+        <allow pkg="io.netty.handler.ssl"/>
         <allow pkg="io.opencensus.contrib.opencensus.proto.util"/>
         <allow pkg="io.opencensus.contrib.resource.util"/>
         <allow pkg="io.opencensus.exporter.metrics.ocagent"/>
@@ -231,6 +232,7 @@ General guidelines on imports:
       <subpackage name="ocagent">
         <allow pkg="com.google.protobuf"/>
         <allow pkg="io.grpc"/>
+        <allow pkg="io.netty.handler.ssl"/>
         <allow pkg="io.opencensus.contrib.resource.util"/>
         <allow pkg="io.opencensus.contrib.opencensus.proto.util"/>
         <allow pkg="io.opencensus.exporter.trace.ocagent"/>

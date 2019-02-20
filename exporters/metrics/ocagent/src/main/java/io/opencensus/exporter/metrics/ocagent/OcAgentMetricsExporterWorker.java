@@ -19,6 +19,9 @@ package io.opencensus.exporter.metrics.ocagent;
 import com.google.common.collect.Lists;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.NegotiationType;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricProducer;
@@ -49,6 +52,7 @@ final class OcAgentMetricsExporterWorker implements Runnable {
 
   private final String endPoint;
   private final boolean useInsecure;
+  @Nullable private final SslContext sslContext;
   private final long exportIntervalMillis;
   private final long retryIntervalMillis;
   private final String serviceName;
@@ -59,12 +63,14 @@ final class OcAgentMetricsExporterWorker implements Runnable {
   OcAgentMetricsExporterWorker(
       String endPoint,
       boolean useInsecure,
+      @Nullable SslContext sslContext,
       Duration exportInterval,
       Duration retryInterval,
       String serviceName,
       MetricProducerManager metricProducerManager) {
     this.endPoint = endPoint;
     this.useInsecure = useInsecure;
+    this.sslContext = sslContext;
     this.exportIntervalMillis = exportInterval.toMillis();
     this.retryIntervalMillis = retryInterval.toMillis();
     this.serviceName = serviceName;
@@ -89,9 +95,14 @@ final class OcAgentMetricsExporterWorker implements Runnable {
   }
 
   private void connect() {
-    ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forTarget(endPoint);
+    ManagedChannelBuilder<?> channelBuilder;
     if (useInsecure) {
-      channelBuilder.usePlaintext();
+      channelBuilder = ManagedChannelBuilder.forTarget(endPoint).usePlaintext();
+    } else {
+      channelBuilder =
+          NettyChannelBuilder.forTarget(endPoint)
+              .negotiationType(NegotiationType.TLS)
+              .sslContext(sslContext);
     }
     ManagedChannel channel = channelBuilder.build();
     MetricsServiceGrpc.MetricsServiceStub stub = MetricsServiceGrpc.newStub(channel);
