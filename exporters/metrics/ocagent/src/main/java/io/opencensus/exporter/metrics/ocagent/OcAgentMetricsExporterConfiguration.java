@@ -17,6 +17,7 @@
 package io.opencensus.exporter.metrics.ocagent;
 
 import com.google.auto.value.AutoValue;
+import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -49,6 +50,15 @@ public abstract class OcAgentMetricsExporterConfiguration {
    */
   @Nullable
   public abstract Boolean getUseInsecure();
+
+  /**
+   * Returns the {@link SslContext} for secure TLS gRPC connection.
+   *
+   * @return the {@code SslContext}.
+   * @since 0.20
+   */
+  @Nullable
+  public abstract SslContext getSslContext();
 
   /**
    * Returns the service name to be used for the {@code OcAgentMetricsExporter}.
@@ -84,7 +94,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
    * @since 0.19
    */
   public static Builder builder() {
-    return new AutoValue_OcAgentMetricsExporterConfiguration.Builder();
+    return new AutoValue_OcAgentMetricsExporterConfiguration.Builder().setUseInsecure(true);
   }
 
   /**
@@ -115,6 +125,15 @@ public abstract class OcAgentMetricsExporterConfiguration {
      * @since 0.19
      */
     public abstract Builder setUseInsecure(Boolean useInsecure);
+
+    /**
+     * Sets the {@link SslContext} for secure TLS gRPC connection.
+     *
+     * @param sslContext the {@code SslContext}.
+     * @return this.
+     * @since 0.20
+     */
+    public abstract Builder setSslContext(SslContext sslContext);
 
     /**
      * Sets the service name to be used for the {@code OcAgentMetricsExporter}.

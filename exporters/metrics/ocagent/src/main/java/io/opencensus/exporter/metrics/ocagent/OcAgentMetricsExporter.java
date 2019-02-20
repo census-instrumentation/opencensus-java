@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
 import io.opencensus.metrics.Metrics;
 import io.opencensus.metrics.export.MetricProducerManager;
@@ -71,6 +72,7 @@ public final class OcAgentMetricsExporter {
     createInternal(
         configuration.getEndPoint(),
         configuration.getUseInsecure(),
+        configuration.getSslContext(),
         configuration.getServiceName(),
         configuration.getExportInterval(),
         configuration.getRetryInterval());
@@ -79,6 +81,7 @@ public final class OcAgentMetricsExporter {
   private static void createInternal(
       @Nullable String endPoint,
       @Nullable Boolean useInsecure,
+      @Nullable SslContext sslContext,
       @Nullable String serviceName,
       @Nullable Duration exportInterval,
       @Nullable Duration retryInterval) {
@@ -88,6 +91,8 @@ public final class OcAgentMetricsExporter {
     if (useInsecure == null) {
       useInsecure = false;
     }
+    checkArgument(
+        useInsecure == (sslContext == null), "Either use insecure or provide a valid SslContext.");
     if (serviceName == null || serviceName.isEmpty()) {
       serviceName = DEFAULT_SERVICE_NAME;
     }
@@ -103,6 +108,7 @@ public final class OcAgentMetricsExporter {
           new OcAgentMetricsExporter(
               endPoint,
               useInsecure,
+              sslContext,
               serviceName,
               exportInterval,
               retryInterval,
@@ -114,6 +120,7 @@ public final class OcAgentMetricsExporter {
   private OcAgentMetricsExporter(
       String endPoint,
       Boolean useInsecure,
+      @Nullable SslContext sslContext,
       String serviceName,
       Duration exportInterval,
       Duration retryInterval,
@@ -124,6 +131,7 @@ public final class OcAgentMetricsExporter {
         new OcAgentMetricsExporterWorker(
             endPoint,
             useInsecure,
+            sslContext,
             exportInterval,
             retryInterval,
             serviceName,
