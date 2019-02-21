@@ -173,7 +173,7 @@ subprojects {
         prometheusVersion = '0.6.0'
         protobufVersion = '3.6.1'
         zipkinReporterVersion = '2.7.14'
-        jaegerReporterVersion = '0.27.0'
+        jaegerReporterVersion = '0.33.1'
         opencensusProtoVersion = '0.1.0'
         gsonVersion = '2.8.5'
         dropwizardVersion = '3.1.2'
@@ -195,7 +195,7 @@ subprojects {
                 log4j2: "org.apache.logging.log4j:log4j-core:${log4j2Version}",
                 zipkin_reporter: "io.zipkin.reporter2:zipkin-reporter:${zipkinReporterVersion}",
                 zipkin_urlconnection: "io.zipkin.reporter2:zipkin-sender-urlconnection:${zipkinReporterVersion}",
-                jaeger_reporter: "com.uber.jaeger:jaeger-core:${jaegerReporterVersion}",
+                jaeger_reporter: "io.jaegertracing:jaeger-client:${jaegerReporterVersion}",
                 google_cloud_monitoring: "com.google.cloud:google-cloud-monitoring:${googleCloudGaVersion}",
                 grpc_context: "io.grpc:grpc-context:${grpcVersion}",
                 grpc_core: "io.grpc:grpc-core:${grpcVersion}",
