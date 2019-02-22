@@ -27,6 +27,7 @@ import io.opencensus.contrib.http.util.testing.FakeSpan;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.Tags;
 import io.opencensus.trace.EndSpanOptions;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -72,6 +73,7 @@ public class HttpClientHandlerTest {
   private final FakeSpan childSpan = new FakeSpan(parentSpan.getContext(), null);
   @Captor private ArgumentCaptor<EndSpanOptions> optionsCaptor;
   private final TagContext tagContext = Tags.getTagger().getCurrentTagContext();
+  @Captor private ArgumentCaptor<Kind> kindArgumentCaptor;
 
   @Before
   public void setUp() {
@@ -81,6 +83,7 @@ public class HttpClientHandlerTest {
             tracer, extractor, textFormat, textFormatSetter);
     when(tracer.spanBuilderWithExplicitParent(any(String.class), same(parentSpan)))
         .thenReturn(spanBuilder);
+    when(spanBuilder.setSpanKind(any(Kind.class))).thenReturn(spanBuilder);
     when(spanBuilder.startSpan()).thenReturn(childSpan);
   }
 
@@ -126,6 +129,15 @@ public class HttpClientHandlerTest {
   public void handleStartShouldInjectCarrier() {
     handler.handleStart(parentSpan, carrier, request);
     verify(textFormat).inject(same(spanContext), same(carrier), same(textFormatSetter));
+  }
+
+  @Test
+  public void handleStartShouldSetKindToClient() {
+    handler.handleStart(parentSpan, carrier, request);
+    verify(spanBuilder).setSpanKind(kindArgumentCaptor.capture());
+
+    Kind kind = kindArgumentCaptor.getValue();
+    assertThat(kind).isEqualTo(Kind.CLIENT);
   }
 
   @Test

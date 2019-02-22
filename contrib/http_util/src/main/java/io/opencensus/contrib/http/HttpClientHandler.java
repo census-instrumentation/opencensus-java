@@ -32,6 +32,7 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
 import io.opencensus.trace.Span;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
@@ -112,7 +113,7 @@ public class HttpClientHandler<
     }
     String spanName = getSpanName(request, extractor);
     SpanBuilder builder = tracer.spanBuilderWithExplicitParent(spanName, parent);
-    Span span = builder.startSpan();
+    Span span = builder.setSpanKind(Kind.CLIENT).startSpan();
 
     if (span.getOptions().contains(Options.RECORD_EVENTS)) {
       addSpanRequestAttributes(span, request, extractor);

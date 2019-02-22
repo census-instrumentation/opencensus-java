@@ -29,6 +29,7 @@ import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.Link.Type;
 import io.opencensus.trace.Span;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -78,6 +79,7 @@ public class HttpServerHandlerTest {
   @Mock private TextFormat.Getter<Object> textFormatGetter;
   @Mock private HttpExtractor<Object, Object> extractor;
   @Captor private ArgumentCaptor<Link> captor;
+  @Captor private ArgumentCaptor<Kind> kindArgumentCaptor;
   @Captor private ArgumentCaptor<EndSpanOptions> optionsCaptor;
   private HttpServerHandler<Object, Object, Object> handler;
   private HttpServerHandler<Object, Object, Object> handlerForPublicEndpoint;
@@ -101,6 +103,10 @@ public class HttpServerHandlerTest {
     when(tracer.spanBuilderWithRemoteParent(any(String.class), same(spanContextRemote)))
         .thenReturn(spanBuilderWithRemoteParent);
     when(tracer.spanBuilderWithExplicitParent(any(String.class), any(Span.class)))
+        .thenReturn(spanBuilderWithLocalParent);
+    when(spanBuilderWithRemoteParent.setSpanKind(any(Kind.class)))
+        .thenReturn(spanBuilderWithRemoteParent);
+    when(spanBuilderWithLocalParent.setSpanKind(any(Kind.class)))
         .thenReturn(spanBuilderWithLocalParent);
     when(spanBuilderWithRemoteParent.startSpan()).thenReturn(spanWithRemoteParent);
     when(spanBuilderWithLocalParent.startSpan()).thenReturn(spanWithLocalParent);
@@ -146,6 +152,15 @@ public class HttpServerHandlerTest {
   public void handleStartShouldExtractFromCarrier() throws SpanContextParseException {
     handler.handleStart(carrier, request);
     verify(textFormat).extract(same(carrier), same(textFormatGetter));
+  }
+
+  @Test
+  public void handleStartShouldSetKindToServer() throws SpanContextParseException {
+    handler.handleStart(carrier, request);
+    verify(spanBuilderWithRemoteParent).setSpanKind(kindArgumentCaptor.capture());
+
+    Kind kind = kindArgumentCaptor.getValue();
+    assertThat(kind).isEqualTo(Kind.SERVER);
   }
 
   @Test
