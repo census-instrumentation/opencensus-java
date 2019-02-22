@@ -135,6 +135,13 @@ public final class NoopTagsTest {
   }
 
   @Test
+  public void noopTagContextBuilder_Put_DisallowsNullTagMetadata() {
+    TagContextBuilder noopBuilder = NoopTags.getNoopTagContextBuilder();
+    thrown.expect(NullPointerException.class);
+    noopBuilder.put(KEY, VALUE, null);
+  }
+
+  @Test
   public void noopTagContextBuilder_Remove_DisallowsNullKey() {
     TagContextBuilder noopBuilder = NoopTags.getNoopTagContextBuilder();
     thrown.expect(NullPointerException.class);

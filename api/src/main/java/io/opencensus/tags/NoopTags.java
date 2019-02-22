@@ -157,6 +157,14 @@ final class NoopTags {
     }
 
     @Override
+    public TagContextBuilder put(TagKey key, TagValue value, TagMetadata tagMetadata) {
+      Utils.checkNotNull(key, "key");
+      Utils.checkNotNull(value, "value");
+      Utils.checkNotNull(tagMetadata, "tagMetadata");
+      return null;
+    }
+
+    @Override
     public TagContextBuilder remove(TagKey key) {
       Utils.checkNotNull(key, "key");
       return this;
