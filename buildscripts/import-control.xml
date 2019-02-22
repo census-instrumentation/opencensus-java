@@ -225,7 +225,7 @@ General guidelines on imports:
         <allow pkg="io.opencensus.exporter.trace.instana"/>
       </subpackage>
       <subpackage name="jaeger">
-        <allow pkg="com.uber.jaeger"/>
+        <allow pkg="io.jaegertracing"/>
         <allow pkg="io.opencensus.exporter.trace.jaeger"/>
         <allow pkg="org.apache.thrift"/>
       </subpackage>
