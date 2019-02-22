@@ -31,6 +31,7 @@ final class NoopTagMapBuilder extends TagContextBuilder {
   private NoopTagMapBuilder() {}
 
   @Override
+  @SuppressWarnings("deprecation")
   public TagContextBuilder put(TagKey key, TagValue value) {
     return this;
   }

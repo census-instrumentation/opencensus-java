@@ -43,6 +43,7 @@ final class TagMapBuilderImpl extends TagContextBuilder {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public TagMapBuilderImpl put(TagKey key, TagValue value) {
     put(key, value, METADATA_UNLIMITED_PROPAGATION);
     return this;

@@ -166,6 +166,7 @@ public class HttpServerHandler<
     spanEnd(context.span, response, error);
   }
 
+  @SuppressWarnings("deprecation")
   private void recordStats(
       HttpRequestContext context, Q request, @Nullable P response, @Nullable Throwable error) {
     double requestLatency = NANOSECONDS.toMillis(System.nanoTime() - context.requestStartTime);

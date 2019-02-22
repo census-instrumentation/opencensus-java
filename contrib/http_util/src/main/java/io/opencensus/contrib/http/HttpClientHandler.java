@@ -150,6 +150,7 @@ public class HttpClientHandler<
     spanEnd(context.span, response, error);
   }
 
+  @SuppressWarnings("deprecation")
   private void recordStats(
       HttpRequestContext context,
       @Nullable Q request,
