@@ -24,6 +24,8 @@ import io.opencensus.implcore.tags.TagsTestUtil;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagMetadata;
+import io.opencensus.tags.TagMetadata.TagTtl;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.TagsComponent;
@@ -47,11 +49,25 @@ public final class TagContextBinarySerializerImplTest {
   private final TagContextBinarySerializer serializer =
       tagsComponent.getTagPropagationComponent().getBinarySerializer();
 
+  private static final TagMetadata METADATA_NO_PROPAGATION =
+      TagMetadata.create(TagTtl.NO_PROPAGATION);
+
   private final TagContext tagContext =
       new TagContext() {
         @Override
         public Iterator<Tag> getIterator() {
           return ImmutableSet.<Tag>of(Tag.create(TagKey.create("key"), TagValue.create("value")))
+              .iterator();
+        }
+      };
+
+  private final TagContext tagContextWithNonPropagatingTag =
+      new TagContext() {
+        @Override
+        public Iterator<Tag> getIterator() {
+          return ImmutableSet.<Tag>of(
+                  Tag.create(
+                      TagKey.create("key"), TagValue.create("value"), METADATA_NO_PROPAGATION))
               .iterator();
         }
       };
@@ -71,6 +87,12 @@ public final class TagContextBinarySerializerImplTest {
     assertThat(serializer.toByteArray(tagContext)).isEmpty();
     tagsComponent.setState(TaggingState.ENABLED);
     assertThat(serializer.toByteArray(tagContext)).isEqualTo(serialized);
+  }
+
+  @Test
+  public void toByteArray_SkipNonPropagatingTag() throws TagContextSerializationException {
+    byte[] versionIdBytes = new byte[] {SerializationUtils.VERSION_ID};
+    assertThat(serializer.toByteArray(tagContextWithNonPropagatingTag)).isEqualTo(versionIdBytes);
   }
 
   @Test

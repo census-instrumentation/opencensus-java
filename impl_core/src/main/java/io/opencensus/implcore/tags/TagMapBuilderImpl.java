@@ -21,24 +21,39 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import io.opencensus.common.Scope;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagMetadata;
+import io.opencensus.tags.TagMetadata.TagTtl;
 import io.opencensus.tags.TagValue;
 import java.util.HashMap;
 import java.util.Map;
 
 final class TagMapBuilderImpl extends TagContextBuilder {
-  private final Map<TagKey, TagValue> tags;
 
-  TagMapBuilderImpl(Map<TagKey, TagValue> tags) {
-    this.tags = new HashMap<TagKey, TagValue>(tags);
+  private static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
+      TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
+
+  private final Map<TagKey, TagValueWithMetadata> tags;
+
+  TagMapBuilderImpl(Map<TagKey, TagValueWithMetadata> tags) {
+    this.tags = new HashMap<TagKey, TagValueWithMetadata>(tags);
   }
 
   TagMapBuilderImpl() {
-    this.tags = new HashMap<TagKey, TagValue>();
+    this.tags = new HashMap<TagKey, TagValueWithMetadata>();
   }
 
   @Override
   public TagMapBuilderImpl put(TagKey key, TagValue value) {
-    tags.put(checkNotNull(key, "key"), checkNotNull(value, "value"));
+    put(key, value, METADATA_UNLIMITED_PROPAGATION);
+    return this;
+  }
+
+  @Override
+  public TagContextBuilder put(TagKey key, TagValue value, TagMetadata tagMetadata) {
+    TagValueWithMetadata valueWithMetadata =
+        TagValueWithMetadata.create(
+            checkNotNull(value, "value"), checkNotNull(tagMetadata, "tagMetadata"));
+    tags.put(checkNotNull(key, "key"), valueWithMetadata);
     return this;
   }
 

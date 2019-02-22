@@ -28,6 +28,6 @@ final class TagContextUtils {
    * @param builder the builder to update.
    */
   static void addTagToBuilder(Tag tag, TagMapBuilderImpl builder) {
-    builder.put(tag.getKey(), tag.getValue());
+    builder.put(tag.getKey(), tag.getValue(), tag.getTagMetadata());
   }
 }

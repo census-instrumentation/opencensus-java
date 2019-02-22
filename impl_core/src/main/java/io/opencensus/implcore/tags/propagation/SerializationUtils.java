@@ -22,10 +22,13 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.implcore.tags.TagMapImpl;
+import io.opencensus.implcore.tags.TagValueWithMetadata;
 import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagMetadata;
+import io.opencensus.tags.TagMetadata.TagTtl;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.propagation.TagContextDeserializationException;
 import io.opencensus.tags.propagation.TagContextSerializationException;
@@ -64,6 +67,10 @@ import java.util.Map;
  * </ul>
  */
 final class SerializationUtils {
+
+  private static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
+      TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
+
   private SerializationUtils() {}
 
   @VisibleForTesting static final int VERSION_ID = 0;
@@ -80,6 +87,9 @@ final class SerializationUtils {
     int totalChars = 0; // Here chars are equivalent to bytes, since we're using ascii chars.
     for (Iterator<Tag> i = InternalUtils.getTags(tags); i.hasNext(); ) {
       Tag tag = i.next();
+      if (TagTtl.NO_PROPAGATION.equals(tag.getTagMetadata().getTagTtl())) {
+        continue;
+      }
       totalChars += tag.getKey().getName().length();
       totalChars += tag.getValue().asString().length();
       encodeTag(tag, byteArrayDataOutput);
@@ -113,9 +123,9 @@ final class SerializationUtils {
     }
   }
 
-  private static Map<TagKey, TagValue> parseTags(ByteBuffer buffer)
+  private static Map<TagKey, TagValueWithMetadata> parseTags(ByteBuffer buffer)
       throws TagContextDeserializationException {
-    Map<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
+    Map<TagKey, TagValueWithMetadata> tags = new HashMap<TagKey, TagValueWithMetadata>();
     int limit = buffer.limit();
     int totalChars = 0; // Here chars are equivalent to bytes, since we're using ascii chars.
     while (buffer.position() < limit) {
@@ -125,7 +135,7 @@ final class SerializationUtils {
         TagValue val = createTagValue(key, decodeString(buffer));
         totalChars += key.getName().length();
         totalChars += val.asString().length();
-        tags.put(key, val);
+        tags.put(key, TagValueWithMetadata.create(val, METADATA_UNLIMITED_PROPAGATION));
       } else {
         // Stop parsing at the first unknown field ID, since there is no way to know its length.
         // TODO(sebright): Consider storing the rest of the byte array in the TagContext.

@@ -19,7 +19,6 @@ package io.opencensus.implcore.tags;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,18 +32,19 @@ import javax.annotation.concurrent.Immutable;
 public final class TagMapImpl extends TagContext {
 
   /** Empty {@link TagMapImpl} with no tags. */
-  public static final TagMapImpl EMPTY = new TagMapImpl(Collections.<TagKey, TagValue>emptyMap());
+  public static final TagMapImpl EMPTY =
+      new TagMapImpl(Collections.<TagKey, TagValueWithMetadata>emptyMap());
 
   // The types of the TagKey and value must match for each entry.
-  private final Map<TagKey, TagValue> tags;
+  private final Map<TagKey, TagValueWithMetadata> tags;
 
   /**
    * Creates a new {@link TagMapImpl} with the given tags.
    *
    * @param tags the initial tags for this {@code TagMapImpl}.
    */
-  public TagMapImpl(Map<? extends TagKey, ? extends TagValue> tags) {
-    this.tags = Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags));
+  public TagMapImpl(Map<? extends TagKey, ? extends TagValueWithMetadata> tags) {
+    this.tags = Collections.unmodifiableMap(new HashMap<TagKey, TagValueWithMetadata>(tags));
   }
 
   /**
@@ -52,7 +52,7 @@ public final class TagMapImpl extends TagContext {
    *
    * @return the tags.
    */
-  public Map<TagKey, TagValue> getTags() {
+  public Map<TagKey, TagValueWithMetadata> getTags() {
     return tags;
   }
 
@@ -71,9 +71,9 @@ public final class TagMapImpl extends TagContext {
   }
 
   private static final class TagIterator implements Iterator<Tag> {
-    Iterator<Map.Entry<TagKey, TagValue>> iterator;
+    Iterator<Map.Entry<TagKey, TagValueWithMetadata>> iterator;
 
-    TagIterator(Map<TagKey, TagValue> tags) {
+    TagIterator(Map<TagKey, TagValueWithMetadata> tags) {
       iterator = tags.entrySet().iterator();
     }
 
@@ -84,8 +84,10 @@ public final class TagMapImpl extends TagContext {
 
     @Override
     public Tag next() {
-      final Entry<TagKey, TagValue> next = iterator.next();
-      return Tag.create(next.getKey(), next.getValue());
+      final Entry<TagKey, TagValueWithMetadata> next = iterator.next();
+      TagValueWithMetadata valueWithMetadata = next.getValue();
+      return Tag.create(
+          next.getKey(), valueWithMetadata.getTagValue(), valueWithMetadata.getTagMetadata());
     }
 
     @Override

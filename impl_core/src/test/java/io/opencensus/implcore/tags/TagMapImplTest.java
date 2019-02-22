@@ -29,6 +29,8 @@ import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagMetadata;
+import io.opencensus.tags.TagMetadata.TagTtl;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import java.util.Arrays;
@@ -43,11 +45,14 @@ import org.junit.runners.JUnit4;
 /**
  * Tests for {@link TagMapImpl} and {@link TagMapBuilderImpl}.
  *
- * <p>Tests for {@link TagMapBuilderImpl#buildScoped()} are in {@link ScopedTagContextsTest}.
+ * <p>Tests for {@link TagMapBuilderImpl#buildScoped()} are in {@link ScopedTagMapTest}.
  */
 @RunWith(JUnit4.class)
 public class TagMapImplTest {
   private final Tagger tagger = new TaggerImpl(new CurrentState(State.ENABLED));
+
+  private static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
+      TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
 
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
@@ -55,37 +60,42 @@ public class TagMapImplTest {
   private static final TagValue V1 = TagValue.create("v1");
   private static final TagValue V2 = TagValue.create("v2");
 
+  private static final TagValueWithMetadata VM1 =
+      TagValueWithMetadata.create(V1, METADATA_UNLIMITED_PROPAGATION);
+  private static final TagValueWithMetadata VM2 =
+      TagValueWithMetadata.create(V2, METADATA_UNLIMITED_PROPAGATION);
+
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void getTags_empty() {
-    TagMapImpl tags = new TagMapImpl(ImmutableMap.<TagKey, TagValue>of());
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.<TagKey, TagValueWithMetadata>of());
     assertThat(tags.getTags()).isEmpty();
   }
 
   @Test
   public void getTags_nonEmpty() {
-    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
-    assertThat(tags.getTags()).containsExactly(K1, V1, K2, V2);
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, VM1, K2, VM2));
+    assertThat(tags.getTags()).containsExactly(K1, VM1, K2, VM2);
   }
 
   @Test
   public void put_newKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, VM1));
     assertThat(((TagMapImpl) tagger.toBuilder(tags).put(K2, V2).build()).getTags())
-        .containsExactly(K1, V1, K2, V2);
+        .containsExactly(K1, VM1, K2, VM2);
   }
 
   @Test
   public void put_existingKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, VM1));
     assertThat(((TagMapImpl) tagger.toBuilder(tags).put(K1, V2).build()).getTags())
-        .containsExactly(K1, V2);
+        .containsExactly(K1, VM2);
   }
 
   @Test
   public void put_nullKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, VM1));
     TagContextBuilder builder = tagger.toBuilder(tags);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key");
@@ -94,7 +104,7 @@ public class TagMapImplTest {
 
   @Test
   public void put_nullValue() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, VM1));
     TagContextBuilder builder = tagger.toBuilder(tags);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("value");
@@ -103,21 +113,21 @@ public class TagMapImplTest {
 
   @Test
   public void remove_existingKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, VM1, K2, VM2));
     assertThat(((TagMapImpl) tagger.toBuilder(tags).remove(K1).build()).getTags())
-        .containsExactly(K2, V2);
+        .containsExactly(K2, VM2);
   }
 
   @Test
   public void remove_differentKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, VM1));
     assertThat(((TagMapImpl) tagger.toBuilder(tags).remove(K2).build()).getTags())
-        .containsExactly(K1, V1);
+        .containsExactly(K1, VM1);
   }
 
   @Test
   public void remove_nullKey() {
-    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, V1));
+    TagContext tags = new TagMapImpl(ImmutableMap.of(K1, VM1));
     TagContextBuilder builder = tagger.toBuilder(tags);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key");
@@ -126,7 +136,7 @@ public class TagMapImplTest {
 
   @Test
   public void testIterator() {
-    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, VM1, K2, VM2));
     Iterator<Tag> i = tags.getIterator();
     assertTrue(i.hasNext());
     Tag tag1 = i.next();
@@ -140,7 +150,7 @@ public class TagMapImplTest {
 
   @Test
   public void disallowCallingRemoveOnIterator() {
-    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, V1, K2, V2));
+    TagMapImpl tags = new TagMapImpl(ImmutableMap.of(K1, VM1, K2, VM2));
     Iterator<Tag> i = tags.getIterator();
     i.next();
     thrown.expect(UnsupportedOperationException.class);
