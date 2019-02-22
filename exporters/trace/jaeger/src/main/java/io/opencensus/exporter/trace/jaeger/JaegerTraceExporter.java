@@ -19,8 +19,8 @@ package io.opencensus.exporter.trace.jaeger;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.uber.jaeger.senders.HttpSender;
-import com.uber.jaeger.thriftjava.Process;
+import io.jaegertracing.thrift.internal.senders.HttpSender;
+import io.jaegertracing.thriftjava.Process;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
 import javax.annotation.Nullable;
@@ -88,7 +88,7 @@ public final class JaegerTraceExporter {
 
   private static SpanExporter.Handler newHandler(
       final String thriftEndpoint, final String serviceName) {
-    final HttpSender sender = new HttpSender(thriftEndpoint);
+    final HttpSender sender = new HttpSender.Builder(thriftEndpoint).build();
     final Process process = new Process(serviceName);
     return new JaegerExporterHandler(sender, process);
   }

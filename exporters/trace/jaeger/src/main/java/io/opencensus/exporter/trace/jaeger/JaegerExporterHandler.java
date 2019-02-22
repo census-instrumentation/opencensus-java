@@ -25,15 +25,15 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import com.google.errorprone.annotations.MustBeClosed;
-import com.uber.jaeger.exceptions.SenderException;
-import com.uber.jaeger.senders.HttpSender;
-import com.uber.jaeger.thriftjava.Log;
-import com.uber.jaeger.thriftjava.Process;
-import com.uber.jaeger.thriftjava.Span;
-import com.uber.jaeger.thriftjava.SpanRef;
-import com.uber.jaeger.thriftjava.SpanRefType;
-import com.uber.jaeger.thriftjava.Tag;
-import com.uber.jaeger.thriftjava.TagType;
+import io.jaegertracing.internal.exceptions.SenderException;
+import io.jaegertracing.thrift.internal.senders.HttpSender;
+import io.jaegertracing.thriftjava.Log;
+import io.jaegertracing.thriftjava.Process;
+import io.jaegertracing.thriftjava.Span;
+import io.jaegertracing.thriftjava.SpanRef;
+import io.jaegertracing.thriftjava.SpanRefType;
+import io.jaegertracing.thriftjava.Tag;
+import io.jaegertracing.thriftjava.TagType;
 import io.opencensus.common.Function;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
@@ -205,7 +205,7 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
     final SpanContext context = spanData.getContext();
     copyToBuffer(context.getTraceId());
 
-    return new com.uber.jaeger.thriftjava.Span(
+    return new io.jaegertracing.thriftjava.Span(
             traceIdLow(),
             traceIdHigh(),
             spanIdToLong(context.getSpanId()),
