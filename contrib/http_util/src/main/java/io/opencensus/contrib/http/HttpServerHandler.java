@@ -35,6 +35,7 @@ import io.opencensus.tags.Tags;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.Link.Type;
 import io.opencensus.trace.Span;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
@@ -132,7 +133,7 @@ public class HttpServerHandler<
       spanBuilder = tracer.spanBuilderWithRemoteParent(spanName, spanContext);
     }
 
-    Span span = spanBuilder.startSpan();
+    Span span = spanBuilder.setSpanKind(Kind.SERVER).startSpan();
     if (publicEndpoint && spanContext != null) {
       span.addLink(Link.fromSpanContext(spanContext, Type.PARENT_LINKED_SPAN));
     }
