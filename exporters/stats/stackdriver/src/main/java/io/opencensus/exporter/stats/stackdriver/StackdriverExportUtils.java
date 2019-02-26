@@ -383,8 +383,10 @@ final class StackdriverExportUtils {
     builder.addBucketCounts(0L);
     for (Bucket bucket : buckets) {
       builder.addBucketCounts(bucket.getCount());
-      if (bucket.getExemplar() != null) {
-        builder.addExemplars(toProtoExemplar(bucket.getExemplar()));
+      @javax.annotation.Nullable
+      io.opencensus.metrics.export.Distribution.Exemplar exemplar = bucket.getExemplar();
+      if (exemplar != null) {
+        builder.addExemplars(toProtoExemplar(exemplar));
       }
     }
   }
