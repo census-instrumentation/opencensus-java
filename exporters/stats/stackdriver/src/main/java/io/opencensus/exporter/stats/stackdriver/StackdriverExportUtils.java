@@ -19,6 +19,7 @@ package io.opencensus.exporter.stats.stackdriver;
 import com.google.api.Distribution;
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
+import com.google.api.Distribution.Exemplar;
 import com.google.api.LabelDescriptor;
 import com.google.api.LabelDescriptor.ValueType;
 import com.google.api.Metric;
@@ -34,6 +35,8 @@ import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
@@ -105,6 +108,15 @@ final class StackdriverExportUtils {
 
   @VisibleForTesting static final String SUMMARY_SUFFIX_COUNT = "_summary_count";
   @VisibleForTesting static final String SUMMARY_SUFFIX_SUM = "_summary_sum";
+
+  @VisibleForTesting
+  static final String EXEMPLAR_ATTACHMENT_TYPE_STRING =
+      "type.googleapis.com/google.protobuf.StringValue";
+  // TODO: currently Stackdriver Monitoring only accepts string attachment.
+  // private static final String EXEMPLAR_ATTACHMENT_TYPE_TRACE_ID =
+  //     "type.googleapis.com/google.devtools.cloudtrace.v1.Trace";
+  // private static final String EXEMPLAR_ATTACHMENT_TYPE_DROPPED_LABELS =
+  //     "type.googleapis.com/google.monitoring.v3.DroppedLabels";
 
   // Constant functions for TypedValue.
   private static final Function<Double, TypedValue> typedValueDoubleFunction =
@@ -337,13 +349,15 @@ final class StackdriverExportUtils {
   // Convert a OpenCensus Distribution to a StackDriver Distribution
   @VisibleForTesting
   static Distribution createDistribution(io.opencensus.metrics.export.Distribution distribution) {
-    return Distribution.newBuilder()
-        .setBucketOptions(createBucketOptions(distribution.getBucketOptions()))
-        .addAllBucketCounts(createBucketCounts(distribution.getBuckets()))
-        .setCount(distribution.getCount())
-        .setMean(distribution.getCount() == 0 ? 0 : distribution.getSum() / distribution.getCount())
-        .setSumOfSquaredDeviation(distribution.getSumOfSquaredDeviations())
-        .build();
+    Distribution.Builder builder =
+        Distribution.newBuilder()
+            .setBucketOptions(createBucketOptions(distribution.getBucketOptions()))
+            .setCount(distribution.getCount())
+            .setMean(
+                distribution.getCount() == 0 ? 0 : distribution.getSum() / distribution.getCount())
+            .setSumOfSquaredDeviation(distribution.getSumOfSquaredDeviations());
+    setBucketCountsAndExemplars(distribution.getBuckets(), builder);
+    return builder.build();
   }
 
   // Convert a OpenCensus BucketOptions to a StackDriver BucketOptions
@@ -360,16 +374,36 @@ final class StackdriverExportUtils {
         bucketOptionsExplicitFunction, Functions.<BucketOptions>throwIllegalArgumentException());
   }
 
-  // Convert a OpenCensus Buckets to a list of counts
-  private static List<Long> createBucketCounts(List<Bucket> buckets) {
-    List<Long> bucketCounts = new ArrayList<>();
+  // Convert OpenCensus Buckets to a list of bucket counts and a list of proto Exemplars, then set
+  // them to the builder.
+  private static void setBucketCountsAndExemplars(
+      List<Bucket> buckets, Distribution.Builder builder) {
     // The first bucket (underflow bucket) should always be 0 count because the Metrics first bucket
     // is [0, first_bound) but StackDriver distribution consists of an underflow bucket (number 0).
-    bucketCounts.add(0L);
+    builder.addBucketCounts(0L);
     for (Bucket bucket : buckets) {
-      bucketCounts.add(bucket.getCount());
+      builder.addBucketCounts(bucket.getCount());
+      if (bucket.getExemplar() != null) {
+        builder.addExemplars(toProtoExemplar(bucket.getExemplar()));
+      }
     }
-    return bucketCounts;
+  }
+
+  private static Exemplar toProtoExemplar(
+      io.opencensus.metrics.export.Distribution.Exemplar exemplar) {
+    Exemplar.Builder builder =
+        Exemplar.newBuilder()
+            .setValue(exemplar.getValue())
+            .setTimestamp(convertTimestamp(exemplar.getTimestamp()));
+    for (Map.Entry<String, String> attachment : exemplar.getAttachments().entrySet()) {
+      // TODO: add support for special attachments once Stackdriver Monitoring accepts them.
+      builder.addAttachments(
+          Any.newBuilder()
+              .setTypeUrl(EXEMPLAR_ATTACHMENT_TYPE_STRING)
+              .setValue(ByteString.copyFromUtf8(attachment.getValue()))
+              .build());
+    }
+    return builder.build();
   }
 
   // Convert a OpenCensus Timestamp to a StackDriver Timestamp

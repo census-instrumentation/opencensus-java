@@ -25,6 +25,7 @@ import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.ST
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.SUMMARY_SUFFIX_COUNT;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.SUMMARY_SUFFIX_SUM;
 
+import com.google.api.Distribution;
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
 import com.google.api.LabelDescriptor;
@@ -36,6 +37,8 @@ import com.google.api.MonitoredResource;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
 import io.opencensus.common.Timestamp;
 import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
 import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
@@ -43,6 +46,7 @@ import io.opencensus.contrib.resource.util.K8sContainerResource;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Distribution.Bucket;
+import io.opencensus.metrics.export.Distribution.Exemplar;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.Summary;
@@ -115,13 +119,21 @@ public class StackdriverExportUtilsTest {
   private static final String DEFAULT_TASK_VALUE =
       "java-" + ManagementFactory.getRuntimeMXBean().getName();
 
+  private static final Exemplar EXEMPLAR_1 =
+      Exemplar.create(1.2, TIMESTAMP_2, Collections.<String, String>singletonMap("key", "value"));
+  private static final Exemplar EXEMPLAR_2 =
+      Exemplar.create(5.6, TIMESTAMP_3, Collections.<String, String>emptyMap());
   private static final io.opencensus.metrics.export.Distribution DISTRIBUTION =
       io.opencensus.metrics.export.Distribution.create(
           3,
           2,
           14,
           BUCKET_OPTIONS,
-          Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)));
+          Arrays.asList(
+              Bucket.create(3),
+              Bucket.create(1, EXEMPLAR_1),
+              Bucket.create(2),
+              Bucket.create(4, EXEMPLAR_2)));
   private static final Summary SUMMARY =
       Summary.create(
           10L,
@@ -310,12 +322,28 @@ public class StackdriverExportUtilsTest {
   public void createDistribution() {
     assertThat(StackdriverExportUtils.createDistribution(DISTRIBUTION))
         .isEqualTo(
-            com.google.api.Distribution.newBuilder()
+            Distribution.newBuilder()
                 .setCount(3)
                 .setMean(0.6666666666666666)
                 .setBucketOptions(StackdriverExportUtils.createBucketOptions(BUCKET_OPTIONS))
                 .addAllBucketCounts(Arrays.asList(0L, 3L, 1L, 2L, 4L))
                 .setSumOfSquaredDeviation(14)
+                .addAllExemplars(
+                    Arrays.<Distribution.Exemplar>asList(
+                        Distribution.Exemplar.newBuilder()
+                            .setValue(1.2)
+                            .setTimestamp(StackdriverExportUtils.convertTimestamp(TIMESTAMP_2))
+                            .addAttachments(
+                                Any.newBuilder()
+                                    .setTypeUrl(
+                                        StackdriverExportUtils.EXEMPLAR_ATTACHMENT_TYPE_STRING)
+                                    .setValue(ByteString.copyFromUtf8("value"))
+                                    .build())
+                            .build(),
+                        Distribution.Exemplar.newBuilder()
+                            .setValue(5.6)
+                            .setTimestamp(StackdriverExportUtils.convertTimestamp(TIMESTAMP_3))
+                            .build()))
                 .build());
   }
 
@@ -466,6 +494,22 @@ public class StackdriverExportUtilsTest {
                         .build())
                 .addAllBucketCounts(Arrays.asList(0L, 3L, 1L, 2L, 4L))
                 .setSumOfSquaredDeviation(14)
+                .addAllExemplars(
+                    Arrays.<Distribution.Exemplar>asList(
+                        Distribution.Exemplar.newBuilder()
+                            .setValue(1.2)
+                            .setTimestamp(StackdriverExportUtils.convertTimestamp(TIMESTAMP_2))
+                            .addAttachments(
+                                Any.newBuilder()
+                                    .setTypeUrl(
+                                        StackdriverExportUtils.EXEMPLAR_ATTACHMENT_TYPE_STRING)
+                                    .setValue(ByteString.copyFromUtf8("value"))
+                                    .build())
+                            .build(),
+                        Distribution.Exemplar.newBuilder()
+                            .setValue(5.6)
+                            .setTimestamp(StackdriverExportUtils.convertTimestamp(TIMESTAMP_3))
+                            .build()))
                 .build());
   }
 
