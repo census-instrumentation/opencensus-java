@@ -141,10 +141,9 @@ public class OcAgentTraceExporterIntegrationTest {
       spanProtos.addAll(exportRequests.get(i).getSpansList());
     }
 
-    // Exporter itself is also instrumented so there will be one additional span.
     // On some platforms (e.g Windows) SpanData will never be dropped, so spans from the first batch
     // may also be exported after Agent is up.
-    assertThat(spanProtos.size()).isAtLeast(10);
+    assertThat(spanProtos.size()).isAtLeast(9);
 
     Set<String> exportedSpanNames = new HashSet<>();
     for (io.opencensus.proto.trace.v1.Span spanProto : spanProtos) {
@@ -159,8 +158,7 @@ public class OcAgentTraceExporterIntegrationTest {
       exportedSpanNames.add(spanProto.getName().getValue());
     }
 
-    assertThat(exportedSpanNames)
-        .contains("Sent.opencensus.proto.agent.trace.v1.TraceService.Export");
+    // The second batch of spans should be exported no matter what.
     assertThat(exportedSpanNames).contains("root2");
     for (int i = 0; i < 8; i++) {
       assertThat(exportedSpanNames).contains("second-iteration-child-" + i);
