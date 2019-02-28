@@ -39,8 +39,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import org.junit.After;
 import org.junit.Before;
@@ -95,12 +97,12 @@ public class OcAgentTraceExporterIntegrationTest {
     try (Scope scope = tracer.spanBuilder("root").startScopedSpan()) {
       for (int i = 0; i < 5; i++) {
         // Fake work
-        doWork(i);
+        doWork("first-iteration-child-" + i, i);
       }
     }
 
-    // Wait 6s so that SpanExporter exports exports all spans.
-    Thread.sleep(6000);
+    // Wait 5s so that SpanExporter exports exports all spans.
+    Thread.sleep(5000);
 
     // No interaction with Agent so far.
     assertThat(fakeOcAgentTraceServiceGrpc.getExportTraceServiceRequests()).isEmpty();
@@ -113,12 +115,12 @@ public class OcAgentTraceExporterIntegrationTest {
     try (Scope scope = tracer.spanBuilder("root2").startScopedSpan()) {
       for (int i = 0; i < 8; i++) {
         // Fake work
-        doWork(i);
+        doWork("second-iteration-child-" + i, i);
       }
     }
 
-    // Wait 6s so that SpanExporter exports exports all spans.
-    Thread.sleep(6000);
+    // Wait 5s so that SpanExporter exports exports all spans.
+    Thread.sleep(5000);
 
     List<ExportTraceServiceRequest> exportRequests =
         fakeOcAgentTraceServiceGrpc.getExportTraceServiceRequests();
@@ -138,25 +140,30 @@ public class OcAgentTraceExporterIntegrationTest {
     for (int i = 1; i < exportRequests.size(); i++) {
       spanProtos.addAll(exportRequests.get(i).getSpansList());
     }
+
     // Exporter itself is also instrumented so there will be one additional span.
-    assertThat(spanProtos).hasSize(10);
+    // On some platforms (e.g Windows) SpanData will never be dropped, so spans from the first batch
+    // may also be exported after Agent is up.
+    assertThat(spanProtos.size()).isAtLeast(10);
 
-    io.opencensus.proto.trace.v1.Span exporterSpan = spanProtos.get(0);
-    assertThat(exporterSpan.getName().getValue())
-        .isEqualTo("Sent.opencensus.proto.agent.trace.v1.TraceService.Export");
+    Set<String> exportedSpanNames = new HashSet<>();
+    for (io.opencensus.proto.trace.v1.Span spanProto : spanProtos) {
+      if ("root2".equals(spanProto.getName().getValue())) {
+        assertThat(spanProto.getChildSpanCount().getValue()).isEqualTo(8);
+        assertThat(spanProto.getParentSpanId()).isEqualTo(ByteString.EMPTY);
+      } else if ("root".equals(spanProto.getName().getValue())) {
+        // This won't happen on Linux but does happen on Windows.
+        assertThat(spanProto.getChildSpanCount().getValue()).isEqualTo(5);
+        assertThat(spanProto.getParentSpanId()).isEqualTo(ByteString.EMPTY);
+      }
+      exportedSpanNames.add(spanProto.getName().getValue());
+    }
 
-    // Root span is the last one since it finished after all children finished.
-    io.opencensus.proto.trace.v1.Span root = spanProtos.get(9);
-    assertThat(root.getName().getValue()).isEqualTo("root2");
-    assertThat(root.getChildSpanCount().getValue()).isEqualTo(8);
-    assertThat(root.getParentSpanId()).isEqualTo(ByteString.EMPTY);
-    ByteString rootSpanId = root.getSpanId();
-
-    for (int i = 1; i <= 8; i++) {
-      io.opencensus.proto.trace.v1.Span child = spanProtos.get(i);
-      assertThat(child.getName().getValue()).isEqualTo("child" + (i - 1));
-      assertThat(child.getParentSpanId()).isEqualTo(rootSpanId);
-      assertThat(child.getTimeEvents().getTimeEventCount()).isEqualTo(1);
+    assertThat(exportedSpanNames)
+        .contains("Sent.opencensus.proto.agent.trace.v1.TraceService.Export");
+    assertThat(exportedSpanNames).contains("root2");
+    for (int i = 0; i < 8; i++) {
+      assertThat(exportedSpanNames).contains("second-iteration-child-" + i);
     }
   }
 
@@ -172,8 +179,8 @@ public class OcAgentTraceExporterIntegrationTest {
     // TODO(songya): complete this test once Config is fully implemented.
   }
 
-  private void doWork(int i) {
-    try (Scope scope = tracer.spanBuilder("child" + i).startScopedSpan()) {
+  private void doWork(String spanName, int i) {
+    try (Scope scope = tracer.spanBuilder(spanName).startScopedSpan()) {
       // Simulate some work.
       Span span = tracer.getCurrentSpan();
 
@@ -184,7 +191,7 @@ public class OcAgentTraceExporterIntegrationTest {
       }
 
       Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
-      attributes.put("iteration", AttributeValue.longAttributeValue(i));
+      attributes.put("inner work iteration number", AttributeValue.longAttributeValue(i));
       span.addAnnotation("Invoking doWork", attributes);
     }
   }
