@@ -62,9 +62,28 @@ public abstract class MeasureMap {
    * @param value the string representation of contextual information of an {@code Exemplar}.
    * @return this
    * @since 0.16
+   * @deprecated in favor of {@link #putAttachment(String, AttachmentValue)}.
    */
-  // TODO(songya): make this method abstract in the 0.17 release.
+  @Deprecated
   public MeasureMap putAttachment(String key, String value) {
+    // Provides a default no-op implementation to avoid breaking other existing sub-classes.
+    Utils.checkNotNull(key, "key");
+    Utils.checkNotNull(value, "value");
+    return this;
+  }
+
+  /**
+   * Associate the contextual information of an {@code Exemplar} to this {@link MeasureMap}.
+   * Contextual information is represented as a {@code String} key and an {@link AttachmentValue}.
+   *
+   * <p>If this method is called multiple times with the same key, only the last value will be kept.
+   *
+   * @param key the key of contextual information of an {@code Exemplar}.
+   * @param value the value of contextual information of an {@code Exemplar}.
+   * @return this
+   * @since 0.20
+   */
+  public MeasureMap putAttachment(String key, AttachmentValue value) {
     // Provides a default no-op implementation to avoid breaking other existing sub-classes.
     Utils.checkNotNull(key, "key");
     Utils.checkNotNull(value, "value");
