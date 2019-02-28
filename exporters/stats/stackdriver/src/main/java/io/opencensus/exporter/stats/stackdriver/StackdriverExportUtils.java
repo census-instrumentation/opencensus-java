@@ -67,7 +67,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -444,7 +443,7 @@ final class StackdriverExportUtils {
   }
 
   @VisibleForTesting
-  static void setCachedProjectIdForExemplar(@Nullable String projectId) {
+  static void setCachedProjectIdForExemplar(@javax.annotation.Nullable String projectId) {
     cachedProjectIdForExemplar = projectId;
   }
 
