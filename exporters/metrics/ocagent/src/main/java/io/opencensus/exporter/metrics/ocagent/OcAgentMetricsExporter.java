@@ -41,7 +41,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * }
  * }</pre>
  *
- * @since 0.19
+ * @since 0.20
  */
 @ThreadSafe
 public final class OcAgentMetricsExporter {
@@ -65,7 +65,7 @@ public final class OcAgentMetricsExporter {
    * to the OpenCensus library.
    *
    * @param configuration the {@code OcAgentMetricsExporterConfiguration}.
-   * @since 0.19
+   * @since 0.20
    */
   public static void createAndRegister(OcAgentMetricsExporterConfiguration configuration) {
     checkNotNull(configuration, "configuration");
