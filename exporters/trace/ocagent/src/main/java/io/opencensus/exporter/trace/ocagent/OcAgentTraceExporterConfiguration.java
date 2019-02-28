@@ -25,7 +25,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  * Configurations for {@link OcAgentTraceExporter}.
  *
- * @since 0.19
+ * @since 0.20
  */
 @AutoValue
 @Immutable
@@ -37,7 +37,7 @@ public abstract class OcAgentTraceExporterConfiguration {
    * Returns the end point of OC-Agent. The end point can be dns, ip:port, etc.
    *
    * @return the end point of OC-Agent.
-   * @since 0.19
+   * @since 0.20
    */
   @Nullable
   public abstract String getEndPoint();
@@ -46,7 +46,7 @@ public abstract class OcAgentTraceExporterConfiguration {
    * Returns whether to disable client transport security for the exporter's gRPC connection or not.
    *
    * @return whether to disable client transport security for the exporter's gRPC connection or not.
-   * @since 0.19
+   * @since 0.20
    */
   @Nullable
   public abstract Boolean getUseInsecure();
@@ -64,7 +64,7 @@ public abstract class OcAgentTraceExporterConfiguration {
    * Returns the service name to be used for this {@link OcAgentTraceExporter}.
    *
    * @return the service name.
-   * @since 0.19
+   * @since 0.20
    */
   @Nullable
   public abstract String getServiceName();
@@ -73,7 +73,7 @@ public abstract class OcAgentTraceExporterConfiguration {
    * Returns the retry time interval when trying to connect to Agent.
    *
    * @return the retry time interval.
-   * @since 0.19
+   * @since 0.20
    */
   @Nullable
   public abstract Duration getRetryInterval();
@@ -82,7 +82,7 @@ public abstract class OcAgentTraceExporterConfiguration {
    * Returns whether the {@link OcAgentTraceExporter} should handle the config streams.
    *
    * @return whether the {@code OcAgentTraceExporter} should handle the config streams.
-   * @since 0.19
+   * @since 0.20
    */
   public abstract boolean getEnableConfig();
 
@@ -90,7 +90,7 @@ public abstract class OcAgentTraceExporterConfiguration {
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
-   * @since 0.19
+   * @since 0.20
    */
   public static Builder builder() {
     return new AutoValue_OcAgentTraceExporterConfiguration.Builder()
@@ -101,7 +101,7 @@ public abstract class OcAgentTraceExporterConfiguration {
   /**
    * Builder for {@link OcAgentTraceExporterConfiguration}.
    *
-   * @since 0.19
+   * @since 0.20
    */
   @AutoValue.Builder
   public abstract static class Builder {
@@ -113,7 +113,7 @@ public abstract class OcAgentTraceExporterConfiguration {
      *
      * @param endPoint the end point of OC-Agent.
      * @return this.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract Builder setEndPoint(String endPoint);
 
@@ -123,7 +123,7 @@ public abstract class OcAgentTraceExporterConfiguration {
      * @param useInsecure whether disable client transport security for the exporter's gRPC
      *     connection.
      * @return this.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract Builder setUseInsecure(Boolean useInsecure);
 
@@ -141,7 +141,7 @@ public abstract class OcAgentTraceExporterConfiguration {
      *
      * @param serviceName the service name.
      * @return this.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract Builder setServiceName(String serviceName);
 
@@ -150,7 +150,7 @@ public abstract class OcAgentTraceExporterConfiguration {
      *
      * @param retryInterval the retry time interval.
      * @return this.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract Builder setRetryInterval(Duration retryInterval);
 
@@ -159,7 +159,7 @@ public abstract class OcAgentTraceExporterConfiguration {
      *
      * @param enableConfig whether {@code OcAgentTraceExporter} should handle the config streams.
      * @return this.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract Builder setEnableConfig(boolean enableConfig);
 
@@ -169,7 +169,7 @@ public abstract class OcAgentTraceExporterConfiguration {
      * Builds a {@link OcAgentTraceExporterConfiguration}.
      *
      * @return a {@code OcAgentTraceExporterConfiguration}.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract OcAgentTraceExporterConfiguration build();
   }

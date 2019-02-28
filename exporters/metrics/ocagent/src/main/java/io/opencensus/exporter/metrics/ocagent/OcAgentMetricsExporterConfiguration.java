@@ -25,7 +25,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  * Configurations for {@code OcAgentMetricsExporter}.
  *
- * @since 0.19
+ * @since 0.20
  */
 @AutoValue
 @Immutable
@@ -37,7 +37,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
    * Returns the end point of OC-Agent. The end point can be dns, ip:port, etc.
    *
    * @return the end point of OC-Agent.
-   * @since 0.19
+   * @since 0.20
    */
   @Nullable
   public abstract String getEndPoint();
@@ -46,7 +46,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
    * Returns whether to disable client transport security for the exporter's gRPC connection or not.
    *
    * @return whether to disable client transport security for the exporter's gRPC connection or not.
-   * @since 0.19
+   * @since 0.20
    */
   @Nullable
   public abstract Boolean getUseInsecure();
@@ -64,7 +64,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
    * Returns the service name to be used for the {@code OcAgentMetricsExporter}.
    *
    * @return the service name.
-   * @since 0.19
+   * @since 0.20
    */
   @Nullable
   public abstract String getServiceName();
@@ -73,7 +73,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
    * Returns the retry time interval when trying to connect to Agent.
    *
    * @return the retry time interval.
-   * @since 0.19
+   * @since 0.20
    */
   @Nullable
   public abstract Duration getRetryInterval();
@@ -82,7 +82,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
    * Returns the export interval between pushes to Agent.
    *
    * @return the export interval.
-   * @since 0.19
+   * @since 0.20
    */
   @Nullable
   public abstract Duration getExportInterval();
@@ -91,7 +91,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
-   * @since 0.19
+   * @since 0.20
    */
   public static Builder builder() {
     return new AutoValue_OcAgentMetricsExporterConfiguration.Builder().setUseInsecure(true);
@@ -100,7 +100,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
   /**
    * Builder for {@link OcAgentMetricsExporterConfiguration}.
    *
-   * @since 0.19
+   * @since 0.20
    */
   @AutoValue.Builder
   public abstract static class Builder {
@@ -112,7 +112,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
      *
      * @param endPoint the end point of OC-Agent.
      * @return this.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract Builder setEndPoint(String endPoint);
 
@@ -122,7 +122,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
      * @param useInsecure whether disable client transport security for the exporter's gRPC
      *     connection.
      * @return this.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract Builder setUseInsecure(Boolean useInsecure);
 
@@ -140,7 +140,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
      *
      * @param serviceName the service name.
      * @return this.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract Builder setServiceName(String serviceName);
 
@@ -149,7 +149,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
      *
      * @param retryInterval the retry time interval.
      * @return this.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract Builder setRetryInterval(Duration retryInterval);
 
@@ -158,7 +158,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
      *
      * @param exportInterval the export time interval.
      * @return this.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract Builder setExportInterval(Duration exportInterval);
 
@@ -168,7 +168,7 @@ public abstract class OcAgentMetricsExporterConfiguration {
      * Builds a {@link OcAgentMetricsExporterConfiguration}.
      *
      * @return a {@code OcAgentMetricsExporterConfiguration}.
-     * @since 0.19
+     * @since 0.20
      */
     public abstract OcAgentMetricsExporterConfiguration build();
   }
