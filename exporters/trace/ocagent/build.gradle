@@ -31,8 +31,8 @@ dependencies {
         exclude group: 'io.opencensus', module: 'opencensus-api'
     }
 
-    testCompile project(':opencensus-impl'),
-                project(':opencensus-impl-core')
+    testRuntimeOnly project(':opencensus-impl'),
+                    project(':opencensus-impl-core')
 
     signature "org.codehaus.mojo.signature:java17:1.0@signature"
 }
