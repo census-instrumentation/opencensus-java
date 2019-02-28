@@ -34,12 +34,15 @@ import com.google.api.Metric;
 import com.google.api.MetricDescriptor;
 import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
+import com.google.common.collect.ImmutableMap;
+import com.google.monitoring.v3.SpanContext;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import io.opencensus.common.Timestamp;
+import io.opencensus.contrib.exemplar.util.ExemplarUtils;
 import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
 import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
 import io.opencensus.contrib.resource.util.K8sContainerResource;
@@ -122,7 +125,14 @@ public class StackdriverExportUtilsTest {
   private static final Exemplar EXEMPLAR_1 =
       Exemplar.create(1.2, TIMESTAMP_2, Collections.<String, String>singletonMap("key", "value"));
   private static final Exemplar EXEMPLAR_2 =
-      Exemplar.create(5.6, TIMESTAMP_3, Collections.<String, String>emptyMap());
+      Exemplar.create(
+          5.6,
+          TIMESTAMP_3,
+          ImmutableMap.of(
+              ExemplarUtils.ATTACHMENT_KEY_TRACE_ID,
+              "some-trace-id",
+              ExemplarUtils.ATTACHMENT_KEY_SPAN_ID,
+              "some-span-id"));
   private static final io.opencensus.metrics.export.Distribution DISTRIBUTION =
       io.opencensus.metrics.export.Distribution.create(
           3,
@@ -320,6 +330,7 @@ public class StackdriverExportUtilsTest {
 
   @Test
   public void createDistribution() {
+    StackdriverExportUtils.setCachedProjectIdForExemplar(null);
     assertThat(StackdriverExportUtils.createDistribution(DISTRIBUTION))
         .isEqualTo(
             Distribution.newBuilder()
@@ -343,6 +354,8 @@ public class StackdriverExportUtilsTest {
                         Distribution.Exemplar.newBuilder()
                             .setValue(5.6)
                             .setTimestamp(StackdriverExportUtils.convertTimestamp(TIMESTAMP_3))
+                            // Cached project ID is set to null, so no SpanContext attachment will
+                            // be created.
                             .build()))
                 .build());
   }
@@ -456,7 +469,7 @@ public class StackdriverExportUtilsTest {
   public void createTimeSeriesList_Cumulative() {
     List<TimeSeries> timeSeriesList =
         StackdriverExportUtils.createTimeSeriesList(
-            METRIC, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN);
+            METRIC, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN, PROJECT_ID);
     assertThat(timeSeriesList).hasSize(1);
     TimeSeries expectedTimeSeries =
         TimeSeries.newBuilder()
@@ -475,11 +488,12 @@ public class StackdriverExportUtilsTest {
   public void createTimeSeriesList_Distribution() {
     List<TimeSeries> timeSeriesList =
         StackdriverExportUtils.createTimeSeriesList(
-            DISTRIBUTION_METRIC, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN);
+            DISTRIBUTION_METRIC, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN, PROJECT_ID);
 
     assertThat(timeSeriesList.size()).isEqualTo(1);
     TimeSeries timeSeries = timeSeriesList.get(0);
     assertThat(timeSeries.getPointsCount()).isEqualTo(1);
+    String expectedSpanName = "projects/id/traces/some-trace-id/spans/some-span-id";
     assertThat(timeSeries.getPoints(0).getValue().getDistributionValue())
         .isEqualTo(
             com.google.api.Distribution.newBuilder()
@@ -509,6 +523,17 @@ public class StackdriverExportUtilsTest {
                         Distribution.Exemplar.newBuilder()
                             .setValue(5.6)
                             .setTimestamp(StackdriverExportUtils.convertTimestamp(TIMESTAMP_3))
+                            .addAttachments(
+                                Any.newBuilder()
+                                    .setTypeUrl(
+                                        StackdriverExportUtils
+                                            .EXEMPLAR_ATTACHMENT_TYPE_SPAN_CONTEXT)
+                                    .setValue(
+                                        SpanContext.newBuilder()
+                                            .setSpanName(expectedSpanName)
+                                            .build()
+                                            .toByteString())
+                                    .build())
                             .build()))
                 .build());
   }
@@ -521,7 +546,7 @@ public class StackdriverExportUtilsTest {
 
     List<TimeSeries> timeSeriesList =
         StackdriverExportUtils.createTimeSeriesList(
-            metric, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN);
+            metric, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN, PROJECT_ID);
     assertThat(timeSeriesList).hasSize(2);
     TimeSeries expected1 =
         TimeSeries.newBuilder()
@@ -551,7 +576,8 @@ public class StackdriverExportUtilsTest {
     MonitoredResource resource =
         MonitoredResource.newBuilder().setType("global").putLabels("key", "value").build();
     List<TimeSeries> timeSeriesList =
-        StackdriverExportUtils.createTimeSeriesList(METRIC, resource, CUSTOM_OPENCENSUS_DOMAIN);
+        StackdriverExportUtils.createTimeSeriesList(
+            METRIC, resource, CUSTOM_OPENCENSUS_DOMAIN, PROJECT_ID);
     assertThat(timeSeriesList)
         .containsExactly(
             TimeSeries.newBuilder()

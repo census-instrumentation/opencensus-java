@@ -62,7 +62,8 @@ final class CreateTimeSeriesExporter extends MetricExporter {
     List<TimeSeries> timeSeriesList = new ArrayList<>(metrics.size());
     for (Metric metric : metrics) {
       timeSeriesList.addAll(
-          StackdriverExportUtils.createTimeSeriesList(metric, monitoredResource, domain));
+          StackdriverExportUtils.createTimeSeriesList(
+              metric, monitoredResource, domain, projectName.getProject()));
     }
 
     Span span = tracer.getCurrentSpan();

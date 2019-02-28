@@ -32,6 +32,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.Point;
+import com.google.monitoring.v3.SpanContext;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
@@ -40,6 +41,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.contrib.exemplar.util.ExemplarUtils;
 import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
 import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
 import io.opencensus.contrib.resource.util.K8sContainerResource;
@@ -65,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -109,12 +112,19 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String SUMMARY_SUFFIX_COUNT = "_summary_count";
   @VisibleForTesting static final String SUMMARY_SUFFIX_SUM = "_summary_sum";
 
+  // Cached project ID only for Exemplar attachments. Without this we'll have to pass the project ID
+  // every time when we convert a Distribution value.
+  @javax.annotation.Nullable private static volatile String cachedProjectIdForExemplar = null;
+
   @VisibleForTesting
   static final String EXEMPLAR_ATTACHMENT_TYPE_STRING =
       "type.googleapis.com/google.protobuf.StringValue";
-  // TODO: currently Stackdriver Monitoring only accepts string attachment.
-  // private static final String EXEMPLAR_ATTACHMENT_TYPE_TRACE_ID =
-  //     "type.googleapis.com/google.devtools.cloudtrace.v1.Trace";
+
+  @VisibleForTesting
+  static final String EXEMPLAR_ATTACHMENT_TYPE_SPAN_CONTEXT =
+      "type.googleapis.com/google.monitoring.v3.SpanContext";
+
+  // TODO: add support for dropped label attachment.
   // private static final String EXEMPLAR_ATTACHMENT_TYPE_DROPPED_LABELS =
   //     "type.googleapis.com/google.monitoring.v3.DroppedLabels";
 
@@ -270,9 +280,14 @@ final class StackdriverExportUtils {
   static List<TimeSeries> createTimeSeriesList(
       io.opencensus.metrics.export.Metric metric,
       MonitoredResource monitoredResource,
-      String domain) {
+      String domain,
+      String projectId) {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     io.opencensus.metrics.export.MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
+
+    if (!projectId.equals(cachedProjectIdForExemplar)) {
+      cachedProjectIdForExemplar = projectId;
+    }
 
     // Shared fields for all TimeSeries generated from the same Metric
     TimeSeries.Builder shared = TimeSeries.newBuilder();
@@ -397,15 +412,40 @@ final class StackdriverExportUtils {
         Exemplar.newBuilder()
             .setValue(exemplar.getValue())
             .setTimestamp(convertTimestamp(exemplar.getTimestamp()));
+    @javax.annotation.Nullable String traceId = null;
+    @javax.annotation.Nullable String spanId = null;
     for (Map.Entry<String, String> attachment : exemplar.getAttachments().entrySet()) {
-      // TODO: add support for special attachments once Stackdriver Monitoring accepts them.
+      String key = attachment.getKey();
+      String value = attachment.getValue();
+      if (ExemplarUtils.ATTACHMENT_KEY_TRACE_ID.equals(key)) {
+        traceId = value;
+      } else if (ExemplarUtils.ATTACHMENT_KEY_SPAN_ID.equals(key)) {
+        spanId = value;
+      } else { // Everything else will be treated as plain strings.
+        builder.addAttachments(
+            Any.newBuilder()
+                .setTypeUrl(EXEMPLAR_ATTACHMENT_TYPE_STRING)
+                .setValue(ByteString.copyFromUtf8(value))
+                .build());
+      }
+    }
+    if (traceId != null && spanId != null && cachedProjectIdForExemplar != null) {
+      String spanName =
+          String.format(
+              "projects/%s/traces/%s/spans/%s", cachedProjectIdForExemplar, traceId, spanId);
+      SpanContext spanContextProto = SpanContext.newBuilder().setSpanName(spanName).build();
       builder.addAttachments(
           Any.newBuilder()
-              .setTypeUrl(EXEMPLAR_ATTACHMENT_TYPE_STRING)
-              .setValue(ByteString.copyFromUtf8(attachment.getValue()))
+              .setTypeUrl(EXEMPLAR_ATTACHMENT_TYPE_SPAN_CONTEXT)
+              .setValue(spanContextProto.toByteString())
               .build());
     }
     return builder.build();
+  }
+
+  @VisibleForTesting
+  static void setCachedProjectIdForExemplar(@Nullable String projectId) {
+    cachedProjectIdForExemplar = projectId;
   }
 
   // Convert a OpenCensus Timestamp to a StackDriver Timestamp
