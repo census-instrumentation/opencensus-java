@@ -16,6 +16,7 @@
 
 package io.opencensus.exporter.trace.ocagent;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.NegotiationType;
@@ -37,7 +38,7 @@ final class OcAgentTraceExporterHandler extends Handler {
   private static final Logger logger =
       Logger.getLogger(OcAgentTraceExporterHandler.class.getName());
 
-  private static final String DEFAULT_END_POINT = "localhost:55678";
+  @VisibleForTesting static final String DEFAULT_END_POINT = "localhost:55678";
   private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
   private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
 
