@@ -17,25 +17,30 @@
 package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.common.Function;
 import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import javax.annotation.concurrent.Immutable;
 
 /**
  * The value of {@link Exemplar} attachment.
  *
+ * <p>In Stats API we only provide one subclass {@link AttachmentValueString}. No other subclasses
+ * are added because we don't want to introduce dependencies on other libraries, for example Tracing
+ * APIs.
+ *
+ * <p>Other packages are free to extend this class to hold specific information. As an example, see
+ * {@code io.opencensus.contrib.exemplar.util.AttachmentValueSpanContext}.
+ *
  * @since 0.20
  */
 public abstract class AttachmentValue {
 
   /**
-   * Applies the given match function to the underlying data type.
+   * Returns the string attachment value.
    *
+   * @return the string attachment value.
    * @since 0.20
    */
-  public abstract <T> T match(
-      Function<? super AttachmentValueString, T> p0,
-      Function<? super AttachmentValue, T> defaultFunction);
+  public abstract String getValue();
 
   /**
    * String {@link AttachmentValue}.
@@ -49,14 +54,6 @@ public abstract class AttachmentValue {
     AttachmentValueString() {}
 
     /**
-     * Returns the string attachment value.
-     *
-     * @return the string attachment value.
-     * @since 0.20
-     */
-    public abstract String getValue();
-
-    /**
      * Creates an {@link AttachmentValueString}.
      *
      * @param value the string value.
@@ -65,13 +62,6 @@ public abstract class AttachmentValue {
      */
     public static AttachmentValueString create(String value) {
       return new AutoValue_AttachmentValue_AttachmentValueString(value);
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super AttachmentValueString, T> p0,
-        Function<? super AttachmentValue, T> defaultFunction) {
-      return p0.apply(this);
     }
   }
 }

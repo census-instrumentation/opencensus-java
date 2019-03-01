@@ -17,13 +17,15 @@
 package io.opencensus.contrib.exemplar.util;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.common.Function;
 import io.opencensus.stats.AttachmentValue;
 import io.opencensus.trace.SpanContext;
 import javax.annotation.concurrent.Immutable;
 
 /**
  * {@link SpanContext} {@link AttachmentValue}.
+ *
+ * <p>Added in the contrib util package because we want to avoid dependency on Tracing API in Stats
+ * APIs.
  *
  * @since 0.20
  */
@@ -39,7 +41,7 @@ public abstract class AttachmentValueSpanContext extends AttachmentValue {
    * @return the span context attachment value.
    * @since 0.20
    */
-  public abstract SpanContext getValue();
+  public abstract SpanContext getSpanContext();
 
   /**
    * Creates an {@link AttachmentValueSpanContext}.
@@ -53,9 +55,7 @@ public abstract class AttachmentValueSpanContext extends AttachmentValue {
   }
 
   @Override
-  public final <T> T match(
-      Function<? super AttachmentValueString, T> p0,
-      Function<? super AttachmentValue, T> defaultFunction) {
-    return defaultFunction.apply(this);
+  public final String getValue() {
+    return getSpanContext().toString();
   }
 }
