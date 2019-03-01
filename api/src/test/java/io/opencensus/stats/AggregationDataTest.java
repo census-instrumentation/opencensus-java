@@ -81,7 +81,7 @@ public class AggregationDataTest {
     assertThat(exemplar.getValue()).isWithin(TOLERANCE).of(15.0);
     assertThat(exemplar.getTimestamp()).isEqualTo(TIMESTAMP_1);
     assertThat(exemplar.getAttachmentMap()).isEqualTo(ATTACHMENTS);
-    assertThat(exemplar.getAttachments()).isEmpty();
+    assertThat(exemplar.getAttachments()).containsExactly("key", "value");
   }
 
   @Test

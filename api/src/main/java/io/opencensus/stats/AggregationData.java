@@ -258,7 +258,7 @@ public abstract class AggregationData {
    *
    * @since 0.8
    */
-  @Immutable
+  @javax.annotation.concurrent.Immutable
   @AutoValue
   public abstract static class DistributionData extends AggregationData {
 
@@ -453,7 +453,7 @@ public abstract class AggregationData {
      *
      * @since 0.16
      */
-    @Immutable
+    @javax.annotation.concurrent.Immutable
     @AutoValue
     public abstract static class Exemplar {
 
@@ -482,8 +482,13 @@ public abstract class AggregationData {
        * @since 0.16
        * @deprecated in favor of {@link #getAttachmentMap()}.
        */
+      @Deprecated
       public Map<String, String> getAttachments() {
-        return Collections.<String, String>emptyMap();
+        Map<String, String> attachments = new HashMap<String, String>();
+        for (Entry<String, AttachmentValue> entry : getAttachmentMap().entrySet()) {
+          attachments.put(entry.getKey(), entry.getValue().getValue());
+        }
+        return Collections.unmodifiableMap(attachments);
       }
 
       /**
@@ -504,6 +509,7 @@ public abstract class AggregationData {
        * @since 0.16
        * @deprecated in favor of {@link #createNew(double, Timestamp, Map)}.
        */
+      @Deprecated
       public static Exemplar create(
           double value, Timestamp timestamp, Map<String, String> attachments) {
         Utils.checkNotNull(attachments, "attachments");

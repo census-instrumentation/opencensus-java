@@ -387,6 +387,7 @@ abstract class MutableAggregation {
           mean, count, sumOfSquaredDeviations, boxedBucketCounts, exemplarList);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     Point toPoint(Timestamp timestamp) {
       List<Distribution.Bucket> buckets = new ArrayList<Distribution.Bucket>();

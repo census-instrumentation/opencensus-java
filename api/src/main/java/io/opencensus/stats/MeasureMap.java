@@ -17,6 +17,7 @@
 package io.opencensus.stats;
 
 import io.opencensus.internal.Utils;
+import io.opencensus.stats.AttachmentValue.AttachmentValueString;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;
@@ -66,10 +67,7 @@ public abstract class MeasureMap {
    */
   @Deprecated
   public MeasureMap putAttachment(String key, String value) {
-    // Provides a default no-op implementation to avoid breaking other existing sub-classes.
-    Utils.checkNotNull(key, "key");
-    Utils.checkNotNull(value, "value");
-    return this;
+    return putAttachment(key, AttachmentValueString.create(value));
   }
 
   /**
