@@ -17,10 +17,6 @@
 package io.opencensus.exporter.trace.ocagent;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.util.concurrent.MoreExecutors;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.proto.agent.trace.v1.CurrentLibraryConfig;
 import io.opencensus.proto.agent.trace.v1.ExportTraceServiceRequest;
@@ -29,13 +25,10 @@ import io.opencensus.proto.agent.trace.v1.TraceServiceGrpc;
 import io.opencensus.proto.agent.trace.v1.UpdatedLibraryConfig;
 import io.opencensus.proto.trace.v1.ConstantSampler;
 import io.opencensus.proto.trace.v1.TraceConfig;
-import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -184,42 +177,5 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
   @VisibleForTesting
   synchronized void setCountDownLatch(CountDownLatch countDownLatch) {
     this.countDownLatch = countDownLatch;
-  }
-
-  static void startServer(String endPoint) throws IOException {
-    ServerBuilder<?> builder = NettyServerBuilder.forAddress(parseEndpoint(endPoint));
-    Executor executor = MoreExecutors.directExecutor();
-    builder.executor(executor);
-    final Server server = builder.addService(new FakeOcAgentTraceServiceGrpcImpl()).build();
-    server.start();
-    logger.info("Server started at " + endPoint);
-
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread() {
-              @Override
-              public void run() {
-                server.shutdown();
-              }
-            });
-
-    try {
-      server.awaitTermination();
-    } catch (InterruptedException e) {
-      logger.warning("Thread interrupted: " + e.getMessage());
-      Thread.currentThread().interrupt();
-    }
-  }
-
-  private static InetSocketAddress parseEndpoint(String endPoint) {
-    try {
-      int colonIndex = endPoint.indexOf(":");
-      String host = endPoint.substring(0, colonIndex);
-      int port = Integer.parseInt(endPoint.substring(colonIndex + 1));
-      return new InetSocketAddress(host, port);
-    } catch (RuntimeException e) {
-      logger.warning("Unexpected format of end point: " + endPoint + ", use default end point.");
-      return new InetSocketAddress("localhost", 55678);
-    }
   }
 }
