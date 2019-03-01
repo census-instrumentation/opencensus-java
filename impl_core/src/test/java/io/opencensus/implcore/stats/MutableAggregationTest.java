@@ -42,6 +42,8 @@ import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
+import io.opencensus.stats.AttachmentValue;
+import io.opencensus.stats.AttachmentValue.AttachmentValueString;
 import io.opencensus.stats.BucketBoundaries;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,6 +67,11 @@ public class MutableAggregationTest {
   private static final BucketBoundaries BUCKET_BOUNDARIES_EMPTY =
       BucketBoundaries.create(Collections.<Double>emptyList());
   private static final Timestamp TIMESTAMP = Timestamp.create(60, 0);
+  private static final AttachmentValue ATTACHMENT_VALUE_1 = AttachmentValueString.create("v1");
+  private static final AttachmentValue ATTACHMENT_VALUE_2 = AttachmentValueString.create("v2");
+  private static final AttachmentValue ATTACHMENT_VALUE_3 = AttachmentValueString.create("v3");
+  private static final AttachmentValue ATTACHMENT_VALUE_4 = AttachmentValueString.create("v4");
+  private static final AttachmentValue ATTACHMENT_VALUE_5 = AttachmentValueString.create("v5");
 
   @Test
   public void testCreateEmpty() {
@@ -119,7 +126,7 @@ public class MutableAggregationTest {
 
     for (double value : values) {
       for (MutableAggregation aggregation : aggregations) {
-        aggregation.add(value, Collections.<String, String>emptyMap(), TIMESTAMP);
+        aggregation.add(value, Collections.<String, AttachmentValue>emptyMap(), TIMESTAMP);
       }
     }
 
@@ -155,13 +162,13 @@ public class MutableAggregationTest {
     MutableDistribution mutableDistributionNoHistogram =
         MutableDistribution.create(BUCKET_BOUNDARIES_EMPTY);
     List<Double> values = Arrays.asList(-1.0, 1.0, -5.0, 20.0, 5.0);
-    List<Map<String, String>> attachmentsList =
-        ImmutableList.<Map<String, String>>of(
-            Collections.<String, String>singletonMap("k1", "v1"),
-            Collections.<String, String>singletonMap("k2", "v2"),
-            Collections.<String, String>singletonMap("k3", "v3"),
-            Collections.<String, String>singletonMap("k4", "v4"),
-            Collections.<String, String>singletonMap("k5", "v5"));
+    List<Map<String, AttachmentValue>> attachmentsList =
+        ImmutableList.<Map<String, AttachmentValue>>of(
+            Collections.<String, AttachmentValue>singletonMap("k1", ATTACHMENT_VALUE_1),
+            Collections.<String, AttachmentValue>singletonMap("k2", ATTACHMENT_VALUE_2),
+            Collections.<String, AttachmentValue>singletonMap("k3", ATTACHMENT_VALUE_3),
+            Collections.<String, AttachmentValue>singletonMap("k4", ATTACHMENT_VALUE_4),
+            Collections.<String, AttachmentValue>singletonMap("k5", ATTACHMENT_VALUE_5));
     List<Timestamp> timestamps =
         Arrays.asList(
             Timestamp.fromMillis(500),
@@ -178,8 +185,8 @@ public class MutableAggregationTest {
     // bucket, only the last one will be kept.
     List<Exemplar> expected =
         Arrays.<Exemplar>asList(
-            Exemplar.create(values.get(4), timestamps.get(4), attachmentsList.get(4)),
-            Exemplar.create(values.get(3), timestamps.get(3), attachmentsList.get(3)));
+            Exemplar.createNew(values.get(4), timestamps.get(4), attachmentsList.get(4)),
+            Exemplar.createNew(values.get(3), timestamps.get(3), attachmentsList.get(3)));
     assertThat(mutableDistribution.getExemplars())
         .asList()
         .containsExactlyElementsIn(expected)
@@ -205,12 +212,12 @@ public class MutableAggregationTest {
 
     for (double val : Arrays.asList(-1.0, -5.0)) {
       for (MutableAggregation aggregation : aggregations1) {
-        aggregation.add(val, Collections.<String, String>emptyMap(), TIMESTAMP);
+        aggregation.add(val, Collections.<String, AttachmentValue>emptyMap(), TIMESTAMP);
       }
     }
     for (double val : Arrays.asList(10.0, 50.0)) {
       for (MutableAggregation aggregation : aggregations2) {
-        aggregation.add(val, Collections.<String, String>emptyMap(), TIMESTAMP);
+        aggregation.add(val, Collections.<String, AttachmentValue>emptyMap(), TIMESTAMP);
       }
     }
 
@@ -241,13 +248,13 @@ public class MutableAggregationTest {
     MutableDistribution distribution3 = MutableDistribution.create(BUCKET_BOUNDARIES);
 
     for (double val : Arrays.asList(5.0, -5.0)) {
-      distribution1.add(val, Collections.<String, String>emptyMap(), TIMESTAMP);
+      distribution1.add(val, Collections.<String, AttachmentValue>emptyMap(), TIMESTAMP);
     }
     for (double val : Arrays.asList(10.0, 20.0)) {
-      distribution2.add(val, Collections.<String, String>emptyMap(), TIMESTAMP);
+      distribution2.add(val, Collections.<String, AttachmentValue>emptyMap(), TIMESTAMP);
     }
     for (double val : Arrays.asList(-10.0, 15.0, -15.0, -20.0)) {
-      distribution3.add(val, Collections.<String, String>emptyMap(), TIMESTAMP);
+      distribution3.add(val, Collections.<String, AttachmentValue>emptyMap(), TIMESTAMP);
     }
 
     MutableDistribution combined = MutableDistribution.create(BUCKET_BOUNDARIES);

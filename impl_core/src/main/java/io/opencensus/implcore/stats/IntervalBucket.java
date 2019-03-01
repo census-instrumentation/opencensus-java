@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.AttachmentValue;
 import io.opencensus.stats.Measure;
 import io.opencensus.tags.TagValue;
 import java.util.List;
@@ -64,7 +65,7 @@ final class IntervalBucket {
   void record(
       List</*@Nullable*/ TagValue> tagValues,
       double value,
-      Map<String, String> attachments,
+      Map<String, AttachmentValue> attachments,
       Timestamp timestamp) {
     if (!tagValueAggregationMap.containsKey(tagValues)) {
       tagValueAggregationMap.put(

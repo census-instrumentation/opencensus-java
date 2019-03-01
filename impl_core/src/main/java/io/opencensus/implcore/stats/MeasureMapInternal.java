@@ -16,6 +16,7 @@
 
 package io.opencensus.implcore.stats;
 
+import io.opencensus.stats.AttachmentValue;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
@@ -45,16 +46,18 @@ final class MeasureMapInternal {
   }
 
   // Returns the contextual information associated with an example value.
-  Map<String, String> getAttachments() {
+  Map<String, AttachmentValue> getAttachments() {
     return attachments;
   }
 
   private final ArrayList<Measurement> measurements;
-  private final Map<String, String> attachments;
+  private final Map<String, AttachmentValue> attachments;
 
-  private MeasureMapInternal(ArrayList<Measurement> measurements, Map<String, String> attachments) {
+  private MeasureMapInternal(
+      ArrayList<Measurement> measurements, Map<String, AttachmentValue> attachments) {
     this.measurements = measurements;
-    this.attachments = Collections.unmodifiableMap(new HashMap<String, String>(attachments));
+    this.attachments =
+        Collections.unmodifiableMap(new HashMap<String, AttachmentValue>(attachments));
   }
 
   /** Builder for the {@link MeasureMapInternal} class. */
@@ -85,7 +88,7 @@ final class MeasureMapInternal {
       return this;
     }
 
-    Builder putAttachment(String key, String value) {
+    Builder putAttachment(String key, AttachmentValue value) {
       this.attachments.put(key, value);
       return this;
     }
@@ -107,7 +110,7 @@ final class MeasureMapInternal {
     }
 
     private final ArrayList<Measurement> measurements = new ArrayList<Measurement>();
-    private final Map<String, String> attachments = new HashMap<String, String>();
+    private final Map<String, AttachmentValue> attachments = new HashMap<String, AttachmentValue>();
 
     private Builder() {}
   }

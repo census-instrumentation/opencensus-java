@@ -19,6 +19,8 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
+import io.opencensus.stats.AttachmentValue;
+import io.opencensus.stats.AttachmentValue.AttachmentValueString;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
@@ -33,6 +35,10 @@ import org.junit.runners.JUnit4;
 /** Tests for {@link MeasureMapInternal}. */
 @RunWith(JUnit4.class)
 public class MeasureMapInternalTest {
+
+  private static final AttachmentValue ATTACHMENT_VALUE_1 = AttachmentValueString.create("v1");
+  private static final AttachmentValue ATTACHMENT_VALUE_2 = AttachmentValueString.create("v2");
+  private static final AttachmentValue ATTACHMENT_VALUE_3 = AttachmentValueString.create("v3");
 
   @Test
   public void testPutDouble() {
@@ -50,11 +56,12 @@ public class MeasureMapInternalTest {
   public void testPutAttachment() {
     MeasureMapInternal metrics =
         MeasureMapInternal.builder()
-            .putAttachment("k1", "v1")
-            .putAttachment("k2", "v2")
-            .putAttachment("k1", "v3")
+            .putAttachment("k1", ATTACHMENT_VALUE_1)
+            .putAttachment("k2", ATTACHMENT_VALUE_2)
+            .putAttachment("k1", ATTACHMENT_VALUE_3)
             .build();
-    assertThat(metrics.getAttachments()).containsExactly("k1", "v3", "k2", "v2");
+    assertThat(metrics.getAttachments())
+        .containsExactly("k1", ATTACHMENT_VALUE_3, "k2", ATTACHMENT_VALUE_2);
     assertContains(metrics);
   }
 

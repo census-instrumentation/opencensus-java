@@ -16,6 +16,8 @@
 
 package io.opencensus.implcore.stats;
 
+import io.opencensus.stats.AttachmentValue;
+import io.opencensus.stats.AttachmentValue.AttachmentValueString;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
@@ -59,8 +61,14 @@ final class MeasureMapImpl extends MeasureMap {
   }
 
   @Override
-  public MeasureMap putAttachment(String key, String value) {
+  public MeasureMap putAttachment(String key, AttachmentValue value) {
     builder.putAttachment(key, value);
+    return this;
+  }
+
+  @Override
+  public MeasureMap putAttachment(String key, String value) {
+    builder.putAttachment(key, AttachmentValueString.create(value));
     return this;
   }
 

@@ -33,6 +33,7 @@ import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
+import io.opencensus.stats.AttachmentValue;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
@@ -70,7 +71,7 @@ final class StatsTestUtil {
     MutableAggregation mutableAggregation =
         RecordUtils.createMutableAggregation(aggregation, measure);
     for (double value : values) {
-      mutableAggregation.add(value, Collections.<String, String>emptyMap(), EMPTY);
+      mutableAggregation.add(value, Collections.<String, AttachmentValue>emptyMap(), EMPTY);
     }
     return mutableAggregation.toAggregationData();
   }
