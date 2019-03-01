@@ -19,8 +19,6 @@ package io.opencensus.contrib.exemplar.util;
 import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.SpanId;
-import io.opencensus.trace.TraceId;
 import javax.annotation.Nullable;
 
 /**
@@ -31,40 +29,24 @@ import javax.annotation.Nullable;
 public final class ExemplarUtils {
 
   /**
-   * Key for {@link TraceId} in the contextual information of an {@link Exemplar}.
+   * Key for {@link SpanContext} in the contextual information of an {@link Exemplar}.
    *
-   * <p>For the {@code TraceId} value of this key, it is suggested to encode it in hex (base 16)
-   * lower case.
-   *
-   * @since 0.16
+   * @since 0.20
    */
-  public static final String ATTACHMENT_KEY_TRACE_ID = "TraceId";
-
-  /**
-   * Key for {@link SpanId} in the contextual information of an {@link Exemplar}.
-   *
-   * <p>For the {@code SpanId} value of this key, it is suggested to encode it in hex (base 16)
-   * lower case.
-   *
-   * @since 0.16
-   */
-  public static final String ATTACHMENT_KEY_SPAN_ID = "SpanId";
+  public static final String ATTACHMENT_KEY_SPAN_CONTEXT = "SpanContext";
 
   /**
    * Puts a {@link SpanContext} into the attachments of the given {@link MeasureMap}.
    *
-   * <p>{@link TraceId} and {@link SpanId} of the {@link SpanContext} will be encoded in base 16
-   * lower case encoding.
-   *
-   * @param measureMap the {@code MeasureMap}
+   * @param measureMap the {@code MeasureMap}.
    * @param spanContext the {@code SpanContext} to be put as attachments.
    * @since 0.16
    */
   public static void putSpanContextAttachments(MeasureMap measureMap, SpanContext spanContext) {
     checkNotNull(measureMap, "measureMap");
     checkNotNull(spanContext, "spanContext");
-    measureMap.putAttachment(ATTACHMENT_KEY_TRACE_ID, spanContext.getTraceId().toLowerBase16());
-    measureMap.putAttachment(ATTACHMENT_KEY_SPAN_ID, spanContext.getSpanId().toLowerBase16());
+    measureMap.putAttachment(
+        ATTACHMENT_KEY_SPAN_CONTEXT, AttachmentValueSpanContext.create(spanContext));
   }
 
   // TODO: reuse this method from shared artifact.
