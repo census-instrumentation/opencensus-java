@@ -93,6 +93,12 @@ public class AggregationDataTest {
   }
 
   @Test
+  public void testExemplar_PreventNullTimestamp() {
+    thrown.expect(NullPointerException.class);
+    Exemplar.createNew(15, null, ATTACHMENTS);
+  }
+
+  @Test
   public void testExemplar_PreventNullAttachments() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("attachments");
