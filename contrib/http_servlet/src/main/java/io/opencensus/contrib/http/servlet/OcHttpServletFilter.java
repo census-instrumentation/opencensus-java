@@ -100,7 +100,7 @@ public class OcHttpServletFilter implements Filter {
     return buildHttpServerHandlerWithOptions(
         new OcHttpServletExtractor(),
         Tracing.getPropagationComponent().getTraceContextFormat(),
-        /* publicEndpoint= */ true);
+        /* publicEndpoint= */ false);
   }
 
   static HttpServerHandler<HttpServletRequest, HttpServletResponse, HttpServletRequest>
@@ -153,7 +153,7 @@ public class OcHttpServletFilter implements Filter {
         throw new ServletException(EXCEPTION_MESSAGE + OC_PUBLIC_ENDPOINT);
       }
     } else {
-      publicEndpoint = true;
+      publicEndpoint = false;
     }
     handler = buildHttpServerHandlerWithOptions(extractor, propagator, publicEndpoint);
   }
