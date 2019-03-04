@@ -258,7 +258,7 @@ public abstract class AggregationData {
    *
    * @since 0.8
    */
-  @Immutable
+  @javax.annotation.concurrent.Immutable
   @AutoValue
   public abstract static class DistributionData extends AggregationData {
 
@@ -453,7 +453,7 @@ public abstract class AggregationData {
      *
      * @since 0.16
      */
-    @Immutable
+    @javax.annotation.concurrent.Immutable
     @AutoValue
     public abstract static class Exemplar {
 
