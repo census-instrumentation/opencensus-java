@@ -73,7 +73,6 @@ public class OcHttpServletFilterTest {
   @Mock ServletContext mockServletContext;
   TextFormat b3Propagator;
   HttpExtractor<HttpServletRequest, HttpServletResponse> customExtractor;
-  Boolean publicEndpoint = false;
   @Spy OcHttpServletFilter filter = new OcHttpServletFilter();
   @Captor ArgumentCaptor<String> stringArgumentCaptor;
   Object dummyAttr = new Object();

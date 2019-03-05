@@ -147,7 +147,7 @@ public class OcHttpServletFilter implements Filter {
 
     String publicEndVal = context.getInitParameter(OC_PUBLIC_ENDPOINT);
     if (publicEndVal != null) {
-        publicEndpoint = Boolean.parseBoolean(publicEndVal);
+      publicEndpoint = Boolean.parseBoolean(publicEndVal);
     } else {
       publicEndpoint = false;
     }
