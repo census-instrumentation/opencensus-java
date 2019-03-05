@@ -185,8 +185,8 @@ public class MutableAggregationTest {
     // bucket, only the last one will be kept.
     List<Exemplar> expected =
         Arrays.<Exemplar>asList(
-            Exemplar.createNew(values.get(4), timestamps.get(4), attachmentsList.get(4)),
-            Exemplar.createNew(values.get(3), timestamps.get(3), attachmentsList.get(3)));
+            Exemplar.create(values.get(4), timestamps.get(4), attachmentsList.get(4)),
+            Exemplar.create(values.get(3), timestamps.get(3), attachmentsList.get(3)));
     assertThat(mutableDistribution.getExemplars())
         .asList()
         .containsExactlyElementsIn(expected)

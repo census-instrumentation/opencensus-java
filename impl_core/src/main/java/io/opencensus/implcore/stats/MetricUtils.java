@@ -24,12 +24,15 @@ import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.AttachmentValue;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -83,6 +86,14 @@ final class MetricUtils {
       labelValues.add(LabelValue.create(tagValue == null ? null : tagValue.asString()));
     }
     return labelValues;
+  }
+
+  static Map<String, String> toStringAttachments(Map<String, AttachmentValue> attachments) {
+    Map<String, String> stringAttachments = new HashMap<>();
+    for (Map.Entry<String, AttachmentValue> entry : attachments.entrySet()) {
+      stringAttachments.put(entry.getKey(), entry.getValue().getValue());
+    }
+    return stringAttachments;
   }
 
   private static final Function<Object, Type> TYPE_CUMULATIVE_DOUBLE_FUNCTION =

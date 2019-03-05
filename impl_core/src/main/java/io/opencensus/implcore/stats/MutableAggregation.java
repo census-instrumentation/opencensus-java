@@ -316,7 +316,7 @@ abstract class MutableAggregation {
       // No implicit recording for exemplars - if there are no attachments (contextual information),
       // don't record exemplars.
       if (!attachments.isEmpty() && exemplars != null) {
-        exemplars[bucket] = Exemplar.createNew(value, timestamp, attachments);
+        exemplars[bucket] = Exemplar.create(value, timestamp, attachments);
       }
     }
 
@@ -405,7 +405,9 @@ abstract class MutableAggregation {
               Distribution.Bucket.create(
                   bucketCount,
                   Distribution.Exemplar.create(
-                      exemplar.getValue(), exemplar.getTimestamp(), exemplar.getAttachments()));
+                      exemplar.getValue(),
+                      exemplar.getTimestamp(),
+                      MetricUtils.toStringAttachments(exemplar.getAttachments())));
         } else {
           // Bucket with no Exemplar.
           metricBucket = Distribution.Bucket.create(bucketCount);

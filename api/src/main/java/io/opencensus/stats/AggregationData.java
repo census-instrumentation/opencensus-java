@@ -20,7 +20,6 @@ import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
 import io.opencensus.internal.Utils;
-import io.opencensus.stats.AttachmentValue.AttachmentValueString;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -479,25 +478,9 @@ public abstract class AggregationData {
        * Returns the contextual information about the example value.
        *
        * @return the contextual information about the example value.
-       * @since 0.16
-       * @deprecated in favor of {@link #getAttachmentMap()}.
-       */
-      @Deprecated
-      public Map<String, String> getAttachments() {
-        Map<String, String> attachments = new HashMap<String, String>();
-        for (Entry<String, AttachmentValue> entry : getAttachmentMap().entrySet()) {
-          attachments.put(entry.getKey(), entry.getValue().getValue());
-        }
-        return Collections.unmodifiableMap(attachments);
-      }
-
-      /**
-       * Returns the contextual information about the example value.
-       *
-       * @return the contextual information about the example value.
        * @since 0.20
        */
-      public abstract Map<String, AttachmentValue> getAttachmentMap();
+      public abstract Map<String, AttachmentValue> getAttachments();
 
       /**
        * Creates an {@link Exemplar}.
@@ -506,33 +489,9 @@ public abstract class AggregationData {
        * @param timestamp the time that this {@code Exemplar}'s value was recorded.
        * @param attachments the contextual information about the example value.
        * @return an {@code Exemplar}.
-       * @since 0.16
-       * @deprecated in favor of {@link #createNew(double, Timestamp, Map)}.
+       * @since 0.20
        */
-      @Deprecated
       public static Exemplar create(
-          double value, Timestamp timestamp, Map<String, String> attachments) {
-        Utils.checkNotNull(attachments, "attachments");
-        Map<String, AttachmentValue> attachmentsCopy = new HashMap<String, AttachmentValue>();
-        for (Entry<String, String> entry : attachments.entrySet()) {
-          Utils.checkNotNull(entry.getKey(), "key of attachments");
-          String string = Utils.checkNotNull(entry.getValue(), "value of attachments");
-          attachmentsCopy.put(entry.getKey(), AttachmentValueString.create(string));
-        }
-        return new AutoValue_AggregationData_DistributionData_Exemplar(
-            value, timestamp, Collections.unmodifiableMap(attachmentsCopy));
-      }
-
-      /**
-       * Creates an {@link Exemplar}.
-       *
-       * @param value value of the {@link Exemplar} point.
-       * @param timestamp the time that this {@code Exemplar}'s value was recorded.
-       * @param attachments the contextual information about the example value.
-       * @return an {@code Exemplar}.
-       * @since 0.20
-       */
-      public static Exemplar createNew(
           double value, Timestamp timestamp, Map<String, AttachmentValue> attachments) {
         Utils.checkNotNull(attachments, "attachments");
         Map<String, AttachmentValue> attachmentsCopy =
