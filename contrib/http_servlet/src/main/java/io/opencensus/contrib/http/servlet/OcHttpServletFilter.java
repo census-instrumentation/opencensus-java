@@ -145,13 +145,9 @@ public class OcHttpServletFilter implements Filter {
       extractor = new OcHttpServletExtractor();
     }
 
-    obj = context.getAttribute(OC_PUBLIC_ENDPOINT);
-    if (obj != null) {
-      if (obj instanceof Boolean) {
-        publicEndpoint = (Boolean) obj;
-      } else {
-        throw new ServletException(EXCEPTION_MESSAGE + OC_PUBLIC_ENDPOINT);
-      }
+    String publicEndVal = context.getInitParameter(OC_PUBLIC_ENDPOINT);
+    if (publicEndVal != null) {
+      publicEndpoint = Boolean.parseBoolean(publicEndVal);
     } else {
       publicEndpoint = false;
     }
