@@ -93,17 +93,16 @@ public class OcHttpServletFilterTest {
     when(mockConfig.getServletContext()).thenReturn(mockServletContext);
     when(mockServletContext.getAttribute(OC_TRACE_PROPAGATOR)).thenReturn(null);
     when(mockServletContext.getAttribute(OC_EXTRACTOR)).thenReturn(null);
-    when(mockServletContext.getAttribute(OC_PUBLIC_ENDPOINT)).thenReturn(null);
+    when(mockServletContext.getInitParameter(OC_PUBLIC_ENDPOINT)).thenReturn("false");
 
     filter.init(mockConfig);
 
     verify(mockConfig).getServletContext();
-    verify(mockServletContext, times(3)).getAttribute(stringArgumentCaptor.capture());
+    verify(mockServletContext, times(2)).getAttribute(stringArgumentCaptor.capture());
 
     List<String> attributes = stringArgumentCaptor.getAllValues();
     assertThat(attributes.contains(OC_TRACE_PROPAGATOR)).isTrue();
     assertThat(attributes.contains(OC_EXTRACTOR)).isTrue();
-    assertThat(attributes.contains(OC_PUBLIC_ENDPOINT)).isTrue();
     assertThat(filter.handler).isNotEqualTo(oldHandler);
     assertThat(filter.handler).isNotNull();
   }
@@ -116,17 +115,16 @@ public class OcHttpServletFilterTest {
     when(mockConfig.getServletContext()).thenReturn(mockServletContext);
     when(mockServletContext.getAttribute(OC_TRACE_PROPAGATOR)).thenReturn(b3Propagator);
     when(mockServletContext.getAttribute(OC_EXTRACTOR)).thenReturn(customExtractor);
-    when(mockServletContext.getAttribute(OC_PUBLIC_ENDPOINT)).thenReturn(publicEndpoint);
+    when(mockServletContext.getInitParameter(OC_PUBLIC_ENDPOINT)).thenReturn("false");
 
     filter.init(mockConfig);
 
     verify(mockConfig).getServletContext();
-    verify(mockServletContext, times(3)).getAttribute(stringArgumentCaptor.capture());
+    verify(mockServletContext, times(2)).getAttribute(stringArgumentCaptor.capture());
 
     List<String> attributes = stringArgumentCaptor.getAllValues();
     assertThat(attributes.contains(OC_TRACE_PROPAGATOR)).isTrue();
     assertThat(attributes.contains(OC_EXTRACTOR)).isTrue();
-    assertThat(attributes.contains(OC_PUBLIC_ENDPOINT)).isTrue();
     assertThat(filter.handler).isNotEqualTo(oldHandler);
     assertThat(filter.handler).isNotNull();
   }
@@ -148,11 +146,6 @@ public class OcHttpServletFilterTest {
   @Test
   public void testInitInvalidPropagator() throws ServletException {
     testInitInvalidAttr(OC_TRACE_PROPAGATOR);
-  }
-
-  @Test
-  public void testInitInvalidPublicEndpoint() throws ServletException {
-    testInitInvalidAttr(OC_PUBLIC_ENDPOINT);
   }
 
   @Test
