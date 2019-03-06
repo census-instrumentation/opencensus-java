@@ -105,6 +105,7 @@ sourceSets {
     main {
         java {
             srcDir 'src'
+            exclude { FileTreeElement e -> e.path.contains('ocagent/') }
             srcDirs 'build/generated/source/proto/main/grpc'
             srcDirs 'build/generated/source/proto/main/java'
         }
