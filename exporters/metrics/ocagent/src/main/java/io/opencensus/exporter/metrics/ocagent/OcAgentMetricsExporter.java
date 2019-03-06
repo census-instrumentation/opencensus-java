@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
 import io.opencensus.metrics.Metrics;
@@ -46,7 +47,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class OcAgentMetricsExporter {
 
-  private static final String DEFAULT_END_POINT = "localhost:55678";
+  @VisibleForTesting static final String DEFAULT_END_POINT = "localhost:55678";
   private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
   private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
   private static final Duration DEFAULT_EXPORT_INTERVAL = Duration.create(60, 0); // 1 minute
