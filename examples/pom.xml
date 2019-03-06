@@ -46,6 +46,11 @@
       <artifactId>opencensus-contrib-zpages</artifactId>
       <version>${opencensus.version}</version>
     </dependency>
+    <!--<dependency>-->
+      <!--<groupId>io.opencensus</groupId>-->
+      <!--<artifactId>opencensus-exporter-metrics-ocagent</artifactId>-->
+      <!--<version>${opencensus.version}</version>-->
+    <!--</dependency>-->
     <dependency>
       <groupId>io.opencensus</groupId>
       <artifactId>opencensus-exporter-stats-stackdriver</artifactId>
@@ -71,6 +76,11 @@
       <artifactId>opencensus-exporter-trace-logging</artifactId>
       <version>${opencensus.version}</version>
     </dependency>
+    <!--<dependency>-->
+      <!--<groupId>io.opencensus</groupId>-->
+      <!--<artifactId>opencensus-exporter-trace-ocagent</artifactId>-->
+      <!--<version>${opencensus.version}</version>-->
+    <!--</dependency>-->
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-core</artifactId>
@@ -226,6 +236,11 @@
               <id>HttpJettyServer</id>
               <mainClass>io.opencensus.examples.http.jetty.server.HelloWorldServer</mainClass>
             </program>
+            <!--TODO(songy23): uncomment this when Agent exporters are released.-->
+            <!--<program>-->
+              <!--<id>OcAgentExportersQuickStart</id>-->
+              <!--<mainClass>io.opencensus.examples.ocagent.OcAgentExportersQuickStart</mainClass>-->
+            <!--</program>-->
           </programs>
         </configuration>
       </plugin>
@@ -249,6 +264,15 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/ocagent/**/*.java</exclude>
+          </excludes>
+        </configuration>
       </plugin>
     </plugins>
   </build>
