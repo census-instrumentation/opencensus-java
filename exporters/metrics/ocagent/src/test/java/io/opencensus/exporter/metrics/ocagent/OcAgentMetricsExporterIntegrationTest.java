@@ -216,7 +216,7 @@ public class OcAgentMetricsExporterIntegrationTest {
     // No interaction with Agent so far.
     assertThat(fakeOcAgentMetricsServiceGrpc.getExportMetricsServiceRequests()).isEmpty();
 
-    // Image an outage happened, now start Agent. Exporter should be able to connect to Agent
+    // Imagine that an outage happened, now start Agent. Exporter should be able to connect to Agent
     // after the next retry interval.
     agent.start();
 
@@ -249,7 +249,7 @@ public class OcAgentMetricsExporterIntegrationTest {
       metricProtos.addAll(exportRequests.get(i).getMetricsList());
     }
 
-    // There should be at least one metric exported for each view and gauge.
+    // There should be at least one metric exported for each view and gauge (4 + 1).
     assertThat(metricProtos.size()).isAtLeast(5);
 
     Set<String> expectedMetrics = new HashSet<>();
