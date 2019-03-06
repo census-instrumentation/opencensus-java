@@ -31,7 +31,7 @@ import org.junit.runners.JUnit4;
 public class OcHttpServletExtractorTest {
 
   @SuppressWarnings("JdkObsolete")
-  private final StringBuffer urlBuffer = new StringBuffer("http://example.com/user/foo");
+  private final StringBuffer urlBuffer = new StringBuffer("http://example.com:8080/user/foo");
 
   @Test
   public void testExtraction() {
@@ -41,7 +41,8 @@ public class OcHttpServletExtractorTest {
     when(request.getServerName()).thenReturn("example.com");
     when(request.getMethod()).thenReturn("GET");
     when(request.getHeader("User-Agent")).thenReturn("Test 1.0");
-    when(request.getPathInfo()).thenReturn("/user/foo");
+    when(request.getRequestURI()).thenReturn("/user/foo");
+    when(request.getQueryString()).thenReturn("a=b");
     when(response.getStatus()).thenReturn(0);
     when(request.getRequestURL()).thenReturn(urlBuffer);
 
@@ -51,6 +52,6 @@ public class OcHttpServletExtractorTest {
     assertThat(extractor.getUserAgent(request)).contains("Test 1.0");
     assertThat(extractor.getStatusCode(response)).isEqualTo(0);
     assertThat(extractor.getRoute(request)).contains("");
-    assertThat(extractor.getUrl(request)).contains(urlBuffer.toString());
+    assertThat(extractor.getUrl(request)).contains(urlBuffer.toString() + "?" + "a=b");
   }
 }

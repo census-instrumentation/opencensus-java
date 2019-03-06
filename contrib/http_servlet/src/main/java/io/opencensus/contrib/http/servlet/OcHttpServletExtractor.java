@@ -39,7 +39,10 @@ class OcHttpServletExtractor extends HttpExtractor<HttpServletRequest, HttpServl
 
   @Override
   public String getPath(HttpServletRequest request) {
-    return request.getPathInfo();
+    // Path defined in the <a
+    // href="https://github.com/census-instrumentation/opencensus-specs/blob/master/trace/HTTP.md#attributes>spec</a>
+    // is equivalent of URI in HttpServlet.
+    return request.getRequestURI();
   }
 
   @Override
@@ -57,7 +60,10 @@ class OcHttpServletExtractor extends HttpExtractor<HttpServletRequest, HttpServl
 
   @Override
   public String getUrl(HttpServletRequest request) {
-    return request.getRequestURL().toString();
+    // Url defined in the <a
+    // href="https://github.com/census-instrumentation/opencensus-specs/blob/master/trace/HTTP.md#attributes">spec</a>
+    // is equivalent of URL + QueryString in HttpServlet.
+    return request.getRequestURL().toString() + "?" + request.getQueryString();
   }
 
   @Override
