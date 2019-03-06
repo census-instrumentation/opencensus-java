@@ -147,3 +147,18 @@ Stats are available from Prometheus server running at
 ./target/appassembler/bin/HttpJettyServer
 ./target/appassembler/bin/HttpJettyClient
 ```
+
+## To run OcAgentExportersQuickStart
+
+### Gradle
+```bash
+./build/install/opencensus-examples/bin/OcAgentExportersQuickStart agentEndpoint # default is localhost:56678
+```
+
+### Maven
+```bash
+./target/appassembler/bin/OcAgentExportersQuickStart agentEndpoint # default is localhost:56678
+```
+
+You also need to install and start OpenCensus-Agent in order to receive the traces and metrics.
+For more information on setting up Agent, see [tutorial](https://opencensus.io/agent/).
