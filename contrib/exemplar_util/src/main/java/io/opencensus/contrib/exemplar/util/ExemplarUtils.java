@@ -16,7 +16,7 @@
 
 package io.opencensus.contrib.exemplar.util;
 
-import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
+import io.opencensus.common.Exemplar;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.trace.SpanContext;
 import javax.annotation.Nullable;

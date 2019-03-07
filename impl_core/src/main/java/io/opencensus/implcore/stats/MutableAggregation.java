@@ -20,6 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.common.AttachmentValue;
+import io.opencensus.common.Exemplar;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.export.Distribution;
 import io.opencensus.metrics.export.Distribution.BucketOptions;
@@ -28,8 +30,6 @@ import io.opencensus.metrics.export.Value;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
-import io.opencensus.stats.AttachmentValue;
 import io.opencensus.stats.BucketBoundaries;
 import java.util.ArrayList;
 import java.util.List;
@@ -393,7 +393,7 @@ abstract class MutableAggregation {
       List<Distribution.Bucket> buckets = new ArrayList<Distribution.Bucket>();
       for (int bucket = 0; bucket < bucketCounts.length; bucket++) {
         long bucketCount = bucketCounts[bucket];
-        @javax.annotation.Nullable AggregationData.DistributionData.Exemplar exemplar = null;
+        @javax.annotation.Nullable Exemplar exemplar = null;
         if (exemplars != null) {
           exemplar = exemplars[bucket];
         }
@@ -401,13 +401,7 @@ abstract class MutableAggregation {
         Distribution.Bucket metricBucket;
         if (exemplar != null) {
           // Bucket with an Exemplar.
-          metricBucket =
-              Distribution.Bucket.create(
-                  bucketCount,
-                  Distribution.Exemplar.create(
-                      exemplar.getValue(),
-                      exemplar.getTimestamp(),
-                      MetricUtils.toStringAttachments(exemplar.getAttachments())));
+          metricBucket = Distribution.Bucket.create(bucketCount, exemplar);
         } else {
           // Bucket with no Exemplar.
           metricBucket = Distribution.Bucket.create(bucketCount);

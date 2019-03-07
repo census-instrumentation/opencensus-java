@@ -18,6 +18,8 @@ package io.opencensus.exporter.metrics.ocagent;
 
 import com.google.protobuf.DoubleValue;
 import com.google.protobuf.Int64Value;
+import io.opencensus.common.AttachmentValue;
+import io.opencensus.common.Exemplar;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -32,6 +34,9 @@ import io.opencensus.proto.metrics.v1.Point;
 import io.opencensus.proto.metrics.v1.SummaryValue;
 import io.opencensus.proto.metrics.v1.TimeSeries;
 import io.opencensus.proto.resource.v1.Resource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 /** Utilities for converting Metrics APIs in OpenCensus Java to OpenCensus Metrics Proto. */
@@ -207,19 +212,22 @@ final class MetricsProtoUtils {
       io.opencensus.metrics.export.Distribution.Bucket bucket) {
     DistributionValue.Bucket.Builder builder =
         DistributionValue.Bucket.newBuilder().setCount(bucket.getCount());
-    io.opencensus.metrics.export.Distribution.Exemplar exemplar = bucket.getExemplar();
+    Exemplar exemplar = bucket.getExemplar();
     if (exemplar != null) {
       builder.setExemplar(toExemplarProto(exemplar));
     }
     return builder.build();
   }
 
-  private static DistributionValue.Exemplar toExemplarProto(
-      io.opencensus.metrics.export.Distribution.Exemplar exemplar) {
+  private static DistributionValue.Exemplar toExemplarProto(Exemplar exemplar) {
+    Map<String, String> stringAttachments = new HashMap<>();
+    for (Entry<String, AttachmentValue> entry : exemplar.getAttachments().entrySet()) {
+      stringAttachments.put(entry.getKey(), entry.getValue().getValue());
+    }
     return DistributionValue.Exemplar.newBuilder()
         .setValue(exemplar.getValue())
         .setTimestamp(toTimestampProto(exemplar.getTimestamp()))
-        .putAllAttachments(exemplar.getAttachments())
+        .putAllAttachments(stringAttachments)
         .build();
   }
 

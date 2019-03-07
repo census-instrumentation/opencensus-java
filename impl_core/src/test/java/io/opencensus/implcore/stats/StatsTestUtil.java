@@ -21,6 +21,7 @@ import static io.opencensus.implcore.stats.MutableViewData.ZERO_TIMESTAMP;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import io.opencensus.common.AttachmentValue;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -33,7 +34,6 @@ import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
-import io.opencensus.stats.AttachmentValue;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
