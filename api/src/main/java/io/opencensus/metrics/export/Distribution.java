@@ -17,16 +17,13 @@
 package io.opencensus.metrics.export;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.common.Exemplar;
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.common.Function;
-import io.opencensus.common.Timestamp;
 import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -283,63 +280,5 @@ public abstract class Distribution {
      */
     @Nullable
     public abstract Exemplar getExemplar();
-  }
-
-  /**
-   * An example point that may be used to annotate aggregated distribution values, associated with a
-   * histogram bucket.
-   *
-   * @since 0.17
-   */
-  @Immutable
-  @AutoValue
-  public abstract static class Exemplar {
-
-    Exemplar() {}
-
-    /**
-     * Returns value of the {@link Exemplar} point.
-     *
-     * @return value of the {@code Exemplar} point.
-     * @since 0.17
-     */
-    public abstract double getValue();
-
-    /**
-     * Returns the time that this {@link Exemplar}'s value was recorded.
-     *
-     * @return the time that this {@code Exemplar}'s value was recorded.
-     * @since 0.17
-     */
-    public abstract Timestamp getTimestamp();
-
-    /**
-     * Returns the contextual information about the example value, represented as a string map.
-     *
-     * @return the contextual information about the example value.
-     * @since 0.17
-     */
-    public abstract Map<String, String> getAttachments();
-
-    /**
-     * Creates an {@link Exemplar}.
-     *
-     * @param value value of the {@link Exemplar} point.
-     * @param timestamp the time that this {@code Exemplar}'s value was recorded.
-     * @param attachments the contextual information about the example value.
-     * @return an {@code Exemplar}.
-     * @since 0.17
-     */
-    public static Exemplar create(
-        double value, Timestamp timestamp, Map<String, String> attachments) {
-      Utils.checkNotNull(attachments, "attachments");
-      Map<String, String> attachmentsCopy =
-          Collections.unmodifiableMap(new HashMap<String, String>(attachments));
-      for (Entry<String, String> entry : attachmentsCopy.entrySet()) {
-        Utils.checkNotNull(entry.getKey(), "key of attachments");
-        Utils.checkNotNull(entry.getValue(), "value of attachments");
-      }
-      return new AutoValue_Distribution_Exemplar(value, timestamp, attachmentsCopy);
-    }
   }
 }

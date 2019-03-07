@@ -19,13 +19,15 @@ package io.opencensus.metrics.export;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+import io.opencensus.common.AttachmentValue;
+import io.opencensus.common.AttachmentValue.AttachmentValueString;
+import io.opencensus.common.Exemplar;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.export.Distribution.Bucket;
 import io.opencensus.metrics.export.Distribution.BucketOptions;
 import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;
-import io.opencensus.metrics.export.Distribution.Exemplar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,7 +46,9 @@ public class DistributionTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final Timestamp TIMESTAMP = Timestamp.create(1, 0);
-  private static final Map<String, String> ATTACHMENTS = Collections.singletonMap("key", "value");
+  private static final AttachmentValue VALUE = AttachmentValueString.create("value");
+  private static final Map<String, AttachmentValue> ATTACHMENTS =
+      Collections.<String, AttachmentValue>singletonMap("key", VALUE);
   private static final double TOLERANCE = 1e-6;
 
   @Test
@@ -190,7 +194,7 @@ public class DistributionTest {
 
   @Test
   public void createExemplar_PreventNullAttachmentKey() {
-    Map<String, String> attachments = Collections.singletonMap(null, "value");
+    Map<String, AttachmentValue> attachments = Collections.singletonMap(null, VALUE);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key of attachment");
     Exemplar.create(15, TIMESTAMP, attachments);
@@ -198,7 +202,7 @@ public class DistributionTest {
 
   @Test
   public void createExemplar_PreventNullAttachmentValue() {
-    Map<String, String> attachments = Collections.singletonMap("key", null);
+    Map<String, AttachmentValue> attachments = Collections.singletonMap("key", null);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("value of attachment");
     Exemplar.create(15, TIMESTAMP, attachments);

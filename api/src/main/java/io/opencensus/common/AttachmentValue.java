@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.common;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import javax.annotation.concurrent.Immutable;
 
 /**
