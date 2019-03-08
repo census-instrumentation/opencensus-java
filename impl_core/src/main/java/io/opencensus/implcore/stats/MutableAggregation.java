@@ -29,6 +29,7 @@ import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
+import io.opencensus.stats.AttachmentValue;
 import io.opencensus.stats.BucketBoundaries;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,7 @@ abstract class MutableAggregation {
    * @param attachments the contextual information on an {@link Exemplar}
    * @param timestamp the timestamp when the value is recorded
    */
-  abstract void add(double value, Map<String, String> attachments, Timestamp timestamp);
+  abstract void add(double value, Map<String, AttachmentValue> attachments, Timestamp timestamp);
 
   // TODO(songya): remove this method once interval stats is completely removed.
   /**
@@ -85,7 +86,7 @@ abstract class MutableAggregation {
     }
 
     @Override
-    void add(double value, Map<String, String> attachments, Timestamp timestamp) {
+    void add(double value, Map<String, AttachmentValue> attachments, Timestamp timestamp) {
       sum += value;
     }
 
@@ -154,7 +155,7 @@ abstract class MutableAggregation {
     }
 
     @Override
-    void add(double value, Map<String, String> attachments, Timestamp timestamp) {
+    void add(double value, Map<String, AttachmentValue> attachments, Timestamp timestamp) {
       count++;
     }
 
@@ -202,7 +203,7 @@ abstract class MutableAggregation {
     }
 
     @Override
-    void add(double value, Map<String, String> attachments, Timestamp timestamp) {
+    void add(double value, Map<String, AttachmentValue> attachments, Timestamp timestamp) {
       count++;
       sum += value;
     }
@@ -287,7 +288,7 @@ abstract class MutableAggregation {
     }
 
     @Override
-    void add(double value, Map<String, String> attachments, Timestamp timestamp) {
+    void add(double value, Map<String, AttachmentValue> attachments, Timestamp timestamp) {
       sum += value;
       count++;
 
@@ -386,6 +387,7 @@ abstract class MutableAggregation {
           mean, count, sumOfSquaredDeviations, boxedBucketCounts, exemplarList);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     Point toPoint(Timestamp timestamp) {
       List<Distribution.Bucket> buckets = new ArrayList<Distribution.Bucket>();
@@ -403,7 +405,9 @@ abstract class MutableAggregation {
               Distribution.Bucket.create(
                   bucketCount,
                   Distribution.Exemplar.create(
-                      exemplar.getValue(), exemplar.getTimestamp(), exemplar.getAttachments()));
+                      exemplar.getValue(),
+                      exemplar.getTimestamp(),
+                      MetricUtils.toStringAttachments(exemplar.getAttachments())));
         } else {
           // Bucket with no Exemplar.
           metricBucket = Distribution.Bucket.create(bucketCount);
@@ -467,7 +471,7 @@ abstract class MutableAggregation {
     }
 
     @Override
-    void add(double value, Map<String, String> attachments, Timestamp timestamp) {
+    void add(double value, Map<String, AttachmentValue> attachments, Timestamp timestamp) {
       lastValue = value;
       // TODO(songya): remove this once interval stats is completely removed.
       if (!initialized) {

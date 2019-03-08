@@ -40,6 +40,7 @@ import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.TimeSeries;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
+import io.opencensus.stats.AttachmentValue;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
@@ -93,7 +94,10 @@ abstract class MutableViewData {
 
   /** Record stats with the given tags. */
   abstract void record(
-      TagContext context, double value, Timestamp timestamp, Map<String, String> attachments);
+      TagContext context,
+      double value,
+      Timestamp timestamp,
+      Map<String, AttachmentValue> attachments);
 
   /** Convert this {@link MutableViewData} to {@link ViewData}. */
   abstract ViewData toViewData(Timestamp now, State state);
@@ -146,7 +150,10 @@ abstract class MutableViewData {
 
     @Override
     void record(
-        TagContext context, double value, Timestamp timestamp, Map<String, String> attachments) {
+        TagContext context,
+        double value,
+        Timestamp timestamp,
+        Map<String, AttachmentValue> attachments) {
       List</*@Nullable*/ TagValue> tagValues =
           getTagValues(getTagMap(context), super.view.getColumns());
       if (!tagValueAggregationMap.containsKey(tagValues)) {
@@ -246,7 +253,10 @@ abstract class MutableViewData {
 
     @Override
     void record(
-        TagContext context, double value, Timestamp timestamp, Map<String, String> attachments) {
+        TagContext context,
+        double value,
+        Timestamp timestamp,
+        Map<String, AttachmentValue> attachments) {
       List</*@Nullable*/ TagValue> tagValues =
           getTagValues(getTagMap(context), super.view.getColumns());
       refreshBucketList(timestamp);

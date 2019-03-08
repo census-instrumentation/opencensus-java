@@ -30,6 +30,7 @@ import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
+import io.opencensus.stats.AttachmentValue.AttachmentValueString;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,7 +49,9 @@ public class AggregationDataTest {
   private static final double TOLERANCE = 1e-6;
   private static final Timestamp TIMESTAMP_1 = Timestamp.create(1, 0);
   private static final Timestamp TIMESTAMP_2 = Timestamp.create(2, 0);
-  private static final Map<String, String> ATTACHMENTS = Collections.singletonMap("key", "value");
+  private static final AttachmentValue ATTACHMENT_VALUE = AttachmentValueString.create("value");
+  private static final Map<String, AttachmentValue> ATTACHMENTS =
+      Collections.singletonMap("key", ATTACHMENT_VALUE);
 
   @Rule public ExpectedException thrown = ExpectedException.none();
 
@@ -81,6 +84,12 @@ public class AggregationDataTest {
   }
 
   @Test
+  public void testExemplar_PreventNullTimestamp() {
+    thrown.expect(NullPointerException.class);
+    Exemplar.create(15, null, ATTACHMENTS);
+  }
+
+  @Test
   public void testExemplar_PreventNullAttachments() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("attachments");
@@ -89,7 +98,7 @@ public class AggregationDataTest {
 
   @Test
   public void testExemplar_PreventNullAttachmentKey() {
-    Map<String, String> attachments = Collections.singletonMap(null, "value");
+    Map<String, AttachmentValue> attachments = Collections.singletonMap(null, ATTACHMENT_VALUE);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key of attachment");
     Exemplar.create(15, TIMESTAMP_1, attachments);
@@ -97,7 +106,7 @@ public class AggregationDataTest {
 
   @Test
   public void testExemplar_PreventNullAttachmentValue() {
-    Map<String, String> attachments = Collections.singletonMap("key", null);
+    Map<String, AttachmentValue> attachments = Collections.singletonMap("key", null);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("value of attachment");
     Exemplar.create(15, TIMESTAMP_1, attachments);

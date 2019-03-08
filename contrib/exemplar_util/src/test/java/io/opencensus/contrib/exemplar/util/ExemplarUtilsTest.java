@@ -17,9 +17,9 @@
 package io.opencensus.contrib.exemplar.util;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.opencensus.contrib.exemplar.util.ExemplarUtils.ATTACHMENT_KEY_SPAN_ID;
-import static io.opencensus.contrib.exemplar.util.ExemplarUtils.ATTACHMENT_KEY_TRACE_ID;
+import static io.opencensus.contrib.exemplar.util.ExemplarUtils.ATTACHMENT_KEY_SPAN_CONTEXT;
 
+import io.opencensus.stats.AttachmentValue;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
@@ -55,10 +55,7 @@ public class ExemplarUtilsTest {
     ExemplarUtils.putSpanContextAttachments(measureMap, SPAN_CONTEXT);
     assertThat(measureMap.attachments)
         .containsExactly(
-            ATTACHMENT_KEY_TRACE_ID,
-            TRACE_ID.toLowerBase16(),
-            ATTACHMENT_KEY_SPAN_ID,
-            SPAN_ID.toLowerBase16());
+            ATTACHMENT_KEY_SPAN_CONTEXT, AttachmentValueSpanContext.create(SPAN_CONTEXT));
   }
 
   @Test
@@ -78,10 +75,10 @@ public class ExemplarUtilsTest {
 
   private static final class FakeMeasureMap extends MeasureMap {
 
-    private final Map<String, String> attachments = new HashMap<String, String>();
+    private final Map<String, AttachmentValue> attachments = new HashMap<String, AttachmentValue>();
 
     @Override
-    public MeasureMap putAttachment(String key, String value) {
+    public MeasureMap putAttachment(String key, AttachmentValue value) {
       attachments.put(key, value);
       return this;
     }

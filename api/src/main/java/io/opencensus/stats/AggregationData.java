@@ -257,7 +257,7 @@ public abstract class AggregationData {
    *
    * @since 0.8
    */
-  @Immutable
+  @javax.annotation.concurrent.Immutable
   @AutoValue
   public abstract static class DistributionData extends AggregationData {
 
@@ -452,7 +452,7 @@ public abstract class AggregationData {
      *
      * @since 0.16
      */
-    @Immutable
+    @javax.annotation.concurrent.Immutable
     @AutoValue
     public abstract static class Exemplar {
 
@@ -475,12 +475,12 @@ public abstract class AggregationData {
       public abstract Timestamp getTimestamp();
 
       /**
-       * Returns the contextual information about the example value, represented as a string map.
+       * Returns the contextual information about the example value.
        *
        * @return the contextual information about the example value.
-       * @since 0.16
+       * @since 0.20
        */
-      public abstract Map<String, String> getAttachments();
+      public abstract Map<String, AttachmentValue> getAttachments();
 
       /**
        * Creates an {@link Exemplar}.
@@ -489,14 +489,14 @@ public abstract class AggregationData {
        * @param timestamp the time that this {@code Exemplar}'s value was recorded.
        * @param attachments the contextual information about the example value.
        * @return an {@code Exemplar}.
-       * @since 0.16
+       * @since 0.20
        */
       public static Exemplar create(
-          double value, Timestamp timestamp, Map<String, String> attachments) {
+          double value, Timestamp timestamp, Map<String, AttachmentValue> attachments) {
         Utils.checkNotNull(attachments, "attachments");
-        Map<String, String> attachmentsCopy =
-            Collections.unmodifiableMap(new HashMap<String, String>(attachments));
-        for (Entry<String, String> entry : attachmentsCopy.entrySet()) {
+        Map<String, AttachmentValue> attachmentsCopy =
+            Collections.unmodifiableMap(new HashMap<String, AttachmentValue>(attachments));
+        for (Entry<String, AttachmentValue> entry : attachmentsCopy.entrySet()) {
           Utils.checkNotNull(entry.getKey(), "key of attachments");
           Utils.checkNotNull(entry.getValue(), "value of attachments");
         }
