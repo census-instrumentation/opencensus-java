@@ -47,9 +47,8 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   private final MetricDescriptor metricDescriptor;
   private final int labelKeysSize;
 
-  @SuppressWarnings("rawtypes")
-  private volatile Map<List<LabelValue>, PointWithFunction> registeredPoints =
-      Collections.<List<LabelValue>, PointWithFunction>emptyMap();
+  private volatile Map<List<LabelValue>, PointWithFunction<?>> registeredPoints =
+      Collections.<List<LabelValue>, PointWithFunction<?>>emptyMap();
 
   DerivedLongGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
     labelKeysSize = labelKeys.size();
@@ -58,9 +57,10 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   }
 
   @Override
-  @SuppressWarnings("rawtypes")
   public synchronized <T> void createTimeSeries(
-      List<LabelValue> labelValues, /*@Nullable*/ T obj, ToLongFunction</*@Nullable*/ T> function) {
+      List<LabelValue> labelValues,
+      @javax.annotation.Nullable T obj,
+      ToLongFunction</*@Nullable*/ T> function) {
     Utils.checkListElementNotNull(checkNotNull(labelValues, "labelValues"), "labelValue");
     checkArgument(
         labelKeysSize == labelValues.size(), "Label Keys and Label Values don't have same size.");
@@ -69,28 +69,27 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
     List<LabelValue> labelValuesCopy =
         Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues));
 
-    PointWithFunction existingPoint = registeredPoints.get(labelValuesCopy);
+    PointWithFunction<?> existingPoint = registeredPoints.get(labelValuesCopy);
     if (existingPoint != null) {
       throw new IllegalArgumentException(
           "A different time series with the same labels already exists.");
     }
 
-    PointWithFunction newPoint = new PointWithFunction<T>(labelValuesCopy, obj, function);
+    PointWithFunction<T> newPoint = new PointWithFunction<T>(labelValuesCopy, obj, function);
     // Updating the map of time series happens under a lock to avoid multiple add operations
     // to happen in the same time.
-    Map<List<LabelValue>, PointWithFunction> registeredPointsCopy =
-        new LinkedHashMap<List<LabelValue>, PointWithFunction>(registeredPoints);
+    Map<List<LabelValue>, PointWithFunction<?>> registeredPointsCopy =
+        new LinkedHashMap<List<LabelValue>, PointWithFunction<?>>(registeredPoints);
     registeredPointsCopy.put(labelValuesCopy, newPoint);
     registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
   }
 
   @Override
-  @SuppressWarnings("rawtypes")
   public synchronized void removeTimeSeries(List<LabelValue> labelValues) {
     checkNotNull(labelValues, "labelValues");
 
-    Map<List<LabelValue>, PointWithFunction> registeredPointsCopy =
-        new LinkedHashMap<List<LabelValue>, PointWithFunction>(registeredPoints);
+    Map<List<LabelValue>, PointWithFunction<?>> registeredPointsCopy =
+        new LinkedHashMap<List<LabelValue>, PointWithFunction<?>>(registeredPoints);
     if (registeredPointsCopy.remove(labelValues) == null) {
       // The element not present, no need to update the current map of time series.
       return;
@@ -99,27 +98,25 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   }
 
   @Override
-  @SuppressWarnings("rawtypes")
   public synchronized void clear() {
-    registeredPoints = Collections.<List<LabelValue>, PointWithFunction>emptyMap();
+    registeredPoints = Collections.<List<LabelValue>, PointWithFunction<?>>emptyMap();
   }
 
-  /*@Nullable*/
+  @javax.annotation.Nullable
   @Override
-  @SuppressWarnings("rawtypes")
   public Metric getMetric(Clock clock) {
-    Map<List<LabelValue>, PointWithFunction> currentRegisteredPoints = registeredPoints;
+    Map<List<LabelValue>, PointWithFunction<?>> currentRegisteredPoints = registeredPoints;
     if (currentRegisteredPoints.isEmpty()) {
       return null;
     }
 
     if (currentRegisteredPoints.size() == 1) {
-      PointWithFunction point = currentRegisteredPoints.values().iterator().next();
+      PointWithFunction<?> point = currentRegisteredPoints.values().iterator().next();
       return Metric.createWithOneTimeSeries(metricDescriptor, point.getTimeSeries(clock));
     }
 
     List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(currentRegisteredPoints.size());
-    for (Map.Entry<List<LabelValue>, PointWithFunction> entry :
+    for (Map.Entry<List<LabelValue>, PointWithFunction<?>> entry :
         currentRegisteredPoints.entrySet()) {
       timeSeriesList.add(entry.getValue().getTimeSeries(clock));
     }
@@ -134,7 +131,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
 
     PointWithFunction(
         List<LabelValue> labelValues,
-        /*@Nullable*/ T obj,
+        @javax.annotation.Nullable T obj,
         ToLongFunction</*@Nullable*/ T> function) {
       defaultTimeSeries = TimeSeries.create(labelValues);
       ref = obj != null ? new WeakReference<T>(obj) : null;
