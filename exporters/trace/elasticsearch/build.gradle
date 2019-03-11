@@ -1,0 +1,19 @@
+description = 'OpenCensus Trace Elasticsearch Exporter'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.6
+    it.targetCompatibility = 1.6
+}
+
+
+dependencies {
+
+    compileOnly libraries.auto_value
+
+    compile project(':opencensus-api'),
+            libraries.guava
+
+    testCompile project(':opencensus-api')
+
+    signature "org.codehaus.mojo.signature:java17:+@signature"
+}

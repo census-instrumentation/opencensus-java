@@ -221,6 +221,7 @@ $ README_FILES=(
   exporters/stats/signalfx/README.md
   exporters/stats/stackdriver/README.md
   exporters/trace/datadog/README.md
+  exporters/trace/elasticsearch/README.md
   exporters/trace/instana/README.md
   exporters/trace/logging/README.md
   exporters/trace/jaeger/README.md
