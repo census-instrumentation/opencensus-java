@@ -5,6 +5,7 @@
 - Add config option for Jetty Http Client.
 - Modified default value to false for publicEndpoint property in Http-Servlet.
 - Add a generic `AttachmentValue` class to support `Exemplar`.
+- Add Elasticsearch Trace Exporter.
 
 # 0.19.0 - 2019-01-28
 - Add an artifact `opencensus-contrib-http-jetty-client` for instrumenting jetty http client. Add extractor for Jetty Client.
