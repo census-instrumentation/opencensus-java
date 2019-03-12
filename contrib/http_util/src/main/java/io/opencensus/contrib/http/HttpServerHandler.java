@@ -17,6 +17,7 @@
 package io.opencensus.contrib.http;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.opencensus.contrib.http.HttpRequestContext.METADATA_UNLIMITED_PROPAGATION;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_LATENCY;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_METHOD;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_RECEIVED_BYTES;
@@ -166,7 +167,6 @@ public class HttpServerHandler<
     spanEnd(context.span, response, error);
   }
 
-  @SuppressWarnings("deprecation")
   private void recordStats(
       HttpRequestContext context, Q request, @Nullable P response, @Nullable Throwable error) {
     double requestLatency = NANOSECONDS.toMillis(System.nanoTime() - context.requestStartTime);
@@ -177,11 +177,18 @@ public class HttpServerHandler<
     TagContext startCtx =
         tagger
             .toBuilder(context.tagContext)
-            .put(HTTP_SERVER_METHOD, TagValue.create(methodStr == null ? "" : methodStr))
-            .put(HTTP_SERVER_ROUTE, TagValue.create(routeStr == null ? "" : routeStr))
+            .put(
+                HTTP_SERVER_METHOD,
+                TagValue.create(methodStr == null ? "" : methodStr),
+                METADATA_UNLIMITED_PROPAGATION)
+            .put(
+                HTTP_SERVER_ROUTE,
+                TagValue.create(routeStr == null ? "" : routeStr),
+                METADATA_UNLIMITED_PROPAGATION)
             .put(
                 HTTP_SERVER_STATUS,
-                TagValue.create(status == 0 ? "error" : Integer.toString(status)))
+                TagValue.create(status == 0 ? "error" : Integer.toString(status)),
+                METADATA_UNLIMITED_PROPAGATION)
             .build();
 
     statsRecorder
