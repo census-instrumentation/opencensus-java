@@ -41,7 +41,12 @@ public abstract class TagValueWithMetadata {
     return new AutoValue_TagValueWithMetadata(tagValue, tagMetadata);
   }
 
-  abstract TagValue getTagValue();
+  /**
+   * Returns the {@code TagValue}.
+   *
+   * @return the {@code TagValue}.
+   */
+  public abstract TagValue getTagValue();
 
   abstract TagMetadata getTagMetadata();
 }
