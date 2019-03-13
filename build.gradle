@@ -174,7 +174,7 @@ subprojects {
         protobufVersion = '3.6.1'
         zipkinReporterVersion = '2.7.14'
         jaegerReporterVersion = '0.33.1'
-        opencensusProtoVersion = '0.1.0'
+        opencensusProtoVersion = '0.2.0'
         gsonVersion = '2.8.5'
         dropwizardVersion = '3.1.2'
         dropwizard5Version = '5.0.0'
