@@ -41,6 +41,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.contrib.exemplar.util.AttachmentValueSpanContext;
 import io.opencensus.contrib.exemplar.util.ExemplarUtils;
 import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
 import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
@@ -48,6 +49,7 @@ import io.opencensus.contrib.resource.util.K8sContainerResource;
 import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.data.AttachmentValue;
 import io.opencensus.metrics.export.Distribution.Bucket;
 import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -398,48 +400,58 @@ final class StackdriverExportUtils {
     for (Bucket bucket : buckets) {
       builder.addBucketCounts(bucket.getCount());
       @javax.annotation.Nullable
-      io.opencensus.metrics.export.Distribution.Exemplar exemplar = bucket.getExemplar();
+      io.opencensus.metrics.data.Exemplar exemplar = bucket.getExemplar();
       if (exemplar != null) {
         builder.addExemplars(toProtoExemplar(exemplar));
       }
     }
   }
 
-  private static Exemplar toProtoExemplar(
-      io.opencensus.metrics.export.Distribution.Exemplar exemplar) {
+  private static Exemplar toProtoExemplar(io.opencensus.metrics.data.Exemplar exemplar) {
     Exemplar.Builder builder =
         Exemplar.newBuilder()
             .setValue(exemplar.getValue())
             .setTimestamp(convertTimestamp(exemplar.getTimestamp()));
-    @javax.annotation.Nullable String traceId = null;
-    @javax.annotation.Nullable String spanId = null;
-    for (Map.Entry<String, String> attachment : exemplar.getAttachments().entrySet()) {
+    @javax.annotation.Nullable io.opencensus.trace.SpanContext spanContext = null;
+    for (Map.Entry<String, AttachmentValue> attachment : exemplar.getAttachments().entrySet()) {
       String key = attachment.getKey();
-      String value = attachment.getValue();
-      if (ExemplarUtils.ATTACHMENT_KEY_TRACE_ID.equals(key)) {
-        traceId = value;
-      } else if (ExemplarUtils.ATTACHMENT_KEY_SPAN_ID.equals(key)) {
-        spanId = value;
-      } else { // Everything else will be treated as plain strings.
-        builder.addAttachments(
-            Any.newBuilder()
-                .setTypeUrl(EXEMPLAR_ATTACHMENT_TYPE_STRING)
-                .setValue(ByteString.copyFromUtf8(value))
-                .build());
+      AttachmentValue value = attachment.getValue();
+      if (ExemplarUtils.ATTACHMENT_KEY_SPAN_CONTEXT.equals(key)) {
+        spanContext = ((AttachmentValueSpanContext) value).getSpanContext();
+      } else { // Everything else will be treated as plain strings for now.
+        builder.addAttachments(toProtoStringAttachment(value));
       }
     }
-    if (traceId != null && spanId != null && cachedProjectIdForExemplar != null) {
-      String spanName =
-          String.format(
-              "projects/%s/traces/%s/spans/%s", cachedProjectIdForExemplar, traceId, spanId);
-      SpanContext spanContextProto = SpanContext.newBuilder().setSpanName(spanName).build();
-      builder.addAttachments(
-          Any.newBuilder()
-              .setTypeUrl(EXEMPLAR_ATTACHMENT_TYPE_SPAN_CONTEXT)
-              .setValue(spanContextProto.toByteString())
-              .build());
+    if (spanContext != null && cachedProjectIdForExemplar != null) {
+      SpanContext protoSpanContext = toProtoSpanContext(spanContext, cachedProjectIdForExemplar);
+      builder.addAttachments(toProtoSpanContextAttachment(protoSpanContext));
     }
     return builder.build();
+  }
+
+  private static Any toProtoStringAttachment(AttachmentValue attachmentValue) {
+    return Any.newBuilder()
+        .setTypeUrl(EXEMPLAR_ATTACHMENT_TYPE_STRING)
+        .setValue(ByteString.copyFromUtf8(attachmentValue.getValue()))
+        .build();
+  }
+
+  private static Any toProtoSpanContextAttachment(SpanContext protoSpanContext) {
+    return Any.newBuilder()
+        .setTypeUrl(EXEMPLAR_ATTACHMENT_TYPE_SPAN_CONTEXT)
+        .setValue(protoSpanContext.toByteString())
+        .build();
+  }
+
+  private static SpanContext toProtoSpanContext(
+      io.opencensus.trace.SpanContext spanContext, String projectId) {
+    String spanName =
+        String.format(
+            "projects/%s/traces/%s/spans/%s",
+            projectId,
+            spanContext.getTraceId().toLowerBase16(),
+            spanContext.getSpanId().toLowerBase16());
+    return SpanContext.newBuilder().setSpanName(spanName).build();
   }
 
   @VisibleForTesting

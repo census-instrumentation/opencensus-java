@@ -42,14 +42,17 @@ import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import io.opencensus.common.Timestamp;
+import io.opencensus.contrib.exemplar.util.AttachmentValueSpanContext;
 import io.opencensus.contrib.exemplar.util.ExemplarUtils;
 import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
 import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
 import io.opencensus.contrib.resource.util.K8sContainerResource;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.data.AttachmentValue;
+import io.opencensus.metrics.data.AttachmentValue.AttachmentValueString;
+import io.opencensus.metrics.data.Exemplar;
 import io.opencensus.metrics.export.Distribution.Bucket;
-import io.opencensus.metrics.export.Distribution.Exemplar;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.Summary;
@@ -122,17 +125,21 @@ public class StackdriverExportUtilsTest {
   private static final String DEFAULT_TASK_VALUE =
       "java-" + ManagementFactory.getRuntimeMXBean().getName();
 
+  private static final io.opencensus.trace.SpanContext SPAN_CONTEXT_INVALID =
+      io.opencensus.trace.SpanContext.INVALID;
   private static final Exemplar EXEMPLAR_1 =
-      Exemplar.create(1.2, TIMESTAMP_2, Collections.<String, String>singletonMap("key", "value"));
+      Exemplar.create(
+          1.2,
+          TIMESTAMP_2,
+          Collections.<String, AttachmentValue>singletonMap(
+              "key", AttachmentValueString.create("value")));
   private static final Exemplar EXEMPLAR_2 =
       Exemplar.create(
           5.6,
           TIMESTAMP_3,
-          ImmutableMap.of(
-              ExemplarUtils.ATTACHMENT_KEY_TRACE_ID,
-              "some-trace-id",
-              ExemplarUtils.ATTACHMENT_KEY_SPAN_ID,
-              "some-span-id"));
+          ImmutableMap.<String, AttachmentValue>of(
+              ExemplarUtils.ATTACHMENT_KEY_SPAN_CONTEXT,
+              AttachmentValueSpanContext.create(SPAN_CONTEXT_INVALID)));
   private static final io.opencensus.metrics.export.Distribution DISTRIBUTION =
       io.opencensus.metrics.export.Distribution.create(
           3,
@@ -493,7 +500,8 @@ public class StackdriverExportUtilsTest {
     assertThat(timeSeriesList.size()).isEqualTo(1);
     TimeSeries timeSeries = timeSeriesList.get(0);
     assertThat(timeSeries.getPointsCount()).isEqualTo(1);
-    String expectedSpanName = "projects/id/traces/some-trace-id/spans/some-span-id";
+    String expectedSpanName =
+        "projects/id/traces/00000000000000000000000000000000/spans/0000000000000000";
     assertThat(timeSeries.getPoints(0).getValue().getDistributionValue())
         .isEqualTo(
             com.google.api.Distribution.newBuilder()
