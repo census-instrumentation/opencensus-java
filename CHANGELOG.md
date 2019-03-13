@@ -6,6 +6,9 @@
 - Modified default value to false for publicEndpoint property in Http-Servlet.
 - Add a generic `AttachmentValue` class to support `Exemplar`.
 - Add Elasticsearch Trace Exporter.
+- Add `metrics.data` package to hold common classes shared between stats and metrics.
+- Refactor `Exemplar` and `AttachmentValue` to be under `metrics.data`. Note that this is a breaking change
+if you're using the `Exemplar` classes or APIs in the previous releases.
 
 # 0.19.0 - 2019-01-28
 - Add an artifact `opencensus-contrib-http-jetty-client` for instrumenting jetty http client. Add extractor for Jetty Client.

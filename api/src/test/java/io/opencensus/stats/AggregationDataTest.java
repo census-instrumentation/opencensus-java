@@ -22,15 +22,16 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.data.AttachmentValue;
+import io.opencensus.metrics.data.AttachmentValue.AttachmentValueString;
+import io.opencensus.metrics.data.Exemplar;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.AggregationData.LastValueDataDouble;
 import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
-import io.opencensus.stats.AttachmentValue.AttachmentValueString;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,43 +74,6 @@ public class AggregationDataTest {
         DistributionData.create(
             7.7, 10, 32.2, Arrays.asList(4L, 1L), Arrays.asList(exemplar1, exemplar2));
     assertThat(distributionData.getExemplars()).containsExactly(exemplar1, exemplar2).inOrder();
-  }
-
-  @Test
-  public void testExemplar() {
-    Exemplar exemplar = Exemplar.create(15.0, TIMESTAMP_1, ATTACHMENTS);
-    assertThat(exemplar.getValue()).isWithin(TOLERANCE).of(15.0);
-    assertThat(exemplar.getTimestamp()).isEqualTo(TIMESTAMP_1);
-    assertThat(exemplar.getAttachments()).isEqualTo(ATTACHMENTS);
-  }
-
-  @Test
-  public void testExemplar_PreventNullTimestamp() {
-    thrown.expect(NullPointerException.class);
-    Exemplar.create(15, null, ATTACHMENTS);
-  }
-
-  @Test
-  public void testExemplar_PreventNullAttachments() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("attachments");
-    Exemplar.create(15, TIMESTAMP_1, null);
-  }
-
-  @Test
-  public void testExemplar_PreventNullAttachmentKey() {
-    Map<String, AttachmentValue> attachments = Collections.singletonMap(null, ATTACHMENT_VALUE);
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("key of attachment");
-    Exemplar.create(15, TIMESTAMP_1, attachments);
-  }
-
-  @Test
-  public void testExemplar_PreventNullAttachmentValue() {
-    Map<String, AttachmentValue> attachments = Collections.singletonMap("key", null);
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("value of attachment");
-    Exemplar.create(15, TIMESTAMP_1, attachments);
   }
 
   @Test

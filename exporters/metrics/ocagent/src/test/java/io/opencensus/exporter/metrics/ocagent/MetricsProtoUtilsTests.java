@@ -23,10 +23,11 @@ import com.google.protobuf.Int64Value;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.data.AttachmentValue;
+import io.opencensus.metrics.data.Exemplar;
 import io.opencensus.metrics.export.Distribution;
 import io.opencensus.metrics.export.Distribution.Bucket;
 import io.opencensus.metrics.export.Distribution.BucketOptions;
-import io.opencensus.metrics.export.Distribution.Exemplar;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -88,7 +89,9 @@ public class MetricsProtoUtilsTests {
               Bucket.create(2),
               Bucket.create(1),
               Bucket.create(
-                  2, Exemplar.create(11, TIMESTAMP_1, Collections.<String, String>emptyMap())),
+                  2,
+                  Exemplar.create(
+                      11, TIMESTAMP_1, Collections.<String, AttachmentValue>emptyMap())),
               Bucket.create(0)));
   private static final Summary SUMMARY =
       Summary.create(

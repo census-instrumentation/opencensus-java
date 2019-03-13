@@ -19,7 +19,7 @@ package io.opencensus.contrib.exemplar.util;
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.contrib.exemplar.util.ExemplarUtils.ATTACHMENT_KEY_SPAN_CONTEXT;
 
-import io.opencensus.stats.AttachmentValue;
+import io.opencensus.metrics.data.AttachmentValue;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
