@@ -17,7 +17,7 @@
 package io.opencensus.contrib.exemplar.util;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.common.AttachmentValue;
+import io.opencensus.metrics.data.AttachmentValue;
 import io.opencensus.trace.SpanContext;
 import javax.annotation.concurrent.Immutable;
 

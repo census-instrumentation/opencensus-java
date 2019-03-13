@@ -20,9 +20,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.common.AttachmentValue;
-import io.opencensus.common.Exemplar;
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.data.AttachmentValue;
+import io.opencensus.metrics.data.Exemplar;
 import io.opencensus.metrics.export.Distribution;
 import io.opencensus.metrics.export.Distribution.BucketOptions;
 import io.opencensus.metrics.export.Point;

@@ -21,10 +21,10 @@ import static io.opencensus.implcore.stats.MutableViewData.ZERO_TIMESTAMP;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import io.opencensus.common.AttachmentValue;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.data.AttachmentValue;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;

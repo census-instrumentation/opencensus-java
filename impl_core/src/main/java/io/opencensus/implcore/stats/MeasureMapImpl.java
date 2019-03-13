@@ -16,7 +16,7 @@
 
 package io.opencensus.implcore.stats;
 
-import io.opencensus.common.AttachmentValue;
+import io.opencensus.metrics.data.AttachmentValue;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;

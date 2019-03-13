@@ -16,9 +16,9 @@
 
 package io.opencensus.stats;
 
-import io.opencensus.common.AttachmentValue;
-import io.opencensus.common.AttachmentValue.AttachmentValueString;
 import io.opencensus.internal.Utils;
+import io.opencensus.metrics.data.AttachmentValue;
+import io.opencensus.metrics.data.AttachmentValue.AttachmentValueString;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;

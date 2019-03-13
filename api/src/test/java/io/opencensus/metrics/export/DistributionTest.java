@@ -19,12 +19,12 @@ package io.opencensus.metrics.export;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.common.AttachmentValue;
-import io.opencensus.common.AttachmentValue.AttachmentValueString;
-import io.opencensus.common.Exemplar;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.data.AttachmentValue;
+import io.opencensus.metrics.data.AttachmentValue.AttachmentValueString;
+import io.opencensus.metrics.data.Exemplar;
 import io.opencensus.metrics.export.Distribution.Bucket;
 import io.opencensus.metrics.export.Distribution.BucketOptions;
 import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;

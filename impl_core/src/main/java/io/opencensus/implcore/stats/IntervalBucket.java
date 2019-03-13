@@ -20,9 +20,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Maps;
-import io.opencensus.common.AttachmentValue;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.data.AttachmentValue;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Measure;
 import io.opencensus.tags.TagValue;

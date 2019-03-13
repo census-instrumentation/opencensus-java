@@ -20,11 +20,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.protobuf.DoubleValue;
 import com.google.protobuf.Int64Value;
-import io.opencensus.common.AttachmentValue;
-import io.opencensus.common.Exemplar;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.data.AttachmentValue;
+import io.opencensus.metrics.data.Exemplar;
 import io.opencensus.metrics.export.Distribution;
 import io.opencensus.metrics.export.Distribution.Bucket;
 import io.opencensus.metrics.export.Distribution.BucketOptions;

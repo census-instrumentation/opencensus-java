@@ -18,10 +18,10 @@ package io.opencensus.implcore.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.common.AttachmentValue;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
+import io.opencensus.metrics.data.AttachmentValue;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.tags.TagValue;

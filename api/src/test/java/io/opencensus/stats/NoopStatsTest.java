@@ -18,8 +18,8 @@ package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.common.AttachmentValue;
-import io.opencensus.common.AttachmentValue.AttachmentValueString;
+import io.opencensus.metrics.data.AttachmentValue;
+import io.opencensus.metrics.data.AttachmentValue.AttachmentValueString;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;

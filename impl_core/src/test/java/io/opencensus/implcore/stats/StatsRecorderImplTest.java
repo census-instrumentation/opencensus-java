@@ -22,13 +22,13 @@ import static io.opencensus.implcore.stats.StatsTestUtil.createEmptyViewData;
 
 import com.google.common.collect.ImmutableMap;
 import io.grpc.Context;
-import io.opencensus.common.AttachmentValue;
-import io.opencensus.common.AttachmentValue.AttachmentValueString;
 import io.opencensus.common.Duration;
-import io.opencensus.common.Exemplar;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.stats.StatsTestUtil.SimpleTagContext;
+import io.opencensus.metrics.data.AttachmentValue;
+import io.opencensus.metrics.data.AttachmentValue.AttachmentValueString;
+import io.opencensus.metrics.data.Exemplar;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Sum;

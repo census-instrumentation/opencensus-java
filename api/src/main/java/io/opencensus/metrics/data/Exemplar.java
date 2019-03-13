@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package io.opencensus.common;
+package io.opencensus.metrics.data;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.common.Timestamp;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

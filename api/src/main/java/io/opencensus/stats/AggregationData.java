@@ -17,9 +17,9 @@
 package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.common.Exemplar;
 import io.opencensus.common.Function;
 import io.opencensus.internal.Utils;
+import io.opencensus.metrics.data.Exemplar;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

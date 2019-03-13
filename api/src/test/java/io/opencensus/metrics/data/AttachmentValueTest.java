@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package io.opencensus.common;
+package io.opencensus.metrics.data;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.common.AttachmentValue.AttachmentValueString;
+import io.opencensus.metrics.data.AttachmentValue.AttachmentValueString;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link io.opencensus.common.AttachmentValue}. */
+/** Unit tests for {@link io.opencensus.metrics.data.AttachmentValue}. */
 @RunWith(JUnit4.class)
 public class AttachmentValueTest {
 

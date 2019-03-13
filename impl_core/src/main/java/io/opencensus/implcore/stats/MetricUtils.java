@@ -17,11 +17,11 @@
 package io.opencensus.implcore.stats;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.common.AttachmentValue;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.data.AttachmentValue;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.stats.Aggregation;
