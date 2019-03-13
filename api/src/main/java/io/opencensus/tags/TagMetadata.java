@@ -87,9 +87,9 @@ public abstract class TagMetadata {
      */
     UNLIMITED_PROPAGATION(-1);
 
-    final int hops;
+    private final int hops;
 
-    TagTtl(int hops) {
+    private TagTtl(int hops) {
       this.hops = hops;
     }
   }

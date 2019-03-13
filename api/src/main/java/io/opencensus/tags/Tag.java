@@ -37,6 +37,8 @@ public abstract class Tag {
   /**
    * Creates a {@code Tag} from the given key and value.
    *
+   * <p>For backwards-compatibility this method still produces propagating {@link Tag}s.
+   *
    * <p>This is equivalent to calling {@code create(key, value,
    * TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION))}.
    *

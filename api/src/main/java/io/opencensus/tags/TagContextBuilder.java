@@ -28,6 +28,8 @@ public abstract class TagContextBuilder {
   /**
    * Adds the key/value pair regardless of whether the key is present.
    *
+   * <p>For backwards-compatibility this method still produces propagating {@link Tag}s.
+   *
    * <p>Equivalent to calling {@code put(key, value,
    * TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION))}.
    *
