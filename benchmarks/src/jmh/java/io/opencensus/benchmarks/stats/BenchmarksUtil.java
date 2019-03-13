@@ -16,9 +16,12 @@
 
 package io.opencensus.benchmarks.stats;
 
-import io.opencensus.impllite.tags.TagsComponentImplLite;
+import io.opencensus.impl.stats.StatsComponentImpl;
+import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.impllite.stats.StatsComponentImplLite;
+import io.opencensus.impllite.tags.TagsComponentImplLite;
 import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
@@ -34,41 +37,53 @@ import java.util.Arrays;
 
 /** Util class for Benchmarks. */
 final class BenchmarksUtil {
-  static final TagKey[] TAG_KEYS = {
-    TagKey.create("key0"), TagKey.create("key1"), TagKey.create("key2"),
-    TagKey.create("key3"), TagKey.create("key4"), TagKey.create("key5"),
-    TagKey.create("key6"), TagKey.create("key7")
-  };
-
-  static final TagValue[] TAG_VALUES = {
-    TagValue.create("val0"), TagValue.create("val1"), TagValue.create("val2"),
-    TagValue.create("val3"), TagValue.create("val4"), TagValue.create("val5"),
-    TagValue.create("val6"), TagValue.create("val7")
-  };
-
-  static final Measure.MeasureDouble[] MEASURE_DOUBLES = {
-    Measure.MeasureDouble.create("MD0", "", "ns"), Measure.MeasureDouble.create("MD1", "", "ns"),
-    Measure.MeasureDouble.create("MD2", "", "ns"), Measure.MeasureDouble.create("MD3", "", "ns"),
-    Measure.MeasureDouble.create("MD4", "", "ns"), Measure.MeasureDouble.create("MD5", "", "ns"),
-    Measure.MeasureDouble.create("MD6", "", "ns"), Measure.MeasureDouble.create("MD7", "", "ns"),
-  };
-
-  static final Measure.MeasureLong[] MEASURE_LONGS = {
-    Measure.MeasureLong.create("ML0", "", "ns"), Measure.MeasureLong.create("ML1", "", "ns"),
-    Measure.MeasureLong.create("ML2", "", "ns"), Measure.MeasureLong.create("ML3", "", "ns"),
-    Measure.MeasureLong.create("ML4", "", "ns"), Measure.MeasureLong.create("ML5", "", "ns"),
-    Measure.MeasureLong.create("ML6", "", "ns"), Measure.MeasureLong.create("ML7", "", "ns"),
-  };
-
-  static final View VIEW_ML0 = View.create(
-      View.Name.create("ML0"),
-      "",
-      MEASURE_LONGS[0],
-      Aggregation.Sum.create(),
-      Arrays.asList(TAG_KEYS[0]));
+  private static final TagsComponentImplBase tagsComponentImplBase = new TagsComponentImplBase();
+  private static final StatsComponentImpl statsComponentImpl = new StatsComponentImpl();
 
   private static final StatsComponentImplLite statsComponentImplLite = new StatsComponentImplLite();
   private static final TagsComponentImplLite tagsComponentImplLite = new TagsComponentImplLite();
+
+  private static final Aggregation.Distribution DISTRIBUTION = Aggregation.Distribution.create(
+      BucketBoundaries.create(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)));
+
+  static final TagKey[] TAG_KEYS = createTagKeys(8, "key");
+  static final TagValue[] TAG_VALUES = createTagValues(8, "val");
+
+  static final Measure.MeasureDouble[] DOUBLE_COUNT_MEASURES = createMeasureDoubles(8, "Count");
+  static final Measure.MeasureLong[] LONG_COUNT_MEASURES = createMeasureLongs(8, "Count");
+
+  static final Measure.MeasureDouble[] DOUBLE_SUM_MEASURES = createMeasureDoubles(8, "Sum");
+  static final Measure.MeasureLong[] LONG_SUM_MEASURES = createMeasureLongs(8, "Sum");
+
+  static final Measure.MeasureDouble[] DOUBLE_DISTRIBUTION_MEASURES =
+      createMeasureDoubles(8, "Distribution");
+  static final Measure.MeasureLong[] LONG_DISTRIBUTION_MEASURES =
+      createMeasureLongs(8, "Distribution");
+
+  static final Measure.MeasureDouble[] DOUBLE_LASTVALUE_MEASURES =
+      createMeasureDoubles(8, "LastValue");
+  static final Measure.MeasureLong[] LONG_LASTVALUE_MEASURES =
+      createMeasureLongs(8, "LastValue");
+
+  static final View[] DOUBLE_COUNT_VIEWS =
+      createViews(4, DOUBLE_COUNT_MEASURES, Aggregation.Count.create(), TAG_KEYS[0]);
+  static final View[] LONG_COUNT_VIEWS =
+      createViews(4, LONG_COUNT_MEASURES, Aggregation.Count.create(), TAG_KEYS[0]);
+
+  static final View[] DOUBLE_SUM_VIEWS =
+      createViews(4, DOUBLE_SUM_MEASURES, Aggregation.Sum.create(), TAG_KEYS[0]);
+  static final View[] LONG_SUM_VIEWS =
+      createViews(4, LONG_SUM_MEASURES, Aggregation.Sum.create(), TAG_KEYS[0]);
+
+  static final View[] DOUBLE_DISTRIBUTION_VIEWS =
+      createViews(4, DOUBLE_DISTRIBUTION_MEASURES, DISTRIBUTION, TAG_KEYS[0]);
+  static final View[] LONG_DISTRIBUTION_VIEWS =
+      createViews(4, LONG_DISTRIBUTION_MEASURES, DISTRIBUTION, TAG_KEYS[0]);
+
+  static final View[] DOUBLE_LASTVALUE_VIEWS =
+      createViews(4, DOUBLE_LASTVALUE_MEASURES, Aggregation.LastValue.create(), TAG_KEYS[0]);
+  static final View[] LONG_LASTVALUE_VIEWS =
+      createViews(4, LONG_LASTVALUE_MEASURES, Aggregation.LastValue.create(), TAG_KEYS[0]);
 
   static Tagger getTagger(String implementation) {
     if (implementation.equals("impl")) {
@@ -76,7 +91,8 @@ final class BenchmarksUtil {
       // the impl one.
       // TODO(bdrutu): Make everything not be a singleton (disruptor, etc.) and use a new
       // TraceComponentImpl similar to TraceComponentImplLite.
-      return Tags.getTagger();
+      //return Tags.getTagger();
+      return tagsComponentImplBase.getTagger();
     } else if (implementation.equals("impl-lite")) {
       return tagsComponentImplLite.getTagger();
     } else {
@@ -104,7 +120,7 @@ final class BenchmarksUtil {
       // the impl one.
       // TODO(bdrutu): Make everything not be a singleton (disruptor, etc.) and use a new
       // TraceComponentImpl similar to TraceComponentImplLite.
-      return Stats.getStatsRecorder();
+      return statsComponentImpl.getStatsRecorder();
     } else if (implementation.equals("impl-lite")) {
       return statsComponentImplLite.getStatsRecorder();
     } else {
@@ -118,7 +134,7 @@ final class BenchmarksUtil {
       // the impl one.
       // TODO(bdrutu): Make everything not be a singleton (disruptor, etc.) and use a new
       // TraceComponentImpl similar to TraceComponentImplLite.
-      return Stats.getViewManager();
+      return statsComponentImpl.getViewManager();
     } else if (implementation.equals("impl-lite")) {
       return statsComponentImplLite.getViewManager();
     } else {
@@ -126,6 +142,50 @@ final class BenchmarksUtil {
     }
   }
 
+  private static View[] createViews(int size, Measure[] measures, Aggregation aggregation, TagKey... keys) {
+    View[] views = new View[size];
+    for (int i = 0; i < size; i++) {
+      views[i] =  View.create(
+          View.Name.create(measures[i].getName() + aggregation.toString()),
+          "",
+          measures[i],
+          aggregation,
+          Arrays.asList(keys));
+    }
+    return views;
+  };
+
+  private static TagKey[] createTagKeys(int size, String name) {
+    TagKey[] keys = new TagKey[size];
+    for (int i = 0; i < size; i++) {
+      keys[i] = TagKey.create(name + i);
+    }
+    return keys;
+  }
+
+  private static TagValue[] createTagValues(int size, String name) {
+    TagValue[] values = new TagValue[size];
+    for (int i = 0; i < size; i++) {
+      values[i] = TagValue.create(name + i);
+    }
+    return values;
+  }
+
+  private static Measure.MeasureDouble[] createMeasureDoubles(int size, String name) {
+    Measure.MeasureDouble[] measures = new Measure.MeasureDouble[size];
+    for (int i = 0; i < size; i++) {
+      measures[i] = Measure.MeasureDouble.create(name + "_MD" + i, "", "ns");
+    }
+    return measures;
+  }
+
+  private static Measure.MeasureLong[] createMeasureLongs(int size, String name) {
+    Measure.MeasureLong[] measures = new Measure.MeasureLong[size];
+    for (int i = 0; i < size; i++) {
+      measures[i] = Measure.MeasureLong.create(name + "_ML" + i, "", "ns");
+    }
+    return measures;
+  }
 
   // Avoid instances of this class.
   private BenchmarksUtil() {}
