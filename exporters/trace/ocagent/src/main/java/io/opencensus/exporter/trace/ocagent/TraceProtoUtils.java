@@ -26,6 +26,7 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.proto.agent.trace.v1.UpdatedLibraryConfig;
 import io.opencensus.proto.trace.v1.AttributeValue;
 import io.opencensus.proto.trace.v1.ConstantSampler;
+import io.opencensus.proto.trace.v1.ConstantSampler.ConstantDecision;
 import io.opencensus.proto.trace.v1.ProbabilitySampler;
 import io.opencensus.proto.trace.v1.Span;
 import io.opencensus.proto.trace.v1.Span.Attributes;
@@ -323,10 +324,10 @@ final class TraceProtoUtils {
 
     if (Samplers.alwaysSample().equals(librarySampler)) {
       traceConfigProtoBuilder.setConstantSampler(
-          ConstantSampler.newBuilder().setDecision(true).build());
+          ConstantSampler.newBuilder().setDecision(ConstantDecision.ALWAYS_ON).build());
     } else if (Samplers.neverSample().equals(librarySampler)) {
       traceConfigProtoBuilder.setConstantSampler(
-          ConstantSampler.newBuilder().setDecision(false).build());
+          ConstantSampler.newBuilder().setDecision(ConstantDecision.ALWAYS_OFF).build());
     } else {
       // TODO: consider exposing the sampling probability of ProbabilitySampler.
       double samplingProbability = parseSamplingProbability(librarySampler);
@@ -358,11 +359,15 @@ final class TraceProtoUtils {
     TraceParams.Builder builder = currentTraceParams.toBuilder();
     if (traceConfigProto.hasConstantSampler()) {
       ConstantSampler constantSampler = traceConfigProto.getConstantSampler();
-      if (Boolean.TRUE.equals(constantSampler.getDecision())) {
+      ConstantDecision decision = constantSampler.getDecision();
+      if (ConstantDecision.ALWAYS_ON.equals(decision)) {
         builder.setSampler(Samplers.alwaysSample());
-      } else {
+      } else if (ConstantDecision.ALWAYS_OFF.equals(decision)) {
         builder.setSampler(Samplers.neverSample());
-      }
+      } // else if (ConstantDecision.ALWAYS_PARENT.equals(decision)) {
+      // For ALWAYS_PARENT, don't need to update configs since in Java by default parent sampling
+      // decision always takes precedence.
+      // }
     } else if (traceConfigProto.hasProbabilitySampler()) {
       builder.setSampler(
           Samplers.probabilitySampler(

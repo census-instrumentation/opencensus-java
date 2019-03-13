@@ -28,6 +28,7 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.proto.agent.trace.v1.UpdatedLibraryConfig;
 import io.opencensus.proto.trace.v1.AttributeValue;
 import io.opencensus.proto.trace.v1.ConstantSampler;
+import io.opencensus.proto.trace.v1.ConstantSampler.ConstantDecision;
 import io.opencensus.proto.trace.v1.ProbabilitySampler;
 import io.opencensus.proto.trace.v1.Span;
 import io.opencensus.proto.trace.v1.Span.SpanKind;
@@ -273,7 +274,8 @@ public class TraceProtoUtilsTest {
     assertThat(TraceProtoUtils.toTraceConfigProto(getTraceParams(Samplers.alwaysSample())))
         .isEqualTo(
             TraceConfig.newBuilder()
-                .setConstantSampler(ConstantSampler.newBuilder().setDecision(true).build())
+                .setConstantSampler(
+                    ConstantSampler.newBuilder().setDecision(ConstantDecision.ALWAYS_ON).build())
                 .build());
   }
 
@@ -282,7 +284,8 @@ public class TraceProtoUtilsTest {
     assertThat(TraceProtoUtils.toTraceConfigProto(getTraceParams(Samplers.neverSample())))
         .isEqualTo(
             TraceConfig.newBuilder()
-                .setConstantSampler(ConstantSampler.newBuilder().setDecision(false).build())
+                .setConstantSampler(
+                    ConstantSampler.newBuilder().setDecision(ConstantDecision.ALWAYS_OFF).build())
                 .build());
   }
 
@@ -300,7 +303,8 @@ public class TraceProtoUtilsTest {
   public void fromTraceConfigProto_AlwaysSampler() {
     TraceConfig traceConfig =
         TraceConfig.newBuilder()
-            .setConstantSampler(ConstantSampler.newBuilder().setDecision(true).build())
+            .setConstantSampler(
+                ConstantSampler.newBuilder().setDecision(ConstantDecision.ALWAYS_ON).build())
             .build();
     assertThat(TraceProtoUtils.fromTraceConfigProto(traceConfig, DEFAULT_PARAMS).getSampler())
         .isEqualTo(Samplers.alwaysSample());
@@ -310,7 +314,8 @@ public class TraceProtoUtilsTest {
   public void fromTraceConfigProto_NeverSampler() {
     TraceConfig traceConfig =
         TraceConfig.newBuilder()
-            .setConstantSampler(ConstantSampler.newBuilder().setDecision(false).build())
+            .setConstantSampler(
+                ConstantSampler.newBuilder().setDecision(ConstantDecision.ALWAYS_OFF).build())
             .build();
     assertThat(TraceProtoUtils.fromTraceConfigProto(traceConfig, DEFAULT_PARAMS).getSampler())
         .isEqualTo(Samplers.neverSample());

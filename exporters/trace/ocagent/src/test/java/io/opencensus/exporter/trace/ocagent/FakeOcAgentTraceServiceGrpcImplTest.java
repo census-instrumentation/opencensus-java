@@ -24,6 +24,7 @@ import io.opencensus.proto.agent.trace.v1.ExportTraceServiceRequest;
 import io.opencensus.proto.agent.trace.v1.ExportTraceServiceResponse;
 import io.opencensus.proto.agent.trace.v1.UpdatedLibraryConfig;
 import io.opencensus.proto.trace.v1.ConstantSampler;
+import io.opencensus.proto.trace.v1.ConstantSampler.ConstantDecision;
 import io.opencensus.proto.trace.v1.TraceConfig;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,8 @@ public class FakeOcAgentTraceServiceGrpcImplTest {
       UpdatedLibraryConfig.newBuilder()
           .setConfig(
               TraceConfig.newBuilder()
-                  .setConstantSampler(ConstantSampler.newBuilder().setDecision(false).build())
+                  .setConstantSampler(
+                      ConstantSampler.newBuilder().setDecision(ConstantDecision.ALWAYS_OFF).build())
                   .build())
           .build();
 

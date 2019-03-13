@@ -259,11 +259,7 @@ public class OcAgentMetricsExporterIntegrationTest {
     }
     Set<String> actualMetrics = new HashSet<>();
     for (Metric metricProto : metricProtos) {
-      if (metricProto.hasMetricDescriptor()) {
-        actualMetrics.add(metricProto.getMetricDescriptor().getName());
-      } else {
-        actualMetrics.add(metricProto.getName());
-      }
+      actualMetrics.add(metricProto.getMetricDescriptor().getName());
     }
     assertThat(actualMetrics).containsExactlyElementsIn(expectedMetrics);
   }
