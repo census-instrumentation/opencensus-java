@@ -19,6 +19,7 @@ package io.opencensus.exporter.stats.stackdriver;
 import com.google.api.Distribution;
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
+import com.google.api.Distribution.Exemplar;
 import com.google.api.LabelDescriptor;
 import com.google.api.LabelDescriptor.ValueType;
 import com.google.api.Metric;
@@ -31,18 +32,24 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.Point;
+import com.google.monitoring.v3.SpanContext;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.contrib.exemplar.util.AttachmentValueSpanContext;
+import io.opencensus.contrib.exemplar.util.ExemplarUtils;
 import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
 import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
 import io.opencensus.contrib.resource.util.K8sContainerResource;
 import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.data.AttachmentValue;
 import io.opencensus.metrics.export.Distribution.Bucket;
 import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -105,6 +112,22 @@ final class StackdriverExportUtils {
 
   @VisibleForTesting static final String SUMMARY_SUFFIX_COUNT = "_summary_count";
   @VisibleForTesting static final String SUMMARY_SUFFIX_SUM = "_summary_sum";
+
+  // Cached project ID only for Exemplar attachments. Without this we'll have to pass the project ID
+  // every time when we convert a Distribution value.
+  @javax.annotation.Nullable private static volatile String cachedProjectIdForExemplar = null;
+
+  @VisibleForTesting
+  static final String EXEMPLAR_ATTACHMENT_TYPE_STRING =
+      "type.googleapis.com/google.protobuf.StringValue";
+
+  @VisibleForTesting
+  static final String EXEMPLAR_ATTACHMENT_TYPE_SPAN_CONTEXT =
+      "type.googleapis.com/google.monitoring.v3.SpanContext";
+
+  // TODO: add support for dropped label attachment.
+  // private static final String EXEMPLAR_ATTACHMENT_TYPE_DROPPED_LABELS =
+  //     "type.googleapis.com/google.monitoring.v3.DroppedLabels";
 
   // Constant functions for TypedValue.
   private static final Function<Double, TypedValue> typedValueDoubleFunction =
@@ -258,9 +281,14 @@ final class StackdriverExportUtils {
   static List<TimeSeries> createTimeSeriesList(
       io.opencensus.metrics.export.Metric metric,
       MonitoredResource monitoredResource,
-      String domain) {
+      String domain,
+      String projectId) {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     io.opencensus.metrics.export.MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
+
+    if (!projectId.equals(cachedProjectIdForExemplar)) {
+      cachedProjectIdForExemplar = projectId;
+    }
 
     // Shared fields for all TimeSeries generated from the same Metric
     TimeSeries.Builder shared = TimeSeries.newBuilder();
@@ -337,13 +365,15 @@ final class StackdriverExportUtils {
   // Convert a OpenCensus Distribution to a StackDriver Distribution
   @VisibleForTesting
   static Distribution createDistribution(io.opencensus.metrics.export.Distribution distribution) {
-    return Distribution.newBuilder()
-        .setBucketOptions(createBucketOptions(distribution.getBucketOptions()))
-        .addAllBucketCounts(createBucketCounts(distribution.getBuckets()))
-        .setCount(distribution.getCount())
-        .setMean(distribution.getCount() == 0 ? 0 : distribution.getSum() / distribution.getCount())
-        .setSumOfSquaredDeviation(distribution.getSumOfSquaredDeviations())
-        .build();
+    Distribution.Builder builder =
+        Distribution.newBuilder()
+            .setBucketOptions(createBucketOptions(distribution.getBucketOptions()))
+            .setCount(distribution.getCount())
+            .setMean(
+                distribution.getCount() == 0 ? 0 : distribution.getSum() / distribution.getCount())
+            .setSumOfSquaredDeviation(distribution.getSumOfSquaredDeviations());
+    setBucketCountsAndExemplars(distribution.getBuckets(), builder);
+    return builder.build();
   }
 
   // Convert a OpenCensus BucketOptions to a StackDriver BucketOptions
@@ -360,16 +390,73 @@ final class StackdriverExportUtils {
         bucketOptionsExplicitFunction, Functions.<BucketOptions>throwIllegalArgumentException());
   }
 
-  // Convert a OpenCensus Buckets to a list of counts
-  private static List<Long> createBucketCounts(List<Bucket> buckets) {
-    List<Long> bucketCounts = new ArrayList<>();
+  // Convert OpenCensus Buckets to a list of bucket counts and a list of proto Exemplars, then set
+  // them to the builder.
+  private static void setBucketCountsAndExemplars(
+      List<Bucket> buckets, Distribution.Builder builder) {
     // The first bucket (underflow bucket) should always be 0 count because the Metrics first bucket
     // is [0, first_bound) but StackDriver distribution consists of an underflow bucket (number 0).
-    bucketCounts.add(0L);
+    builder.addBucketCounts(0L);
     for (Bucket bucket : buckets) {
-      bucketCounts.add(bucket.getCount());
+      builder.addBucketCounts(bucket.getCount());
+      @javax.annotation.Nullable
+      io.opencensus.metrics.data.Exemplar exemplar = bucket.getExemplar();
+      if (exemplar != null) {
+        builder.addExemplars(toProtoExemplar(exemplar));
+      }
     }
-    return bucketCounts;
+  }
+
+  private static Exemplar toProtoExemplar(io.opencensus.metrics.data.Exemplar exemplar) {
+    Exemplar.Builder builder =
+        Exemplar.newBuilder()
+            .setValue(exemplar.getValue())
+            .setTimestamp(convertTimestamp(exemplar.getTimestamp()));
+    @javax.annotation.Nullable io.opencensus.trace.SpanContext spanContext = null;
+    for (Map.Entry<String, AttachmentValue> attachment : exemplar.getAttachments().entrySet()) {
+      String key = attachment.getKey();
+      AttachmentValue value = attachment.getValue();
+      if (ExemplarUtils.ATTACHMENT_KEY_SPAN_CONTEXT.equals(key)) {
+        spanContext = ((AttachmentValueSpanContext) value).getSpanContext();
+      } else { // Everything else will be treated as plain strings for now.
+        builder.addAttachments(toProtoStringAttachment(value));
+      }
+    }
+    if (spanContext != null && cachedProjectIdForExemplar != null) {
+      SpanContext protoSpanContext = toProtoSpanContext(spanContext, cachedProjectIdForExemplar);
+      builder.addAttachments(toProtoSpanContextAttachment(protoSpanContext));
+    }
+    return builder.build();
+  }
+
+  private static Any toProtoStringAttachment(AttachmentValue attachmentValue) {
+    return Any.newBuilder()
+        .setTypeUrl(EXEMPLAR_ATTACHMENT_TYPE_STRING)
+        .setValue(ByteString.copyFromUtf8(attachmentValue.getValue()))
+        .build();
+  }
+
+  private static Any toProtoSpanContextAttachment(SpanContext protoSpanContext) {
+    return Any.newBuilder()
+        .setTypeUrl(EXEMPLAR_ATTACHMENT_TYPE_SPAN_CONTEXT)
+        .setValue(protoSpanContext.toByteString())
+        .build();
+  }
+
+  private static SpanContext toProtoSpanContext(
+      io.opencensus.trace.SpanContext spanContext, String projectId) {
+    String spanName =
+        String.format(
+            "projects/%s/traces/%s/spans/%s",
+            projectId,
+            spanContext.getTraceId().toLowerBase16(),
+            spanContext.getSpanId().toLowerBase16());
+    return SpanContext.newBuilder().setSpanName(spanName).build();
+  }
+
+  @VisibleForTesting
+  static void setCachedProjectIdForExemplar(@javax.annotation.Nullable String projectId) {
+    cachedProjectIdForExemplar = projectId;
   }
 
   // Convert a OpenCensus Timestamp to a StackDriver Timestamp

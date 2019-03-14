@@ -9,6 +9,7 @@ dependencies {
     compileOnly libraries.auto_value
 
     compile project(':opencensus-api'),
+            project(':opencensus-contrib-exemplar-util'),
             project(':opencensus-contrib-resource-util'),
             project(':opencensus-exporter-metrics-util'),
             libraries.google_auth,

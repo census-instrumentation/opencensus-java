@@ -221,7 +221,9 @@ General guidelines on imports:
       <subpackage name="stackdriver">
         <allow pkg="com.google"/>
         <allow pkg="io.opencensus.exporter.stats.stackdriver"/>
+        <allow pkg="io.opencensus.metrics.data"/>
         <allow pkg="io.opencensus.trace"/>
+        <allow pkg="io.opencensus.contrib.exemplar.util"/>
         <allow pkg="io.opencensus.contrib.resource.util"/>
       </subpackage>
     </subpackage>
