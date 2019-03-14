@@ -16,27 +16,22 @@
 
 package io.opencensus.benchmarks.tags;
 
+import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.impllite.tags.TagsComponentImplLite;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
+import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 
 /** Util class for Benchmarks. */
-final class BenchmarksUtil {
-  static final TagKey[] TAG_KEYS = {
-    TagKey.create("key0"), TagKey.create("key1"), TagKey.create("key2"),
-    TagKey.create("key3"), TagKey.create("key4"), TagKey.create("key5"),
-    TagKey.create("key6"), TagKey.create("key7")
-  };
+final class TagsBenchmarksUtil {
+  static final TagKey[] TAG_KEYS = createTagKeys(16, "key");
+  static final TagValue[] TAG_VALUES = createTagValues(16, "val");
 
-  static final TagValue[] TAG_VALUES = {
-    TagValue.create("val0"), TagValue.create("val1"), TagValue.create("val2"),
-    TagValue.create("val3"), TagValue.create("val4"), TagValue.create("val5"),
-    TagValue.create("val6"), TagValue.create("val7")
-  };
-
+  private static final TagsComponentImplBase tagsComponentImplBase = new TagsComponentImplBase();
   private static final TagsComponentImplLite tagsComponentImplLite = new TagsComponentImplLite();
 
   static Tagger getTagger(String implementation) {
@@ -45,7 +40,8 @@ final class BenchmarksUtil {
       // the impl one.
       // TODO(bdrutu): Make everything not be a singleton (disruptor, etc.) and use a new
       // TraceComponentImpl similar to TraceComponentImplLite.
-      return Tags.getTagger();
+      //return Tags.getTagger();
+      return tagsComponentImplBase.getTagger();
     } else if (implementation.equals("impl-lite")) {
       return tagsComponentImplLite.getTagger();
     } else {
@@ -59,7 +55,7 @@ final class BenchmarksUtil {
       // the impl one.
       // TODO(bdrutu): Make everything not be a singleton (disruptor, etc.) and use a new
       // TraceComponentImpl similar to TraceComponentImplLite.
-      return Tags.getTagPropagationComponent().getBinarySerializer();
+      return tagsComponentImplBase.getTagPropagationComponent().getBinarySerializer();
     } else if (implementation.equals("impl-lite")) {
       return tagsComponentImplLite.getTagPropagationComponent().getBinarySerializer();
     } else {
@@ -67,6 +63,29 @@ final class BenchmarksUtil {
     }
   }
 
+  static TagKey[] createTagKeys(int size, String name) {
+    TagKey[] keys = new TagKey[size];
+    for (int i = 0; i < size; i++) {
+      keys[i] = TagKey.create(name + i);
+    }
+    return keys;
+  }
+
+  static TagValue[] createTagValues(int size, String name) {
+    TagValue[] values = new TagValue[size];
+    for (int i = 0; i < size; i++) {
+      values[i] = TagValue.create(name + i);
+    }
+    return values;
+  }
+
+  static TagContext createTagContext(TagContextBuilder tagsBuilder, int numTags) {
+    for (int i = 0; i < numTags; i++) {
+      tagsBuilder.put(TAG_KEYS[i], TAG_VALUES[i]);
+    }
+    return tagsBuilder.build();
+  }
+
   // Avoid instances of this class.
-  private BenchmarksUtil() {}
+  private TagsBenchmarksUtil() {}
 }

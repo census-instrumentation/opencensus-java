@@ -21,10 +21,12 @@ import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
+import io.opencensus.tags.Tag;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Param;
@@ -33,56 +35,68 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 
 /** Benchmarks for {@link io.opencensus.trace.Tagger}. */
-public class TaggerBenchmark {
+public class TagsBenchmark {
   @State(org.openjdk.jmh.annotations.Scope.Benchmark)
   public static class Data {
-    //@Param({"0", "1", "2", "4", "8"})
-    @Param({"0", "1"})
+    @Param({"0", "1", "2", "4", "8", "16"})
     int numTags;
 
     @Param({"impl", "impl-lite"})
     String implementation;
 
+    private Scope scope;
     private Tagger tagger;
     private TagContextBinarySerializer serializer;
-    private TagContext[] tagContexts;
-    private byte[][] serializedTagContexts;
+    private TagContext tagContext;
+    private byte[] serializedTagContext;
 
     @Setup
     public void setup() throws Exception {
-      tagger = BenchmarksUtil.getTagger(implementation);
-      serializer = BenchmarksUtil.getTagContextBinarySerializer(implementation);
-      TagContext[] tmpTagContexts = {
-        createTags(0), createTags(1), createTags(2), createTags(3), createTags(4),
-        createTags(5), createTags(6), createTags(7), createTags(8)
-      };
-      tagContexts = tmpTagContexts;
-
-      byte[][] tmpSerializedTagContexts = {
-        serialize(0), serialize(1), serialize(2), serialize(3), serialize(4),
-        serialize(5), serialize(6), serialize(7), serialize(8)
-      };
-      serializedTagContexts = tmpSerializedTagContexts;
+      tagger = TagsBenchmarksUtil.getTagger(implementation);
+      serializer = TagsBenchmarksUtil.getTagContextBinarySerializer(implementation);
+      tagContext = TagsBenchmarksUtil.createTagContext(tagger.emptyBuilder(), numTags);
+      scope = tagger.withTagContext(tagContext);
+      serializedTagContext = serializer.toByteArray(tagContext);
     }
 
-    private TagContext createTags(int numTags) {
-      TagContextBuilder tagsBuilder = tagger.emptyBuilder();
-      for (int i = 0; i < numTags; i++) {
-        tagsBuilder.put(BenchmarksUtil.TAG_KEYS[i], BenchmarksUtil.TAG_VALUES[i]);
-      }
-      return tagsBuilder.build();
-    }
-
-    private byte[] serialize(int numTags) throws Exception {
-      return serializer.toByteArray(tagContexts[numTags]);
+    @TearDown
+    public void tearDown() {
+      scope.close();
     }
   }
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Scope timeWithTagContext(Data data) {
-    Scope scope = data.tagger.withTagContext(data.tagContexts[data.numTags]);
+  public TagKey tagKeyCreation(Data data) {
+    return TagKey.create("key");
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public TagValue tagValueCreation(Data data) {
+    return TagValue.create("val");
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public Tag tagCreation(Data data) {
+    return Tag.create(TagsBenchmarksUtil.TAG_KEYS[0], TagsBenchmarksUtil.TAG_VALUES[0]);
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public TagContext tagContextCreation(Data data) {
+    return TagsBenchmarksUtil.createTagContext(data.tagger.emptyBuilder(), data.numTags);
+  }
+
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public Scope scopeTagContext(Data data) {
+    Scope scope = data.tagger.withTagContext(data.tagContext);
     scope.close();
     return scope;
   }
@@ -90,21 +104,21 @@ public class TaggerBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public TagContext timeGetCurrentTagContext(Data data) {
+  public TagContext getCurrentTagContext(Data data) {
     return data.tagger.getCurrentTagContext();
   }
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public byte[] timeToByteArray(Data data) throws Exception {
-    return data.serializer.toByteArray(data.tagContexts[data.numTags]);
+  public byte[] serializeTagContext(Data data) throws Exception {
+    return data.serializer.toByteArray(data.tagContext);
   }
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public TagContext timeFromByteArray(Data data) throws Exception {
-    return data.serializer.fromByteArray(data.serializedTagContexts[data.numTags]);
+  public TagContext deserializeTagContext(Data data) throws Exception {
+    return data.serializer.fromByteArray(data.serializedTagContext);
   }
 }
