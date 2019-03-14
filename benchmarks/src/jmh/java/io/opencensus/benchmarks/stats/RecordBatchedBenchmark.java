@@ -35,7 +35,7 @@ import org.openjdk.jmh.annotations.State;
 public class RecordBatchedBenchmark {
   @State(org.openjdk.jmh.annotations.Scope.Benchmark)
   public static class Data {
-    @Param({"0", "1", "2", "3"})
+    @Param({"0", "1", "2", "3", "8"})
     int numValues;
 
     @Param({"impl", "impl-lite"})
@@ -68,7 +68,7 @@ public class RecordBatchedBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedDoubleCount(Data data) {
+  public MeasureMap recordBatchedDoubleCount(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
     for (int i = 0; i < data.numValues; i++) {
       map.put(StatsBenchmarksUtil.DOUBLE_COUNT_MEASURES[i], (double) i);
@@ -80,7 +80,7 @@ public class RecordBatchedBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedLongCount(Data data) {
+  public MeasureMap recordBatchedLongCount(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
     for (int i = 0; i < data.numValues; i++) {
       map.put(StatsBenchmarksUtil.LONG_COUNT_MEASURES[i], i);
@@ -92,7 +92,7 @@ public class RecordBatchedBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedDoubleSum(Data data) {
+  public MeasureMap recordBatchedDoubleSum(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
     for (int i = 0; i < data.numValues; i++) {
       map.put(StatsBenchmarksUtil.DOUBLE_SUM_MEASURES[i], (double) i);
@@ -104,7 +104,7 @@ public class RecordBatchedBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedLongSum(Data data) {
+  public MeasureMap recordBatchedLongSum(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
     for (int i = 0; i < data.numValues; i++) {
       map.put(StatsBenchmarksUtil.LONG_SUM_MEASURES[i], i);
@@ -116,7 +116,7 @@ public class RecordBatchedBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedDoubleDistribution(Data data) {
+  public MeasureMap recordBatchedDoubleDistribution(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
     for (int i = 0; i < data.numValues; i++) {
       map.put(StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[i], (double) i);
@@ -128,7 +128,7 @@ public class RecordBatchedBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedLongDistribution(Data data) {
+  public MeasureMap recordBatchedLongDistribution(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
     for (int i = 0; i < data.numValues; i++) {
       map.put(StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[i], i);
@@ -140,7 +140,7 @@ public class RecordBatchedBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedDoubleLastValue(Data data) {
+  public MeasureMap recordBatchedDoubleLastValue(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
     for (int i = 0; i < data.numValues; i++) {
       map.put(StatsBenchmarksUtil.DOUBLE_LASTVALUE_MEASURES[i], (double) i);
@@ -152,7 +152,7 @@ public class RecordBatchedBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedLongLastValue(Data data) {
+  public MeasureMap recordBatchedLongLastValue(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
     for (int i = 0; i < data.numValues; i++) {
       map.put(StatsBenchmarksUtil.LONG_LASTVALUE_MEASURES[i], i);

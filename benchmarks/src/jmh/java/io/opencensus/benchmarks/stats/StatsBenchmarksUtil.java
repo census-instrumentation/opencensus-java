@@ -115,7 +115,7 @@ final class StatsBenchmarksUtil {
     View[] views = new View[size];
     for (int i = 0; i < size; i++) {
       views[i] =  View.create(
-          View.Name.create(measures[i].getName() + aggregation.toString()),
+          View.Name.create(measures[i].getName()),
           "",
           measures[i],
           aggregation,

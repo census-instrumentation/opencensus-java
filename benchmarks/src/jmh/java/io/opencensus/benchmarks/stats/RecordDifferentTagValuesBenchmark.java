@@ -17,6 +17,7 @@
 package io.opencensus.benchmarks.stats;
 
 import io.opencensus.benchmarks.tags.TagsBenchmarksUtil;
+import io.opencensus.stats.Measure;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.stats.View;
@@ -41,7 +42,7 @@ import org.openjdk.jmh.annotations.TearDown;
 public class RecordDifferentTagValuesBenchmark {
   @State(org.openjdk.jmh.annotations.Scope.Benchmark)
   public static class Data {
-    @Param({"0", "1", "2", "3"})
+    @Param({"0", "1", "2", "3", "8"})
     int numTags;
 
     @Param({"impl", "impl-lite"})
@@ -68,6 +69,7 @@ public class RecordDifferentTagValuesBenchmark {
       manager.registerView(StatsBenchmarksUtil.LONG_LASTVALUE_VIEWS[0]);
     }
 
+    // creates 'size' tag contexts mapping "key0" -> "valueN"
     private List<TagContext> createContexts(int size) {
       TagContext[] contexts = new TagContext[size];
       for (int i = 0; i < size; i++) {
@@ -80,93 +82,71 @@ public class RecordDifferentTagValuesBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordDoubleCount(Data data) {
+  public MeasureMap recordDoubleCount(Data data) {
+    return record(data, StatsBenchmarksUtil.DOUBLE_COUNT_MEASURES[0], (double) 11);
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public MeasureMap recordLongCount(Data data) {
+    return record(data, StatsBenchmarksUtil.LONG_COUNT_MEASURES[0], 11);
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public MeasureMap recordDoubleSum(Data data) {
+    return record(data, StatsBenchmarksUtil.DOUBLE_SUM_MEASURES[0], (double) 11);
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public MeasureMap recordLongSum(Data data) {
+    return record(data, StatsBenchmarksUtil.LONG_SUM_MEASURES[0], 11);
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public MeasureMap recordDoubleDistribution(Data data) {
+    return record(data, StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[0], (double) 11);
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public MeasureMap recordLongDistribution(Data data) {
+    return record(data, StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[0], 11);
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public MeasureMap recordDoubleLastValue(Data data) {
+    return record(data, StatsBenchmarksUtil.DOUBLE_LASTVALUE_MEASURES[0], (double) 11);
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public MeasureMap recordLongLastValue(Data data) {
+    return record(data, StatsBenchmarksUtil.LONG_LASTVALUE_MEASURES[0], 11);
+  }
+
+  private static MeasureMap record(Data data, Measure.MeasureLong measure, int value) {
     MeasureMap map = data.recorder.newMeasureMap();
-    map.put(StatsBenchmarksUtil.DOUBLE_COUNT_MEASURES[0], (double) 11);
+    map.put(measure, value);
     for (TagContext tags : data.contexts) {
       map.record(tags);
     }
     return map;
   }
 
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordLongCount(Data data) {
+  private static MeasureMap record(Data data, Measure.MeasureDouble measure, double value) {
     MeasureMap map = data.recorder.newMeasureMap();
-    map.put(StatsBenchmarksUtil.LONG_COUNT_MEASURES[0], 11);
-    for (TagContext tags : data.contexts) {
-      map.record(tags);
-    }
-    return map;
-  }
-
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordDoubleSum(Data data) {
-    MeasureMap map = data.recorder.newMeasureMap();
-    map.put(StatsBenchmarksUtil.DOUBLE_SUM_MEASURES[0], (double) 11);
-    for (TagContext tags : data.contexts) {
-      map.record(tags);
-    }
-    return map;
-  }
-
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordLongSum(Data data) {
-    MeasureMap map = data.recorder.newMeasureMap();
-    map.put(StatsBenchmarksUtil.LONG_SUM_MEASURES[0], 11);
-    for (TagContext tags : data.contexts) {
-      map.record(tags);
-    }
-    return map;
-  }
-
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordDoubleDistribution(Data data) {
-    MeasureMap map = data.recorder.newMeasureMap();
-    map.put(StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[0], (double) 11);
-    for (TagContext tags : data.contexts) {
-      map.record(tags);
-    }
-    return map;
-  }
-
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordLongDistribution(Data data) {
-    MeasureMap map = data.recorder.newMeasureMap();
-    map.put(StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[0], 11);
-    for (TagContext tags : data.contexts) {
-      map.record(tags);
-    }
-    return map;
-  }
-
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordDoubleLastValue(Data data) {
-    MeasureMap map = data.recorder.newMeasureMap();
-    map.put(StatsBenchmarksUtil.DOUBLE_LASTVALUE_MEASURES[0], (double) 11);
-    for (TagContext tags : data.contexts) {
-      map.record(tags);
-    }
-    return map;
-  }
-
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordLongLastValue(Data data) {
-    MeasureMap map = data.recorder.newMeasureMap();
-    map.put(StatsBenchmarksUtil.LONG_LASTVALUE_MEASURES[0], 11);
+    map.put(measure, value);
     for (TagContext tags : data.contexts) {
       map.record(tags);
     }
