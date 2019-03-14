@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.jaegertracing.thrift.internal.senders.HttpSender;
+import io.jaegertracing.thrift.internal.senders.ThriftSender;
 import io.jaegertracing.thriftjava.Process;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
@@ -72,15 +73,15 @@ public final class JaegerTraceExporter {
    * Creates and registers the Jaeger Trace exporter to the OpenCensus library using the provided
    * HttpSender. Only one Jaeger exporter can be registered at any point.
    *
-   * @param httpSender the pre-configured HttpSender to use with the exporter
+   * @param sender the pre-configured ThriftSender to use with the exporter
    * @param serviceName the local service name of the process.
    * @throws IllegalStateException if a Jaeger exporter is already registered.
    * @since 0.17
    */
-  public static void createWithSender(final HttpSender httpSender, final String serviceName) {
+  public static void createWithSender(final ThriftSender sender, final String serviceName) {
     synchronized (monitor) {
       checkState(handler == null, "Jaeger exporter is already registered.");
-      final SpanExporter.Handler newHandler = newHandlerWithSender(httpSender, serviceName);
+      final SpanExporter.Handler newHandler = newHandlerWithSender(sender, serviceName);
       JaegerTraceExporter.handler = newHandler;
       register(Tracing.getExportComponent().getSpanExporter(), newHandler);
     }
@@ -94,7 +95,7 @@ public final class JaegerTraceExporter {
   }
 
   private static SpanExporter.Handler newHandlerWithSender(
-      final HttpSender sender, final String serviceName) {
+      final ThriftSender sender, final String serviceName) {
     final Process process = new Process(serviceName);
     return new JaegerExporterHandler(sender, process);
   }
