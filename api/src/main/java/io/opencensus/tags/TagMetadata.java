@@ -59,7 +59,7 @@ public abstract class TagMetadata {
    * then the tag is considered to have travelled one hop.
    *
    * <p>There could be one or more proxy(ies) between sender and receiver. Proxies are treated as
-   * transparent entities and they do not create additional hops.
+   * transparent entities and they are not counted as hops.
    *
    * <p>For now, only special values of {@link TagTtl} are supported.
    *
@@ -69,7 +69,7 @@ public abstract class TagMetadata {
 
     /**
      * A {@link Tag} with {@link TagTtl#NO_PROPAGATION} is considered to have local scope and is
-     * used within the process it created.
+     * used within the process where it's created.
      *
      * @since 0.20
      */
@@ -80,8 +80,8 @@ public abstract class TagMetadata {
      *
      * <p>However, it is still subject to outgoing and incoming (on remote side) filter criteria.
      *
-     * <p>{@link TagTtl#UNLIMITED_PROPAGATION} is typical used to represent a request, processing of
-     * which may span multiple entities.
+     * <p>{@link TagTtl#UNLIMITED_PROPAGATION} is typical used to track a request, which may be
+     * processed across multiple entities.
      *
      * @since 0.20
      */
