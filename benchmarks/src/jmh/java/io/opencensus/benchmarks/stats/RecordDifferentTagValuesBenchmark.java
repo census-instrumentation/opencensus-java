@@ -16,6 +16,7 @@
 
 package io.opencensus.benchmarks.stats;
 
+import io.opencensus.benchmarks.tags.TagsBenchmarksUtil;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.stats.View;
@@ -41,7 +42,7 @@ public class RecordDifferentTagValuesBenchmark {
   @State(org.openjdk.jmh.annotations.Scope.Benchmark)
   public static class Data {
     @Param({"0", "1", "2", "3"})
-    int numValues;
+    int numTags;
 
     @Param({"impl", "impl-lite"})
     String implementation;
@@ -53,37 +54,37 @@ public class RecordDifferentTagValuesBenchmark {
 
     @Setup
     public void setup() throws Exception {
-      manager = BenchmarksUtil.getViewManager(implementation);
-      recorder = BenchmarksUtil.getStatsRecorder(implementation);
-      tagger = BenchmarksUtil.getTagger(implementation);
-      tags = createTags(1);
-      manager.registerView(BenchmarksUtil.DOUBLE_COUNT_VIEWS[0]);
-      manager.registerView(BenchmarksUtil.LONG_COUNT_VIEWS[0]);
-      manager.registerView(BenchmarksUtil.DOUBLE_SUM_VIEWS[0]);
-      manager.registerView(BenchmarksUtil.LONG_SUM_VIEWS[0]);
-      manager.registerView(BenchmarksUtil.DOUBLE_DISTRIBUTION_VIEWS[0]);
-      manager.registerView(BenchmarksUtil.LONG_DISTRIBUTION_VIEWS[0]);
-      manager.registerView(BenchmarksUtil.DOUBLE_LASTVALUE_VIEWS[0]);
-      manager.registerView(BenchmarksUtil.LONG_LASTVALUE_VIEWS[0]);
+      manager = StatsBenchmarksUtil.getViewManager(implementation);
+      recorder = StatsBenchmarksUtil.getStatsRecorder(implementation);
+      tagger = TagsBenchmarksUtil.getTagger(implementation);
+      contexts = createContexts(numTags);
+      manager.registerView(StatsBenchmarksUtil.DOUBLE_COUNT_VIEWS[0]);
+      manager.registerView(StatsBenchmarksUtil.LONG_COUNT_VIEWS[0]);
+      manager.registerView(StatsBenchmarksUtil.DOUBLE_SUM_VIEWS[0]);
+      manager.registerView(StatsBenchmarksUtil.LONG_SUM_VIEWS[0]);
+      manager.registerView(StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_VIEWS[0]);
+      manager.registerView(StatsBenchmarksUtil.LONG_DISTRIBUTION_VIEWS[0]);
+      manager.registerView(StatsBenchmarksUtil.DOUBLE_LASTVALUE_VIEWS[0]);
+      manager.registerView(StatsBenchmarksUtil.LONG_LASTVALUE_VIEWS[0]);
     }
 
-    private List<TagContext> createTags(int numTags) {
-	TagContext[] contexts = new TagContext[numValues];
-	for (int i = 0; i < numTags; i++) {
-	    contexts[i] =   tagger.emptyBuilder().put(BenchmarksUtil.TAG_KEYS[0], BenchmarksUtil.TAG_VALUES[i]).build();
-	}
-	return Arrays.asList(contexts);
+    private List<TagContext> createContexts(int size) {
+      TagContext[] contexts = new TagContext[size];
+      for (int i = 0; i < size; i++) {
+        contexts[i] = tagger.emptyBuilder().put(TagsBenchmarksUtil.TAG_KEYS[0], TagsBenchmarksUtil.TAG_VALUES[i]).build();
+      }
+      return Arrays.asList(contexts);
     }
   }
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedDoubleCount(Data data) {
+  public MeasureMap timeRecordDoubleCount(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
-    map.put(BenchmarksUtil.DOUBLE_COUNT_MEASURES[0], (double) 11);
+    map.put(StatsBenchmarksUtil.DOUBLE_COUNT_MEASURES[0], (double) 11);
     for (TagContext tags : data.contexts) {
-	map.record(tags);
+      map.record(tags);
     }
     return map;
   }
@@ -91,11 +92,11 @@ public class RecordDifferentTagValuesBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedLongCount(Data data) {
+  public MeasureMap timeRecordLongCount(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
-    map.put(BenchmarksUtil.LONG_COUNT_MEASURES[0], 11);
+    map.put(StatsBenchmarksUtil.LONG_COUNT_MEASURES[0], 11);
     for (TagContext tags : data.contexts) {
-	map.record(tags);
+      map.record(tags);
     }
     return map;
   }
@@ -103,11 +104,11 @@ public class RecordDifferentTagValuesBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedDoubleSum(Data data) {
+  public MeasureMap timeRecordDoubleSum(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
-    map.put(BenchmarksUtil.DOUBLE_SUM_MEASURES[0], (double) 11);
+    map.put(StatsBenchmarksUtil.DOUBLE_SUM_MEASURES[0], (double) 11);
     for (TagContext tags : data.contexts) {
-	map.record(tags);
+      map.record(tags);
     }
     return map;
   }
@@ -115,11 +116,11 @@ public class RecordDifferentTagValuesBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedLongSum(Data data) {
+  public MeasureMap timeRecordLongSum(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
-    map.put(BenchmarksUtil.LONG_SUM_MEASURES[0], 11);
+    map.put(StatsBenchmarksUtil.LONG_SUM_MEASURES[0], 11);
     for (TagContext tags : data.contexts) {
-	map.record(tags);
+      map.record(tags);
     }
     return map;
   }
@@ -127,11 +128,11 @@ public class RecordDifferentTagValuesBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedDoubleDistribution(Data data) {
+  public MeasureMap timeRecordDoubleDistribution(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
-    map.put(BenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[0], (double) 11);
+    map.put(StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[0], (double) 11);
     for (TagContext tags : data.contexts) {
-	map.record(tags);
+      map.record(tags);
     }
     return map;
   }
@@ -139,11 +140,11 @@ public class RecordDifferentTagValuesBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedLongDistribution(Data data) {
+  public MeasureMap timeRecordLongDistribution(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
-    map.put(BenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[0], 11);
+    map.put(StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[0], 11);
     for (TagContext tags : data.contexts) {
-	map.record(tags);
+      map.record(tags);
     }
     return map;
   }
@@ -151,11 +152,11 @@ public class RecordDifferentTagValuesBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedDoubleLastValue(Data data) {
+  public MeasureMap timeRecordDoubleLastValue(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
-    map.put(BenchmarksUtil.DOUBLE_LASTVALUE_MEASURES[0], (double) 11);
+    map.put(StatsBenchmarksUtil.DOUBLE_LASTVALUE_MEASURES[0], (double) 11);
     for (TagContext tags : data.contexts) {
-	map.record(tags);
+      map.record(tags);
     }
     return map;
   }
@@ -163,11 +164,11 @@ public class RecordDifferentTagValuesBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public MeasureMap timeRecordBatchedLongLastValue(Data data) {
+  public MeasureMap timeRecordLongLastValue(Data data) {
     MeasureMap map = data.recorder.newMeasureMap();
-    map.put(BenchmarksUtil.LONG_LASTVALUE_MEASURES[0], 11);
+    map.put(StatsBenchmarksUtil.LONG_LASTVALUE_MEASURES[0], 11);
     for (TagContext tags : data.contexts) {
-	map.record(tags);
+      map.record(tags);
     }
     return map;
   }

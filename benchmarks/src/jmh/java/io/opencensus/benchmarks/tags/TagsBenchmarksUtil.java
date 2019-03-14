@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, OpenCensus Authors
+ * Copyright 2019, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,15 +26,15 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 
-/** Util class for Benchmarks. */
-final class TagsBenchmarksUtil {
-  static final TagKey[] TAG_KEYS = createTagKeys(16, "key");
-  static final TagValue[] TAG_VALUES = createTagValues(16, "val");
-
+/** Util class for Tags Benchmarks. */
+public final class TagsBenchmarksUtil {
   private static final TagsComponentImplBase tagsComponentImplBase = new TagsComponentImplBase();
   private static final TagsComponentImplLite tagsComponentImplLite = new TagsComponentImplLite();
 
-  static Tagger getTagger(String implementation) {
+  public static final TagKey[] TAG_KEYS = createTagKeys(16, "key");
+  public static final TagValue[] TAG_VALUES = createTagValues(16, "val");
+
+  public static Tagger getTagger(String implementation) {
     if (implementation.equals("impl")) {
       // We can return the global tracer here because if impl is linked the global tracer will be
       // the impl one.
@@ -49,7 +49,7 @@ final class TagsBenchmarksUtil {
     }
   }
 
-  static TagContextBinarySerializer getTagContextBinarySerializer(String implementation) {
+  public static TagContextBinarySerializer getTagContextBinarySerializer(String implementation) {
     if (implementation.equals("impl")) {
       // We can return the global tracer here because if impl is linked the global tracer will be
       // the impl one.
@@ -63,7 +63,7 @@ final class TagsBenchmarksUtil {
     }
   }
 
-  static TagKey[] createTagKeys(int size, String name) {
+  public static TagKey[] createTagKeys(int size, String name) {
     TagKey[] keys = new TagKey[size];
     for (int i = 0; i < size; i++) {
       keys[i] = TagKey.create(name + i);
@@ -71,7 +71,7 @@ final class TagsBenchmarksUtil {
     return keys;
   }
 
-  static TagValue[] createTagValues(int size, String name) {
+  public static TagValue[] createTagValues(int size, String name) {
     TagValue[] values = new TagValue[size];
     for (int i = 0; i < size; i++) {
       values[i] = TagValue.create(name + i);
@@ -79,7 +79,7 @@ final class TagsBenchmarksUtil {
     return values;
   }
 
-  static TagContext createTagContext(TagContextBuilder tagsBuilder, int numTags) {
+  public static TagContext createTagContext(TagContextBuilder tagsBuilder, int numTags) {
     for (int i = 0; i < numTags; i++) {
       tagsBuilder.put(TAG_KEYS[i], TAG_VALUES[i]);
     }
