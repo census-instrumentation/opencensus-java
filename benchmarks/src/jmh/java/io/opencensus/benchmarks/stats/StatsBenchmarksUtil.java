@@ -16,6 +16,9 @@
 
 package io.opencensus.benchmarks.stats;
 
+import static io.opencensus.benchmarks.tags.TagsBenchmarksUtil.TAG_KEYS;
+import static io.opencensus.benchmarks.tags.TagsBenchmarksUtil.TAG_VALUES;
+
 import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.impllite.stats.StatsComponentImplLite;
@@ -36,18 +39,13 @@ import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import java.util.Arrays;
 
 /** Util class for Benchmarks. */
-final class BenchmarksUtil {
-  private static final TagsComponentImplBase tagsComponentImplBase = new TagsComponentImplBase();
+final class StatsBenchmarksUtil {
   private static final StatsComponentImpl statsComponentImpl = new StatsComponentImpl();
 
   private static final StatsComponentImplLite statsComponentImplLite = new StatsComponentImplLite();
-  private static final TagsComponentImplLite tagsComponentImplLite = new TagsComponentImplLite();
 
   private static final Aggregation.Distribution DISTRIBUTION = Aggregation.Distribution.create(
       BucketBoundaries.create(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)));
-
-  static final TagKey[] TAG_KEYS = createTagKeys(8, "key");
-  static final TagValue[] TAG_VALUES = createTagValues(8, "val");
 
   static final Measure.MeasureDouble[] DOUBLE_COUNT_MEASURES = createMeasureDoubles(8, "Count");
   static final Measure.MeasureLong[] LONG_COUNT_MEASURES = createMeasureLongs(8, "Count");
@@ -84,35 +82,6 @@ final class BenchmarksUtil {
       createViews(4, DOUBLE_LASTVALUE_MEASURES, Aggregation.LastValue.create(), TAG_KEYS[0]);
   static final View[] LONG_LASTVALUE_VIEWS =
       createViews(4, LONG_LASTVALUE_MEASURES, Aggregation.LastValue.create(), TAG_KEYS[0]);
-
-  static Tagger getTagger(String implementation) {
-    if (implementation.equals("impl")) {
-      // We can return the global tracer here because if impl is linked the global tracer will be
-      // the impl one.
-      // TODO(bdrutu): Make everything not be a singleton (disruptor, etc.) and use a new
-      // TraceComponentImpl similar to TraceComponentImplLite.
-      //return Tags.getTagger();
-      return tagsComponentImplBase.getTagger();
-    } else if (implementation.equals("impl-lite")) {
-      return tagsComponentImplLite.getTagger();
-    } else {
-      throw new RuntimeException("Invalid tagger implementation specified.");
-    }
-  }
-
-  static TagContextBinarySerializer getTagContextBinarySerializer(String implementation) {
-    if (implementation.equals("impl")) {
-      // We can return the global tracer here because if impl is linked the global tracer will be
-      // the impl one.
-      // TODO(bdrutu): Make everything not be a singleton (disruptor, etc.) and use a new
-      // TraceComponentImpl similar to TraceComponentImplLite.
-      return Tags.getTagPropagationComponent().getBinarySerializer();
-    } else if (implementation.equals("impl-lite")) {
-      return tagsComponentImplLite.getTagPropagationComponent().getBinarySerializer();
-    } else {
-      throw new RuntimeException("Invalid binary serializer implementation specified.");
-    }
-  }
 
   static StatsRecorder getStatsRecorder(String implementation) {
     if (implementation.equals("impl")) {
@@ -155,22 +124,6 @@ final class BenchmarksUtil {
     return views;
   };
 
-  private static TagKey[] createTagKeys(int size, String name) {
-    TagKey[] keys = new TagKey[size];
-    for (int i = 0; i < size; i++) {
-      keys[i] = TagKey.create(name + i);
-    }
-    return keys;
-  }
-
-  private static TagValue[] createTagValues(int size, String name) {
-    TagValue[] values = new TagValue[size];
-    for (int i = 0; i < size; i++) {
-      values[i] = TagValue.create(name + i);
-    }
-    return values;
-  }
-
   private static Measure.MeasureDouble[] createMeasureDoubles(int size, String name) {
     Measure.MeasureDouble[] measures = new Measure.MeasureDouble[size];
     for (int i = 0; i < size; i++) {
@@ -188,5 +141,5 @@ final class BenchmarksUtil {
   }
 
   // Avoid instances of this class.
-  private BenchmarksUtil() {}
+  private StatsBenchmarksUtil() {}
 }
