@@ -41,47 +41,49 @@ import java.util.Arrays;
 /** Util class for Benchmarks. */
 final class StatsBenchmarksUtil {
   private static final StatsComponentImpl statsComponentImpl = new StatsComponentImpl();
-
   private static final StatsComponentImplLite statsComponentImplLite = new StatsComponentImplLite();
 
-  private static final Aggregation.Distribution DISTRIBUTION = Aggregation.Distribution.create(
+  private static final int MEASURES = 8;
+  private static final int VIEWS = 8;
+
+  static final Aggregation.Distribution DISTRIBUTION = Aggregation.Distribution.create(
       BucketBoundaries.create(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)));
 
-  static final Measure.MeasureDouble[] DOUBLE_COUNT_MEASURES = createMeasureDoubles(8, "Count");
-  static final Measure.MeasureLong[] LONG_COUNT_MEASURES = createMeasureLongs(8, "Count");
+  static final Measure.MeasureDouble[] DOUBLE_COUNT_MEASURES = createMeasureDoubles(MEASURES, "Count");
+  static final Measure.MeasureLong[] LONG_COUNT_MEASURES = createMeasureLongs(MEASURES, "Count");
 
-  static final Measure.MeasureDouble[] DOUBLE_SUM_MEASURES = createMeasureDoubles(8, "Sum");
-  static final Measure.MeasureLong[] LONG_SUM_MEASURES = createMeasureLongs(8, "Sum");
+  static final Measure.MeasureDouble[] DOUBLE_SUM_MEASURES = createMeasureDoubles(MEASURES, "Sum");
+  static final Measure.MeasureLong[] LONG_SUM_MEASURES = createMeasureLongs(MEASURES, "Sum");
 
   static final Measure.MeasureDouble[] DOUBLE_DISTRIBUTION_MEASURES =
-      createMeasureDoubles(8, "Distribution");
+      createMeasureDoubles(MEASURES, "Distribution");
   static final Measure.MeasureLong[] LONG_DISTRIBUTION_MEASURES =
-      createMeasureLongs(8, "Distribution");
+      createMeasureLongs(MEASURES, "Distribution");
 
   static final Measure.MeasureDouble[] DOUBLE_LASTVALUE_MEASURES =
-      createMeasureDoubles(8, "LastValue");
+      createMeasureDoubles(MEASURES, "LastValue");
   static final Measure.MeasureLong[] LONG_LASTVALUE_MEASURES =
-      createMeasureLongs(8, "LastValue");
+      createMeasureLongs(MEASURES, "LastValue");
 
   static final View[] DOUBLE_COUNT_VIEWS =
-      createViews(4, DOUBLE_COUNT_MEASURES, Aggregation.Count.create(), TAG_KEYS[0]);
+      createViews(VIEWS, DOUBLE_COUNT_MEASURES, Aggregation.Count.create(), TAG_KEYS[0]);
   static final View[] LONG_COUNT_VIEWS =
-      createViews(4, LONG_COUNT_MEASURES, Aggregation.Count.create(), TAG_KEYS[0]);
+      createViews(VIEWS, LONG_COUNT_MEASURES, Aggregation.Count.create(), TAG_KEYS[0]);
 
   static final View[] DOUBLE_SUM_VIEWS =
-      createViews(4, DOUBLE_SUM_MEASURES, Aggregation.Sum.create(), TAG_KEYS[0]);
+      createViews(VIEWS, DOUBLE_SUM_MEASURES, Aggregation.Sum.create(), TAG_KEYS[0]);
   static final View[] LONG_SUM_VIEWS =
-      createViews(4, LONG_SUM_MEASURES, Aggregation.Sum.create(), TAG_KEYS[0]);
+      createViews(VIEWS, LONG_SUM_MEASURES, Aggregation.Sum.create(), TAG_KEYS[0]);
 
   static final View[] DOUBLE_DISTRIBUTION_VIEWS =
-      createViews(4, DOUBLE_DISTRIBUTION_MEASURES, DISTRIBUTION, TAG_KEYS[0]);
+      createViews(VIEWS, DOUBLE_DISTRIBUTION_MEASURES, DISTRIBUTION, TAG_KEYS[0]);
   static final View[] LONG_DISTRIBUTION_VIEWS =
-      createViews(4, LONG_DISTRIBUTION_MEASURES, DISTRIBUTION, TAG_KEYS[0]);
+      createViews(VIEWS, LONG_DISTRIBUTION_MEASURES, DISTRIBUTION, TAG_KEYS[0]);
 
   static final View[] DOUBLE_LASTVALUE_VIEWS =
-      createViews(4, DOUBLE_LASTVALUE_MEASURES, Aggregation.LastValue.create(), TAG_KEYS[0]);
+      createViews(VIEWS, DOUBLE_LASTVALUE_MEASURES, Aggregation.LastValue.create(), TAG_KEYS[0]);
   static final View[] LONG_LASTVALUE_VIEWS =
-      createViews(4, LONG_LASTVALUE_MEASURES, Aggregation.LastValue.create(), TAG_KEYS[0]);
+      createViews(VIEWS, LONG_LASTVALUE_MEASURES, Aggregation.LastValue.create(), TAG_KEYS[0]);
 
   static StatsRecorder getStatsRecorder(String implementation) {
     if (implementation.equals("impl")) {
@@ -114,15 +116,14 @@ final class StatsBenchmarksUtil {
   private static View[] createViews(int size, Measure[] measures, Aggregation aggregation, TagKey... keys) {
     View[] views = new View[size];
     for (int i = 0; i < size; i++) {
-      views[i] =  View.create(
-          View.Name.create(measures[i].getName()),
-          "",
-          measures[i],
-          aggregation,
-          Arrays.asList(keys));
+      views[i] =  createView(measures[i].getName(), measures[i], aggregation, keys);
     }
     return views;
-  };
+  }
+
+  static View createView(String name, Measure measure, Aggregation aggregation, TagKey... keys) {
+    return View.create(View.Name.create(name), "", measure, aggregation, Arrays.asList(keys));
+  }
 
   private static Measure.MeasureDouble[] createMeasureDoubles(int size, String name) {
     Measure.MeasureDouble[] measures = new Measure.MeasureDouble[size];

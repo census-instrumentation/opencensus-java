@@ -40,7 +40,6 @@ public final class TagsBenchmarksUtil {
       // the impl one.
       // TODO(bdrutu): Make everything not be a singleton (disruptor, etc.) and use a new
       // TraceComponentImpl similar to TraceComponentImplLite.
-      //return Tags.getTagger();
       return tagsComponentImplBase.getTagger();
     } else if (implementation.equals("impl-lite")) {
       return tagsComponentImplLite.getTagger();
