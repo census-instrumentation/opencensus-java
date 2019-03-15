@@ -17,7 +17,7 @@
 package io.opencensus.contrib.http;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.opencensus.contrib.http.HttpRequestContext.METADATA_UNLIMITED_PROPAGATION;
+import static io.opencensus.contrib.http.HttpRequestContext.METADATA_NO_PROPAGATION;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_METHOD;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY;
@@ -166,11 +166,11 @@ public class HttpClientHandler<
             .put(
                 HTTP_CLIENT_METHOD,
                 TagValue.create(methodStr == null ? "" : methodStr),
-                METADATA_UNLIMITED_PROPAGATION)
+                METADATA_NO_PROPAGATION)
             .put(
                 HTTP_CLIENT_STATUS,
                 TagValue.create(status == 0 ? "error" : Integer.toString(status)),
-                METADATA_UNLIMITED_PROPAGATION)
+                METADATA_NO_PROPAGATION)
             .build();
 
     statsRecorder

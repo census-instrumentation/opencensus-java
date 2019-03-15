@@ -35,8 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class HttpRequestContext {
   @VisibleForTesting static final long INVALID_STARTTIME = -1;
 
-  static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
-      TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
+  static final TagMetadata METADATA_NO_PROPAGATION = TagMetadata.create(TagTtl.NO_PROPAGATION);
 
   @VisibleForTesting final long requestStartTime;
   @VisibleForTesting final Span span;
