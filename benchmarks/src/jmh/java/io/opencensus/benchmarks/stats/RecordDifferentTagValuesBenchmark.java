@@ -42,7 +42,7 @@ import org.openjdk.jmh.annotations.TearDown;
 public class RecordDifferentTagValuesBenchmark {
   @State(org.openjdk.jmh.annotations.Scope.Benchmark)
   public static class Data {
-    @Param({"0", "1", "2", "3", "8"})
+    @Param({"0", "1", "2", "3", "6", "8"})
     int numTags;
 
     @Param({"impl", "impl-lite"})
