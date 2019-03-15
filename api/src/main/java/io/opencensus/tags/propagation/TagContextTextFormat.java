@@ -20,6 +20,10 @@ import io.opencensus.tags.TagContext;
 import java.util.List;
 import javax.annotation.Nullable;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.NonNull;
+*/
+
 /**
  * Object for injecting and extracting {@link TagContext} as text into carriers that travel in-band
  * across process boundaries. Tags are often encoded as messaging or RPC request headers.

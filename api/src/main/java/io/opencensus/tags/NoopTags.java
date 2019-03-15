@@ -30,6 +30,10 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.NonNull;
+*/
+
 /** No-op implementations of tagging classes. */
 final class NoopTags {
 
@@ -255,7 +259,8 @@ final class NoopTags {
     }
 
     @Override
-    public <C> void inject(TagContext tagContext, C carrier, Setter<C> setter)
+    public <C /*>>> extends @NonNull Object*/> void inject(
+        TagContext tagContext, C carrier, Setter<C> setter)
         throws TagContextSerializationException {
       Utils.checkNotNull(tagContext, "tagContext");
       Utils.checkNotNull(carrier, "carrier");
@@ -263,7 +268,7 @@ final class NoopTags {
     }
 
     @Override
-    public <C> TagContext extract(C carrier, Getter<C> getter)
+    public <C /*>>> extends @NonNull Object*/> TagContext extract(C carrier, Getter<C> getter)
         throws TagContextDeserializationException {
       Utils.checkNotNull(carrier, "carrier");
       Utils.checkNotNull(getter, "getter");
