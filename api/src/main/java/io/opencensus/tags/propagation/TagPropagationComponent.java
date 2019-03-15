@@ -34,10 +34,13 @@ public abstract class TagPropagationComponent {
   public abstract TagContextBinarySerializer getBinarySerializer();
 
   /**
-   * Returns the {@link TagContextTextSerializer} for this implementation.
+   * Returns the {@link TagContextTextFormat} for this implementation.
    *
-   * @return the {@code TagContextTextSerializer} for this implementation.
+   * <p>OpenCensus uses W3C Correlation Context as the HTTP text format. For more details, see <a
+   * href="https://github.com/w3c/correlation-context">correlation-context</a>.
+   *
+   * @return the {@code TagContextTextFormat} for this implementation.
    * @since 0.21
    */
-  public abstract TagContextTextSerializer getTextSerializer();
+  public abstract TagContextTextFormat getCorrelationContextFormat();
 }

@@ -22,10 +22,11 @@ import io.opencensus.internal.Utils;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagContextDeserializationException;
 import io.opencensus.tags.propagation.TagContextSerializationException;
-import io.opencensus.tags.propagation.TagContextTextSerializer;
+import io.opencensus.tags.propagation.TagContextTextFormat;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -84,11 +85,11 @@ final class NoopTags {
   }
 
   /**
-   * Returns a {@code TagContextTextSerializer} that serializes all {@code TagContext}s to empty
-   * strings and deserializes all inputs to empty {@code TagContext}s.
+   * Returns a {@code TagContextTextFormat} that serializes all {@code TagContext}s to empty strings
+   * and deserializes all inputs to empty {@code TagContext}s.
    */
-  static TagContextTextSerializer getNoopTagContextTextSerializer() {
-    return NoopTagContextTextSerializer.INSTANCE;
+  static TagContextTextFormat getNoopTagContextTextSerializer() {
+    return NoopTagContextTextFormat.INSTANCE;
   }
 
   @ThreadSafe
@@ -219,7 +220,7 @@ final class NoopTags {
     }
 
     @Override
-    public TagContextTextSerializer getTextSerializer() {
+    public TagContextTextFormat getCorrelationContextFormat() {
       return getNoopTagContextTextSerializer();
     }
   }
@@ -244,20 +245,28 @@ final class NoopTags {
   }
 
   @Immutable
-  private static final class NoopTagContextTextSerializer extends TagContextTextSerializer {
+  private static final class NoopTagContextTextFormat extends TagContextTextFormat {
 
-    static final NoopTagContextTextSerializer INSTANCE = new NoopTagContextTextSerializer();
-    static final String EMPTY = "";
+    static final NoopTagContextTextFormat INSTANCE = new NoopTagContextTextFormat();
 
     @Override
-    public String toText(TagContext tags) throws TagContextSerializationException {
-      Utils.checkNotNull(tags, "tags");
-      return EMPTY;
+    public List<String> fields() {
+      return Collections.<String>emptyList();
     }
 
     @Override
-    public TagContext fromText(String text) throws TagContextDeserializationException {
-      Utils.checkNotNull(text, "text");
+    public <C> void inject(TagContext tagContext, C carrier, Setter<C> setter)
+        throws TagContextSerializationException {
+      Utils.checkNotNull(tagContext, "tagContext");
+      Utils.checkNotNull(carrier, "carrier");
+      Utils.checkNotNull(setter, "setter");
+    }
+
+    @Override
+    public <C> TagContext extract(C carrier, Getter<C> getter)
+        throws TagContextDeserializationException {
+      Utils.checkNotNull(carrier, "carrier");
+      Utils.checkNotNull(getter, "getter");
       return getNoopTagContext();
     }
   }

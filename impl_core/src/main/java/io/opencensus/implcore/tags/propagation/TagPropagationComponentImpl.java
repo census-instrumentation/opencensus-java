@@ -18,7 +18,7 @@ package io.opencensus.implcore.tags.propagation;
 
 import io.opencensus.implcore.internal.CurrentState;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
-import io.opencensus.tags.propagation.TagContextTextSerializer;
+import io.opencensus.tags.propagation.TagContextTextFormat;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 
 /** Implementation of {@link TagPropagationComponent}. */
@@ -35,7 +35,7 @@ public final class TagPropagationComponentImpl extends TagPropagationComponent {
   }
 
   @Override
-  public TagContextTextSerializer getTextSerializer() {
+  public TagContextTextFormat getCorrelationContextFormat() {
     throw new UnsupportedOperationException("not implemented");
   }
 }
