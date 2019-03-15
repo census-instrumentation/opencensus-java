@@ -28,6 +28,7 @@ import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSumDouble;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSumLong;
 import io.opencensus.implcore.tags.TagMapImpl;
+import io.opencensus.implcore.tags.TagValueWithMetadata;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
@@ -61,22 +62,21 @@ final class RecordUtils {
 
   @javax.annotation.Nullable @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = null;
 
-  static Map<TagKey, TagValue> getTagMap(TagContext ctx) {
+  static Map<TagKey, TagValueWithMetadata> getTagMap(TagContext ctx) {
     if (ctx instanceof TagMapImpl) {
       return ((TagMapImpl) ctx).getTags();
-    } else {
-      Map<TagKey, TagValue> tags = Maps.newHashMap();
-      for (Iterator<Tag> i = InternalUtils.getTags(ctx); i.hasNext(); ) {
-        Tag tag = i.next();
-        tags.put(tag.getKey(), tag.getValue());
-      }
-      return tags;
     }
+    Map<TagKey, TagValueWithMetadata> tags = Maps.newHashMap();
+    for (Iterator<Tag> i = InternalUtils.getTags(ctx); i.hasNext(); ) {
+      Tag tag = i.next();
+      tags.put(tag.getKey(), TagValueWithMetadata.create(tag.getValue(), tag.getTagMetadata()));
+    }
+    return tags;
   }
 
   @VisibleForTesting
   static List</*@Nullable*/ TagValue> getTagValues(
-      Map<? extends TagKey, ? extends TagValue> tags, List<? extends TagKey> columns) {
+      Map<? extends TagKey, TagValueWithMetadata> tags, List<? extends TagKey> columns) {
     List</*@Nullable*/ TagValue> tagValues = new ArrayList</*@Nullable*/ TagValue>(columns.size());
     // Record all the measures in a "Greedy" way.
     // Every view aggregates every measure. This is similar to doing a GROUPBY view’s keys.
@@ -86,7 +86,7 @@ final class RecordUtils {
         // replace not found key values by null.
         tagValues.add(UNKNOWN_TAG_VALUE);
       } else {
-        tagValues.add(tags.get(tagKey));
+        tagValues.add(tags.get(tagKey).getTagValue());
       }
     }
     return tagValues;

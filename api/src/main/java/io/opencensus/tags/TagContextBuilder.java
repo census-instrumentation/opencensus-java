@@ -28,12 +28,30 @@ public abstract class TagContextBuilder {
   /**
    * Adds the key/value pair regardless of whether the key is present.
    *
+   * <p>For backwards-compatibility this method still produces propagating {@link Tag}s.
+   *
+   * <p>Equivalent to calling {@code put(key, value,
+   * TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION))}.
+   *
    * @param key the {@code TagKey} which will be set.
    * @param value the {@code TagValue} to set for the given key.
    * @return this
    * @since 0.8
+   * @deprecated in favor of {@link #put(TagKey, TagValue, TagMetadata)}.
    */
+  @Deprecated
   public abstract TagContextBuilder put(TagKey key, TagValue value);
+
+  /**
+   * Adds the key/value pair and metadata regardless of whether the key is present.
+   *
+   * @param key the {@code TagKey} which will be set.
+   * @param value the {@code TagValue} to set for the given key.
+   * @param tagMetadata the {@code TagMetadata} associated with this {@link Tag}.
+   * @return this
+   * @since 0.20
+   */
+  public abstract TagContextBuilder put(TagKey key, TagValue value, TagMetadata tagMetadata);
 
   /**
    * Removes the key if it exists.

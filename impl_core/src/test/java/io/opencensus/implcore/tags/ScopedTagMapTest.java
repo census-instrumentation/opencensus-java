@@ -25,6 +25,8 @@ import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagMetadata;
+import io.opencensus.tags.TagMetadata.TagTtl;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import org.junit.Test;
@@ -39,9 +41,17 @@ import org.junit.runners.JUnit4;
 public class ScopedTagMapTest {
   private static final TagKey KEY_1 = TagKey.create("key 1");
   private static final TagKey KEY_2 = TagKey.create("key 2");
+  private static final TagKey KEY_3 = TagKey.create("key 3");
 
   private static final TagValue VALUE_1 = TagValue.create("value 1");
   private static final TagValue VALUE_2 = TagValue.create("value 2");
+  private static final TagValue VALUE_3 = TagValue.create("value 3");
+  private static final TagValue VALUE_4 = TagValue.create("value 4");
+
+  private static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
+      TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
+  private static final TagMetadata METADATA_NO_PROPAGATION =
+      TagMetadata.create(TagTtl.NO_PROPAGATION);
 
   private final Tagger tagger = new TaggerImpl(new CurrentState(State.ENABLED));
 
@@ -103,6 +113,37 @@ public class ScopedTagMapTest {
             .containsExactly(Tag.create(KEY_1, VALUE_1), Tag.create(KEY_2, VALUE_2));
       } finally {
         scope2.close();
+      }
+      assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
+    } finally {
+      scope1.close();
+    }
+  }
+
+  @Test
+  public void multiScopeTagMapWithMetadata() {
+    TagContext scopedTags =
+        tagger
+            .emptyBuilder()
+            .put(KEY_1, VALUE_1, METADATA_UNLIMITED_PROPAGATION)
+            .put(KEY_2, VALUE_2, METADATA_UNLIMITED_PROPAGATION)
+            .build();
+    Scope scope1 = tagger.withTagContext(scopedTags);
+    try { // Scope 1
+      Scope scope2 =
+          tagger
+              .currentBuilder()
+              .put(KEY_3, VALUE_3, METADATA_NO_PROPAGATION)
+              .put(KEY_2, VALUE_4, METADATA_NO_PROPAGATION)
+              .buildScoped();
+      try { // Scope 2
+        assertThat(tagContextToList(tagger.getCurrentTagContext()))
+            .containsExactly(
+                Tag.create(KEY_1, VALUE_1, METADATA_UNLIMITED_PROPAGATION),
+                Tag.create(KEY_2, VALUE_4, METADATA_NO_PROPAGATION),
+                Tag.create(KEY_3, VALUE_3, METADATA_NO_PROPAGATION));
+      } finally {
+        scope2.close(); // Close Scope 2
       }
       assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
     } finally {

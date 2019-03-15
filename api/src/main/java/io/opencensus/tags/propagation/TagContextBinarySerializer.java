@@ -16,7 +16,10 @@
 
 package io.opencensus.tags.propagation;
 
+import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagMetadata;
+import io.opencensus.tags.TagMetadata.TagTtl;
 
 /**
  * Object for serializing and deserializing {@link TagContext}s with the binary format.
@@ -33,6 +36,9 @@ public abstract class TagContextBinarySerializer {
    * Serializes the {@code TagContext} into the on-the-wire representation.
    *
    * <p>This method should be the inverse of {@link #fromByteArray}.
+   *
+   * <p>{@link Tag}s that have a {@link TagMetadata} with {@link TagTtl#NO_PROPAGATION} will not be
+   * serialized.
    *
    * @param tags the {@code TagContext} to serialize.
    * @return the on-the-wire representation of a {@code TagContext}.

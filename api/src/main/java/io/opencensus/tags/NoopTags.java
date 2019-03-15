@@ -150,9 +150,18 @@ final class NoopTags {
     static final TagContextBuilder INSTANCE = new NoopTagContextBuilder();
 
     @Override
+    @SuppressWarnings("deprecation")
     public TagContextBuilder put(TagKey key, TagValue value) {
       Utils.checkNotNull(key, "key");
       Utils.checkNotNull(value, "value");
+      return this;
+    }
+
+    @Override
+    public TagContextBuilder put(TagKey key, TagValue value, TagMetadata tagMetadata) {
+      Utils.checkNotNull(key, "key");
+      Utils.checkNotNull(value, "value");
+      Utils.checkNotNull(tagMetadata, "tagMetadata");
       return this;
     }
 

@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
+import io.opencensus.implcore.tags.TagValueWithMetadata;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.LastValue;
@@ -35,6 +36,8 @@ import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagMetadata;
+import io.opencensus.tags.TagMetadata.TagTtl;
 import io.opencensus.tags.TagValue;
 import java.util.Arrays;
 import java.util.List;
@@ -52,11 +55,17 @@ public class RecordUtilsTest {
       MeasureDouble.create("measure1", "description", "1");
   private static final MeasureLong MEASURE_LONG =
       MeasureLong.create("measure2", "description", "1");
+  private static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
+      TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
   private static final TagKey ORIGINATOR = TagKey.create("originator");
   private static final TagKey CALLER = TagKey.create("caller");
   private static final TagKey METHOD = TagKey.create("method");
   private static final TagValue CALLER_V = TagValue.create("some caller");
   private static final TagValue METHOD_V = TagValue.create("some method");
+  private static final TagValueWithMetadata CALLER_V_WITH_MD =
+      TagValueWithMetadata.create(CALLER_V, METADATA_UNLIMITED_PROPAGATION);
+  private static final TagValueWithMetadata METHOD_V_WITH_MD =
+      TagValueWithMetadata.create(METHOD_V, METADATA_UNLIMITED_PROPAGATION);
 
   @Test
   public void testConstants() {
@@ -66,7 +75,8 @@ public class RecordUtilsTest {
   @Test
   public void testGetTagValues() {
     List<TagKey> columns = Arrays.asList(CALLER, METHOD, ORIGINATOR);
-    Map<TagKey, TagValue> tags = ImmutableMap.of(CALLER, CALLER_V, METHOD, METHOD_V);
+    Map<TagKey, TagValueWithMetadata> tags =
+        ImmutableMap.of(CALLER, CALLER_V_WITH_MD, METHOD, METHOD_V_WITH_MD);
 
     assertThat(RecordUtils.getTagValues(tags, columns))
         .containsExactly(CALLER_V, METHOD_V, RecordUtils.UNKNOWN_TAG_VALUE)

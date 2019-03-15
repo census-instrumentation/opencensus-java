@@ -19,6 +19,7 @@ package io.opencensus.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+import io.opencensus.tags.TagMetadata.TagTtl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -27,20 +28,41 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class TagTest {
 
+  private static final TagKey KEY = TagKey.create("KEY");
+  private static final TagKey KEY_2 = TagKey.create("KEY2");
+  private static final TagValue VALUE = TagValue.create("VALUE");
+  private static final TagValue VALUE_2 = TagValue.create("VALUE2");
+  private static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
+      TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
+  private static final TagMetadata METADATA_NO_PROPAGATION =
+      TagMetadata.create(TagTtl.NO_PROPAGATION);
+
   @Test
   public void testGetKey() {
-    assertThat(Tag.create(TagKey.create("k"), TagValue.create("v")).getKey())
-        .isEqualTo(TagKey.create("k"));
+    assertThat(Tag.create(KEY, VALUE).getKey()).isEqualTo(KEY);
+  }
+
+  @Test
+  public void testGetTagMetadata() {
+    assertThat(Tag.create(KEY, VALUE, METADATA_NO_PROPAGATION).getTagMetadata())
+        .isEqualTo(METADATA_NO_PROPAGATION);
+  }
+
+  @Test
+  public void testGetTagMetadata_default() {
+    assertThat(Tag.create(KEY, VALUE).getTagMetadata()).isEqualTo(METADATA_UNLIMITED_PROPAGATION);
   }
 
   @Test
   public void testTagEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            Tag.create(TagKey.create("Key"), TagValue.create("foo")),
-            Tag.create(TagKey.create("Key"), TagValue.create("foo")))
-        .addEqualityGroup(Tag.create(TagKey.create("Key"), TagValue.create("bar")))
-        .addEqualityGroup(Tag.create(TagKey.create("Key2"), TagValue.create("foo")))
+            Tag.create(KEY, VALUE),
+            Tag.create(KEY, VALUE),
+            Tag.create(KEY, VALUE, METADATA_UNLIMITED_PROPAGATION))
+        .addEqualityGroup(Tag.create(KEY, VALUE_2))
+        .addEqualityGroup(Tag.create(KEY_2, VALUE))
+        .addEqualityGroup(Tag.create(KEY, VALUE, METADATA_NO_PROPAGATION))
         .testEquals();
   }
 }
