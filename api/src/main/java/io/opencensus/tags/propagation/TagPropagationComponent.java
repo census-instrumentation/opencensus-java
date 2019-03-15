@@ -23,7 +23,6 @@ import io.opencensus.tags.TagContext;
  *
  * @since 0.8
  */
-// TODO(sebright): Add an HTTP serializer.
 public abstract class TagPropagationComponent {
 
   /**
@@ -33,4 +32,12 @@ public abstract class TagPropagationComponent {
    * @since 0.8
    */
   public abstract TagContextBinarySerializer getBinarySerializer();
+
+  /**
+   * Returns the {@link TagContextTextSerializer} for this implementation.
+   *
+   * @return the {@code TagContextTextSerializer} for this implementation.
+   * @since 0.21
+   */
+  public abstract TagContextTextSerializer getTextSerializer();
 }

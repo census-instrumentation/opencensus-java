@@ -23,6 +23,7 @@ import io.opencensus.internal.NoopScope;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagContextDeserializationException;
 import io.opencensus.tags.propagation.TagContextSerializationException;
+import io.opencensus.tags.propagation.TagContextTextSerializer;
 import java.util.Arrays;
 import java.util.Iterator;
 import org.junit.Rule;
@@ -157,6 +158,8 @@ public final class NoopTagsTest {
   public void noopTagPropagationComponent() {
     assertThat(NoopTags.getNoopTagPropagationComponent().getBinarySerializer())
         .isSameAs(NoopTags.getNoopTagContextBinarySerializer());
+    assertThat(NoopTags.getNoopTagPropagationComponent().getTextSerializer())
+        .isSameAs(NoopTags.getNoopTagContextTextSerializer());
   }
 
   @Test
@@ -182,5 +185,29 @@ public final class NoopTagsTest {
     TagContextBinarySerializer noopSerializer = NoopTags.getNoopTagContextBinarySerializer();
     thrown.expect(NullPointerException.class);
     noopSerializer.fromByteArray(null);
+  }
+
+  @Test
+  public void noopTagContextTextSerializer()
+      throws TagContextDeserializationException, TagContextSerializationException {
+    assertThat(NoopTags.getNoopTagContextTextSerializer().toText(TAG_CONTEXT)).isEmpty();
+    assertThat(NoopTags.getNoopTagContextTextSerializer().fromText("abc"))
+        .isEqualTo(NoopTags.getNoopTagContext());
+  }
+
+  @Test
+  public void noopTagContextTextSerializer_ToByteArray_DisallowsNull()
+      throws TagContextSerializationException {
+    TagContextTextSerializer noopSerializer = NoopTags.getNoopTagContextTextSerializer();
+    thrown.expect(NullPointerException.class);
+    noopSerializer.toText(null);
+  }
+
+  @Test
+  public void noopTagContextTextSerializer_FromByteArray_DisallowsNull()
+      throws TagContextDeserializationException {
+    TagContextTextSerializer noopSerializer = NoopTags.getNoopTagContextTextSerializer();
+    thrown.expect(NullPointerException.class);
+    noopSerializer.fromText(null);
   }
 }

@@ -20,6 +20,9 @@ import io.opencensus.common.Scope;
 import io.opencensus.internal.NoopScope;
 import io.opencensus.internal.Utils;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
+import io.opencensus.tags.propagation.TagContextDeserializationException;
+import io.opencensus.tags.propagation.TagContextSerializationException;
+import io.opencensus.tags.propagation.TagContextTextSerializer;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.Collections;
 import java.util.Iterator;
@@ -80,8 +83,17 @@ final class NoopTags {
     return NoopTagContextBinarySerializer.INSTANCE;
   }
 
+  /**
+   * Returns a {@code TagContextTextSerializer} that serializes all {@code TagContext}s to empty
+   * strings and deserializes all inputs to empty {@code TagContext}s.
+   */
+  static TagContextTextSerializer getNoopTagContextTextSerializer() {
+    return NoopTagContextTextSerializer.INSTANCE;
+  }
+
   @ThreadSafe
   private static final class NoopTagsComponent extends TagsComponent {
+
     private volatile boolean isRead;
 
     @Override
@@ -110,6 +122,7 @@ final class NoopTags {
 
   @Immutable
   private static final class NoopTagger extends Tagger {
+
     static final Tagger INSTANCE = new NoopTagger();
 
     @Override
@@ -147,6 +160,7 @@ final class NoopTags {
 
   @Immutable
   private static final class NoopTagContextBuilder extends TagContextBuilder {
+
     static final TagContextBuilder INSTANCE = new NoopTagContextBuilder();
 
     @Override
@@ -184,6 +198,7 @@ final class NoopTags {
 
   @Immutable
   private static final class NoopTagContext extends TagContext {
+
     static final TagContext INSTANCE = new NoopTagContext();
 
     // TODO(sebright): Is there any way to let the user know that their tags were ignored?
@@ -195,16 +210,23 @@ final class NoopTags {
 
   @Immutable
   private static final class NoopTagPropagationComponent extends TagPropagationComponent {
+
     static final TagPropagationComponent INSTANCE = new NoopTagPropagationComponent();
 
     @Override
     public TagContextBinarySerializer getBinarySerializer() {
       return getNoopTagContextBinarySerializer();
     }
+
+    @Override
+    public TagContextTextSerializer getTextSerializer() {
+      return getNoopTagContextTextSerializer();
+    }
   }
 
   @Immutable
   private static final class NoopTagContextBinarySerializer extends TagContextBinarySerializer {
+
     static final TagContextBinarySerializer INSTANCE = new NoopTagContextBinarySerializer();
     static final byte[] EMPTY_BYTE_ARRAY = {};
 
@@ -217,6 +239,25 @@ final class NoopTags {
     @Override
     public TagContext fromByteArray(byte[] bytes) {
       Utils.checkNotNull(bytes, "bytes");
+      return getNoopTagContext();
+    }
+  }
+
+  @Immutable
+  private static final class NoopTagContextTextSerializer extends TagContextTextSerializer {
+
+    static final NoopTagContextTextSerializer INSTANCE = new NoopTagContextTextSerializer();
+    static final String EMPTY = "";
+
+    @Override
+    public String toText(TagContext tags) throws TagContextSerializationException {
+      Utils.checkNotNull(tags, "tags");
+      return EMPTY;
+    }
+
+    @Override
+    public TagContext fromText(String text) throws TagContextDeserializationException {
+      Utils.checkNotNull(text, "text");
       return getNoopTagContext();
     }
   }

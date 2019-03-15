@@ -13,6 +13,7 @@
 if you're using the `Exemplar` classes or APIs in the previous releases.
 - Add `TagMetadata` that defines the properties associated with a `Tag`.
 - Add `QueueMetricProducer` that supports pushing and buffering `Metric`s.
+- Add HTTP text format serializer to Tag propagation component.
 
 ## 0.19.0 - 2019-01-28
 - Add an artifact `opencensus-contrib-http-jetty-client` for instrumenting jetty http client. Add extractor for Jetty Client.
