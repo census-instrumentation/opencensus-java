@@ -17,24 +17,16 @@
 package io.opencensus.benchmarks.stats;
 
 import static io.opencensus.benchmarks.tags.TagsBenchmarksUtil.TAG_KEYS;
-import static io.opencensus.benchmarks.tags.TagsBenchmarksUtil.TAG_VALUES;
 
 import io.opencensus.impl.stats.StatsComponentImpl;
-import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.impllite.stats.StatsComponentImplLite;
-import io.opencensus.impllite.tags.TagsComponentImplLite;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure;
-import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
-import io.opencensus.tags.Tagger;
-import io.opencensus.tags.Tags;
 import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
-import io.opencensus.tags.propagation.TagContextBinarySerializer;
 
 import java.util.Arrays;
 
