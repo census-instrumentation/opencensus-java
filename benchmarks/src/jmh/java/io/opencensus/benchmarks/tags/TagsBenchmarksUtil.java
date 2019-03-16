@@ -19,7 +19,6 @@ package io.opencensus.benchmarks.tags;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.impllite.tags.TagsComponentImplLite;
 import io.opencensus.tags.Tagger;
-import io.opencensus.tags.Tags;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;

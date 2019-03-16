@@ -20,23 +20,19 @@ import io.opencensus.benchmarks.tags.TagsBenchmarksUtil;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsRecorder;
-import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextBuilder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
 
 /** Benchmarks for {@link io.opencensus.trace.Tagger}. */
 public class RecordDifferentTagValuesBenchmark {
