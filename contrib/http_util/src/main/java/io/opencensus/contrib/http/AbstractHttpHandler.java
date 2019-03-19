@@ -101,14 +101,13 @@ abstract class AbstractHttpHandler<Q, P> {
     }
   }
 
-  void spanEnd(Span span, @Nullable P response, @Nullable Throwable error) {
-    int statusCode = extractor.getStatusCode(response);
+  void spanEnd(Span span, int httpStatus, @Nullable Throwable error) {
     if (span.getOptions().contains(Options.RECORD_EVENTS)) {
       span.putAttribute(
           HttpTraceAttributeConstants.HTTP_STATUS_CODE,
-          AttributeValue.longAttributeValue(statusCode));
+          AttributeValue.longAttributeValue(httpStatus));
+      span.setStatus(HttpTraceUtil.parseResponseStatus(httpStatus, error));
     }
-    span.setStatus(HttpTraceUtil.parseResponseStatus(statusCode, error));
     span.end();
   }
 

@@ -40,7 +40,7 @@ final class OcAgentTraceExporterHandler extends Handler {
 
   @VisibleForTesting static final String DEFAULT_END_POINT = "localhost:55678";
   private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
-  private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
+  // private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
 
   private final String endPoint;
   private final Node node;

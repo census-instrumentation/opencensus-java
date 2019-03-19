@@ -83,6 +83,6 @@ final class ZPageHttpHandler implements HttpHandler {
         result.put(splits.get(0), "");
       }
     }
-    return result;
+    return Collections.unmodifiableMap(result);
   }
 }

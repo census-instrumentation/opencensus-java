@@ -105,21 +105,7 @@ public class OcHttpServletListenerTest {
           extractor,
           Tracing.getPropagationComponent().getTraceContextFormat(),
           getter,
-          true) {
-        @Override
-        public HttpRequestContext handleStart(Object carrier, Object request) {
-          return super.handleStart(carrier, request);
-        }
-
-        @Override
-        public void handleEnd(
-            HttpRequestContext context,
-            Object request,
-            @Nullable Object response,
-            @Nullable Throwable error) {
-          super.handleEnd(context, request, response, error);
-        }
-      };
+          true) {};
   @Mock HttpRequestContext mockContext;
   @Mock HttpServletResponse mockResponse;
   @Mock HttpServletRequest mockRequest;

@@ -32,7 +32,7 @@ public class ServerStatsTest {
 
   @Test
   public void serverStatsCreate() {
-    ServerStats serverStats = null;
+    ServerStats serverStats;
 
     serverStats = ServerStats.create(31, 22, (byte) 0);
     assertThat(serverStats.getLbLatencyNs()).isEqualTo(31);

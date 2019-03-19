@@ -67,7 +67,7 @@ public class JaxrsClientFilterTest {
     filter.filter(requestContext, responseContext);
 
     verify(requestContext).getProperty("opencensus.context");
-    verify(responseContext, times(2)).getStatus();
+    verify(responseContext, times(1)).getStatus();
   }
 
   static HttpRequestContext createHttpRequestContext(Span span, TagContext tagContext)
