@@ -43,7 +43,7 @@ final class AwsIdentityDocUtils {
   private static final Map<String, String> awsEnvVarMap = initializeAwsIdentityDocument();
 
   static boolean isRunningOnAws() {
-    return awsEnvVarMap.isEmpty();
+    return !awsEnvVarMap.isEmpty();
   }
 
   // Tries to establish an HTTP connection to AWS instance identity document url. If the application

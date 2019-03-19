@@ -39,7 +39,7 @@ final class GcpMetadataConfig {
   private GcpMetadataConfig() {}
 
   static boolean isRunningOnGcp() {
-    return getProjectId() != null;
+    return !getProjectId().isEmpty();
   }
 
   static String getProjectId() {
