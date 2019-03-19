@@ -147,19 +147,15 @@ public class HttpClientHandler<
       @Nullable P response,
       @Nullable Throwable error) {
     checkNotNull(context, "context");
-    recordStats(context, request, response, error);
-    spanEnd(context.span, response, error);
+    int httpCode = extractor.getStatusCode(response);
+    recordStats(context, request, httpCode);
+    spanEnd(context.span, httpCode, error);
   }
 
-  private void recordStats(
-      HttpRequestContext context,
-      @Nullable Q request,
-      @Nullable P response,
-      @Nullable Throwable error) {
+  private void recordStats(HttpRequestContext context, @Nullable Q request, int httpCode) {
     double requestLatency = NANOSECONDS.toMillis(System.nanoTime() - context.requestStartTime);
 
     String methodStr = request == null ? "" : extractor.getMethod(request);
-    int status = extractor.getStatusCode(response);
     TagContext startCtx =
         tagger
             .toBuilder(context.tagContext)
@@ -169,7 +165,7 @@ public class HttpClientHandler<
                 METADATA_NO_PROPAGATION)
             .put(
                 HTTP_CLIENT_STATUS,
-                TagValue.create(status == 0 ? "error" : Integer.toString(status)),
+                TagValue.create(httpCode == 0 ? "error" : Integer.toString(httpCode)),
                 METADATA_NO_PROPAGATION)
             .build();
 

@@ -34,9 +34,9 @@ public class ServerStatsEncodingTest {
 
   @Test
   public void encodeDecodeTest() throws ServerStatsDeserializationException {
-    ServerStats serverStatsToBeEncoded = null;
-    ServerStats serverStatsDecoded = null;
-    byte[] serialized = null;
+    ServerStats serverStatsToBeEncoded;
+    ServerStats serverStatsDecoded;
+    byte[] serialized;
 
     serverStatsToBeEncoded = ServerStats.create(31, 22, (byte) 1);
     serialized = ServerStatsEncoding.toBytes(serverStatsToBeEncoded);
@@ -56,9 +56,9 @@ public class ServerStatsEncodingTest {
 
   @Test
   public void skipUnknownFieldTest() throws ServerStatsDeserializationException {
-    ServerStats serverStatsToBeEncoded = null;
-    ServerStats serverStatsDecoded = null;
-    byte[] serialized = null;
+    ServerStats serverStatsToBeEncoded;
+    ServerStats serverStatsDecoded;
+    byte[] serialized;
 
     serverStatsToBeEncoded = ServerStats.create(31, 22, (byte) 1);
     serialized = ServerStatsEncoding.toBytes(serverStatsToBeEncoded);
@@ -79,8 +79,8 @@ public class ServerStatsEncodingTest {
 
   @Test
   public void negativeLbLatencyValueTest() throws ServerStatsDeserializationException {
-    ServerStats serverStatsToBeEncoded = null;
-    byte[] serialized = null;
+    ServerStats serverStatsToBeEncoded;
+    byte[] serialized;
 
     serverStatsToBeEncoded = ServerStats.create(31, 22, (byte) 1);
     serialized = ServerStatsEncoding.toBytes(serverStatsToBeEncoded);
@@ -99,8 +99,8 @@ public class ServerStatsEncodingTest {
 
   @Test
   public void negativeServerLatencyValueTest() throws ServerStatsDeserializationException {
-    ServerStats serverStatsToBeEncoded = null;
-    byte[] serialized = null;
+    ServerStats serverStatsToBeEncoded;
+    byte[] serialized;
 
     serverStatsToBeEncoded = ServerStats.create(31, 22, (byte) 1);
     serialized = ServerStatsEncoding.toBytes(serverStatsToBeEncoded);

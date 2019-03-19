@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 import io.opencensus.contrib.http.HttpClientHandler;
 import io.opencensus.contrib.http.HttpExtractor;
 import io.opencensus.contrib.http.HttpRequestContext;
-import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.propagation.TextFormat.Setter;
 import javax.annotation.Nullable;
@@ -101,22 +100,7 @@ public class HttpRequestListenerTest {
           Tracing.getTracer(),
           extractor,
           Tracing.getPropagationComponent().getTraceContextFormat(),
-          setter) {
-        @Override
-        public HttpRequestContext handleStart(
-            @Nullable Span parent, Object carrier, Object request) {
-          return super.handleStart(parent, carrier, request);
-        }
-
-        @Override
-        public void handleEnd(
-            HttpRequestContext context,
-            @Nullable Object request,
-            @Nullable Object response,
-            @Nullable Throwable error) {
-          super.handleEnd(context, request, response, error);
-        }
-      };
+          setter) {};
   @Mock private HttpClientHandler<Request, Response, Request> mockHandler;
   @Mock private Result mockResult;
 

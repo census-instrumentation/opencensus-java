@@ -72,6 +72,6 @@ public class JaxrsContainerFilterTest {
     ContainerResponseContext responseContext = mock(ContainerResponseContext.class);
     filter.filter(requestContext, responseContext);
     verify(requestContext).getProperty("opencensus.context");
-    verify(responseContext, times(2)).getStatus();
+    verify(responseContext, times(1)).getStatus();
   }
 }

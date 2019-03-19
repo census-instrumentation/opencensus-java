@@ -31,16 +31,16 @@ import org.junit.runners.JUnit4;
 public class MetricRegistryTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
-  private static final String NAME = "name";
-  private static final String NAME_2 = "name2";
-  private static final String NAME_3 = "name3";
-  private static final String NAME_4 = "name4";
-  private static final String DESCRIPTION = "description";
+  private static final String NAME = "test_name";
+  private static final String NAME_2 = "test_name2";
+  private static final String NAME_3 = "test_name3";
+  private static final String NAME_4 = "test_name4";
+  private static final String DESCRIPTION = "test_description";
   private static final String UNIT = "1";
   private static final List<LabelKey> LABEL_KEY =
-      Collections.singletonList(LabelKey.create("key", "key description"));
+      Collections.singletonList(LabelKey.create("test_key", "test key description"));
   private static final List<LabelValue> LABEL_VALUES =
-      Collections.singletonList(LabelValue.create("value"));
+      Collections.singletonList(LabelValue.create("test_value"));
   private final MetricRegistry metricRegistry =
       MetricsComponent.newNoopMetricsComponent().getMetricRegistry();
 

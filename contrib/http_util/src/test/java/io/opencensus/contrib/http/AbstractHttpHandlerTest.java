@@ -34,6 +34,7 @@ import io.opencensus.trace.Span;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
+import io.opencensus.trace.Status;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import java.util.EnumSet;
@@ -59,7 +60,6 @@ public class AbstractHttpHandlerTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
   private final Object request = new Object();
-  private final Object response = new Object();
   private final Exception error = new Exception("test");
   private final Random random = new Random();
   private final SpanContext spanContext =
@@ -74,6 +74,7 @@ public class AbstractHttpHandlerTest {
   private AbstractHttpHandler<Object, Object> handler;
   @Captor private ArgumentCaptor<MessageEvent> captor;
   @Captor private ArgumentCaptor<AttributeValue> attributeCaptor;
+  @Captor private ArgumentCaptor<Status> statusCaptor;
   @Captor private ArgumentCaptor<EndSpanOptions> optionsCaptor;
 
   @Spy private FakeSpan fakeSpan = new FakeSpan(spanContext, EnumSet.of(Options.RECORD_EVENTS));
@@ -130,32 +131,39 @@ public class AbstractHttpHandlerTest {
   @Test
   public void handleEndDisallowNullSpan() {
     thrown.expect(NullPointerException.class);
-    handler.spanEnd(null, response, error);
+    handler.spanEnd(null, 0, error);
   }
 
   @Test
-  public void handleEndAllowNullResponseAndError() {
-    handler.spanEnd(fakeSpan, /*response=*/ null, /*error=*/ null);
+  public void handleEndAllowZeroCodeAndNullError() {
+    handler.spanEnd(fakeSpan, 0, null);
+    verify(fakeSpan).setStatus(statusCaptor.capture());
+    assertThat(statusCaptor.getValue()).isEqualTo(Status.UNKNOWN);
+  }
+
+  @Test
+  public void handleEndAllowNonZeroCodeAndNullError() {
+    handler.spanEnd(fakeSpan, 200, null);
+    verify(fakeSpan).setStatus(statusCaptor.capture());
+    assertThat(statusCaptor.getValue()).isEqualTo(Status.OK);
   }
 
   @Test
   public void handleEndShouldEndSpan() {
     when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
 
-    handler.spanEnd(fakeSpan, response, error);
+    handler.spanEnd(fakeSpan, 0, error);
     verify(fakeSpan).end(optionsCaptor.capture());
-    EndSpanOptions options = optionsCaptor.getValue();
-    assertThat(options).isEqualTo(EndSpanOptions.DEFAULT);
+    assertThat(optionsCaptor.getValue()).isEqualTo(EndSpanOptions.DEFAULT);
   }
 
   @Test
   public void handleEndWithRecordEvents() {
     when(extractor.getStatusCode(any(Object.class))).thenReturn(0);
-    handler.spanEnd(fakeSpan, response, error);
+    handler.spanEnd(fakeSpan, 0, error);
     verify(fakeSpan)
         .putAttribute(eq(HttpTraceAttributeConstants.HTTP_STATUS_CODE), attributeCaptor.capture());
-    AttributeValue attribute = attributeCaptor.getValue();
-    assertThat(attribute).isEqualTo(AttributeValue.longAttributeValue(0));
+    assertThat(attributeCaptor.getValue()).isEqualTo(AttributeValue.longAttributeValue(0));
   }
 
   @Test
@@ -166,8 +174,7 @@ public class AbstractHttpHandlerTest {
 
   private void verifyAttributes(String key) {
     verify(span).putAttribute(eq(key), attributeCaptor.capture());
-    AttributeValue attribute = attributeCaptor.getValue();
-    assertThat(attribute.toString()).contains(attributeMap.get(key));
+    assertThat(attributeCaptor.getValue().toString()).contains(attributeMap.get(key));
   }
 
   @Test

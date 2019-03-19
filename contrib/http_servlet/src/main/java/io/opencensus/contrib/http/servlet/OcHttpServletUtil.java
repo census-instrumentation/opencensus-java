@@ -92,7 +92,7 @@ public class OcHttpServletUtil {
    * @since 0.20.0
    */
   @MustBeClosed
-  public static Scope withScope(ServletRequest request) throws NullPointerException {
+  public static Scope withScope(ServletRequest request) {
     checkNotNull(request, "request");
     OcHttpServletListener listener =
         (OcHttpServletListener) request.getAttribute(OPENCENSUS_SERVLET_LISTENER);

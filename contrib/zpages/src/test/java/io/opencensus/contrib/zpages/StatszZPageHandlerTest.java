@@ -54,14 +54,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 /** Unit tests for {@link StatszZPageHandler}. */
 @RunWith(JUnit4.class)
 public class StatszZPageHandlerTest {
 
-  @Mock private final ViewManager mockViewManager = Mockito.mock(ViewManager.class);
+  private final ViewManager mockViewManager = Mockito.mock(ViewManager.class);
 
   private static final View MY_VIEW =
       View.create(

@@ -146,7 +146,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
           metrics.add(metric);
         }
       }
-      return metrics;
+      return Collections.unmodifiableCollection(metrics);
     }
   }
 

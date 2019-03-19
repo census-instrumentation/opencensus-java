@@ -38,14 +38,13 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 /** Unit tests for {@link RpczZPageHandler}. */
 @RunWith(JUnit4.class)
 public class RpczZPageHandlerTest {
 
-  @Mock private final ViewManager mockViewManager = Mockito.mock(ViewManager.class);
+  private final ViewManager mockViewManager = Mockito.mock(ViewManager.class);
 
   private static final TagValue METHOD_1 = TagValue.create("method1");
   private static final TagValue METHOD_2 = TagValue.create("method2");
