@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.EvictingQueue;
 import io.opencensus.common.Scope;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricProducer;
@@ -51,18 +52,18 @@ public final class QueueMetricProducer extends MetricProducer {
   private static final String ATTRIBUTE_KEY_DROPPED_METRICS = "DroppedMetrics";
 
   @GuardedBy("monitor")
-  private final Queue<Metric> bufferedMetrics = new LinkedList<>();
+  private final EvictingQueue<Metric> bufferedMetrics;
 
-  private final int bufferSize;
   private final String spanName;
 
   private QueueMetricProducer(int bufferSize, String spanName) {
-    this.bufferSize = bufferSize;
+    synchronized (monitor) {
+      bufferedMetrics = EvictingQueue.<Metric>create(bufferSize);
+    }
     this.spanName = spanName;
   }
 
   /**
-   * Creates a new {@link QueueMetricProducer}.
    *
    * @param options the options for {@link QueueMetricProducer}.
    * @return a {@code QueueMetricProducer}.
@@ -93,16 +94,13 @@ public final class QueueMetricProducer extends MetricProducer {
               .startSpan();
       Scope scope = tracer.withSpan(span);
       try {
-        bufferedMetrics.addAll(metrics);
-        if (bufferedMetrics.size() > bufferSize) {
+        if (metrics.size() > bufferedMetrics.remainingCapacity()) {
           AttributeValue attributeValue =
-              AttributeValue.longAttributeValue(bufferedMetrics.size() - bufferSize);
+              AttributeValue.longAttributeValue(
+                  metrics.size() - bufferedMetrics.remainingCapacity());
           span.putAttribute(ATTRIBUTE_KEY_DROPPED_METRICS, attributeValue);
-          while (bufferedMetrics.size() > bufferSize) {
-            @SuppressWarnings("Unused")
-            Metric metric = bufferedMetrics.poll();
-          }
         }
+        bufferedMetrics.addAll(metrics);
       } finally {
         scope.close();
         span.end();
