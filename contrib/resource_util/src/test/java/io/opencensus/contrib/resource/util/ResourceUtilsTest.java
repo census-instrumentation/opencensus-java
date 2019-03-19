@@ -31,11 +31,15 @@ public class ResourceUtilsTest {
   public void testDetectResource() {
     Resource resource = ResourceUtils.detectResource();
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      assertThat(resource.getType()).isEqualTo(K8sContainerResource.TYPE);
-    } else if (GcpMetadataConfig.getInstanceId() != null) {
-      assertThat(resource.getType()).isEqualTo(GcpGceInstanceResource.TYPE);
-    } else if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      assertThat(resource.getType()).isEqualTo(AwsEc2InstanceResource.TYPE);
+      assertThat(resource.getType()).isEqualTo(K8sResource.TYPE);
+    } else if (GcpMetadataConfig.isRunningOnGcp()) {
+      assertThat(resource.getType()).isEqualTo(HostResource.TYPE);
+      assertThat(resource.getLabels().get(CloudResource.REGION_KEY))
+          .isEqualTo(CloudResource.PROVIDER_GCP);
+    } else if (AwsIdentityDocUtils.isRunningOnAws()) {
+      assertThat(resource.getType()).isEqualTo(HostResource.TYPE);
+      assertThat(resource.getLabels().get(CloudResource.REGION_KEY))
+          .isEqualTo(CloudResource.PROVIDER_AWS);
     } else {
       assertThat(resource).isNotNull();
       assertThat(resource.getType()).isNull();

@@ -16,9 +16,9 @@
 
 package io.opencensus.contrib.monitoredresource.util;
 
-import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
-import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
-import io.opencensus.contrib.resource.util.K8sContainerResource;
+import io.opencensus.contrib.resource.util.CloudResource;
+import io.opencensus.contrib.resource.util.ContainerResource;
+import io.opencensus.contrib.resource.util.HostResource;
 import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.resource.Resource;
 import javax.annotation.Nullable;
@@ -47,17 +47,17 @@ public final class MonitoredResourceUtils {
       return null;
     }
     String resourceType = resource.getType();
-    if (resourceType == null) {
-      return null;
-    }
-    if (resourceType.equals(K8sContainerResource.TYPE)) {
+    if (ContainerResource.TYPE.equals(resourceType)) {
       return MonitoredResource.GcpGkeContainerMonitoredResource.create(resource);
     }
-    if (resourceType.equals(GcpGceInstanceResource.TYPE)) {
-      return MonitoredResource.GcpGceInstanceMonitoredResource.create(resource);
-    }
-    if (resourceType.equals(AwsEc2InstanceResource.TYPE)) {
-      return MonitoredResource.AwsEc2InstanceMonitoredResource.create(resource);
+    if (HostResource.TYPE.equals(resourceType)) {
+      String provider = resource.getLabels().get(CloudResource.PROVIDER_KEY);
+      if (CloudResource.PROVIDER_GCP.equals(provider)) {
+        return MonitoredResource.GcpGceInstanceMonitoredResource.create(resource);
+      }
+      if (CloudResource.PROVIDER_AWS.equals(provider)) {
+        return MonitoredResource.AwsEc2InstanceMonitoredResource.create(resource);
+      }
     }
     return null;
   }

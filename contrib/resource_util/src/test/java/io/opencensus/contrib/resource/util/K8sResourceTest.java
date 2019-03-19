@@ -23,29 +23,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link K8sContainerResource}. */
+/** Unit tests for {@link K8sResource}. */
 @RunWith(JUnit4.class)
-public class K8sContainerResourceTest {
+public class K8sResourceTest {
   private static final String K8S_CLUSTER_NAME = "cluster";
   private static final String K8S_NAMESPACE_NAME = "namespace";
   private static final String K8S_POD_NAME = "pod-id";
-  private static final String K8S_CONTAINER_NAME = "container";
 
   @Test
   public void create_K8sContainerResourceTest() {
-    Resource resource =
-        K8sContainerResource.create(
-            K8S_CLUSTER_NAME, K8S_NAMESPACE_NAME, K8S_POD_NAME, K8S_CONTAINER_NAME);
-    assertThat(resource.getType()).isEqualTo(K8sContainerResource.TYPE);
+    Resource resource = K8sResource.create(K8S_CLUSTER_NAME, K8S_NAMESPACE_NAME, K8S_POD_NAME);
+    assertThat(resource.getType()).isEqualTo(K8sResource.TYPE);
     assertThat(resource.getLabels())
         .containsExactly(
-            K8sContainerResource.CLUSTER_NAME_KEY,
+            K8sResource.CLUSTER_NAME_KEY,
             K8S_CLUSTER_NAME,
-            K8sContainerResource.NAMESPACE_NAME_KEY,
+            K8sResource.NAMESPACE_NAME_KEY,
             K8S_NAMESPACE_NAME,
-            K8sContainerResource.POD_NAME_KEY,
-            K8S_POD_NAME,
-            K8sContainerResource.CONTAINER_NAME_KEY,
-            K8S_CONTAINER_NAME);
+            K8sResource.POD_NAME_KEY,
+            K8S_POD_NAME);
   }
 }

@@ -16,6 +16,8 @@
 
 package io.opencensus.contrib.resource.util;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +25,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import javax.annotation.Nullable;
 
 /**
  * Retrieves Google Cloud project-id and a limited set of instance attributes from Metadata server.
@@ -37,34 +38,52 @@ final class GcpMetadataConfig {
 
   private GcpMetadataConfig() {}
 
-  @Nullable
+  static boolean isRunningOnGcp() {
+    return getProjectId() != null;
+  }
+
   static String getProjectId() {
     return getAttribute("project/project-id");
   }
 
-  @Nullable
   static String getZone() {
-    String zoneId = getAttribute("instance/zone");
-    if (zoneId == null) {
+    String zone = getAttribute("instance/zone");
+    if (zone == null) {
       return null;
     }
-    if (zoneId.contains("/")) {
-      return zoneId.substring(zoneId.lastIndexOf('/') + 1);
+    if (zone.contains("/")) {
+      return zone.substring(zone.lastIndexOf('/') + 1);
     }
-    return zoneId;
+    return firstNonNull(zone, "");
   }
 
-  @Nullable
+  static String getMachineType() {
+    String machineType = getAttribute("instance/machine-type");
+    if (machineType == null) {
+      return null;
+    }
+    if (machineType.contains("/")) {
+      return machineType.substring(machineType.lastIndexOf('/') + 1);
+    }
+    return firstNonNull(machineType, "");
+  }
+
   static String getInstanceId() {
-    return getAttribute("instance/id");
+    return firstNonNull(getAttribute("instance/id"), "");
   }
 
-  @Nullable
   static String getClusterName() {
-    return getAttribute("instance/attributes/cluster-name");
+    return firstNonNull(getAttribute("instance/attributes/cluster-name"), "");
   }
 
-  @Nullable
+  static String getInstanceName() {
+    return firstNonNull(getAttribute("instance/hostname"), "");
+  }
+
+  static String getInstanceHostname() {
+    return firstNonNull(getAttribute("instance/name"), "");
+  }
+
   private static String getAttribute(String attributeName) {
     try {
       URL url = new URL(METADATA_URL + attributeName);

@@ -43,9 +43,10 @@ import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.contrib.exemplar.util.AttachmentValueSpanContext;
 import io.opencensus.contrib.exemplar.util.ExemplarUtils;
-import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
-import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
-import io.opencensus.contrib.resource.util.K8sContainerResource;
+import io.opencensus.contrib.resource.util.CloudResource;
+import io.opencensus.contrib.resource.util.ContainerResource;
+import io.opencensus.contrib.resource.util.HostResource;
+import io.opencensus.contrib.resource.util.K8sResource;
 import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
@@ -89,7 +90,7 @@ final class StackdriverExportUtils {
   static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "opencensus/";
   // Stackdriver Monitoring v3 only accepts up to 200 TimeSeries per CreateTimeSeries call.
   @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 200;
-  private static final String GCP_GKE_CONTAINER = "k8s_container";
+  private static final String K8S_CONTAINER = "k8s_container";
   private static final String GCP_GCE_INSTANCE = "gce_instance";
   private static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
   private static final String GLOBAL = "global";
@@ -499,24 +500,27 @@ final class StackdriverExportUtils {
     if (type == null) {
       return;
     }
+    String sdType = GLOBAL;
 
-    Map<String, String> mappings;
-    switch (type) {
-      case GcpGceInstanceResource.TYPE:
-        builder.setType(GCP_GCE_INSTANCE);
+    Map<String, String> mappings = null;
+    if (HostResource.TYPE.equals(type)) {
+      String provider = autoDetectedResource.getLabels().get(CloudResource.PROVIDER_KEY);
+      if (CloudResource.PROVIDER_GCP.equals(provider)) {
+        sdType = GCP_GCE_INSTANCE;
         mappings = GCP_RESOURCE_MAPPING;
-        break;
-      case K8sContainerResource.TYPE:
-        builder.setType(GCP_GKE_CONTAINER);
-        mappings = K8S_RESOURCE_MAPPING;
-        break;
-      case AwsEc2InstanceResource.TYPE:
-        builder.setType(AWS_EC2_INSTANCE);
+      } else if (CloudResource.PROVIDER_AWS.equals(provider)) {
+        sdType = AWS_EC2_INSTANCE;
         mappings = AWS_RESOURCE_MAPPING;
-        break;
-      default:
-        builder.setType(GLOBAL);
-        return;
+      }
+    } else if (ContainerResource.TYPE.equals(type)) {
+      sdType = K8S_CONTAINER;
+      mappings = K8S_RESOURCE_MAPPING;
+    }
+
+    builder.setType(sdType);
+
+    if (GLOBAL.equals(sdType) || mappings == null) {
+      return;
     }
 
     Map<String, String> resLabels = autoDetectedResource.getLabels();
@@ -524,7 +528,7 @@ final class StackdriverExportUtils {
       if (entry.getValue() != null && resLabels.containsKey(entry.getValue())) {
         String resourceLabelKey = entry.getKey();
         String resourceLabelValue = resLabels.get(entry.getValue());
-        if (AwsEc2InstanceResource.TYPE.equals(type) && "region".equals(resourceLabelKey)) {
+        if (AWS_EC2_INSTANCE.equals(sdType) && "region".equals(resourceLabelKey)) {
           // Add "aws:" prefix to AWS EC2 region label. This is Stackdriver specific requirement.
           resourceLabelValue = AWS_REGION_VALUE_PREFIX + resourceLabelValue;
         }
@@ -657,29 +661,29 @@ final class StackdriverExportUtils {
   private static Map<String, String> getGcpResourceLabelsMappings() {
     Map<String, String> resourceLabels = new LinkedHashMap<String, String>();
     resourceLabels.put("project_id", STACKDRIVER_PROJECT_ID_KEY);
-    resourceLabels.put("instance_id", GcpGceInstanceResource.INSTANCE_ID_KEY);
-    resourceLabels.put("zone", GcpGceInstanceResource.ZONE_KEY);
+    resourceLabels.put("instance_id", HostResource.ID_KEY);
+    resourceLabels.put("zone", CloudResource.ZONE_KEY);
     return Collections.unmodifiableMap(resourceLabels);
   }
 
   private static Map<String, String> getK8sResourceLabelsMappings() {
     Map<String, String> resourceLabels = new LinkedHashMap<String, String>();
     resourceLabels.put("project_id", STACKDRIVER_PROJECT_ID_KEY);
-    resourceLabels.put("location", GcpGceInstanceResource.ZONE_KEY);
-    resourceLabels.put("instance_id", GcpGceInstanceResource.INSTANCE_ID_KEY);
-    resourceLabels.put("cluster_name", K8sContainerResource.CLUSTER_NAME_KEY);
-    resourceLabels.put("namespace_name", K8sContainerResource.NAMESPACE_NAME_KEY);
-    resourceLabels.put("pod_name", K8sContainerResource.POD_NAME_KEY);
-    resourceLabels.put("container_name", K8sContainerResource.CONTAINER_NAME_KEY);
+    resourceLabels.put("location", CloudResource.ZONE_KEY);
+    resourceLabels.put("instance_id", HostResource.ID_KEY);
+    resourceLabels.put("cluster_name", K8sResource.CLUSTER_NAME_KEY);
+    resourceLabels.put("namespace_name", K8sResource.NAMESPACE_NAME_KEY);
+    resourceLabels.put("pod_name", K8sResource.POD_NAME_KEY);
+    resourceLabels.put("container_name", ContainerResource.NAME_KEY);
     return Collections.unmodifiableMap(resourceLabels);
   }
 
   private static Map<String, String> getAwsResourceLabelsMappings() {
     Map<String, String> resourceLabels = new LinkedHashMap<String, String>();
     resourceLabels.put("project_id", STACKDRIVER_PROJECT_ID_KEY);
-    resourceLabels.put("instance_id", AwsEc2InstanceResource.INSTANCE_ID_KEY);
-    resourceLabels.put("region", AwsEc2InstanceResource.REGION_KEY);
-    resourceLabels.put("aws_account", AwsEc2InstanceResource.ACCOUNT_ID_KEY);
+    resourceLabels.put("instance_id", HostResource.ID_KEY);
+    resourceLabels.put("region", CloudResource.REGION_KEY);
+    resourceLabels.put("aws_account", CloudResource.ACCOUNT_ID_KEY);
     return Collections.unmodifiableMap(resourceLabels);
   }
 

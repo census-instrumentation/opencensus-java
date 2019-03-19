@@ -23,24 +23,27 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link AwsEc2InstanceResource}. */
+/** Unit tests for {@link CloudResource}. */
 @RunWith(JUnit4.class)
-public class AwsEc2InstanceResourceTest {
-  private static final String AWS_ACCOUNT_ID = "aws-account";
-  private static final String AWS_INSTANCE_ID = "instance";
-  private static final String AWS_REGION = "us-west-2";
+public class CloudResourceTest {
+  private static final String PROVIDER = "provider";
+  private static final String ACCOUNT_ID = "account_id";
+  private static final String REGION = "region";
+  private static final String ZONE = "zone";
 
   @Test
-  public void create_AwsEc2InstanceResource() {
-    Resource resource = AwsEc2InstanceResource.create(AWS_ACCOUNT_ID, AWS_REGION, AWS_INSTANCE_ID);
-    assertThat(resource.getType()).isEqualTo(AwsEc2InstanceResource.TYPE);
+  public void create_ContainerResourceTest() {
+    Resource resource = CloudResource.create(PROVIDER, ACCOUNT_ID, REGION, ZONE);
+    assertThat(resource.getType()).isEqualTo(CloudResource.TYPE);
     assertThat(resource.getLabels())
         .containsExactly(
-            AwsEc2InstanceResource.ACCOUNT_ID_KEY,
-            AWS_ACCOUNT_ID,
-            AwsEc2InstanceResource.REGION_KEY,
-            AWS_REGION,
-            AwsEc2InstanceResource.INSTANCE_ID_KEY,
-            AWS_INSTANCE_ID);
+            CloudResource.PROVIDER_KEY,
+            PROVIDER,
+            CloudResource.ACCOUNT_ID_KEY,
+            ACCOUNT_ID,
+            CloudResource.REGION_KEY,
+            REGION,
+            CloudResource.ZONE_KEY,
+            ZONE);
   }
 }
