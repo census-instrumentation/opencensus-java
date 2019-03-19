@@ -16,6 +16,8 @@
 
 package io.opencensus.contrib.resource.util;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import io.opencensus.resource.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,8 +48,7 @@ public final class ResourceUtils {
     }
     resourceList.add(HostResource.detect());
     resourceList.add(CloudResource.detect());
-    Resource mergedResource = Resource.mergeResources(resourceList);
-    return mergedResource != null ? mergedResource : EMPTY_RESOURCE;
+    return firstNonNull(Resource.mergeResources(resourceList), EMPTY_RESOURCE);
   }
 
   private ResourceUtils() {}

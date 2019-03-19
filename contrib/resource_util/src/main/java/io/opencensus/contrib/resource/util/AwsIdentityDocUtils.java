@@ -26,6 +26,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ final class AwsIdentityDocUtils {
   private static final Map<String, String> awsEnvVarMap = initializeAwsIdentityDocument();
 
   static boolean isRunningOnAws() {
-    return awsEnvVarMap != null;
+    return awsEnvVarMap.isEmpty();
   }
 
   // Tries to establish an HTTP connection to AWS instance identity document url. If the application
@@ -67,7 +68,7 @@ final class AwsIdentityDocUtils {
         }
       }
     }
-    return null;
+    return Collections.emptyMap();
   }
 
   /** quick http client that allows no-dependency try at getting instance data. */

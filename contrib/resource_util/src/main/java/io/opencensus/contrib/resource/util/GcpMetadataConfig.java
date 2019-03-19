@@ -48,40 +48,34 @@ final class GcpMetadataConfig {
 
   static String getZone() {
     String zone = getAttribute("instance/zone");
-    if (zone == null) {
-      return null;
-    }
     if (zone.contains("/")) {
       return zone.substring(zone.lastIndexOf('/') + 1);
     }
-    return firstNonNull(zone, "");
+    return zone;
   }
 
   static String getMachineType() {
     String machineType = getAttribute("instance/machine-type");
-    if (machineType == null) {
-      return null;
-    }
     if (machineType.contains("/")) {
       return machineType.substring(machineType.lastIndexOf('/') + 1);
     }
-    return firstNonNull(machineType, "");
+    return machineType;
   }
 
   static String getInstanceId() {
-    return firstNonNull(getAttribute("instance/id"), "");
+    return getAttribute("instance/id");
   }
 
   static String getClusterName() {
-    return firstNonNull(getAttribute("instance/attributes/cluster-name"), "");
+    return getAttribute("instance/attributes/cluster-name");
   }
 
   static String getInstanceName() {
-    return firstNonNull(getAttribute("instance/hostname"), "");
+    return getAttribute("instance/hostname");
   }
 
   static String getInstanceHostname() {
-    return firstNonNull(getAttribute("instance/name"), "");
+    return getAttribute("instance/name");
   }
 
   private static String getAttribute(String attributeName) {
@@ -94,7 +88,7 @@ final class GcpMetadataConfig {
         BufferedReader reader = null;
         try {
           reader = new BufferedReader(new InputStreamReader(input, Charset.forName("UTF-8")));
-          return reader.readLine();
+          return firstNonNull(reader.readLine(), "");
         } finally {
           if (reader != null) {
             reader.close();
@@ -104,6 +98,6 @@ final class GcpMetadataConfig {
     } catch (IOException ignore) {
       // ignore
     }
-    return null;
+    return "";
   }
 }
