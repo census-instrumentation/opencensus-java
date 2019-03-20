@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.opencensus.contrib.resource.util.ResourceUtils.EMPTY_RESOURCE;
 
 import io.opencensus.resource.Resource;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
