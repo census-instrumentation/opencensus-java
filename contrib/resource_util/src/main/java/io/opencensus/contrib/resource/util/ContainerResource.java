@@ -68,11 +68,11 @@ public class ContainerResource {
    * @since 0.20
    */
   public static Resource create(String name, String imageName, String imageTag) {
-    Map<String, String> mutableLabels = new LinkedHashMap<String, String>();
-    mutableLabels.put(NAME_KEY, checkNotNull(name, "name"));
-    mutableLabels.put(IMAGE_NAME_KEY, checkNotNull(imageName, "imageName"));
-    mutableLabels.put(IMAGE_TAG_KEY, checkNotNull(imageTag, "imageTag"));
-    return Resource.create(TYPE, Collections.unmodifiableMap(mutableLabels));
+    Map<String, String> labels = new LinkedHashMap<String, String>();
+    labels.put(NAME_KEY, checkNotNull(name, "name"));
+    labels.put(IMAGE_NAME_KEY, checkNotNull(imageName, "imageName"));
+    labels.put(IMAGE_TAG_KEY, checkNotNull(imageTag, "imageTag"));
+    return Resource.create(TYPE, labels);
   }
 
   static Resource detect() {

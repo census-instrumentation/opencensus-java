@@ -34,11 +34,11 @@ public class ResourceUtilsTest {
       assertThat(resource.getType()).isEqualTo(K8sResource.TYPE);
     } else if (GcpMetadataConfig.isRunningOnGcp()) {
       assertThat(resource.getType()).isEqualTo(HostResource.TYPE);
-      assertThat(resource.getLabels().get(CloudResource.REGION_KEY))
+      assertThat(resource.getLabels().get(CloudResource.PROVIDER_KEY))
           .isEqualTo(CloudResource.PROVIDER_GCP);
     } else if (AwsIdentityDocUtils.isRunningOnAws()) {
       assertThat(resource.getType()).isEqualTo(HostResource.TYPE);
-      assertThat(resource.getLabels().get(CloudResource.REGION_KEY))
+      assertThat(resource.getLabels().get(CloudResource.PROVIDER_KEY))
           .isEqualTo(CloudResource.PROVIDER_AWS);
     } else {
       assertThat(resource).isNotNull();

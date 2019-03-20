@@ -81,12 +81,12 @@ public final class HostResource {
    * @since 0.20
    */
   public static Resource create(String hostname, String name, String id, String type) {
-    Map<String, String> mutableLabels = new LinkedHashMap<String, String>();
-    mutableLabels.put(HOSTNAME_KEY, checkNotNull(hostname, "hostname"));
-    mutableLabels.put(NAME_KEY, checkNotNull(name, "name"));
-    mutableLabels.put(ID_KEY, checkNotNull(id, "id"));
-    mutableLabels.put(TYPE_KEY, checkNotNull(type, "type"));
-    return Resource.create(TYPE, Collections.unmodifiableMap(mutableLabels));
+    Map<String, String> labels = new LinkedHashMap<String, String>();
+    labels.put(HOSTNAME_KEY, checkNotNull(hostname, "hostname"));
+    labels.put(NAME_KEY, checkNotNull(name, "name"));
+    labels.put(ID_KEY, checkNotNull(id, "id"));
+    labels.put(TYPE_KEY, checkNotNull(type, "type"));
+    return Resource.create(TYPE, labels);
   }
 
   static Resource detect() {
