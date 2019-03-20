@@ -21,17 +21,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.EvictingQueue;
-import io.opencensus.common.Scope;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricProducer;
-import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Sampler;
-import io.opencensus.trace.Span;
-import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
-import io.opencensus.trace.samplers.Samplers;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Queue;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
@@ -44,26 +39,20 @@ import javax.annotation.concurrent.Immutable;
 public final class QueueMetricProducer extends MetricProducer {
 
   private static final Object monitor = new Object();
-  private static final Tracer tracer = Tracing.getTracer();
-  private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
 
-  private static final String DEFAULT_SPAN_NAME = "PushMetrics";
   private static final int DEFAULT_BUFFER_SIZE = 32;
-  private static final String ATTRIBUTE_KEY_DROPPED_METRICS = "DroppedMetrics";
 
   @GuardedBy("monitor")
-  private final EvictingQueue<Metric> bufferedMetrics;
+  private final Queue<Metric> bufferedMetrics;
 
-  private final String spanName;
-
-  private QueueMetricProducer(int bufferSize, String spanName) {
+  private QueueMetricProducer(int bufferSize) {
     synchronized (monitor) {
       bufferedMetrics = EvictingQueue.<Metric>create(bufferSize);
     }
-    this.spanName = spanName;
   }
 
   /**
+   * Creates a new {@link QueueMetricProducer}.
    *
    * @param options the options for {@link QueueMetricProducer}.
    * @return a {@code QueueMetricProducer}.
@@ -72,7 +61,7 @@ public final class QueueMetricProducer extends MetricProducer {
   public static QueueMetricProducer create(Options options) {
     checkNotNull(options, "options");
     checkArgument(options.getBufferSize() > 0, "buffer size should be positive.");
-    return new QueueMetricProducer(options.getBufferSize(), options.getSpanName());
+    return new QueueMetricProducer(options.getBufferSize());
   }
 
   /**
@@ -86,36 +75,18 @@ public final class QueueMetricProducer extends MetricProducer {
    */
   public void pushMetrics(Collection<Metric> metrics) {
     synchronized (monitor) {
-      Span span =
-          tracer
-              .spanBuilder(spanName)
-              .setRecordEvents(true)
-              .setSampler(probabilitySampler)
-              .startSpan();
-      Scope scope = tracer.withSpan(span);
-      try {
-        if (metrics.size() > bufferedMetrics.remainingCapacity()) {
-          AttributeValue attributeValue =
-              AttributeValue.longAttributeValue(
-                  metrics.size() - bufferedMetrics.remainingCapacity());
-          span.putAttribute(ATTRIBUTE_KEY_DROPPED_METRICS, attributeValue);
-        }
-        bufferedMetrics.addAll(metrics);
-      } finally {
-        scope.close();
-        span.end();
-      }
+      bufferedMetrics.addAll(metrics);
     }
   }
 
   @Override
   public Collection<Metric> getMetrics() {
-    Queue<Metric> metricsToExport;
+    List<Metric> metricsToExport;
     synchronized (monitor) {
-      metricsToExport = new LinkedList<>(bufferedMetrics);
+      metricsToExport = new ArrayList<>(bufferedMetrics);
       bufferedMetrics.clear();
     }
-    return metricsToExport;
+    return Collections.unmodifiableList(metricsToExport);
   }
 
   /**
@@ -128,14 +99,6 @@ public final class QueueMetricProducer extends MetricProducer {
   public abstract static class Options {
 
     Options() {}
-
-    /**
-     * Returns the span name for the {@link Span} created when metrics are pushed.
-     *
-     * @return the span name for the {@link Span} created when metrics are pushed.
-     * @since 0.20
-     */
-    public abstract String getSpanName();
 
     /**
      * Returns the buffer size for the {@link QueueMetricProducer}.
@@ -152,9 +115,7 @@ public final class QueueMetricProducer extends MetricProducer {
      * @since 0.20
      */
     public static Options.Builder builder() {
-      return new AutoValue_QueueMetricProducer_Options.Builder()
-          .setSpanName(DEFAULT_SPAN_NAME)
-          .setBufferSize(DEFAULT_BUFFER_SIZE);
+      return new AutoValue_QueueMetricProducer_Options.Builder().setBufferSize(DEFAULT_BUFFER_SIZE);
     }
 
     /**
@@ -164,14 +125,6 @@ public final class QueueMetricProducer extends MetricProducer {
      */
     @AutoValue.Builder
     public abstract static class Builder {
-      /**
-       * Sets the span name for the {@link Span} created when metrics are pushed.
-       *
-       * @param spanName the span name for the {@link Span} created when metrics are pushed.
-       * @return this.
-       * @since 0.20
-       */
-      public abstract Builder setSpanName(String spanName);
 
       /**
        * Sets the buffer size to be used by the {@link QueueMetricProducer}.

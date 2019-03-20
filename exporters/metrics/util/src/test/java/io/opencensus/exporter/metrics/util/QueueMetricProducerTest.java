@@ -38,13 +38,13 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class QueueMetricProducerTest {
 
-  private static final String METRIC_NAME = "my metric";
-  private static final String METRIC_DESCRIPTION = "metric description";
+  private static final String METRIC_NAME = "test_metric";
+  private static final String METRIC_DESCRIPTION = "test_description";
   private static final String METRIC_UNIT = "us";
   private static final List<LabelKey> LABEL_KEY =
-      Collections.singletonList(LabelKey.create("KEY", "key description"));
+      Collections.singletonList(LabelKey.create("test_key", "test_description"));
   private static final List<LabelValue> LABEL_VALUE =
-      Collections.singletonList(LabelValue.create("VALUE"));
+      Collections.singletonList(LabelValue.create("test_value"));
   private static final io.opencensus.metrics.export.MetricDescriptor METRIC_DESCRIPTOR =
       io.opencensus.metrics.export.MetricDescriptor.create(
           METRIC_NAME,
@@ -72,13 +72,6 @@ public class QueueMetricProducerTest {
       Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR, CUMULATIVE_TIME_SERIES_2);
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
-
-  @Test
-  public void optionsWithNullSpanName() {
-    Options.Builder builder = Options.builder();
-    thrown.expect(NullPointerException.class);
-    builder.setSpanName(null);
-  }
 
   @Test
   public void createWithNegativeBufferSize() {
