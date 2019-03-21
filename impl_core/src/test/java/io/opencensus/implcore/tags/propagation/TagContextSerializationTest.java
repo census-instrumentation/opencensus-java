@@ -45,7 +45,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for serializing tags with {@link SerializationUtils} and {@link
+ * Tests for serializing tags with {@link BinarySerializationUtils} and {@link
  * TagContextBinarySerializerImpl}.
  */
 @RunWith(JUnit4.class)
@@ -91,7 +91,7 @@ public class TagContextSerializationTest {
   @Test
   public void testSerializeTooLargeTagContext() throws TagContextSerializationException {
     TagContextBuilder builder = tagger.emptyBuilder();
-    for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
+    for (int i = 0; i < BinarySerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
       // Each tag will be with format {key : "0123", value : "0123"}, so the length of it is 8.
       String str;
       if (i < 10) {
@@ -127,9 +127,9 @@ public class TagContextSerializationTest {
     Set<String> possibleOutputs = new HashSet<String>();
     for (List<Tag> list : tagPermutation) {
       ByteArrayOutputStream expected = new ByteArrayOutputStream();
-      expected.write(SerializationUtils.VERSION_ID);
+      expected.write(BinarySerializationUtils.VERSION_ID);
       for (Tag tag : list) {
-        expected.write(SerializationUtils.TAG_FIELD_ID);
+        expected.write(BinarySerializationUtils.TAG_FIELD_ID);
         encodeString(tag.getKey().getName(), expected);
         encodeString(tag.getValue().asString(), expected);
       }

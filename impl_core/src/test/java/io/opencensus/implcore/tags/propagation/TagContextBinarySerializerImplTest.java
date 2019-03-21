@@ -91,7 +91,7 @@ public final class TagContextBinarySerializerImplTest {
 
   @Test
   public void toByteArray_SkipNonPropagatingTag() throws TagContextSerializationException {
-    byte[] versionIdBytes = new byte[] {SerializationUtils.VERSION_ID};
+    byte[] versionIdBytes = new byte[] {BinarySerializationUtils.VERSION_ID};
     assertThat(serializer.toByteArray(tagContextWithNonPropagatingTag)).isEqualTo(versionIdBytes);
   }
 
