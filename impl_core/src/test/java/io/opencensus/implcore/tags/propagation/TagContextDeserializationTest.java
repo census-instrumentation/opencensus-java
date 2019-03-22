@@ -63,7 +63,9 @@ public class TagContextDeserializationTest {
     TagContext expected = tagger.empty();
     TagContext actual =
         serializer.fromByteArray(
-            new byte[] {BinarySerializationUtils.VERSION_ID}); // One byte that represents Version ID.
+            new byte[] {
+              BinarySerializationUtils.VERSION_ID
+            }); // One byte that represents Version ID.
     assertThat(actual).isEqualTo(expected);
   }
 
