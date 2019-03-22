@@ -19,6 +19,7 @@ package io.opencensus.implcore.tags.propagation;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import io.opencensus.implcore.internal.CurrentState;
 import io.opencensus.implcore.internal.CurrentState.State;
@@ -51,10 +52,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  */
 final class CorrelationContextFormat extends TagContextTextFormat {
 
-  private static final String CORRELATION_CONTEXT = "Correlation-Context";
+  @VisibleForTesting static final String CORRELATION_CONTEXT = "Correlation-Context";
   private static final List<String> FIELDS = Collections.singletonList(CORRELATION_CONTEXT);
 
-  private static final int MAX_NUMBER_OF_TAGS = 180;
+  @VisibleForTesting static final int MAX_NUMBER_OF_TAGS = 180;
   private static final int TAG_SERIALIZED_SIZE_LIMIT = 4096;
   private static final int TAGCONTEXT_SERIALIZED_SIZE_LIMIT = 8192;
   private static final char TAG_KEY_VALUE_DELIMITER = '=';
@@ -68,7 +69,8 @@ final class CorrelationContextFormat extends TagContextTextFormat {
   // private static final char TAG_PROPERTIES_DELIMITER = ';';
   // private static final char TAG_PROPERTIES_KEY_VALUE_DELIMITER = '=';
 
-  private static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
+  @VisibleForTesting
+  static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
       TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
 
   private final CurrentState state;
@@ -151,6 +153,9 @@ final class CorrelationContextFormat extends TagContextTextFormat {
       throw new TagContextDeserializationException(CORRELATION_CONTEXT + " not present.");
     }
     try {
+      if (correlationContext.isEmpty()) {
+        return TagMapImpl.EMPTY;
+      }
       Map<TagKey, TagValueWithMetadata> tags = new HashMap<>();
       List<String> stringTags = TAG_DELIMITER_SPLITTER.splitToList(correlationContext);
       for (String stringTag : stringTags) {
