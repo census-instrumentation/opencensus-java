@@ -41,6 +41,10 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.NonNull;
+*/
+
 /**
  * Implementation of the W3C correlation context propagation protocol. See <a
  * href=https://github.com/w3c/correlation-context>w3c/correlation-context</a>.
@@ -79,8 +83,8 @@ final class CorrelationContextFormat extends TagContextTextFormat {
   }
 
   @Override
-  public <C> void inject(TagContext tagContext, C carrier, Setter<C> setter)
-      throws TagContextSerializationException {
+  public <C /*>>> extends @NonNull Object*/> void inject(
+      TagContext tagContext, C carrier, Setter<C> setter) throws TagContextSerializationException {
     checkNotNull(tagContext, "tagContext");
     checkNotNull(carrier, "carrier");
     checkNotNull(setter, "setter");
@@ -114,7 +118,7 @@ final class CorrelationContextFormat extends TagContextTextFormat {
               + TAGCONTEXT_SERIALIZED_SIZE_LIMIT);
       setter.put(carrier, CORRELATION_CONTEXT, stringBuilder.toString());
     } catch (IllegalArgumentException e) {
-      throw new TagContextSerializationException(e.getMessage());
+      throw new TagContextSerializationException("Failed to serialize TagContext", e);
     }
   }
 
@@ -134,7 +138,7 @@ final class CorrelationContextFormat extends TagContextTextFormat {
   }
 
   @Override
-  public <C> TagContext extract(C carrier, Getter<C> getter)
+  public <C /*>>> extends @NonNull Object*/> TagContext extract(C carrier, Getter<C> getter)
       throws TagContextDeserializationException {
     checkNotNull(carrier, "carrier");
     checkNotNull(getter, "getter");
