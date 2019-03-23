@@ -24,7 +24,6 @@ import io.opencensus.common.Scope;
  * @since 0.8
  */
 public abstract class TagContextBuilder {
-
   /**
    * Adds the key/value pair regardless of whether the key is present.
    *
@@ -51,7 +50,11 @@ public abstract class TagContextBuilder {
    * @return this
    * @since 0.20
    */
-  public abstract TagContextBuilder put(TagKey key, TagValue value, TagMetadata tagMetadata);
+  public TagContextBuilder put(TagKey key, TagValue value, TagMetadata tagMetadata) {
+    @SuppressWarnings("deprecation")
+    TagContextBuilder builder = put(key, value);
+    return builder;
+  }
 
   /**
    * Removes the key if it exists.
