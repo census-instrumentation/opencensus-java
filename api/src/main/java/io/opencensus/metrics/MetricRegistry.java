@@ -32,76 +32,132 @@ import java.util.List;
 @ExperimentalApi
 public abstract class MetricRegistry {
   /**
+   * This will be removed in 0.22.
+   *
+   * @deprecated since 0.20, use {@link #addLongGauge(String, MetricOptions)}.
+   * @since 0.17
+   */
+  @Deprecated
+  public LongGauge addLongGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys) {
+    return addLongGauge(
+        name,
+        MetricOptions.builder()
+            .setDescription(description)
+            .setUnit(unit)
+            .setLabelKeys(labelKeys)
+            .build());
+  }
+
+  /**
    * Builds a new long gauge to be added to the registry. This is more convenient form when you want
    * to manually increase and decrease values as per your service requirements.
    *
    * @param name the name of the metric.
-   * @param description the description of the metric.
-   * @param unit the unit of the metric.
-   * @param labelKeys the list of the label keys.
+   * @param options the options for the metric.
    * @return a {@code LongGauge}.
-   * @throws NullPointerException if {@code labelKeys} is null OR any element of {@code labelKeys}
-   *     is null OR {@code name}, {@code description}, {@code unit} is null.
+   * @throws NullPointerException if {@code name} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
-   * @since 0.17
+   * @since 0.20
    */
   @ExperimentalApi
-  public abstract LongGauge addLongGauge(
-      String name, String description, String unit, List<LabelKey> labelKeys);
+  public abstract LongGauge addLongGauge(String name, MetricOptions options);
+
+  /**
+   * This will be removed in 0.22.
+   *
+   * @deprecated since 0.20, use {@link #addDoubleGauge(String, MetricOptions)}.
+   * @since 0.17
+   */
+  @Deprecated
+  public DoubleGauge addDoubleGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys) {
+    return addDoubleGauge(
+        name,
+        MetricOptions.builder()
+            .setDescription(description)
+            .setUnit(unit)
+            .setLabelKeys(labelKeys)
+            .build());
+  }
 
   /**
    * Builds a new double gauge to be added to the registry. This is more convenient form when you
    * want to manually increase and decrease values as per your service requirements.
    *
    * @param name the name of the metric.
-   * @param description the description of the metric.
-   * @param unit the unit of the metric.
-   * @param labelKeys the list of the label keys.
+   * @param options the options for the metric.
    * @return a {@code DoubleGauge}.
-   * @throws NullPointerException if {@code labelKeys} is null OR any element of {@code labelKeys}
-   *     is null OR {@code name}, {@code description}, {@code unit} is null.
+   * @throws NullPointerException if {@code name} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
-   * @since 0.17
+   * @since 0.20
    */
   @ExperimentalApi
-  public abstract DoubleGauge addDoubleGauge(
-      String name, String description, String unit, List<LabelKey> labelKeys);
+  public abstract DoubleGauge addDoubleGauge(String name, MetricOptions options);
+
+  /**
+   * This will be removed in 0.22.
+   *
+   * @deprecated since 0.20, use {@link #addDerivedLongGauge(String, MetricOptions)}.
+   * @since 0.17
+   */
+  @Deprecated
+  public DerivedLongGauge addDerivedLongGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys) {
+    return addDerivedLongGauge(
+        name,
+        MetricOptions.builder()
+            .setDescription(description)
+            .setUnit(unit)
+            .setLabelKeys(labelKeys)
+            .build());
+  }
 
   /**
    * Builds a new derived long gauge to be added to the registry. This is more convenient form when
    * you want to define a gauge by executing a {@link ToLongFunction} on an object.
    *
    * @param name the name of the metric.
-   * @param description the description of the metric.
-   * @param unit the unit of the metric.
-   * @param labelKeys the list of the label keys.
+   * @param options the options for the metric.
    * @return a {@code DerivedLongGauge}.
-   * @throws NullPointerException if {@code labelKeys} is null OR any element of {@code labelKeys}
-   *     is null OR {@code name}, {@code description}, {@code unit} is null.
+   * @throws NullPointerException if {@code name} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
    * @since 0.17
    */
   @ExperimentalApi
-  public abstract DerivedLongGauge addDerivedLongGauge(
-      String name, String description, String unit, List<LabelKey> labelKeys);
+  public abstract DerivedLongGauge addDerivedLongGauge(String name, MetricOptions options);
+
+  /**
+   * This will be removed in 0.22.
+   *
+   * @deprecated since 0.20, use {@link #addDerivedDoubleGauge(String, MetricOptions)}.
+   * @since 0.17
+   */
+  @Deprecated
+  public DerivedDoubleGauge addDerivedDoubleGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys) {
+    return addDerivedDoubleGauge(
+        name,
+        MetricOptions.builder()
+            .setDescription(description)
+            .setUnit(unit)
+            .setLabelKeys(labelKeys)
+            .build());
+  }
 
   /**
    * Builds a new derived double gauge to be added to the registry. This is more convenient form
    * when you want to define a gauge by executing a {@link ToDoubleFunction} on an object.
    *
    * @param name the name of the metric.
-   * @param description the description of the metric.
-   * @param unit the unit of the metric.
-   * @param labelKeys the list of the label keys.
+   * @param options the options for the metric.
    * @return a {@code DerivedDoubleGauge}.
-   * @throws NullPointerException if {@code labelKeys} is null OR any element of {@code labelKeys}
-   *     is null OR {@code name}, {@code description}, {@code unit} is null.
+   * @throws NullPointerException if {@code name} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
    * @since 0.17
    */
   @ExperimentalApi
-  public abstract DerivedDoubleGauge addDerivedDoubleGauge(
-      String name, String description, String unit, List<LabelKey> labelKeys);
+  public abstract DerivedDoubleGauge addDerivedDoubleGauge(String name, MetricOptions options);
 
   static MetricRegistry newNoopMetricRegistry() {
     return new NoopMetricRegistry();
@@ -110,47 +166,39 @@ public abstract class MetricRegistry {
   private static final class NoopMetricRegistry extends MetricRegistry {
 
     @Override
-    public LongGauge addLongGauge(
-        String name, String description, String unit, List<LabelKey> labelKeys) {
-      Utils.checkListElementNotNull(Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey");
+    public LongGauge addLongGauge(String name, MetricOptions options) {
       return LongGauge.newNoopLongGauge(
           Utils.checkNotNull(name, "name"),
-          Utils.checkNotNull(description, "description"),
-          Utils.checkNotNull(unit, "unit"),
-          labelKeys);
+          options.getDescription(),
+          options.getUnit(),
+          options.getLabelKeys());
     }
 
     @Override
-    public DoubleGauge addDoubleGauge(
-        String name, String description, String unit, List<LabelKey> labelKeys) {
-      Utils.checkListElementNotNull(Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey");
+    public DoubleGauge addDoubleGauge(String name, MetricOptions options) {
       return DoubleGauge.newNoopDoubleGauge(
           Utils.checkNotNull(name, "name"),
-          Utils.checkNotNull(description, "description"),
-          Utils.checkNotNull(unit, "unit"),
-          labelKeys);
+          options.getDescription(),
+          options.getUnit(),
+          options.getLabelKeys());
     }
 
     @Override
-    public DerivedLongGauge addDerivedLongGauge(
-        String name, String description, String unit, List<LabelKey> labelKeys) {
-      Utils.checkListElementNotNull(Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey");
+    public DerivedLongGauge addDerivedLongGauge(String name, MetricOptions options) {
       return DerivedLongGauge.newNoopDerivedLongGauge(
           Utils.checkNotNull(name, "name"),
-          Utils.checkNotNull(description, "description"),
-          Utils.checkNotNull(unit, "unit"),
-          labelKeys);
+          options.getDescription(),
+          options.getUnit(),
+          options.getLabelKeys());
     }
 
     @Override
-    public DerivedDoubleGauge addDerivedDoubleGauge(
-        String name, String description, String unit, List<LabelKey> labelKeys) {
-      Utils.checkListElementNotNull(Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey");
+    public DerivedDoubleGauge addDerivedDoubleGauge(String name, MetricOptions options) {
       return DerivedDoubleGauge.newNoopDerivedDoubleGauge(
           Utils.checkNotNull(name, "name"),
-          Utils.checkNotNull(description, "description"),
-          Utils.checkNotNull(unit, "unit"),
-          labelKeys);
+          options.getDescription(),
+          options.getUnit(),
+          options.getLabelKeys());
     }
   }
 }
