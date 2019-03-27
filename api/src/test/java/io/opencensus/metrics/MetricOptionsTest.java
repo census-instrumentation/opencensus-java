@@ -16,6 +16,8 @@
 
 package io.opencensus.metrics;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +32,13 @@ import org.junit.runners.JUnit4;
 public class MetricOptionsTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
-  private static final String NAME = "test_name";
   private static final String DESCRIPTION = "test_description";
   private static final String UNIT = "1";
   private static final LabelKey LABEL_KEY = LabelKey.create("test_key", "test key description");
   private static final List<LabelKey> LABEL_KEYS = Collections.singletonList(LABEL_KEY);
   private static final LabelValue LABEL_VALUE = LabelValue.create("test_value");
-  private static final List<LabelValue> LABEL_VALUES = Collections.singletonList(LABEL_VALUE);
+  private static final Map<LabelKey, LabelValue> CONSTANT_LABELS =
+      Collections.singletonMap(LabelKey.create("test_key_1", "test key description"), LABEL_VALUE);
 
   @Test
   public void nullDescription() {
@@ -88,5 +90,30 @@ public class MetricOptionsTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("constantLabels elements");
     MetricOptions.builder().setConstantLabels(constantLabels).build();
+  }
+
+  @Test
+  public void sameLabelKeyInConstantLabelsAndLabelsKey() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("LabelKey in both labelKeys and constantLabels");
+    MetricOptions.builder()
+        .setLabelKeys(LABEL_KEYS)
+        .setConstantLabels(Collections.singletonMap(LABEL_KEY, LABEL_VALUE))
+        .build();
+  }
+
+  @Test
+  public void setAndGet() {
+    MetricOptions metricOptions =
+        MetricOptions.builder()
+            .setDescription(DESCRIPTION)
+            .setUnit(UNIT)
+            .setLabelKeys(LABEL_KEYS)
+            .setConstantLabels(CONSTANT_LABELS)
+            .build();
+    assertThat(metricOptions.getDescription()).isEqualTo(DESCRIPTION);
+    assertThat(metricOptions.getUnit()).isEqualTo(UNIT);
+    assertThat(metricOptions.getLabelKeys()).isEqualTo(LABEL_KEYS);
+    assertThat(metricOptions.getConstantLabels()).isEqualTo(CONSTANT_LABELS);
   }
 }

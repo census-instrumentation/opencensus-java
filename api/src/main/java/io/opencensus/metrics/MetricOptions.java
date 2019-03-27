@@ -60,13 +60,14 @@ public abstract class MetricOptions {
   public abstract List<LabelKey> getLabelKeys();
 
   /**
-   * Returns the list of constant labels (they will be added to all the TimeSeries) for the Metric.
+   * Returns the map of constant labels (they will be added to all the TimeSeries) for the Metric.
    *
    * <p>Default value is {@link Collections#emptyMap()}.
    *
    * @return the list of label keys for the Metric.
    */
-  public abstract Map<LabelKey, LabelValue> getConstantLabels();
+  // TODO: add support for this and make it public.
+  abstract Map<LabelKey, LabelValue> getConstantLabels();
 
   /**
    * Returns a new {@link Builder} with default options.
@@ -84,13 +85,39 @@ public abstract class MetricOptions {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setDescription(String labelKeys);
 
-    public abstract Builder setUnit(String labelKeys);
+    /**
+     * Sets the description of the Metric.
+     *
+     * @param description the description of the Metric.
+     * @return this.
+     */
+    public abstract Builder setDescription(String description);
 
+    /**
+     * Sets the unit of the Metric.
+     *
+     * @param unit the unit of the Metric.
+     * @return this.
+     */
+    public abstract Builder setUnit(String unit);
+
+    /**
+     * Sets the list of label keys for the Metric.
+     *
+     * @param labelKeys the list of label keys for the Metric.
+     * @return this.
+     */
     public abstract Builder setLabelKeys(List<LabelKey> labelKeys);
 
-    public abstract Builder setConstantLabels(Map<LabelKey, LabelValue> constantLabels);
+    /**
+     * Sets the map of constant labels (they will be added to all the TimeSeries) for the Metric.
+     *
+     * @param constantLabels the map of constant labels
+     * @return this.
+     */
+    // TODO: add support for this and make it public.
+    abstract Builder setConstantLabels(Map<LabelKey, LabelValue> constantLabels);
 
     abstract MetricOptions autoBuild();
 
@@ -117,7 +144,7 @@ public abstract class MetricOptions {
       Map<LabelKey, LabelValue> constantLabels = options.getConstantLabels();
       for (LabelKey labelKey : options.getLabelKeys()) {
         if (constantLabels.containsKey(labelKey)) {
-          throw new IllegalArgumentException("LabelKey in both labelKeys and constantLabels.");
+          throw new IllegalArgumentException("LabelKey in both labelKeys and constantLabels");
         }
       }
       return options;
