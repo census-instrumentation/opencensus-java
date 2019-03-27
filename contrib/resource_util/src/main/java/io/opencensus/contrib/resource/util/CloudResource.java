@@ -116,6 +116,7 @@ public final class CloudResource {
       return create(
           PROVIDER_GCP, GcpMetadataConfig.getProjectId(), "", GcpMetadataConfig.getZone());
     }
+    // TODO: Add support for PROVIDER_AZURE.
     return EMPTY_RESOURCE;
   }
 

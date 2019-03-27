@@ -75,6 +75,7 @@ public class ContainerResource {
   }
 
   static Resource detect() {
+    // TODO: Add support to auto-detect IMAGE_NAME_KEY and IMAGE_TAG_KEY.
     return create(firstNonNull(System.getenv("CONTAINER_NAME"), ""), "", "");
   }
 
