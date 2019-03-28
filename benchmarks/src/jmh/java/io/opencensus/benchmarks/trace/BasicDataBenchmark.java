@@ -22,11 +22,10 @@ package io.opencensus.benchmarks.trace;
 
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Link;
 import io.opencensus.trace.Tracer;
-import java.util.concurrent.TimeUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
@@ -52,12 +51,12 @@ public class BasicDataBenchmark {
     private String[] attributeKeys;
     Map<String, AttributeValue> attributeMap;
 
-    //@Param({"impl", "impl-lite"})
+    // @Param({"impl", "impl-lite"})
     @Param({"impl"})
     String implementation;
 
     @Param({"0", "1", "4", "8", "16"})
-    //@Param({"0", "1", "16"})
+    // @Param({"0", "1", "16"})
     int size;
 
     @Param({"string", "boolean", "long"})
@@ -76,11 +75,10 @@ public class BasicDataBenchmark {
     }
 
     @TearDown
-    public void doTearDown() {
-    }
+    public void doTearDown() {}
   }
 
-  /** Create attribute values */
+  /** Create attribute values. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -88,11 +86,11 @@ public class BasicDataBenchmark {
     return getAttributeValues(data.size, data.attributeType);
   }
 
-  /** Create an AttributeMap */
+  /** Create an AttributeMap. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Map<String, AttributeValue>  createAttributeMap(Data data) {
+  public Map<String, AttributeValue> createAttributeMap(Data data) {
     Map<String, AttributeValue> attributeMap = new HashMap<>(data.size);
     for (int i = 0; i < data.size; i++) {
       attributeMap.put(data.attributeKeys[i], data.attributeValues[i]);

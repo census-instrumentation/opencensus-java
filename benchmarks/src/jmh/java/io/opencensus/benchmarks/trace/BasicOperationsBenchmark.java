@@ -38,12 +38,6 @@
 
 package io.opencensus.benchmarks.trace;
 
-import static com.google.common.base.Preconditions.checkState;
-
-import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.BlankSpan;
-import io.opencensus.trace.Link;
-import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.samplers.Samplers;
@@ -71,7 +65,7 @@ public class BasicOperationsBenchmark {
     private Span span;
     private Tracer tracer;
 
-    //@Param({"impl", "impl-lite"})
+    // @Param({"impl", "impl-lite"})
     @Param({"impl"})
     String implementation;
 
@@ -84,11 +78,12 @@ public class BasicOperationsBenchmark {
     @Setup
     public void setup() {
       tracer = BenchmarksUtil.getTracer(implementation);
-      span = tracer
-             .spanBuilderWithExplicitParent("TopLevelSpan", null)
-             .setRecordEvents(recorded)
-             .setSampler(sampled ? Samplers.alwaysSample() : Samplers.neverSample())
-             .startSpan();
+      span =
+          tracer
+              .spanBuilderWithExplicitParent("TopLevelSpan", null)
+              .setRecordEvents(recorded)
+              .setSampler(sampled ? Samplers.alwaysSample() : Samplers.neverSample())
+              .startSpan();
     }
 
     @TearDown
@@ -102,10 +97,12 @@ public class BasicOperationsBenchmark {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Span createRootSpan(Data data) {
-    Span span = data.tracer.spanBuilderWithExplicitParent("RootSpan", null)
-                .setRecordEvents(data.recorded)
-                .setSampler(data.sampled ? Samplers.alwaysSample() : Samplers.neverSample())
-                .startSpan();
+    Span span =
+        data.tracer
+            .spanBuilderWithExplicitParent("RootSpan", null)
+            .setRecordEvents(data.recorded)
+            .setSampler(data.sampled ? Samplers.alwaysSample() : Samplers.neverSample())
+            .startSpan();
     span.end();
     return span;
   }
@@ -115,10 +112,12 @@ public class BasicOperationsBenchmark {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Span createSpanWithExplicitParent(Data data) {
-    Span span = data.tracer.spanBuilderWithExplicitParent("ChildSpan", data.span)
-                .setRecordEvents(data.recorded)
-                .setSampler(data.sampled ? Samplers.alwaysSample() : Samplers.neverSample())
-                .startSpan();
+    Span span =
+        data.tracer
+            .spanBuilderWithExplicitParent("ChildSpan", data.span)
+            .setRecordEvents(data.recorded)
+            .setSampler(data.sampled ? Samplers.alwaysSample() : Samplers.neverSample())
+            .startSpan();
     span.end();
     return span;
   }
@@ -128,10 +127,12 @@ public class BasicOperationsBenchmark {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Span createSpanWithCurrentSpan(Data data) {
-    Span span = data.tracer.spanBuilder("ChildSpanFromCurrent")
-                .setRecordEvents(data.recorded)
-                .setSampler(data.sampled ? Samplers.alwaysSample() : Samplers.neverSample())
-                .startSpan();
+    Span span =
+        data.tracer
+            .spanBuilder("ChildSpanFromCurrent")
+            .setRecordEvents(data.recorded)
+            .setSampler(data.sampled ? Samplers.alwaysSample() : Samplers.neverSample())
+            .startSpan();
     span.end();
     return span;
   }
@@ -141,14 +142,13 @@ public class BasicOperationsBenchmark {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Span createSpanWithRemoteParent(Data data) {
-    Span span = data.tracer.spanBuilderWithRemoteParent(
-                              "ChildSpanFromRemoteParent", data.span.getContext())
-                .setRecordEvents(data.recorded)
-                .setSampler(data.sampled ? Samplers.alwaysSample() : Samplers.neverSample())
-                .startSpan();
+    Span span =
+        data.tracer
+            .spanBuilderWithRemoteParent("ChildSpanFromRemoteParent", data.span.getContext())
+            .setRecordEvents(data.recorded)
+            .setSampler(data.sampled ? Samplers.alwaysSample() : Samplers.neverSample())
+            .startSpan();
     span.end();
     return span;
   }
-
-
 }

@@ -25,16 +25,16 @@ import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.SpanId;
 import io.opencensus.trace.SpanContext;
+import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
-import io.opencensus.trace.Tracer;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracer;
 import io.opencensus.trace.samplers.Samplers;
-import java.util.concurrent.TimeUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
@@ -72,7 +72,7 @@ public class SpanOperationsBenchmark {
     private Span[] setSpans;
     private Span[] endSpans;
 
-    //@Param({"impl", "impl-lite"})
+    // @Param({"impl", "impl-lite"})
     @Param({"impl"})
     String implementation;
 
@@ -82,7 +82,7 @@ public class SpanOperationsBenchmark {
     @Param({"true", "false"})
     boolean sampled;
 
-    //@Param({"0", "1", "4", "8", "16"})
+    // @Param({"0", "1", "4", "8", "16"})
     @Param({"0", "1", "16"})
     int size;
 
@@ -135,7 +135,8 @@ public class SpanOperationsBenchmark {
         links[i] =
             Link.fromSpanContext(
                 SpanContext.create(
-                    TraceId.fromBytes(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, (byte) i}),
+                    TraceId.fromBytes(
+                        new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, (byte) i}),
                     SpanId.fromBytes(new byte[] {1, 2, 3, 4, 5, 6, 7, (byte) i}),
                     TraceOptions.DEFAULT),
                 Link.Type.PARENT_LINKED_SPAN);
