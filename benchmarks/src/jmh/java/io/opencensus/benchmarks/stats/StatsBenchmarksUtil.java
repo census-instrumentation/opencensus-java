@@ -27,7 +27,6 @@ import io.opencensus.stats.StatsRecorder;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
 import io.opencensus.tags.TagKey;
-
 import java.util.Arrays;
 
 /** Util class for Benchmarks. */
@@ -38,10 +37,12 @@ final class StatsBenchmarksUtil {
   private static final int MEASURES = 8;
   private static final int VIEWS = 8;
 
-  static final Aggregation.Distribution DISTRIBUTION = Aggregation.Distribution.create(
-      BucketBoundaries.create(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)));
+  static final Aggregation.Distribution DISTRIBUTION =
+      Aggregation.Distribution.create(
+          BucketBoundaries.create(Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)));
 
-  static final Measure.MeasureDouble[] DOUBLE_COUNT_MEASURES = createMeasureDoubles(MEASURES, "Count");
+  static final Measure.MeasureDouble[] DOUBLE_COUNT_MEASURES =
+      createMeasureDoubles(MEASURES, "Count");
   static final Measure.MeasureLong[] LONG_COUNT_MEASURES = createMeasureLongs(MEASURES, "Count");
 
   static final Measure.MeasureDouble[] DOUBLE_SUM_MEASURES = createMeasureDoubles(MEASURES, "Sum");
@@ -105,10 +106,11 @@ final class StatsBenchmarksUtil {
     }
   }
 
-  private static View[] createViews(int size, Measure[] measures, Aggregation aggregation, TagKey... keys) {
+  private static View[] createViews(
+      int size, Measure[] measures, Aggregation aggregation, TagKey... keys) {
     View[] views = new View[size];
     for (int i = 0; i < size; i++) {
-      views[i] =  createView(measures[i].getName(), measures[i], aggregation, keys);
+      views[i] = createView(measures[i].getName(), measures[i], aggregation, keys);
     }
     return views;
   }

@@ -16,9 +16,9 @@
 
 package io.opencensus.benchmarks.tags;
 
+import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
-import io.opencensus.tags.Tag;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;

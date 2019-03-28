@@ -21,8 +21,8 @@ import io.opencensus.stats.Measure;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.stats.ViewManager;
-import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.Tagger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +69,11 @@ public class RecordDifferentTagValuesBenchmark {
     private List<TagContext> createContexts(int size) {
       TagContext[] contexts = new TagContext[size];
       for (int i = 0; i < size; i++) {
-        contexts[i] = tagger.emptyBuilder().put(TagsBenchmarksUtil.TAG_KEYS[0], TagsBenchmarksUtil.TAG_VALUES[i]).build();
+        contexts[i] =
+            tagger
+                .emptyBuilder()
+                .put(TagsBenchmarksUtil.TAG_KEYS[0], TagsBenchmarksUtil.TAG_VALUES[i])
+                .build();
       }
       return Arrays.asList(contexts);
     }
