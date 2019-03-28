@@ -16,10 +16,12 @@
 
 package io.opencensus.contrib.resource.util;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import io.opencensus.resource.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /**
  * Utilities for auto detecting resource based on the environment where the application is running.
@@ -27,6 +29,8 @@ import javax.annotation.Nullable;
  * @since 0.20
  */
 public final class ResourceUtils {
+  static final Resource EMPTY_RESOURCE =
+      Resource.create(null, Collections.<String, String>emptyMap());
 
   /**
    * Returns a {@code Resource}. Detector sequentially runs resource detection from environment
@@ -35,23 +39,16 @@ public final class ResourceUtils {
    * @return a {@code Resource}.
    * @since 0.20
    */
-  @Nullable
   public static Resource detectResource() {
     List<Resource> resourceList = new ArrayList<Resource>();
     resourceList.add(Resource.createFromEnvironmentVariables());
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      resourceList.add(K8sContainerResource.detect());
+      resourceList.add(ContainerResource.detect());
+      resourceList.add(K8sResource.detect());
     }
-    // This can be true even if this is k8s container in case of GKE and we want to merge these
-    // resources.
-    if (GcpMetadataConfig.getInstanceId() != null) {
-      resourceList.add(GcpGceInstanceResource.detect());
-    }
-    // This can be true even if this is k8s container in case k8s runs in AWS.
-    if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      resourceList.add(AwsEc2InstanceResource.detect());
-    }
-    return Resource.mergeResources(resourceList);
+    resourceList.add(HostResource.detect());
+    resourceList.add(CloudResource.detect());
+    return firstNonNull(Resource.mergeResources(resourceList), EMPTY_RESOURCE);
   }
 
   private ResourceUtils() {}

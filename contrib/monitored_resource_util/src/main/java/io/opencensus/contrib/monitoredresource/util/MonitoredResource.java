@@ -18,12 +18,8 @@ package io.opencensus.contrib.monitoredresource.util;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-import com.google.common.collect.ImmutableList;
-import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
-import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
-import io.opencensus.contrib.resource.util.K8sContainerResource;
+import com.google.common.collect.ImmutableMap;
 import io.opencensus.resource.Resource;
-import java.util.Collections;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
@@ -75,7 +71,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getAccount() {
-      return firstNonNull(labels.get(AwsEc2InstanceResource.ACCOUNT_ID_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.AWS_ACCOUNT_KEY), "");
     }
 
     /**
@@ -85,7 +81,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getInstanceId() {
-      return firstNonNull(labels.get(AwsEc2InstanceResource.INSTANCE_ID_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.AWS_INSTANCE_ID_KEY), "");
     }
 
     /**
@@ -95,7 +91,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getRegion() {
-      return firstNonNull(labels.get(AwsEc2InstanceResource.REGION_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.AWS_REGION_KEY), "");
     }
 
     /**
@@ -110,7 +106,13 @@ public abstract class MonitoredResource {
     public static AwsEc2InstanceMonitoredResource create(
         String account, String instanceId, String region) {
       return new AwsEc2InstanceMonitoredResource(
-          AwsEc2InstanceResource.create(account, region, instanceId).getLabels());
+          ImmutableMap.of(
+              ResourceKeyConstants.AWS_ACCOUNT_KEY,
+              account,
+              ResourceKeyConstants.AWS_REGION_KEY,
+              region,
+              ResourceKeyConstants.AWS_INSTANCE_ID_KEY,
+              instanceId));
     }
 
     static AwsEc2InstanceMonitoredResource create(Resource resource) {
@@ -145,7 +147,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getAccount() {
-      return firstNonNull(labels.get(GcpGceInstanceResource.PROJECT_ID_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.GCP_ACCOUNT_ID_KEY), "");
     }
 
     /**
@@ -155,7 +157,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getInstanceId() {
-      return firstNonNull(labels.get(GcpGceInstanceResource.INSTANCE_ID_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.GCP_INSTANCE_ID_KEY), "");
     }
 
     /**
@@ -165,7 +167,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getZone() {
-      return firstNonNull(labels.get(GcpGceInstanceResource.ZONE_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.GCP_ZONE_KEY), "");
     }
 
     /**
@@ -180,7 +182,13 @@ public abstract class MonitoredResource {
     public static GcpGceInstanceMonitoredResource create(
         String account, String instanceId, String zone) {
       return new GcpGceInstanceMonitoredResource(
-          GcpGceInstanceResource.create(account, zone, instanceId).getLabels());
+          ImmutableMap.of(
+              ResourceKeyConstants.GCP_ACCOUNT_ID_KEY,
+              account,
+              ResourceKeyConstants.GCP_ZONE_KEY,
+              zone,
+              ResourceKeyConstants.GCP_INSTANCE_ID_KEY,
+              instanceId));
     }
 
     static GcpGceInstanceMonitoredResource create(Resource resource) {
@@ -215,7 +223,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getAccount() {
-      return firstNonNull(labels.get(GcpGceInstanceResource.PROJECT_ID_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.GCP_ACCOUNT_ID_KEY), "");
     }
 
     /**
@@ -225,7 +233,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getClusterName() {
-      return firstNonNull(labels.get(K8sContainerResource.CLUSTER_NAME_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.K8S_CLUSTER_NAME_KEY), "");
     }
 
     /**
@@ -235,7 +243,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getContainerName() {
-      return firstNonNull(labels.get(K8sContainerResource.CONTAINER_NAME_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.K8S_CONTAINER_NAME_KEY), "");
     }
 
     /**
@@ -245,7 +253,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getNamespaceId() {
-      return firstNonNull(labels.get(K8sContainerResource.NAMESPACE_NAME_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.K8S_NAMESPACE_NAME_KEY), "");
     }
 
     /**
@@ -255,7 +263,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getInstanceId() {
-      return firstNonNull(labels.get(GcpGceInstanceResource.INSTANCE_ID_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.GCP_INSTANCE_ID_KEY), "");
     }
 
     /**
@@ -265,7 +273,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getPodId() {
-      return firstNonNull(labels.get(K8sContainerResource.POD_NAME_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.K8S_POD_NAME_KEY), "");
     }
 
     /**
@@ -275,7 +283,7 @@ public abstract class MonitoredResource {
      * @since 0.13
      */
     public String getZone() {
-      return firstNonNull(labels.get(GcpGceInstanceResource.ZONE_KEY), "");
+      return firstNonNull(labels.get(ResourceKeyConstants.GCP_ZONE_KEY), "");
     }
 
     /**
@@ -299,15 +307,16 @@ public abstract class MonitoredResource {
         String instanceId,
         String podId,
         String zone) {
-      Resource resource =
-          Resource.mergeResources(
-              ImmutableList.of(
-                  K8sContainerResource.create(clusterName, namespaceId, podId, containerName),
-                  GcpGceInstanceResource.create(account, zone, instanceId)));
-      if (resource == null) {
-        return new GcpGkeContainerMonitoredResource(Collections.<String, String>emptyMap());
-      }
-      return new GcpGkeContainerMonitoredResource(resource.getLabels());
+      return new GcpGkeContainerMonitoredResource(
+          ImmutableMap.<String, String>builder()
+              .put(ResourceKeyConstants.GCP_ACCOUNT_ID_KEY, account)
+              .put(ResourceKeyConstants.K8S_CLUSTER_NAME_KEY, clusterName)
+              .put(ResourceKeyConstants.K8S_CONTAINER_NAME_KEY, containerName)
+              .put(ResourceKeyConstants.K8S_NAMESPACE_NAME_KEY, namespaceId)
+              .put(ResourceKeyConstants.GCP_INSTANCE_ID_KEY, instanceId)
+              .put(ResourceKeyConstants.K8S_POD_NAME_KEY, podId)
+              .put(ResourceKeyConstants.GCP_ZONE_KEY, zone)
+              .build());
     }
 
     static GcpGkeContainerMonitoredResource create(Resource resource) {

@@ -44,9 +44,10 @@ import com.google.protobuf.ByteString;
 import io.opencensus.common.Timestamp;
 import io.opencensus.contrib.exemplar.util.AttachmentValueSpanContext;
 import io.opencensus.contrib.exemplar.util.ExemplarUtils;
-import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
-import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
-import io.opencensus.contrib.resource.util.K8sContainerResource;
+import io.opencensus.contrib.resource.util.CloudResource;
+import io.opencensus.contrib.resource.util.ContainerResource;
+import io.opencensus.contrib.resource.util.HostResource;
+import io.opencensus.contrib.resource.util.K8sResource;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.data.AttachmentValue;
@@ -718,15 +719,16 @@ public class StackdriverExportUtilsTest {
   public void setResourceForBuilder_GcpInstanceType() {
     MonitoredResource.Builder monitoredResourceBuilder = DEFAULT_RESOURCE_WITH_PROJECT_ID.clone();
     Map<String, String> resourceLabels = new HashMap<String, String>();
-    resourceLabels.put(GcpGceInstanceResource.PROJECT_ID_KEY, "proj1");
-    resourceLabels.put(GcpGceInstanceResource.INSTANCE_ID_KEY, "inst1");
-    resourceLabels.put(GcpGceInstanceResource.ZONE_KEY, "zone1");
+    resourceLabels.put(CloudResource.ACCOUNT_ID_KEY, "proj1");
+    resourceLabels.put(CloudResource.PROVIDER_KEY, CloudResource.PROVIDER_GCP);
+    resourceLabels.put(HostResource.ID_KEY, "inst1");
+    resourceLabels.put(CloudResource.ZONE_KEY, "zone1");
     resourceLabels.put("extra_key", "must be ignored");
     Map<String, String> expectedResourceLabels = new HashMap<String, String>();
     expectedResourceLabels.put("project_id", "proj1");
     expectedResourceLabels.put("instance_id", "inst1");
     expectedResourceLabels.put("zone", "zone1");
-    Resource resource = Resource.create(GcpGceInstanceResource.TYPE, resourceLabels);
+    Resource resource = Resource.create(HostResource.TYPE, resourceLabels);
 
     StackdriverExportUtils.setResourceForBuilder(monitoredResourceBuilder, resource);
 
@@ -742,12 +744,12 @@ public class StackdriverExportUtilsTest {
   public void setResourceForBuilder_K8sInstanceType() {
     MonitoredResource.Builder monitoredResourceBuilder = DEFAULT_RESOURCE_WITH_PROJECT_ID.clone();
     Map<String, String> resourceLabels = new HashMap<String, String>();
-    resourceLabels.put(GcpGceInstanceResource.ZONE_KEY, "zone1");
-    resourceLabels.put(GcpGceInstanceResource.INSTANCE_ID_KEY, "instance1");
-    resourceLabels.put(K8sContainerResource.CLUSTER_NAME_KEY, "cluster1");
-    resourceLabels.put(K8sContainerResource.CONTAINER_NAME_KEY, "container1");
-    resourceLabels.put(K8sContainerResource.NAMESPACE_NAME_KEY, "namespace1");
-    resourceLabels.put(K8sContainerResource.POD_NAME_KEY, "pod1");
+    resourceLabels.put(CloudResource.ZONE_KEY, "zone1");
+    resourceLabels.put(HostResource.ID_KEY, "instance1");
+    resourceLabels.put(K8sResource.CLUSTER_NAME_KEY, "cluster1");
+    resourceLabels.put(ContainerResource.NAME_KEY, "container1");
+    resourceLabels.put(K8sResource.NAMESPACE_NAME_KEY, "namespace1");
+    resourceLabels.put(K8sResource.POD_NAME_KEY, "pod1");
     resourceLabels.put("extra_key", "must be ignored");
     Map<String, String> expectedResourceLabels = new HashMap<String, String>();
     expectedResourceLabels.put("project_id", "proj1");
@@ -757,7 +759,7 @@ public class StackdriverExportUtilsTest {
     expectedResourceLabels.put("namespace_name", "namespace1");
     expectedResourceLabels.put("pod_name", "pod1");
     expectedResourceLabels.put("container_name", "container1");
-    Resource resource = Resource.create(K8sContainerResource.TYPE, resourceLabels);
+    Resource resource = Resource.create(ContainerResource.TYPE, resourceLabels);
 
     StackdriverExportUtils.setResourceForBuilder(monitoredResourceBuilder, resource);
 
@@ -773,9 +775,10 @@ public class StackdriverExportUtilsTest {
   public void setResourceForBuilder_AwsInstanceType() {
     MonitoredResource.Builder monitoredResourceBuilder = DEFAULT_RESOURCE_WITH_PROJECT_ID.clone();
     Map<String, String> resourceLabels = new HashMap<String, String>();
-    resourceLabels.put(AwsEc2InstanceResource.REGION_KEY, "region1");
-    resourceLabels.put(AwsEc2InstanceResource.ACCOUNT_ID_KEY, "account1");
-    resourceLabels.put(AwsEc2InstanceResource.INSTANCE_ID_KEY, "instance1");
+    resourceLabels.put(CloudResource.REGION_KEY, "region1");
+    resourceLabels.put(CloudResource.PROVIDER_KEY, CloudResource.PROVIDER_AWS);
+    resourceLabels.put(CloudResource.ACCOUNT_ID_KEY, "account1");
+    resourceLabels.put(HostResource.ID_KEY, "instance1");
     resourceLabels.put("extra_key", "must be ignored");
     Map<String, String> expectedResourceLabels = new HashMap<String, String>();
     expectedResourceLabels.put("project_id", "proj1");
@@ -784,7 +787,7 @@ public class StackdriverExportUtilsTest {
         "region", StackdriverExportUtils.AWS_REGION_VALUE_PREFIX + "region1");
     expectedResourceLabels.put("aws_account", "account1");
 
-    Resource resource = Resource.create(AwsEc2InstanceResource.TYPE, resourceLabels);
+    Resource resource = Resource.create(HostResource.TYPE, resourceLabels);
 
     StackdriverExportUtils.setResourceForBuilder(monitoredResourceBuilder, resource);
 

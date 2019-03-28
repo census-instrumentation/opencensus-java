@@ -16,6 +16,8 @@
 
 package io.opencensus.contrib.resource.util;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,14 +26,13 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.concurrent.GuardedBy;
 
 /** Util methods for getting and parsing AWS instance identity document. */
 final class AwsIdentityDocUtils {
 
-  private static final Object monitor = new Object();
   private static final int AWS_IDENTITY_DOC_BUF_SIZE = 0x800; // 2K chars (4K bytes)
   private static final String AWS_IDENTITY_DOC_LINE_BREAK_SPLITTER = "\n";
   private static final String AWS_IDENTITY_DOC_COLON_SPLITTER = ":";
@@ -39,35 +40,22 @@ final class AwsIdentityDocUtils {
   private static final URI AWS_INSTANCE_IDENTITY_DOCUMENT_URI =
       URI.create("http://169.254.169.254/latest/dynamic/instance-identity/document");
 
-  @GuardedBy("monitor")
-  @javax.annotation.Nullable
-  private static Map<String, String> awsEnvVarMap = null;
+  private static final Map<String, String> awsEnvVarMap = initializeAwsIdentityDocument();
 
-  // Detects if the application is running on EC2 by making a connection to AWS instance
-  // identity document URI. If connection is successful, application should be on an EC2 instance.
-  private static volatile boolean isRunningOnAwsEc2 = false;
-
-  static {
-    initializeAwsIdentityDocument();
-  }
-
-  static boolean isRunningOnAwsEc2() {
-    return isRunningOnAwsEc2;
+  static boolean isRunningOnAws() {
+    return !awsEnvVarMap.isEmpty();
   }
 
   // Tries to establish an HTTP connection to AWS instance identity document url. If the application
   // is running on an EC2 instance, we should be able to get back a valid JSON document. Parses that
   // document and stores the identity properties in a local map.
   // This method should only be called once.
-  private static void initializeAwsIdentityDocument() {
+  private static Map<String, String> initializeAwsIdentityDocument() {
     InputStream stream = null;
     try {
       stream = openStream(AWS_INSTANCE_IDENTITY_DOCUMENT_URI);
       String awsIdentityDocument = slurp(new InputStreamReader(stream, Charset.forName("UTF-8")));
-      synchronized (monitor) {
-        awsEnvVarMap = parseAwsIdentityDocument(awsIdentityDocument);
-      }
-      isRunningOnAwsEc2 = true;
+      return parseAwsIdentityDocument(awsIdentityDocument);
     } catch (IOException e) {
       // Cannot connect to http://169.254.169.254/latest/dynamic/instance-identity/document.
       // Not on an AWS EC2 instance.
@@ -80,6 +68,7 @@ final class AwsIdentityDocUtils {
         }
       }
     }
+    return Collections.emptyMap();
   }
 
   /** quick http client that allows no-dependency try at getting instance data. */
@@ -123,14 +112,31 @@ final class AwsIdentityDocUtils {
     return map;
   }
 
-  @javax.annotation.Nullable
-  static String getValueFromAwsIdentityDocument(String key) {
-    synchronized (monitor) {
-      if (awsEnvVarMap == null) {
-        return null;
-      }
-      return awsEnvVarMap.get(key);
+  private static String getValueFromAwsIdentityDocument(String key) {
+    if (awsEnvVarMap == null) {
+      return "";
     }
+    return firstNonNull(awsEnvVarMap.get(key), "");
+  }
+
+  static String getAccountId() {
+    return getValueFromAwsIdentityDocument("accountId");
+  }
+
+  static String getRegion() {
+    return getValueFromAwsIdentityDocument("region");
+  }
+
+  static String getAvailabilityZone() {
+    return getValueFromAwsIdentityDocument("availabilityZone");
+  }
+
+  static String getInstanceId() {
+    return getValueFromAwsIdentityDocument("instanceId");
+  }
+
+  static String getMachineType() {
+    return getValueFromAwsIdentityDocument("instanceType");
   }
 
   private AwsIdentityDocUtils() {}

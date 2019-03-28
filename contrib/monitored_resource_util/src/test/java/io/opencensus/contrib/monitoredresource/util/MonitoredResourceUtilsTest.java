@@ -18,9 +18,9 @@ package io.opencensus.contrib.monitoredresource.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.contrib.resource.util.AwsEc2InstanceResource;
-import io.opencensus.contrib.resource.util.GcpGceInstanceResource;
-import io.opencensus.contrib.resource.util.K8sContainerResource;
+import io.opencensus.contrib.resource.util.CloudResource;
+import io.opencensus.contrib.resource.util.ContainerResource;
+import io.opencensus.contrib.resource.util.HostResource;
 import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.resource.Resource;
 import org.junit.Test;
@@ -40,11 +40,16 @@ public class MonitoredResourceUtilsTest {
       assertThat(monitoredResource).isNull();
       return;
     }
-    if (resourceType.equals(K8sContainerResource.TYPE)) {
+    assertThat(monitoredResource).isNotNull();
+    if (resourceType.equals(ContainerResource.TYPE)) {
       assertThat(monitoredResource.getResourceType()).isEqualTo(ResourceType.GCP_GKE_CONTAINER);
-    } else if (resourceType.equals(GcpGceInstanceResource.TYPE)) {
+    } else if (resourceType.equals(HostResource.TYPE)
+        && CloudResource.PROVIDER_GCP.equals(
+            resource.getLabels().get(CloudResource.PROVIDER_KEY))) {
       assertThat(monitoredResource.getResourceType()).isEqualTo(ResourceType.GCP_GCE_INSTANCE);
-    } else if (resourceType.equals(AwsEc2InstanceResource.TYPE)) {
+    } else if (resourceType.equals(HostResource.TYPE)
+        && CloudResource.PROVIDER_GCP.equals(
+            resource.getLabels().get(CloudResource.PROVIDER_KEY))) {
       assertThat(monitoredResource.getResourceType()).isEqualTo(ResourceType.AWS_EC2_INSTANCE);
     } else {
       assertThat(monitoredResource).isNull();
