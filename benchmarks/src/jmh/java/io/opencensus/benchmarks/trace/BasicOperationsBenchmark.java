@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, OpenCensus Authors
+ * Copyright 2019, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,23 @@
 /*
  * ./gradlew --no-daemon -PjmhIncludeSingleClass=BasicOperationsBenchmark clean :opencensus-benchmarks:jmh
  *
- * Benchmark                                              (implementation)  (recorded)  (sampled)  Mode  Cnt      Score       Error  Units
- * BasicOperationsBenchmark.createRootSpan                            impl        true       true  avgt   10   3953.535 ±  4093.254  ns/op
- * BasicOperationsBenchmark.createRootSpan                            impl        true      false  avgt   10    440.787 ±    12.625  ns/op
- * BasicOperationsBenchmark.createRootSpan                            impl       false       true  avgt   10   2204.395 ±   859.481  ns/op
- * BasicOperationsBenchmark.createRootSpan                            impl       false      false  avgt   10     38.682 ±     1.279  ns/op
- * BasicOperationsBenchmark.createSpanWithCurrentSpan                 impl        true       true  avgt   10   7110.834 ± 21847.359  ns/op
- * BasicOperationsBenchmark.createSpanWithCurrentSpan                 impl        true      false  avgt   10    435.371 ±    12.737  ns/op
- * BasicOperationsBenchmark.createSpanWithCurrentSpan                 impl       false       true  avgt   10   2596.745 ±  2114.754  ns/op
- * BasicOperationsBenchmark.createSpanWithCurrentSpan                 impl       false      false  avgt   10     45.818 ±     1.667  ns/op
- * BasicOperationsBenchmark.createSpanWithExplicitParent              impl        true       true  avgt   10  10381.251 ± 37198.355  ns/op
- * BasicOperationsBenchmark.createSpanWithExplicitParent              impl        true      false  avgt   10    443.697 ±    14.675  ns/op
- * BasicOperationsBenchmark.createSpanWithExplicitParent              impl       false       true  avgt   10   6376.731 ± 18736.403  ns/op
- * BasicOperationsBenchmark.createSpanWithExplicitParent              impl       false      false  avgt   10     40.152 ±     0.810  ns/op
- * BasicOperationsBenchmark.createSpanWithRemoteParent                impl        true       true  avgt   10   2604.721 ±  2778.348  ns/op
- * BasicOperationsBenchmark.createSpanWithRemoteParent                impl        true      false  avgt   10    442.076 ±    10.171  ns/op
- * BasicOperationsBenchmark.createSpanWithRemoteParent                impl       false       true  avgt   10   2262.443 ±  1206.583  ns/op
- * BasicOperationsBenchmark.createSpanWithRemoteParent                impl       false      false  avgt   10     39.317 ±     1.044  ns/op
+ * Benchmark                     (recorded)  (sampled)       Score     Error
+ * createRootSpan                      true       true    3953.535  4093.254
+ * createRootSpan                      true      false     440.787    12.625
+ * createRootSpan                     false       true    2204.395   859.481
+ * createRootSpan                     false      false      38.682     1.279
+ * createSpanWithCurrentSpan           true       true    7110.834 21847.359
+ * createSpanWithCurrentSpan           true      false     435.371    12.737
+ * createSpanWithCurrentSpan          false       true    2596.745  2114.754
+ * createSpanWithCurrentSpan          false      false      45.818     1.667
+ * createSpanWithExplicitParent        true       true   10381.251 37198.355
+ * createSpanWithExplicitParent        true      false     443.697    14.675
+ * createSpanWithExplicitParent       false       true    6376.731 18736.403
+ * createSpanWithExplicitParent       false      false      40.152     0.810
+ * createSpanWithRemoteParent          true       true    2604.721  2778.348
+ * createSpanWithRemoteParent          true      false     442.076    10.171
+ * createSpanWithRemoteParent         false       true    2262.443  1206.583
+ * createSpanWithRemoteParent         false      false      39.317     1.044
  */
 
 package io.opencensus.benchmarks.trace;
