@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, OpenCensus Authors
+ * Copyright 2019, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package io.opencensus.metrics;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.internal.Utils;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
@@ -64,7 +66,7 @@ public abstract class MetricOptions {
    *
    * <p>Default value is {@link Collections#emptyMap()}.
    *
-   * @return the list of label keys for the Metric.
+   * @return the map of constant labels for the Metric.
    */
   // TODO: add support for this and make it public.
   abstract Map<LabelKey, LabelValue> getConstantLabels();
@@ -73,7 +75,7 @@ public abstract class MetricOptions {
    * Returns a new {@link Builder} with default options.
    *
    * @return a new {@code Builder} with default options.
-   * @since 0.5
+   * @since 0.20.0
    */
   public static Builder builder() {
     return new AutoValue_MetricOptions.Builder()
@@ -113,11 +115,15 @@ public abstract class MetricOptions {
     /**
      * Sets the map of constant labels (they will be added to all the TimeSeries) for the Metric.
      *
-     * @param constantLabels the map of constant labels
+     * @param constantLabels the map of constant labels for the Metric.
      * @return this.
      */
     // TODO: add support for this and make it public.
     abstract Builder setConstantLabels(Map<LabelKey, LabelValue> constantLabels);
+
+    abstract Map<LabelKey, LabelValue> getConstantLabels();
+
+    abstract List<LabelKey> getLabelKeys();
 
     abstract MetricOptions autoBuild();
 
@@ -133,14 +139,13 @@ public abstract class MetricOptions {
      *     {@code constantLabels}.
      */
     public MetricOptions build() {
+      setLabelKeys(Collections.unmodifiableList(new ArrayList<LabelKey>(getLabelKeys())));
+      setConstantLabels(
+          Collections.unmodifiableMap(
+              new LinkedHashMap<LabelKey, LabelValue>(getConstantLabels())));
       MetricOptions options = autoBuild();
-      Utils.checkNotNull(options.getDescription(), "description");
-      Utils.checkNotNull(options.getUnit(), "unit");
-      Utils.checkListElementNotNull(
-          Utils.checkNotNull(options.getLabelKeys(), "labelKeys"), "labelKeys elements");
-      Utils.checkMapElementNotNull(
-          Utils.checkNotNull(options.getConstantLabels(), "constantLabels"),
-          "constantLabels elements");
+      Utils.checkListElementNotNull(options.getLabelKeys(), "labelKeys elements");
+      Utils.checkMapElementNotNull(options.getConstantLabels(), "constantLabels elements");
       Map<LabelKey, LabelValue> constantLabels = options.getConstantLabels();
       for (LabelKey labelKey : options.getLabelKeys()) {
         if (constantLabels.containsKey(labelKey)) {
