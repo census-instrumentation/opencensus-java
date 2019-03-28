@@ -27,7 +27,7 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
-/** Benchmarks for {@link io.opencensus.trace.TagContextBuilder} */
+/** Benchmarks for {@link io.opencensus.trace.TagContextBuilder}. */
 public class NestedTagContextCreationBenchmark {
 
   @State(org.openjdk.jmh.annotations.Scope.Benchmark)
@@ -51,6 +51,7 @@ public class NestedTagContextCreationBenchmark {
     }
   }
 
+  /** Build nested tag context. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)

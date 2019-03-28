@@ -61,6 +61,7 @@ public class TagContextBenchmark {
     }
   }
 
+  /** Create a tag context. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -68,6 +69,7 @@ public class TagContextBenchmark {
     return TagsBenchmarksUtil.createTagContext(data.tagger.emptyBuilder(), data.numTags);
   }
 
+  /** Open and close a tag context scope. */
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Scope scopeTagContext(Data data) {
@@ -76,6 +78,7 @@ public class TagContextBenchmark {
     return scope;
   }
 
+  /** Get the current tag context. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -83,6 +86,7 @@ public class TagContextBenchmark {
     return data.tagger.getCurrentTagContext();
   }
 
+  /** Serialize a tag context. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -90,6 +94,7 @@ public class TagContextBenchmark {
     return data.serializer.toByteArray(data.tagContext);
   }
 
+  /** Deserialize a tag context. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)

@@ -16,6 +16,7 @@
 
 package io.opencensus.benchmarks.tags;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.impllite.tags.TagsComponentImplLite;
 import io.opencensus.tags.TagContext;
@@ -33,6 +34,8 @@ public final class TagsBenchmarksUtil {
   public static final TagKey[] TAG_KEYS = createTagKeys(16, "key");
   public static final TagValue[] TAG_VALUES = createTagValues(16, "val");
 
+  /** Gets the {@link Tagger} for the specified 'implementation'. */
+  @VisibleForTesting
   public static Tagger getTagger(String implementation) {
     if (implementation.equals("impl")) {
       // We can return the global tracer here because if impl is linked the global tracer will be
@@ -47,6 +50,8 @@ public final class TagsBenchmarksUtil {
     }
   }
 
+  /** Gets the {@link TagContextBinarySerializer} for the specified 'implementation'. */
+  @VisibleForTesting
   public static TagContextBinarySerializer getTagContextBinarySerializer(String implementation) {
     if (implementation.equals("impl")) {
       // We can return the global tracer here because if impl is linked the global tracer will be
@@ -61,6 +66,8 @@ public final class TagsBenchmarksUtil {
     }
   }
 
+  /** Creates an array of TagKeys of 'size' with 'name' prefix. */
+  @VisibleForTesting
   public static TagKey[] createTagKeys(int size, String name) {
     TagKey[] keys = new TagKey[size];
     for (int i = 0; i < size; i++) {
@@ -69,6 +76,8 @@ public final class TagsBenchmarksUtil {
     return keys;
   }
 
+  /** Creates an array of TagValues of 'size' with 'name' prefix. */
+  @VisibleForTesting
   public static TagValue[] createTagValues(int size, String name) {
     TagValue[] values = new TagValue[size];
     for (int i = 0; i < size; i++) {
@@ -77,6 +86,8 @@ public final class TagsBenchmarksUtil {
     return values;
   }
 
+  /** Adds 'numTags' tags to 'tagsBuilder' and returns the associated tag context. */
+  @VisibleForTesting
   public static TagContext createTagContext(TagContextBuilder tagsBuilder, int numTags) {
     for (int i = 0; i < numTags; i++) {
       tagsBuilder.put(TAG_KEYS[i], TAG_VALUES[i]);
