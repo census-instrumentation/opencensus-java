@@ -18,6 +18,7 @@ package io.opencensus.metrics;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,16 @@ public class MetricOptionsTest {
   }
 
   @Test
+  public void sameLabelKeyInLabelsKey() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Invalid LabelKey in labelKeys");
+    MetricOptions.builder()
+        .setLabelKeys(Arrays.asList(LABEL_KEY, LABEL_KEY))
+        .setConstantLabels(Collections.singletonMap(LABEL_KEY, LABEL_VALUE))
+        .build();
+  }
+
+  @Test
   public void nullConstantLabels() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("constantLabels");
@@ -95,7 +106,7 @@ public class MetricOptionsTest {
   @Test
   public void sameLabelKeyInConstantLabelsAndLabelsKey() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("LabelKey in both labelKeys and constantLabels");
+    thrown.expectMessage("Invalid LabelKey in constantLabels");
     MetricOptions.builder()
         .setLabelKeys(LABEL_KEYS)
         .setConstantLabels(Collections.singletonMap(LABEL_KEY, LABEL_VALUE))

@@ -20,6 +20,7 @@ import com.google.auto.value.AutoValue;
 import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,11 +147,19 @@ public abstract class MetricOptions {
       MetricOptions options = autoBuild();
       Utils.checkListElementNotNull(options.getLabelKeys(), "labelKeys elements");
       Utils.checkMapElementNotNull(options.getConstantLabels(), "constantLabels elements");
-      Map<LabelKey, LabelValue> constantLabels = options.getConstantLabels();
+
+      HashSet<String> labelKeyNamesMap = new HashSet<String>();
       for (LabelKey labelKey : options.getLabelKeys()) {
-        if (constantLabels.containsKey(labelKey)) {
-          throw new IllegalArgumentException("LabelKey in both labelKeys and constantLabels");
+        if (labelKeyNamesMap.contains(labelKey.getKey())) {
+          throw new IllegalArgumentException("Invalid LabelKey in labelKeys");
         }
+        labelKeyNamesMap.add(labelKey.getKey());
+      }
+      for (Map.Entry<LabelKey, LabelValue> constantLabel : options.getConstantLabels().entrySet()) {
+        if (labelKeyNamesMap.contains(constantLabel.getKey().getKey())) {
+          throw new IllegalArgumentException("Invalid LabelKey in constantLabels");
+        }
+        labelKeyNamesMap.add(constantLabel.getKey().getKey());
       }
       return options;
     }
