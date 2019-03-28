@@ -65,6 +65,7 @@ public class RecordBatchedBenchmark {
     }
   }
 
+  /** Record batched double count measures. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -77,6 +78,7 @@ public class RecordBatchedBenchmark {
     return map;
   }
 
+  /** Record batched long count measures. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -89,6 +91,7 @@ public class RecordBatchedBenchmark {
     return map;
   }
 
+  /** Record batched double sum measures. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -101,6 +104,7 @@ public class RecordBatchedBenchmark {
     return map;
   }
 
+  /** Record batched long sum measures. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -113,6 +117,7 @@ public class RecordBatchedBenchmark {
     return map;
   }
 
+  /** Record batched double distribution measures. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -125,6 +130,7 @@ public class RecordBatchedBenchmark {
     return map;
   }
 
+  /** Record batched ling distribution measures. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -137,6 +143,7 @@ public class RecordBatchedBenchmark {
     return map;
   }
 
+  /** Record batched double last value measures. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -149,6 +156,7 @@ public class RecordBatchedBenchmark {
     return map;
   }
 
+  /** Record batched long last value measures. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
