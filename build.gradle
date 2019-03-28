@@ -50,7 +50,7 @@ subprojects {
     }
 
     group = "io.opencensus"
-    version = "0.20.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
+    version = "0.20.1-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
     sourceCompatibility = 1.7
     targetCompatibility = 1.7

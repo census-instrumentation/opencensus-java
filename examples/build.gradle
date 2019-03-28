@@ -31,7 +31,7 @@ repositories {
 }
 
 group = "io.opencensus"
-version = "0.20.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
+version = "0.20.1-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
 def opencensusVersion = "0.19.2" // LATEST_OPENCENSUS_RELEASE_VERSION
 def grpcVersion = "1.19.0" // CURRENT_GRPC_VERSION
