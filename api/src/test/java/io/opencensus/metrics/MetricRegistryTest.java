@@ -37,10 +37,16 @@ public class MetricRegistryTest {
   private static final String NAME_4 = "test_name4";
   private static final String DESCRIPTION = "test_description";
   private static final String UNIT = "1";
-  private static final List<LabelKey> LABEL_KEY =
-      Collections.singletonList(LabelKey.create("test_key", "test key description"));
-  private static final List<LabelValue> LABEL_VALUES =
-      Collections.singletonList(LabelValue.create("test_value"));
+  private static final LabelKey LABEL_KEY = LabelKey.create("test_key", "test key description");
+  private static final List<LabelKey> LABEL_KEYS = Collections.singletonList(LABEL_KEY);
+  private static final LabelValue LABEL_VALUE = LabelValue.create("test_value");
+  private static final List<LabelValue> LABEL_VALUES = Collections.singletonList(LABEL_VALUE);
+  private static final MetricOptions METRIC_OPTIONS =
+      MetricOptions.builder()
+          .setDescription(DESCRIPTION)
+          .setUnit(UNIT)
+          .setLabelKeys(LABEL_KEYS)
+          .build();
   private final MetricRegistry metricRegistry =
       MetricsComponent.newNoopMetricsComponent().getMetricRegistry();
 
@@ -48,154 +54,38 @@ public class MetricRegistryTest {
   public void noopAddLongGauge_NullName() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("name");
-    metricRegistry.addLongGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddLongGauge_NullDescription() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("description");
-    metricRegistry.addLongGauge(NAME, null, UNIT, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddLongGauge_NullUnit() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("unit");
-    metricRegistry.addLongGauge(NAME, DESCRIPTION, null, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddLongGauge_NullLabels() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKeys");
-    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, null);
-  }
-
-  @Test
-  public void noopAddLongGauge_WithNullElement() {
-    List<LabelKey> labelKeys = Collections.singletonList(null);
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKey");
-    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
+    metricRegistry.addLongGauge(null, METRIC_OPTIONS);
   }
 
   @Test
   public void noopAddDoubleGauge_NullName() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("name");
-    metricRegistry.addDoubleGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddDoubleGauge_NullDescription() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("description");
-    metricRegistry.addDoubleGauge(NAME_2, null, UNIT, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddDoubleGauge_NullUnit() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("unit");
-    metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, null, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddDoubleGauge_NullLabels() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKeys");
-    metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, null);
-  }
-
-  @Test
-  public void noopAddDoubleGauge_WithNullElement() {
-    List<LabelKey> labelKeys = Collections.singletonList(null);
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKey");
-    metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, labelKeys);
+    metricRegistry.addDoubleGauge(null, METRIC_OPTIONS);
   }
 
   @Test
   public void noopAddDerivedLongGauge_NullName() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("name");
-    metricRegistry.addDerivedLongGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddDerivedLongGauge_NullDescription() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("description");
-    metricRegistry.addDerivedLongGauge(NAME_3, null, UNIT, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddDerivedLongGauge_NullUnit() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("unit");
-    metricRegistry.addDerivedLongGauge(NAME_3, DESCRIPTION, null, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddDerivedLongGauge_NullLabels() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKeys");
-    metricRegistry.addDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, null);
-  }
-
-  @Test
-  public void noopAddDerivedLongGauge_WithNullElement() {
-    List<LabelKey> labelKeys = Collections.singletonList(null);
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKey");
-    metricRegistry.addDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, labelKeys);
+    metricRegistry.addDerivedLongGauge(null, METRIC_OPTIONS);
   }
 
   @Test
   public void noopAddDerivedDoubleGauge_NullName() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("name");
-    metricRegistry.addDerivedDoubleGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddDerivedDoubleGauge_NullDescription() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("description");
-    metricRegistry.addDerivedDoubleGauge(NAME_4, null, UNIT, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddDerivedDoubleGauge_NullUnit() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("unit");
-    metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, null, LABEL_KEY);
-  }
-
-  @Test
-  public void noopAddDerivedDoubleGauge_NullLabels() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKeys");
-    metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, null);
-  }
-
-  @Test
-  public void noopAddDerivedDoubleGauge_WithNullElement() {
-    List<LabelKey> labelKeys = Collections.singletonList(null);
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKey");
-    metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, labelKeys);
+    metricRegistry.addDerivedDoubleGauge(null, METRIC_OPTIONS);
   }
 
   @Test
   public void noopSameAs() {
-    LongGauge longGauge = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    LongGauge longGauge = metricRegistry.addLongGauge(NAME, METRIC_OPTIONS);
     assertThat(longGauge.getDefaultTimeSeries()).isSameAs(longGauge.getDefaultTimeSeries());
     assertThat(longGauge.getDefaultTimeSeries())
         .isSameAs(longGauge.getOrCreateTimeSeries(LABEL_VALUES));
 
-    DoubleGauge doubleGauge = metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, LABEL_KEY);
+    DoubleGauge doubleGauge = metricRegistry.addDoubleGauge(NAME_2, METRIC_OPTIONS);
     assertThat(doubleGauge.getDefaultTimeSeries()).isSameAs(doubleGauge.getDefaultTimeSeries());
     assertThat(doubleGauge.getDefaultTimeSeries())
         .isSameAs(doubleGauge.getOrCreateTimeSeries(LABEL_VALUES));
@@ -203,18 +93,18 @@ public class MetricRegistryTest {
 
   @Test
   public void noopInstanceOf() {
-    assertThat(metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY))
-        .isInstanceOf(LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY).getClass());
-    assertThat(metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, LABEL_KEY))
+    assertThat(metricRegistry.addLongGauge(NAME, METRIC_OPTIONS))
+        .isInstanceOf(LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS).getClass());
+    assertThat(metricRegistry.addDoubleGauge(NAME_2, METRIC_OPTIONS))
         .isInstanceOf(
-            DoubleGauge.newNoopDoubleGauge(NAME_2, DESCRIPTION, UNIT, LABEL_KEY).getClass());
-    assertThat(metricRegistry.addDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, LABEL_KEY))
+            DoubleGauge.newNoopDoubleGauge(NAME_2, DESCRIPTION, UNIT, LABEL_KEYS).getClass());
+    assertThat(metricRegistry.addDerivedLongGauge(NAME_3, METRIC_OPTIONS))
         .isInstanceOf(
-            DerivedLongGauge.newNoopDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, LABEL_KEY)
+            DerivedLongGauge.newNoopDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, LABEL_KEYS)
                 .getClass());
-    assertThat(metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, LABEL_KEY))
+    assertThat(metricRegistry.addDerivedDoubleGauge(NAME_4, METRIC_OPTIONS))
         .isInstanceOf(
-            DerivedDoubleGauge.newNoopDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, LABEL_KEY)
+            DerivedDoubleGauge.newNoopDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, LABEL_KEYS)
                 .getClass());
   }
 }

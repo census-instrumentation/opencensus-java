@@ -19,12 +19,11 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
-import io.opencensus.implcore.internal.Utils;
 import io.opencensus.metrics.DerivedDoubleGauge;
 import io.opencensus.metrics.DerivedLongGauge;
 import io.opencensus.metrics.DoubleGauge;
-import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LongGauge;
+import io.opencensus.metrics.MetricOptions;
 import io.opencensus.metrics.MetricRegistry;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricProducer;
@@ -46,57 +45,49 @@ public final class MetricRegistryImpl extends MetricRegistry {
   }
 
   @Override
-  public LongGauge addLongGauge(
-      String name, String description, String unit, List<LabelKey> labelKeys) {
-    Utils.checkListElementNotNull(checkNotNull(labelKeys, "labelKeys"), "labelKey");
+  public LongGauge addLongGauge(String name, MetricOptions options) {
     LongGaugeImpl longGaugeMetric =
         new LongGaugeImpl(
             checkNotNull(name, "name"),
-            checkNotNull(description, "description"),
-            checkNotNull(unit, "unit"),
-            Collections.unmodifiableList(new ArrayList<LabelKey>(labelKeys)));
+            options.getDescription(),
+            options.getUnit(),
+            options.getLabelKeys());
     registeredMeters.registerMeter(name, longGaugeMetric);
     return longGaugeMetric;
   }
 
   @Override
-  public DoubleGauge addDoubleGauge(
-      String name, String description, String unit, List<LabelKey> labelKeys) {
-    Utils.checkListElementNotNull(checkNotNull(labelKeys, "labelKeys"), "labelKey");
+  public DoubleGauge addDoubleGauge(String name, MetricOptions options) {
     DoubleGaugeImpl doubleGaugeMetric =
         new DoubleGaugeImpl(
             checkNotNull(name, "name"),
-            checkNotNull(description, "description"),
-            checkNotNull(unit, "unit"),
-            Collections.unmodifiableList(new ArrayList<LabelKey>(labelKeys)));
+            options.getDescription(),
+            options.getUnit(),
+            options.getLabelKeys());
     registeredMeters.registerMeter(name, doubleGaugeMetric);
     return doubleGaugeMetric;
   }
 
   @Override
-  public DerivedLongGauge addDerivedLongGauge(
-      String name, String description, String unit, List<LabelKey> labelKeys) {
-    Utils.checkListElementNotNull(checkNotNull(labelKeys, "labelKeys"), "labelKey");
+  public DerivedLongGauge addDerivedLongGauge(String name, MetricOptions options) {
     DerivedLongGaugeImpl derivedLongGauge =
         new DerivedLongGaugeImpl(
             checkNotNull(name, "name"),
-            checkNotNull(description, "description"),
-            checkNotNull(unit, "unit"),
-            Collections.unmodifiableList(new ArrayList<LabelKey>(labelKeys)));
+            options.getDescription(),
+            options.getUnit(),
+            options.getLabelKeys());
     registeredMeters.registerMeter(name, derivedLongGauge);
     return derivedLongGauge;
   }
 
   @Override
-  public DerivedDoubleGauge addDerivedDoubleGauge(
-      String name, String description, String unit, List<LabelKey> labelKeys) {
-    Utils.checkListElementNotNull(checkNotNull(labelKeys, "labelKeys"), "labelKey");
+  public DerivedDoubleGauge addDerivedDoubleGauge(String name, MetricOptions options) {
     DerivedDoubleGaugeImpl derivedDoubleGauge =
         new DerivedDoubleGaugeImpl(
             checkNotNull(name, "name"),
-            checkNotNull(description, "description"),
-            checkNotNull(unit, "unit"),
-            Collections.unmodifiableList(new ArrayList<LabelKey>(labelKeys)));
+            options.getDescription(),
+            options.getUnit(),
+            options.getLabelKeys());
     registeredMeters.registerMeter(name, derivedDoubleGauge);
     return derivedDoubleGauge;
   }
