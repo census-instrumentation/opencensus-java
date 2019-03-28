@@ -98,7 +98,7 @@ public class BasicDataBenchmark {
     return attributeMap;
   }
 
-  /** Create an Annotation */
+  /** Create an Annotation. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)

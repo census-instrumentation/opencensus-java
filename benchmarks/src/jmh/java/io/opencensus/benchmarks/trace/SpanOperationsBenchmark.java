@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-/*
- * ./gradlew --no-daemon -PjmhIncludeSingleClass=SpanOperationsBenchmark clean :opencensus-benchmarks:jmh
- */
-
 package io.opencensus.benchmarks.trace;
 
 import io.opencensus.trace.Annotation;
@@ -168,7 +164,7 @@ public class SpanOperationsBenchmark {
     return span;
   }
 
-  /** Add an annotation as description only */
+  /** Add an annotation as description only. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -178,7 +174,7 @@ public class SpanOperationsBenchmark {
     return span;
   }
 
-  /** Add an annotation with attributes */
+  /** Add an annotation with attributes. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -188,7 +184,7 @@ public class SpanOperationsBenchmark {
     return span;
   }
 
-  /** Add an annotation with an annotation */
+  /** Add an annotation with an annotation. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -200,7 +196,7 @@ public class SpanOperationsBenchmark {
     return span;
   }
 
-  /** Add network events */
+  /** Add network events. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -212,7 +208,7 @@ public class SpanOperationsBenchmark {
     return span;
   }
 
-  /** Add links */
+  /** Add links. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -224,7 +220,7 @@ public class SpanOperationsBenchmark {
     return span;
   }
 
-  /** Set status on spans */
+  /** Set status on spans. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -235,7 +231,7 @@ public class SpanOperationsBenchmark {
     return data.setSpans;
   }
 
-  /** End spans */
+  /** End spans. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
