@@ -51,13 +51,13 @@ dependencies {
             "io.opencensus:opencensus-contrib-http-util:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-http-servlet:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-http-jetty-client:${opencensusVersion}",
-            // "io.opencensus:opencensus-exporter-metrics-ocagent:${opencensusVersion}",
+            "io.opencensus:opencensus-exporter-metrics-ocagent:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-stats-prometheus:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-stats-stackdriver:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-trace-jaeger:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-trace-stackdriver:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-trace-logging:${opencensusVersion}",
-            // "io.opencensus:opencensus-exporter-trace-ocagent:${opencensusVersion}",
+            "io.opencensus:opencensus-exporter-trace-ocagent:${opencensusVersion}",
             "io.grpc:grpc-protobuf:${grpcVersion}",
             "io.grpc:grpc-stub:${grpcVersion}",
             "io.grpc:grpc-netty-shaded:${grpcVersion}",
@@ -105,7 +105,6 @@ sourceSets {
     main {
         java {
             srcDir 'src'
-            exclude { FileTreeElement e -> e.path.contains('ocagent/') }
             srcDirs 'build/generated/source/proto/main/grpc'
             srcDirs 'build/generated/source/proto/main/java'
         }
@@ -240,13 +239,12 @@ task httpJettyClient(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
 }
 
-// TODO(songy23): uncomment this when Agent exporters are released.
-//task ocAgentExportersQuickStart(type: CreateStartScripts) {
-//    mainClassName = 'io.opencensus.examples.ocagent.OcAgentExportersQuickStart'
-//    applicationName = 'OcAgentExportersQuickStart'
-//    outputDir = new File(project.buildDir, 'tmp')
-//    classpath = jar.outputs.files + project.configurations.runtime
-//}
+task ocAgentExportersQuickStart(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.ocagent.OcAgentExportersQuickStart'
+    applicationName = 'OcAgentExportersQuickStart'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
 
 
 applicationDistribution.into('bin') {
@@ -266,6 +264,6 @@ applicationDistribution.into('bin') {
     from(longGaugeQuickstart)
     from(httpJettyServer)
     from(httpJettyClient)
-    // from(ocAgentExportersQuickStart)
+    from(ocAgentExportersQuickStart)
     fileMode = 0755
 }
