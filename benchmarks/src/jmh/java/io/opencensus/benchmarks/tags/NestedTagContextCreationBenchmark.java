@@ -16,8 +16,8 @@
 
 package io.opencensus.benchmarks.tags;
 
-import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.Tagger;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -55,6 +55,7 @@ public class NestedTagContextCreationBenchmark {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public TagContext timeNestedTagContext(Data data) {
-    return TagsBenchmarksUtil.createTagContext(data.tagger.toBuilder(data.baseTagContext), data.numTags);
+    return TagsBenchmarksUtil.createTagContext(
+        data.tagger.toBuilder(data.baseTagContext), data.numTags);
   }
 }

@@ -22,9 +22,9 @@ import io.opencensus.stats.Measure;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.stats.ViewManager;
-import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
+import io.opencensus.tags.Tagger;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -58,49 +58,57 @@ public class RecordMultipleViewsBenchmark {
 
       for (int i = 0; i < numViews; i++) {
         // count
-        manager.registerView(StatsBenchmarksUtil.createView(
-            "DC" + i,
-            StatsBenchmarksUtil.DOUBLE_COUNT_MEASURES[0],
-            Aggregation.Count.create(),
-            TagsBenchmarksUtil.TAG_KEYS[i]));
-        manager.registerView(StatsBenchmarksUtil.createView(
-            "LC" + i,
-            StatsBenchmarksUtil.LONG_COUNT_MEASURES[0],
-            Aggregation.Count.create(),
-            TagsBenchmarksUtil.TAG_KEYS[i]));
+        manager.registerView(
+            StatsBenchmarksUtil.createView(
+                "DC" + i,
+                StatsBenchmarksUtil.DOUBLE_COUNT_MEASURES[0],
+                Aggregation.Count.create(),
+                TagsBenchmarksUtil.TAG_KEYS[i]));
+        manager.registerView(
+            StatsBenchmarksUtil.createView(
+                "LC" + i,
+                StatsBenchmarksUtil.LONG_COUNT_MEASURES[0],
+                Aggregation.Count.create(),
+                TagsBenchmarksUtil.TAG_KEYS[i]));
         // sum
-        manager.registerView(StatsBenchmarksUtil.createView(
-            "DS" + i,
-            StatsBenchmarksUtil.DOUBLE_SUM_MEASURES[0],
-            Aggregation.Sum.create(),
-            TagsBenchmarksUtil.TAG_KEYS[i]));
-        manager.registerView(StatsBenchmarksUtil.createView(
-            "LS" + i,
-            StatsBenchmarksUtil.LONG_SUM_MEASURES[0],
-            Aggregation.Sum.create(),
-            TagsBenchmarksUtil.TAG_KEYS[i]));
+        manager.registerView(
+            StatsBenchmarksUtil.createView(
+                "DS" + i,
+                StatsBenchmarksUtil.DOUBLE_SUM_MEASURES[0],
+                Aggregation.Sum.create(),
+                TagsBenchmarksUtil.TAG_KEYS[i]));
+        manager.registerView(
+            StatsBenchmarksUtil.createView(
+                "LS" + i,
+                StatsBenchmarksUtil.LONG_SUM_MEASURES[0],
+                Aggregation.Sum.create(),
+                TagsBenchmarksUtil.TAG_KEYS[i]));
         // distribution
-        manager.registerView(StatsBenchmarksUtil.createView(
-            "DD" + i,
-            StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[0],
-            StatsBenchmarksUtil.DISTRIBUTION,
-            TagsBenchmarksUtil.TAG_KEYS[i]));
-        manager.registerView(StatsBenchmarksUtil.createView(
-            "LD" + i,
-            StatsBenchmarksUtil.LONG_DISTRIBUTION_MEASURES[0],
-            StatsBenchmarksUtil.DISTRIBUTION,
-            TagsBenchmarksUtil.TAG_KEYS[i]));
+        manager.registerView(
+            StatsBenchmarksUtil.createView(
+                "DD" + i,
+                StatsBenchmarksUtil.DOUBLE_DISTRIBUTION_MEASURES[0],
+                StatsBenchmarksUtil.DISTRIBUTION,
+                TagsBenchmarksUtil.TAG_KEYS[i]));
+        manager.registerView(
+            StatsBenchmarksUtil.createView(
+                "LD" + i,
+                StatsBenchmarksUtil.LONG_DISTRIBUTION_MEASURES[0],
+                StatsBenchmarksUtil.DISTRIBUTION,
+                TagsBenchmarksUtil.TAG_KEYS[i]));
         // last value
-        manager.registerView(StatsBenchmarksUtil.createView(
-            "DL" + i,
-            StatsBenchmarksUtil.DOUBLE_LASTVALUE_MEASURES[0],
-            Aggregation.LastValue.create(),
-            TagsBenchmarksUtil.TAG_KEYS[i]));
-        manager.registerView(StatsBenchmarksUtil.createView(
-            "LL" + i,
-            StatsBenchmarksUtil.LONG_LASTVALUE_MEASURES[0],
-            Aggregation.LastValue.create(),
-            TagsBenchmarksUtil.TAG_KEYS[i]));
+        manager.registerView(
+            StatsBenchmarksUtil.createView(
+                "DL" + i,
+                StatsBenchmarksUtil.DOUBLE_LASTVALUE_MEASURES[0],
+                Aggregation.LastValue.create(),
+                TagsBenchmarksUtil.TAG_KEYS[i]));
+        manager.registerView(
+            StatsBenchmarksUtil.createView(
+                "LL" + i,
+                StatsBenchmarksUtil.LONG_LASTVALUE_MEASURES[0],
+                Aggregation.LastValue.create(),
+                TagsBenchmarksUtil.TAG_KEYS[i]));
       }
     }
 
