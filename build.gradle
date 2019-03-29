@@ -431,7 +431,6 @@ subprojects {
                  'opencensus-contrib-http-util',
                  'opencensus-contrib-log-correlation-log4j2',
                  'opencensus-contrib-log-correlation-stackdriver',
-                 'opencensus-contrib-monitored-resource-util',
                  'opencensus-contrib-resource-util',
                  'opencensus-contrib-spring',
                  'opencensus-contrib-spring-sleuth-v1x',
