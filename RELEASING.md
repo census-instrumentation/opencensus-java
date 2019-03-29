@@ -213,7 +213,6 @@ $ README_FILES=(
   contrib/http_util/README.md
   contrib/log_correlation/log4j2/README.md
   contrib/log_correlation/stackdriver/README.md
-  contrib/monitored_resource_util/README.md
   contrib/spring/README.md
   contrib/spring_sleuth_v1x/README.md
   contrib/zpages/README.md
