@@ -16,6 +16,8 @@
 
 package io.opencensus.metrics.data;
 
+import static io.opencensus.internal.Utils.checkNotNull;
+
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Timestamp;
 import java.util.Collections;
@@ -23,10 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
-
-/*>>>
-import org.checkerframework.checker.nullness.qual.NonNull;
-*/
 
 /**
  * An example point that may be used to annotate aggregated distribution values, associated with a
@@ -83,14 +81,5 @@ public abstract class Exemplar {
       checkNotNull(entry.getValue(), "value of attachments");
     }
     return new AutoValue_Exemplar(value, timestamp, attachmentsCopy);
-  }
-
-  // TODO(songy23): shade the internal Utils jar and remove this duplicated method.
-  private static <T /*>>> extends @NonNull Object*/> T checkNotNull(
-      T arg, @javax.annotation.Nullable Object errorMessage) {
-    if (arg == null) {
-      throw new NullPointerException(String.valueOf(errorMessage));
-    }
-    return arg;
   }
 }
