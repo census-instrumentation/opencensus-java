@@ -11,6 +11,10 @@ dependencies {
     compile project(':opencensus-api'),
             project(':opencensus-contrib-resource-util'),
             libraries.google_auth,
+            libraries.grpc_auth,
+            libraries.grpc_core,
+            libraries.grpc_netty_shaded,
+            libraries.grpc_stub,
             libraries.guava
 
     compile (libraries.google_cloud_trace) {
@@ -19,6 +23,12 @@ dependencies {
 
         // Prefer library version.
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
+
+        // Prefer library version.
+        exclude group: 'io.grpc', module: 'grpc-auth'
+        exclude group: 'io.grpc', module: 'grpc-core'
+        exclude group: 'io.grpc', module: 'grpc-netty-shaded'
+        exclude group: 'io.grpc', module: 'grpc-stub'
 
         // We will always be more up to date.
         exclude group: 'io.opencensus', module: 'opencensus-api'
