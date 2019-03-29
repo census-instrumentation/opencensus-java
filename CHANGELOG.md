@@ -1,4 +1,6 @@
 ## Unreleased
+
+## 0.20.0 - 2019-03-28
 - Add OpenCensus Java OC-Agent Trace Exporter.
 - Add OpenCensus Java OC-Agent Metrics Exporter.
 - Add config option for Http-Servlet.
@@ -12,7 +14,7 @@ if you're using the `Exemplar` classes or APIs in the previous releases.
 - Add `TagMetadata` that defines the properties associated with a `Tag`.
 - Add `QueueMetricProducer` that supports pushing and buffering `Metric`s.
 
-# 0.19.0 - 2019-01-28
+## 0.19.0 - 2019-01-28
 - Add an artifact `opencensus-contrib-http-jetty-client` for instrumenting jetty http client. Add extractor for Jetty Client.
 - Add an artifact `opencensus-contrib-http-servlets` for instrumenting http servlets. Add extractor for Http Servlets.
 - Add support generic http server handler.
