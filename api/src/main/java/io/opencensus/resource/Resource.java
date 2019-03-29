@@ -27,11 +27,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
-/*>>>
-import org.checkerframework.checker.nullness.qual.Nullable;
-*/
 
 /**
  * {@link Resource} represents a resource, which capture identifying information about the entities
@@ -57,7 +54,7 @@ public abstract class Resource {
   private static final String ERROR_MESSAGE_INVALID_VALUE =
       " should be a ASCII string with a length not exceed " + MAX_LENGTH + " characters.";
 
-  @javax.annotation.Nullable
+  @Nullable
   private static final String ENV_TYPE = parseResourceType(System.getenv(OC_RESOURCE_TYPE_ENV));
 
   private static final Map<String, String> ENV_LABEL_MAP =
@@ -71,7 +68,7 @@ public abstract class Resource {
    * @return the type identifier for the resource.
    * @since 0.18
    */
-  @javax.annotation.Nullable
+  @Nullable
   public abstract String getType();
 
   /**
@@ -104,8 +101,7 @@ public abstract class Resource {
    *     ASCII string or exceed {@link #MAX_LENGTH} characters.
    * @since 0.18
    */
-  public static Resource create(
-      @javax.annotation.Nullable String type, Map<String, String> labels) {
+  public static Resource create(@Nullable String type, Map<String, String> labels) {
     return createInternal(
         type,
         Collections.unmodifiableMap(
@@ -120,7 +116,7 @@ public abstract class Resource {
    * @return a {@code Resource}.
    * @since 0.18
    */
-  @javax.annotation.Nullable
+  @Nullable
   public static Resource mergeResources(List<Resource> resources) {
     Resource currentResource = null;
     for (Resource resource : resources) {
@@ -129,8 +125,7 @@ public abstract class Resource {
     return currentResource;
   }
 
-  private static Resource createInternal(
-      @javax.annotation.Nullable String type, Map<String, String> labels) {
+  private static Resource createInternal(@Nullable String type, Map<String, String> labels) {
     return new AutoValue_Resource(type, labels);
   }
 
@@ -140,8 +135,8 @@ public abstract class Resource {
    * <p>OC_RESOURCE_TYPE: A string that describes the type of the resource prefixed by a domain
    * namespace, e.g. “kubernetes.io/container”.
    */
-  @javax.annotation.Nullable
-  static String parseResourceType(@javax.annotation.Nullable String rawEnvType) {
+  @Nullable
+  static String parseResourceType(@Nullable String rawEnvType) {
     if (rawEnvType != null && !rawEnvType.isEmpty()) {
       Utils.checkArgument(isValidAndNotEmpty(rawEnvType), "Type" + ERROR_MESSAGE_INVALID_CHARS);
       return rawEnvType.trim();
@@ -157,7 +152,7 @@ public abstract class Resource {
    * quoted or unquoted in general. If a value contains whitespaces, =, or " characters, it must
    * always be quoted.
    */
-  static Map<String, String> parseResourceLabels(@javax.annotation.Nullable String rawEnvLabels) {
+  static Map<String, String> parseResourceLabels(@Nullable String rawEnvLabels) {
     if (rawEnvLabels == null) {
       return Collections.<String, String>emptyMap();
     } else {
@@ -182,10 +177,8 @@ public abstract class Resource {
    * Returns a new, merged {@link Resource} by merging two resources. In case of a collision, first
    * resource takes precedence.
    */
-  @javax.annotation.Nullable
-  private static Resource merge(
-      @javax.annotation.Nullable Resource resource,
-      @javax.annotation.Nullable Resource otherResource) {
+  @Nullable
+  private static Resource merge(@Nullable Resource resource, @Nullable Resource otherResource) {
     if (otherResource == null) {
       return resource;
     }
