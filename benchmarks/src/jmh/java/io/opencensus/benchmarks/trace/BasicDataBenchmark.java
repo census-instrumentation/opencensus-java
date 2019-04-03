@@ -22,7 +22,6 @@ package io.opencensus.benchmarks.trace;
 
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Tracer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +35,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 
-/** Benchmarks for {@link Span} to record trace events. */
+/** Benchmarks for basic data structures related to trace events. */
 @State(Scope.Benchmark)
 public class BasicDataBenchmark {
   private static final String ANNOTATION_DESCRIPTION = "MyAnnotation";
@@ -46,7 +45,6 @@ public class BasicDataBenchmark {
 
   @State(Scope.Benchmark)
   public static class Data {
-    private Tracer tracer;
     private AttributeValue[] attributeValues;
     private String[] attributeKeys;
     Map<String, AttributeValue> attributeMap;
@@ -64,7 +62,6 @@ public class BasicDataBenchmark {
 
     @Setup
     public void setup() {
-      tracer = BenchmarksUtil.getTracer(implementation);
       attributeValues = getAttributeValues(size, attributeType);
       attributeKeys = new String[size];
       attributeMap = new HashMap<>(size);
@@ -124,6 +121,8 @@ public class BasicDataBenchmark {
           attributeValues[i] = AttributeValue.longAttributeValue(ATTRIBUTE_VALUE_LONG + i);
         }
         break;
+      default:
+        throw new IllegalArgumentException("Unknown attribute type: " + attributeType);
     }
     return attributeValues;
   }

@@ -19,13 +19,14 @@ package io.opencensus.benchmarks.trace;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
-import io.opencensus.trace.NetworkEvent;
+import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,14 +41,15 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 
-/** Benchmarks for {@link Span} to record trace events. */
+/** Benchmarks for {@link Span}-related trace events. */
 @State(Scope.Benchmark)
 public class SpanOperationsBenchmark {
   private static final String SPAN_NAME = "SpanName";
   private static final String ANNOTATION_DESCRIPTION = "MyAnnotation";
   private static final String ATTRIBUTE_KEY = "MyAttributeKey";
   private static final String ATTRIBUTE_VALUE = "MyAttributeValue";
-  private static final long NETWORK_MESSAGE_ID = 1042;
+  private static final long MESSAGE_ID = 1042;
+  private static final Tracestate TRACESTATE_DEFAULT = Tracestate.builder().build();
 
   @State(Scope.Benchmark)
   public static class Data {
@@ -55,13 +57,13 @@ public class SpanOperationsBenchmark {
     private Span annotationSpanEmpty;
     private Span annotationSpanAttributes;
     private Span annotationSpanAnnotation;
-    private Span networkEventSpan;
+    private Span messageEventSpan;
     private Span linkSpan;
     private Tracer tracer;
     private AttributeValue[] attributeValues;
     private String[] attributeKeys;
     private Map<String, AttributeValue> attributeMap;
-    private NetworkEvent[] networkEvents;
+    private MessageEvent[] messageEvents;
     private Link[] links;
 
     // @Param({"impl", "impl-lite"})
@@ -85,7 +87,7 @@ public class SpanOperationsBenchmark {
       annotationSpanEmpty = createSpan("AnnotaionSpanEmpty");
       annotationSpanAttributes = createSpan("AnnotaionSpanAttributes");
       annotationSpanAnnotation = createSpan("AnnotaionSpanAnnotation");
-      networkEventSpan = createSpan("NetworkEventSpan");
+      messageEventSpan = createSpan("MessageEventSpan");
       linkSpan = createSpan("LinkSpan");
       initAttributes();
     }
@@ -96,7 +98,7 @@ public class SpanOperationsBenchmark {
       annotationSpanEmpty.end();
       annotationSpanAttributes.end();
       annotationSpanAnnotation.end();
-      networkEventSpan.end();
+      messageEventSpan.end();
       linkSpan.end();
     }
 
@@ -112,20 +114,20 @@ public class SpanOperationsBenchmark {
       attributeValues = createAttributeValues(size);
       attributeKeys = new String[size];
       attributeMap = new HashMap<>(size);
-      networkEvents = new NetworkEvent[size];
+      messageEvents = new MessageEvent[size];
       links = new Link[size];
       for (int i = 0; i < size; i++) {
         attributeKeys[i] = ATTRIBUTE_KEY + "-i";
         attributeMap.put(attributeKeys[i], attributeValues[i]);
-        networkEvents[i] =
-            NetworkEvent.builder(NetworkEvent.Type.SENT, NETWORK_MESSAGE_ID + i).build();
+        messageEvents[i] = MessageEvent.builder(MessageEvent.Type.SENT, MESSAGE_ID + i).build();
         links[i] =
             Link.fromSpanContext(
                 SpanContext.create(
                     TraceId.fromBytes(
                         new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, (byte) i}),
                     SpanId.fromBytes(new byte[] {1, 2, 3, 4, 5, 6, 7, (byte) i}),
-                    TraceOptions.DEFAULT),
+                    TraceOptions.DEFAULT,
+                    TRACESTATE_DEFAULT),
                 Link.Type.PARENT_LINKED_SPAN);
       }
     }
@@ -185,14 +187,14 @@ public class SpanOperationsBenchmark {
     return span;
   }
 
-  /** Add network events. */
+  /** Add message events. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span addNetworkEvent(Data data) {
-    Span span = data.networkEventSpan;
+  public Span addMessageEvent(Data data) {
+    Span span = data.messageEventSpan;
     for (int i = 0; i < data.size; i++) {
-      span.addNetworkEvent(data.networkEvents[i]);
+      span.addMessageEvent(data.messageEvents[i]);
     }
     return span;
   }

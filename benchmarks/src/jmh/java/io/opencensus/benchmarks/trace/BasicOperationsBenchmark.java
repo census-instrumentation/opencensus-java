@@ -37,13 +37,9 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 
-/** Benchmarks for {@link Span} to record trace events. */
+/** Benchmarks for basic trace operations. */
 @State(org.openjdk.jmh.annotations.Scope.Benchmark)
 public class BasicOperationsBenchmark {
-  private static final String SPAN_NAME = "MySpanName";
-  private static final String ANNOTATION_DESCRIPTION = "MyAnnotation";
-  private static final String ATTRIBUTE_KEY = "MyAttributeKey";
-  private static final String ATTRIBUTE_VALUE = "MyAttributeValue";
   private static final String TRACEPARENT_KEY = "traceparent";
   private static final Status STATUS_OK = Status.OK;
 
