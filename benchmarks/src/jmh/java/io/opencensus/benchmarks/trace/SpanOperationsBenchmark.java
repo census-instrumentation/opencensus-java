@@ -23,7 +23,6 @@ import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
-import io.opencensus.trace.Status;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracer;
@@ -49,7 +48,6 @@ public class SpanOperationsBenchmark {
   private static final String ATTRIBUTE_KEY = "MyAttributeKey";
   private static final String ATTRIBUTE_VALUE = "MyAttributeValue";
   private static final long NETWORK_MESSAGE_ID = 1042;
-  private static final Status STATUS_OK = Status.OK;
 
   @State(Scope.Benchmark)
   public static class Data {
@@ -65,8 +63,6 @@ public class SpanOperationsBenchmark {
     private Map<String, AttributeValue> attributeMap;
     private NetworkEvent[] networkEvents;
     private Link[] links;
-    private Span[] setSpans;
-    private Span[] endSpans;
 
     // @Param({"impl", "impl-lite"})
     @Param({"impl"})
@@ -78,8 +74,8 @@ public class SpanOperationsBenchmark {
     @Param({"true", "false"})
     boolean sampled;
 
-    // @Param({"0", "1", "4", "8", "16"})
-    @Param({"0", "1", "16"})
+    @Param({"0", "1", "4", "8", "16"})
+    // @Param({"0", "1", "16"})
     int size;
 
     @Setup
@@ -102,9 +98,6 @@ public class SpanOperationsBenchmark {
       annotationSpanAnnotation.end();
       networkEventSpan.end();
       linkSpan.end();
-      for (int i = 0; i < size; i++) {
-        setSpans[i].end();
-      }
     }
 
     private Span createSpan(String suffix) {
@@ -116,13 +109,11 @@ public class SpanOperationsBenchmark {
     }
 
     private void initAttributes() {
-      attributeValues = getAttributeValues(size);
+      attributeValues = createAttributeValues(size);
       attributeKeys = new String[size];
       attributeMap = new HashMap<>(size);
       networkEvents = new NetworkEvent[size];
       links = new Link[size];
-      setSpans = new Span[size];
-      endSpans = new Span[size];
       for (int i = 0; i < size; i++) {
         attributeKeys[i] = ATTRIBUTE_KEY + "-i";
         attributeMap.put(attributeKeys[i], attributeValues[i]);
@@ -136,8 +127,6 @@ public class SpanOperationsBenchmark {
                     SpanId.fromBytes(new byte[] {1, 2, 3, 4, 5, 6, 7, (byte) i}),
                     TraceOptions.DEFAULT),
                 Link.Type.PARENT_LINKED_SPAN);
-        setSpans[i] = createSpan("SetSpan-" + i);
-        endSpans[i] = createSpan("EndSpan-" + i);
       }
     }
   }
@@ -220,29 +209,7 @@ public class SpanOperationsBenchmark {
     return span;
   }
 
-  /** Set status on spans. */
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span[] setStatusOnSpans(Data data) {
-    for (int i = 0; i < data.size; i++) {
-      data.setSpans[i].setStatus(STATUS_OK);
-    }
-    return data.setSpans;
-  }
-
-  /** End spans. */
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span[] endSpan(Data data) {
-    for (int i = 0; i < data.size; i++) {
-      data.endSpans[i].end();
-    }
-    return data.endSpans;
-  }
-
-  private static AttributeValue[] getAttributeValues(int size) {
+  private static AttributeValue[] createAttributeValues(int size) {
     AttributeValue[] attributeValues = new AttributeValue[size];
     for (int i = 0; i < size; i++) {
       attributeValues[i] = AttributeValue.stringAttributeValue(ATTRIBUTE_VALUE + "-i");

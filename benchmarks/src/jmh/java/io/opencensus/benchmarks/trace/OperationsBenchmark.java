@@ -16,20 +16,10 @@
 
 package io.opencensus.benchmarks.trace;
 
-import io.opencensus.trace.Annotation;
-import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Link;
-import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
-import io.opencensus.trace.TraceId;
-import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.samplers.Samplers;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -53,6 +43,7 @@ public class OperationsBenchmark {
 
   @State(Scope.Benchmark)
   public static class Data {
+    private Tracer tracer;
     private Span setSpan;
     private Span endSpan;
 
@@ -66,14 +57,15 @@ public class OperationsBenchmark {
     @Param({"true", "false"})
     boolean sampled;
 
-    // @Param({"0", "1", "4", "8", "16"})
-    @Param({"0", "1", "16"})
+    @Param({"0", "1", "4", "8", "16"})
+    // @Param({"0", "1", "16"})
     int size;
 
     @Setup
     public void setup() {
+      tracer = BenchmarksUtil.getTracer(implementation);
       setSpan = createSpan("SetSpan");
-      endpan = createSpan("EndSpan");
+      endSpan = createSpan("EndSpan");
     }
 
     @TearDown
@@ -94,7 +86,7 @@ public class OperationsBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span[] setStatusOnSpans(Data data) {
+  public Span setStatusOnSpans(Data data) {
     data.setSpan.setStatus(STATUS_OK);
     return data.setSpan;
   }
@@ -103,7 +95,7 @@ public class OperationsBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span[] endSpan(Data data) {
+  public Span endSpan(Data data) {
     data.endSpan.end();
     return data.endSpan;
   }

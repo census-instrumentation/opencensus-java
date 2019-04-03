@@ -42,7 +42,7 @@ public class BasicDataBenchmark {
   private static final String ANNOTATION_DESCRIPTION = "MyAnnotation";
   private static final String ATTRIBUTE_KEY = "MyAttributeKey";
   private static final String ATTRIBUTE_VALUE_STRING = "MyAttributeValue";
-  private static final long ATTRIBUTE_VALUE_LONG = 90125;
+  private static final long ATTRIBUTE_VALUE_LONG = 90215;
 
   @State(Scope.Benchmark)
   public static class Data {

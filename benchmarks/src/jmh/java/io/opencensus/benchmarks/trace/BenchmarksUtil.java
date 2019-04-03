@@ -19,6 +19,7 @@ package io.opencensus.benchmarks.trace;
 import io.opencensus.impllite.trace.TraceComponentImplLite;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.propagation.PropagationComponent;
 
 /** Util class for Benchmarks. */
 final class BenchmarksUtil {
@@ -33,6 +34,20 @@ final class BenchmarksUtil {
       return Tracing.getTracer();
     } else if (implementation.equals("impl-lite")) {
       return traceComponentImplLite.getTracer();
+    } else {
+      throw new RuntimeException("Invalid tracer implementation requested.");
+    }
+  }
+
+  static PropagationComponent getPropagationComponent(String implementation) {
+    if (implementation.equals("impl")) {
+      // We can return the global tracer here because if impl is linked the global tracer will be
+      // the impl one.
+      // TODO(bdrutu): Make everything not be a singleton (disruptor, etc.) and use a new
+      // TraceComponentImpl similar to TraceComponentImplLite.
+      return Tracing.getPropagationComponent();
+    } else if (implementation.equals("impl-lite")) {
+      return traceComponentImplLite.getPropagationComponent();
     } else {
       throw new RuntimeException("Invalid tracer implementation requested.");
     }
