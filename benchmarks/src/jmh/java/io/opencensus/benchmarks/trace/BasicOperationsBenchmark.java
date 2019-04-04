@@ -188,7 +188,7 @@ public class BasicOperationsBenchmark {
     return span;
   }
 
-  /** Create a link */
+  /** Create a link. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -202,7 +202,7 @@ public class BasicOperationsBenchmark {
         Link.Type.PARENT_LINKED_SPAN);
   }
 
-  /** Create a message event */
+  /** Create a message event. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
