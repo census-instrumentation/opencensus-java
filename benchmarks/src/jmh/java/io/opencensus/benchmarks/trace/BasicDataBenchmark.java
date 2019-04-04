@@ -54,7 +54,6 @@ public class BasicDataBenchmark {
     String implementation;
 
     @Param({"0", "1", "4", "8", "16"})
-    // @Param({"0", "1", "16"})
     int size;
 
     @Param({"string", "boolean", "long"})

@@ -17,10 +17,16 @@
 package io.opencensus.benchmarks.trace;
 
 import io.opencensus.common.Scope;
+import io.opencensus.trace.Link;
+import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
+import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
+import io.opencensus.trace.TraceId;
+import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.propagation.PropagationComponent;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
@@ -42,6 +48,8 @@ import org.openjdk.jmh.annotations.TearDown;
 public class BasicOperationsBenchmark {
   private static final String TRACEPARENT_KEY = "traceparent";
   private static final Status STATUS_OK = Status.OK;
+  private static final long MESSAGE_ID = 1042;
+  private static final Tracestate TRACESTATE_DEFAULT = Tracestate.builder().build();
 
   @State(org.openjdk.jmh.annotations.Scope.Benchmark)
   public static class Data {
@@ -150,6 +158,21 @@ public class BasicOperationsBenchmark {
     return span;
   }
 
+  /** Create a child span with a remote parent. */
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public Span createSpanWithRemoteParent(Data data) {
+    Span span =
+        data.tracer
+            .spanBuilderWithRemoteParent("ChildSpanFromRemoteParent", data.span.getContext())
+            .setRecordEvents(data.recorded)
+            .setSampler(data.sampled ? Samplers.alwaysSample() : Samplers.neverSample())
+            .startSpan();
+    span.end();
+    return span;
+  }
+
   /** Create a child span from the current span. */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
@@ -165,19 +188,26 @@ public class BasicOperationsBenchmark {
     return span;
   }
 
-  /** Create a child span with a remote parent. */
+  /** Create a link */
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span createSpanWithRemoteParent(Data data) {
-    Span span =
-        data.tracer
-            .spanBuilderWithRemoteParent("ChildSpanFromRemoteParent", data.span.getContext())
-            .setRecordEvents(data.recorded)
-            .setSampler(data.sampled ? Samplers.alwaysSample() : Samplers.neverSample())
-            .startSpan();
-    span.end();
-    return span;
+  public Link createLink(Data data) {
+    return Link.fromSpanContext(
+        SpanContext.create(
+            TraceId.fromBytes(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0}),
+            SpanId.fromBytes(new byte[] {1, 2, 3, 4, 5, 6, 7, 0}),
+            TraceOptions.DEFAULT,
+            TRACESTATE_DEFAULT),
+        Link.Type.PARENT_LINKED_SPAN);
+  }
+
+  /** Create a message event */
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  public MessageEvent createMessageEvent(Data data) {
+    return MessageEvent.builder(MessageEvent.Type.SENT, MESSAGE_ID).build();
   }
 
   /** Scope/Unscope a trace span. */
@@ -194,10 +224,8 @@ public class BasicOperationsBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Scope getCurrentSpan(Data data) {
-    try (Scope scope = data.tracer.withSpan(data.spanToScope)) {
-      return scope;
-    }
+  public Span getCurrentSpan(Data data) {
+    return data.tracer.getCurrentSpan();
   }
 
   /** Encode a span using binary format. */
