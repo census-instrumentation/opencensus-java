@@ -72,7 +72,10 @@ public class RecordDifferentTagValuesBenchmark {
         contexts[i] =
             tagger
                 .emptyBuilder()
-                .put(TagsBenchmarksUtil.TAG_KEYS[0], TagsBenchmarksUtil.TAG_VALUES[i])
+                .put(
+                    TagsBenchmarksUtil.TAG_KEYS[0],
+                    TagsBenchmarksUtil.TAG_VALUES[i],
+                    TagsBenchmarksUtil.UNLIMITED_PROPAGATION)
                 .build();
       }
       return Arrays.asList(contexts);

@@ -116,7 +116,10 @@ public class RecordMultipleViewsBenchmark {
     private TagContext createContext(int size) {
       TagContextBuilder builder = tagger.emptyBuilder();
       for (int i = 0; i < size; i++) {
-        builder.put(TagsBenchmarksUtil.TAG_KEYS[i], TagsBenchmarksUtil.TAG_VALUES[0]);
+        builder.put(
+            TagsBenchmarksUtil.TAG_KEYS[i],
+            TagsBenchmarksUtil.TAG_VALUES[0],
+            TagsBenchmarksUtil.UNLIMITED_PROPAGATION);
       }
       return builder.build();
     }

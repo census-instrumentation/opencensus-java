@@ -22,6 +22,7 @@ import io.opencensus.impllite.tags.TagsComponentImplLite;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagMetadata;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
@@ -33,6 +34,8 @@ public final class TagsBenchmarksUtil {
 
   public static final TagKey[] TAG_KEYS = createTagKeys(16, "key");
   public static final TagValue[] TAG_VALUES = createTagValues(16, "val");
+  public static final TagMetadata UNLIMITED_PROPAGATION =
+      TagMetadata.create(TagMetadata.TagTtl.UNLIMITED_PROPAGATION);
 
   /** Gets the {@link Tagger} for the specified 'implementation'. */
   @VisibleForTesting
@@ -90,7 +93,7 @@ public final class TagsBenchmarksUtil {
   @VisibleForTesting
   public static TagContext createTagContext(TagContextBuilder tagsBuilder, int numTags) {
     for (int i = 0; i < numTags; i++) {
-      tagsBuilder.put(TAG_KEYS[i], TAG_VALUES[i]);
+      tagsBuilder.put(TAG_KEYS[i], TAG_VALUES[i], UNLIMITED_PROPAGATION);
     }
     return tagsBuilder.build();
   }
