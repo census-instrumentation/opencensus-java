@@ -214,7 +214,7 @@ public class SpanOperationsBenchmark {
   private static AttributeValue[] createAttributeValues(int size) {
     AttributeValue[] attributeValues = new AttributeValue[size];
     for (int i = 0; i < size; i++) {
-      attributeValues[i] = AttributeValue.stringAttributeValue(ATTRIBUTE_VALUE + "-i");
+      attributeValues[i] = AttributeValue.stringAttributeValue(ATTRIBUTE_VALUE + "-" + i);
     }
     return attributeValues;
   }
