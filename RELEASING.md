@@ -121,7 +121,8 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
     ```
 
     -   Go through PR review and push the release tag and updated release branch
-        to GitHub:
+        to GitHub (note: do not squash the commits when you merge otherwise you
+        will lose the release tag):
 
     ```bash
     $ git checkout v$MAJOR.$MINOR.x
