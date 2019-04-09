@@ -16,8 +16,10 @@
 
 package io.opencensus.impl.internal;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.InsufficientCapacityException;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
@@ -25,6 +27,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.internal.EventQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -96,7 +99,7 @@ public final class DisruptorEventQueue implements EventQueue {
   // TODO(aveitch): consider making this a parameter to the constructor, so the queue can be
   // configured to a size appropriate to the system (smaller/less busy systems will not need as
   // large a queue.
-  private static final int DISRUPTOR_BUFFER_SIZE = 8192;
+  @VisibleForTesting static final int DISRUPTOR_BUFFER_SIZE = 8192;
   // The single instance of the class.
   private static final DisruptorEventQueue eventQueue = create();
 
@@ -104,6 +107,8 @@ public final class DisruptorEventQueue implements EventQueue {
   private final Disruptor<DisruptorEvent> disruptor;
 
   private volatile DisruptorEnqueuer enqueuer;
+
+  @VisibleForTesting static final AtomicLong overflowCount = new AtomicLong();
 
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
   private DisruptorEventQueue(Disruptor<DisruptorEvent> disruptor, DisruptorEnqueuer enqueuer) {
@@ -131,7 +136,19 @@ public final class DisruptorEventQueue implements EventQueue {
         new DisruptorEnqueuer() {
           @Override
           public void enqueue(Entry entry) {
-            long sequence = ringBuffer.next();
+            long sequence;
+            try {
+              sequence = ringBuffer.tryNext();
+            } catch (InsufficientCapacityException e) {
+              // Show warning log only once to prevent blocking caused by logger.
+              if (overflowCount.getAndIncrement() == 0) {
+                logger.log(
+                    Level.WARNING,
+                    "Dropping some events due to queue overflow."
+                        + " Consider to reduce sampling rate.");
+              }
+              return;
+            }
             try {
               DisruptorEvent event = ringBuffer.get(sequence);
               event.setEntry(entry);

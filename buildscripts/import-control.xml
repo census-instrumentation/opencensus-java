@@ -270,6 +270,7 @@ General guidelines on imports:
     <allow pkg="io.opencensus.trace"/>
   </subpackage>
   <subpackage name="impl">
+    <allow pkg="com.google.common"/>
     <allow pkg="com.lmax.disruptor"/>
     <allow pkg="io.opencensus.common"/>
     <allow pkg="io.opencensus.impl"/>
