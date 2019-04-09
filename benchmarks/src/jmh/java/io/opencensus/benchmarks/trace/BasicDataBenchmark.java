@@ -65,7 +65,7 @@ public class BasicDataBenchmark {
       attributeKeys = new String[size];
       attributeMap = new HashMap<>(size);
       for (int i = 0; i < size; i++) {
-        attributeKeys[i] = ATTRIBUTE_KEY + "-i";
+        attributeKeys[i] = ATTRIBUTE_KEY + "-" + i;
         attributeMap.put(attributeKeys[i], attributeValues[i]);
       }
     }
