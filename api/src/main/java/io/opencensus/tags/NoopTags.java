@@ -20,11 +20,19 @@ import io.opencensus.common.Scope;
 import io.opencensus.internal.NoopScope;
 import io.opencensus.internal.Utils;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
+import io.opencensus.tags.propagation.TagContextDeserializationException;
+import io.opencensus.tags.propagation.TagContextSerializationException;
+import io.opencensus.tags.propagation.TagContextTextFormat;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.NonNull;
+*/
 
 /** No-op implementations of tagging classes. */
 final class NoopTags {
@@ -80,8 +88,17 @@ final class NoopTags {
     return NoopTagContextBinarySerializer.INSTANCE;
   }
 
+  /**
+   * Returns a {@code TagContextTextFormat} that serializes all {@code TagContext}s to empty strings
+   * and deserializes all inputs to empty {@code TagContext}s.
+   */
+  static TagContextTextFormat getNoopTagContextTextSerializer() {
+    return NoopTagContextTextFormat.INSTANCE;
+  }
+
   @ThreadSafe
   private static final class NoopTagsComponent extends TagsComponent {
+
     private volatile boolean isRead;
 
     @Override
@@ -110,6 +127,7 @@ final class NoopTags {
 
   @Immutable
   private static final class NoopTagger extends Tagger {
+
     static final Tagger INSTANCE = new NoopTagger();
 
     @Override
@@ -147,6 +165,7 @@ final class NoopTags {
 
   @Immutable
   private static final class NoopTagContextBuilder extends TagContextBuilder {
+
     static final TagContextBuilder INSTANCE = new NoopTagContextBuilder();
 
     @Override
@@ -184,6 +203,7 @@ final class NoopTags {
 
   @Immutable
   private static final class NoopTagContext extends TagContext {
+
     static final TagContext INSTANCE = new NoopTagContext();
 
     // TODO(sebright): Is there any way to let the user know that their tags were ignored?
@@ -195,16 +215,23 @@ final class NoopTags {
 
   @Immutable
   private static final class NoopTagPropagationComponent extends TagPropagationComponent {
+
     static final TagPropagationComponent INSTANCE = new NoopTagPropagationComponent();
 
     @Override
     public TagContextBinarySerializer getBinarySerializer() {
       return getNoopTagContextBinarySerializer();
     }
+
+    @Override
+    public TagContextTextFormat getCorrelationContextFormat() {
+      return getNoopTagContextTextSerializer();
+    }
   }
 
   @Immutable
   private static final class NoopTagContextBinarySerializer extends TagContextBinarySerializer {
+
     static final TagContextBinarySerializer INSTANCE = new NoopTagContextBinarySerializer();
     static final byte[] EMPTY_BYTE_ARRAY = {};
 
@@ -217,6 +244,34 @@ final class NoopTags {
     @Override
     public TagContext fromByteArray(byte[] bytes) {
       Utils.checkNotNull(bytes, "bytes");
+      return getNoopTagContext();
+    }
+  }
+
+  @Immutable
+  private static final class NoopTagContextTextFormat extends TagContextTextFormat {
+
+    static final NoopTagContextTextFormat INSTANCE = new NoopTagContextTextFormat();
+
+    @Override
+    public List<String> fields() {
+      return Collections.<String>emptyList();
+    }
+
+    @Override
+    public <C /*>>> extends @NonNull Object*/> void inject(
+        TagContext tagContext, C carrier, Setter<C> setter)
+        throws TagContextSerializationException {
+      Utils.checkNotNull(tagContext, "tagContext");
+      Utils.checkNotNull(carrier, "carrier");
+      Utils.checkNotNull(setter, "setter");
+    }
+
+    @Override
+    public <C /*>>> extends @NonNull Object*/> TagContext extract(C carrier, Getter<C> getter)
+        throws TagContextDeserializationException {
+      Utils.checkNotNull(carrier, "carrier");
+      Utils.checkNotNull(getter, "getter");
       return getNoopTagContext();
     }
   }

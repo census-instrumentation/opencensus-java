@@ -23,7 +23,6 @@ import io.opencensus.tags.TagContext;
  *
  * @since 0.8
  */
-// TODO(sebright): Add an HTTP serializer.
 public abstract class TagPropagationComponent {
 
   /**
@@ -33,4 +32,15 @@ public abstract class TagPropagationComponent {
    * @since 0.8
    */
   public abstract TagContextBinarySerializer getBinarySerializer();
+
+  /**
+   * Returns the {@link TagContextTextFormat} for this implementation.
+   *
+   * <p>OpenCensus uses W3C Correlation Context as the HTTP text format. For more details, see <a
+   * href="https://github.com/w3c/correlation-context">correlation-context</a>.
+   *
+   * @return the {@code TagContextTextFormat} for this implementation.
+   * @since 0.21
+   */
+  public abstract TagContextTextFormat getCorrelationContextFormat();
 }

@@ -1,4 +1,5 @@
 ## Unreleased
+- Add HTTP text format serializer to Tag propagation component.
 
 ## 0.20.0 - 2019-03-28
 - Add OpenCensus Java OC-Agent Trace Exporter.
