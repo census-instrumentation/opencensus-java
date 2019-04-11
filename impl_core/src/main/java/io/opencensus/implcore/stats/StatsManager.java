@@ -100,5 +100,8 @@ final class StatsManager {
       // Add Timestamp to value after it went through the DisruptorQueue.
       statsManager.measureToViewMap.record(tags, stats, statsManager.clock.now());
     }
+
+    @Override
+    public void rejected() {}
   }
 }

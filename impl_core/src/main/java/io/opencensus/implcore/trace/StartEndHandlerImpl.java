@@ -86,8 +86,19 @@ public final class StartEndHandlerImpl implements StartEndHandler {
 
     @Override
     public void process() {
+      // Strictly speaking, SpanEndEvent#rejected() can be called before
+      // SpanStartEvent#process() in rare case.
+      // Because SpanStartEvent#process() is called via queue.
+      // In such case, span stay in activeSpansExporter forever because
+      // onEnd(span) is called before onStart(span).
+      // If we really need to prevent such case, should check span.hasBeenEnded here.
+      // The hasBeenEnded flag is always true in such case, so that we can skip
+      // onStart(span) call.
       inProcessRunningSpanStore.onStart(span);
     }
+
+    @Override
+    public void rejected() {}
   }
 
   // An EventQueue entry that records the end of the span event.
@@ -113,14 +124,18 @@ public final class StartEndHandlerImpl implements StartEndHandler {
       if (span.getContext().getTraceOptions().isSampled()) {
         spanExporter.addSpan(span);
       }
-
       // Note that corresponding SpanStartEvent / onStart(span) might not have called if queue was
       // full.
       inProcessRunningSpanStore.onEnd(span);
-
       if (sampledSpanStore != null) {
         sampledSpanStore.considerForSampling(span);
       }
+    }
+
+    @Override
+    public void rejected() {
+      // Should remove from runningSpanStore to prevent memory leak
+      inProcessRunningSpanStore.onEnd(span);
     }
   }
 }

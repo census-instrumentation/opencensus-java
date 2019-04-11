@@ -32,5 +32,11 @@ public interface EventQueue {
      * associated {@link EventQueue}.
      */
     void process();
+
+    /**
+     * Cleanup resources associated with this entry to prevent leak. This method is called when this
+     * event is rejected. Note that this method might be called in foreground (application) thread.
+     */
+    void rejected();
   }
 }

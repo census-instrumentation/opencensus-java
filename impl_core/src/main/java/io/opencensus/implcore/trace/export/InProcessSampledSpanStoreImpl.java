@@ -318,6 +318,9 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
     public void process() {
       sampledSpanStore.internaltRegisterSpanNamesForCollection(spanNames);
     }
+
+    @Override
+    public void rejected() {}
   }
 
   @Override
@@ -346,6 +349,9 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
     public void process() {
       sampledSpanStore.internalUnregisterSpanNamesForCollection(spanNames);
     }
+
+    @Override
+    public void rejected() {}
   }
 
   @Override

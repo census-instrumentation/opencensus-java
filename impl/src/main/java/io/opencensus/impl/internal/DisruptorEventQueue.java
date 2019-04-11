@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -135,7 +136,7 @@ public final class DisruptorEventQueue implements EventQueue {
     DisruptorEnqueuer enqueuer =
         new DisruptorEnqueuer() {
           @Override
-          public void enqueue(Entry entry) {
+          public boolean enqueue(Entry entry) {
             long sequence;
             try {
               sequence = ringBuffer.tryNext();
@@ -147,7 +148,7 @@ public final class DisruptorEventQueue implements EventQueue {
                     "Dropping some events due to queue overflow."
                         + " Consider to reduce sampling rate.");
               }
-              return;
+              return false;
             }
             try {
               DisruptorEvent event = ringBuffer.get(sequence);
@@ -155,6 +156,7 @@ public final class DisruptorEventQueue implements EventQueue {
             } finally {
               ringBuffer.publish(sequence);
             }
+            return true;
           }
         };
     return new DisruptorEventQueue(disruptor, enqueuer);
@@ -176,7 +178,9 @@ public final class DisruptorEventQueue implements EventQueue {
    */
   @Override
   public void enqueue(Entry entry) {
-    enqueuer.enqueue(entry);
+    if (!enqueuer.enqueue(entry)) {
+      entry.rejected();
+    }
   }
 
   /** Shuts down the underlying disruptor. */
@@ -187,10 +191,11 @@ public final class DisruptorEventQueue implements EventQueue {
           final AtomicBoolean logged = new AtomicBoolean(false);
 
           @Override
-          public void enqueue(Entry entry) {
+          public boolean enqueue(Entry entry) {
             if (!logged.getAndSet(true)) {
               logger.log(Level.INFO, "Attempted to enqueue entry after Disruptor shutdown.");
             }
+            return false;
           }
         };
 
@@ -200,7 +205,14 @@ public final class DisruptorEventQueue implements EventQueue {
   // Allows this event queue to safely shutdown by not enqueuing events on the ring buffer
   private abstract static class DisruptorEnqueuer {
 
-    public abstract void enqueue(Entry entry);
+    /**
+     * Try to enqueue Entry into the queue.
+     *
+     * @param entry Entry to enqueue
+     * @return If enqueue failed, returns false.
+     */
+    @CheckReturnValue
+    public abstract boolean enqueue(Entry entry);
   }
 
   // An event in the {@link EventQueue}. Just holds a reference to an EventQueue.Entry.

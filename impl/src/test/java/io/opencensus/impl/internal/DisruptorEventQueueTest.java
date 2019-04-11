@@ -79,6 +79,7 @@ public class DisruptorEventQueueTest {
   private static class IncrementEvent implements EventQueue.Entry {
 
     private final Counter counter;
+    private volatile boolean isRejected = false;
 
     IncrementEvent(Counter counter) {
       this.counter = counter;
@@ -87,6 +88,11 @@ public class DisruptorEventQueueTest {
     @Override
     public void process() {
       counter.increment();
+    }
+
+    @Override
+    public void rejected() {
+      isRejected = true;
     }
   }
 
@@ -147,6 +153,7 @@ public class DisruptorEventQueueTest {
     // Queue event into filled queue to test overflow behavior
     IncrementEvent ie = new IncrementEvent(counter);
     DisruptorEventQueue.getInstance().enqueue(ie);
+    assertThat(ie.isRejected).isTrue();
     assertThat(DisruptorEventQueue.overflowCount.get()).isEqualTo(overflowCountBefore + 1);
 
     // Cleanup events
