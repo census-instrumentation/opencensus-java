@@ -51,7 +51,8 @@ public final class MetricRegistryImpl extends MetricRegistry {
             checkNotNull(name, "name"),
             options.getDescription(),
             options.getUnit(),
-            options.getLabelKeys());
+            options.getLabelKeys(),
+            options.getConstantLabels());
     registeredMeters.registerMeter(name, longGaugeMetric);
     return longGaugeMetric;
   }
@@ -63,7 +64,8 @@ public final class MetricRegistryImpl extends MetricRegistry {
             checkNotNull(name, "name"),
             options.getDescription(),
             options.getUnit(),
-            options.getLabelKeys());
+            options.getLabelKeys(),
+            options.getConstantLabels());
     registeredMeters.registerMeter(name, doubleGaugeMetric);
     return doubleGaugeMetric;
   }
@@ -75,7 +77,8 @@ public final class MetricRegistryImpl extends MetricRegistry {
             checkNotNull(name, "name"),
             options.getDescription(),
             options.getUnit(),
-            options.getLabelKeys());
+            options.getLabelKeys(),
+            options.getConstantLabels());
     registeredMeters.registerMeter(name, derivedLongGauge);
     return derivedLongGauge;
   }
@@ -87,7 +90,8 @@ public final class MetricRegistryImpl extends MetricRegistry {
             checkNotNull(name, "name"),
             options.getDescription(),
             options.getUnit(),
-            options.getLabelKeys());
+            options.getLabelKeys(),
+            options.getConstantLabels());
     registeredMeters.registerMeter(name, derivedDoubleGauge);
     return derivedDoubleGauge;
   }

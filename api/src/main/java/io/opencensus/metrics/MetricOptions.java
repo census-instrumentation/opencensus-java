@@ -41,6 +41,7 @@ public abstract class MetricOptions {
    * <p>Default value is {@code ""}.
    *
    * @return the description of the Metric.
+   * @since 0.20
    */
   public abstract String getDescription();
 
@@ -50,6 +51,7 @@ public abstract class MetricOptions {
    * <p>Default value is {@code "1"}.
    *
    * @return the unit of the Metric.
+   * @since 0.20
    */
   public abstract String getUnit();
 
@@ -59,6 +61,7 @@ public abstract class MetricOptions {
    * <p>Default value is {@link Collections#emptyList()}.
    *
    * @return the list of label keys for the Metric.
+   * @since 0.20
    */
   public abstract List<LabelKey> getLabelKeys();
 
@@ -68,9 +71,9 @@ public abstract class MetricOptions {
    * <p>Default value is {@link Collections#emptyMap()}.
    *
    * @return the map of constant labels for the Metric.
+   * @since 0.21
    */
-  // TODO: add support for this and make it public.
-  abstract Map<LabelKey, LabelValue> getConstantLabels();
+  public abstract Map<LabelKey, LabelValue> getConstantLabels();
 
   /**
    * Returns a new {@link Builder} with default options.
@@ -94,6 +97,7 @@ public abstract class MetricOptions {
      *
      * @param description the description of the Metric.
      * @return this.
+     * @since 0.20
      */
     public abstract Builder setDescription(String description);
 
@@ -102,6 +106,7 @@ public abstract class MetricOptions {
      *
      * @param unit the unit of the Metric.
      * @return this.
+     * @since 0.20
      */
     public abstract Builder setUnit(String unit);
 
@@ -110,6 +115,7 @@ public abstract class MetricOptions {
      *
      * @param labelKeys the list of label keys for the Metric.
      * @return this.
+     * @since 0.20
      */
     public abstract Builder setLabelKeys(List<LabelKey> labelKeys);
 
@@ -118,9 +124,9 @@ public abstract class MetricOptions {
      *
      * @param constantLabels the map of constant labels for the Metric.
      * @return this.
+     * @since 0.21
      */
-    // TODO: add support for this and make it public.
-    abstract Builder setConstantLabels(Map<LabelKey, LabelValue> constantLabels);
+    public abstract Builder setConstantLabels(Map<LabelKey, LabelValue> constantLabels);
 
     abstract Map<LabelKey, LabelValue> getConstantLabels();
 
