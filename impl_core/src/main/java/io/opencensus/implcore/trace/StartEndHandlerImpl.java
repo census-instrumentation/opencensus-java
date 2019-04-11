@@ -113,7 +113,11 @@ public final class StartEndHandlerImpl implements StartEndHandler {
       if (span.getContext().getTraceOptions().isSampled()) {
         spanExporter.addSpan(span);
       }
+
+      // Note that corresponding SpanStartEvent / onStart(span) might not have called if queue was
+      // full.
       inProcessRunningSpanStore.onEnd(span);
+
       if (sampledSpanStore != null) {
         sampledSpanStore.considerForSampling(span);
       }

@@ -59,12 +59,14 @@ public final class InProcessRunningSpanStore extends RunningSpanStore {
    * Removes the {@code Span} from the running spans list when the {@code Span} ends.
    *
    * @param span the {@code Span} that ended.
+   * @return If span was not found, returns false.
    */
-  public void onEnd(RecordEventsSpanImpl span) {
+  public boolean onEnd(RecordEventsSpanImpl span) {
     InProcessRunningSpanStoreImpl impl = this.impl;
     if (impl != null) {
-      impl.onEnd(span);
+      return impl.onEnd(span);
     }
+    return false;
   }
 
   /**
@@ -120,9 +122,9 @@ public final class InProcessRunningSpanStore extends RunningSpanStore {
       runningSpans.addElement(span);
     }
 
-    private void onEnd(RecordEventsSpanImpl span) {
+    private boolean onEnd(RecordEventsSpanImpl span) {
       // TODO: Count and display when try to remove span that was not present.
-      runningSpans.removeElement(span);
+      return runningSpans.removeElement(span);
     }
 
     private Summary getSummary() {
