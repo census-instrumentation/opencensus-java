@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -53,6 +54,8 @@ public class DerivedLongGaugeImplTest {
       Collections.singletonList(LabelValue.create("value"));
   private static final List<LabelValue> LABEL_VALUES_1 =
       Collections.singletonList(LabelValue.create("value1"));
+  private static final Map<LabelKey, LabelValue> EMPTY_CONSTANT_LABELS =
+      Collections.<LabelKey, LabelValue>emptyMap();
 
   private static final Timestamp TEST_TIME = Timestamp.create(1234, 123);
   private final TestClock testClock = TestClock.create(TEST_TIME);
@@ -62,7 +65,8 @@ public class DerivedLongGaugeImplTest {
           METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, Type.GAUGE_INT64, LABEL_KEY);
 
   private final DerivedLongGaugeImpl derivedLongGauge =
-      new DerivedLongGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, LABEL_KEY);
+      new DerivedLongGaugeImpl(
+          METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, LABEL_KEY, EMPTY_CONSTANT_LABELS);
 
   // helper class
   public static class QueueManager {
@@ -107,7 +111,8 @@ public class DerivedLongGaugeImplTest {
     List<LabelValue> labelValues = Arrays.asList(LabelValue.create("value1"), null);
 
     DerivedLongGaugeImpl derivedLongGauge =
-        new DerivedLongGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
+        new DerivedLongGaugeImpl(
+            METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys, EMPTY_CONSTANT_LABELS);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValue");
     derivedLongGauge.createTimeSeries(labelValues, null, longFunction);
@@ -156,6 +161,43 @@ public class DerivedLongGaugeImplTest {
                 METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
                     LABEL_VALUES, Point.create(Value.longValue(-200), TEST_TIME), null)));
+  }
+
+  @Test
+  public void withConstantLabels() {
+    List<LabelKey> labelKeys =
+        Arrays.asList(LabelKey.create("key1", "desc"), LabelKey.create("key2", "desc"));
+    List<LabelValue> labelValues =
+        Arrays.asList(LabelValue.create("value1"), LabelValue.create("value2"));
+    LabelKey constantKey = LabelKey.create("constant_key", "desc");
+    LabelValue constantValue = LabelValue.create("constant_value");
+    Map<LabelKey, LabelValue> constantLabels =
+        Collections.<LabelKey, LabelValue>singletonMap(constantKey, constantValue);
+    DerivedLongGaugeImpl derivedLongGauge2 =
+        new DerivedLongGaugeImpl(
+            METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys, constantLabels);
+
+    derivedLongGauge2.createTimeSeries(labelValues, new QueueManager(), queueManagerFunction);
+
+    List<LabelKey> allKeys = new ArrayList<>(labelKeys);
+    allKeys.add(constantKey);
+    MetricDescriptor expectedDescriptor =
+        MetricDescriptor.create(
+            METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, Type.GAUGE_INT64, allKeys);
+
+    List<LabelValue> allValues = new ArrayList<>(labelValues);
+    allValues.add(constantValue);
+    TimeSeries expectedTimeSeries =
+        TimeSeries.createWithOnePoint(allValues, Point.create(Value.longValue(2), TEST_TIME), null);
+
+    Metric metric = derivedLongGauge2.getMetric(testClock);
+    assertThat(metric).isNotNull();
+    assertThat(metric.getMetricDescriptor()).isEqualTo(expectedDescriptor);
+    assertThat(metric.getTimeSeriesList()).containsExactly(expectedTimeSeries);
+
+    derivedLongGauge2.removeTimeSeries(labelValues);
+    Metric metric2 = derivedLongGauge2.getMetric(testClock);
+    assertThat(metric2).isNull();
   }
 
   @Test

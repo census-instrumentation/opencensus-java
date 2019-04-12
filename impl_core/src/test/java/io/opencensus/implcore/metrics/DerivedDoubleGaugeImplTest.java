@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -54,13 +55,17 @@ public class DerivedDoubleGaugeImplTest {
   private static final List<LabelValue> LABEL_VALUES_1 =
       Collections.singletonList(LabelValue.create("value1"));
   private static final Timestamp TEST_TIME = Timestamp.create(1234, 123);
+  private static final Map<LabelKey, LabelValue> EMPTY_CONSTANT_LABELS =
+      Collections.<LabelKey, LabelValue>emptyMap();
+
   private final TestClock testClock = TestClock.create(TEST_TIME);
   private static final MetricDescriptor METRIC_DESCRIPTOR =
       MetricDescriptor.create(
           METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, Type.GAUGE_DOUBLE, LABEL_KEY);
 
   private final DerivedDoubleGaugeImpl derivedDoubleGauge =
-      new DerivedDoubleGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, LABEL_KEY);
+      new DerivedDoubleGaugeImpl(
+          METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, LABEL_KEY, EMPTY_CONSTANT_LABELS);
 
   // helper class
   public static class QueueManager {
@@ -104,7 +109,8 @@ public class DerivedDoubleGaugeImplTest {
         Arrays.asList(LabelKey.create("key1", "desc"), LabelKey.create("key2", "desc"));
     List<LabelValue> labelValues = Arrays.asList(LabelValue.create("value1"), null);
     DerivedDoubleGaugeImpl derivedDoubleGauge =
-        new DerivedDoubleGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
+        new DerivedDoubleGaugeImpl(
+            METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys, EMPTY_CONSTANT_LABELS);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValue");
     derivedDoubleGauge.createTimeSeries(labelValues, null, doubleFunction);
@@ -158,6 +164,44 @@ public class DerivedDoubleGaugeImplTest {
                 METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
                     LABEL_VALUES, Point.create(Value.doubleValue(-200.5), TEST_TIME), null)));
+  }
+
+  @Test
+  public void withConstantLabels() {
+    List<LabelKey> labelKeys =
+        Arrays.asList(LabelKey.create("key1", "desc"), LabelKey.create("key2", "desc"));
+    List<LabelValue> labelValues =
+        Arrays.asList(LabelValue.create("value1"), LabelValue.create("value2"));
+    LabelKey constantKey = LabelKey.create("constant_key", "desc");
+    LabelValue constantValue = LabelValue.create("constant_value");
+    Map<LabelKey, LabelValue> constantLabels =
+        Collections.<LabelKey, LabelValue>singletonMap(constantKey, constantValue);
+    DerivedDoubleGaugeImpl derivedDoubleGauge2 =
+        new DerivedDoubleGaugeImpl(
+            METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys, constantLabels);
+
+    derivedDoubleGauge2.createTimeSeries(labelValues, new QueueManager(), queueManagerFunction);
+
+    List<LabelKey> allKeys = new ArrayList<>(labelKeys);
+    allKeys.add(constantKey);
+    MetricDescriptor expectedDescriptor =
+        MetricDescriptor.create(
+            METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, Type.GAUGE_DOUBLE, allKeys);
+
+    List<LabelValue> allValues = new ArrayList<>(labelValues);
+    allValues.add(constantValue);
+    TimeSeries expectedTimeSeries =
+        TimeSeries.createWithOnePoint(
+            allValues, Point.create(Value.doubleValue(2.5), TEST_TIME), null);
+
+    Metric metric = derivedDoubleGauge2.getMetric(testClock);
+    assertThat(metric).isNotNull();
+    assertThat(metric.getMetricDescriptor()).isEqualTo(expectedDescriptor);
+    assertThat(metric.getTimeSeriesList()).containsExactly(expectedTimeSeries);
+
+    derivedDoubleGauge2.removeTimeSeries(labelValues);
+    Metric metric2 = derivedDoubleGauge2.getMetric(testClock);
+    assertThat(metric2).isNull();
   }
 
   @Test

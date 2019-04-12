@@ -37,9 +37,11 @@ import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.TimeSeries;
 import io.opencensus.metrics.export.Value;
 import io.opencensus.testing.common.TestClock;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -58,14 +60,21 @@ public class MetricRegistryImplTest {
   private static final String DESCRIPTION = "test_description";
   private static final String UNIT = "1";
   private static final LabelKey LABEL_KEY = LabelKey.create("test_key", "test key description");
+  private static final LabelKey LABEL_KEY_2 = LabelKey.create("constant_key", "constant label key");
   private static final List<LabelKey> LABEL_KEYS = Collections.singletonList(LABEL_KEY);
+  private static final List<LabelKey> ALL_KEYS = Arrays.asList(LABEL_KEY, LABEL_KEY_2);
   private static final LabelValue LABEL_VALUE = LabelValue.create("test_value");
+  private static final LabelValue LABEL_VALUE_2 = LabelValue.create("constant_value");
   private static final List<LabelValue> LABEL_VALUES = Collections.singletonList(LABEL_VALUE);
+  private static final List<LabelValue> ALL_VALUES = Arrays.asList(LABEL_VALUE, LABEL_VALUE_2);
+  private static final Map<LabelKey, LabelValue> CONSTANT_LABELS =
+      Collections.singletonMap(LABEL_KEY_2, LABEL_VALUE_2);
   private static final MetricOptions METRIC_OPTIONS =
       MetricOptions.builder()
           .setDescription(DESCRIPTION)
           .setUnit(UNIT)
           .setLabelKeys(LABEL_KEYS)
+          .setConstantLabels(CONSTANT_LABELS)
           .build();
 
   private static final Timestamp TEST_TIME = Timestamp.create(1234, 123);
@@ -73,13 +82,13 @@ public class MetricRegistryImplTest {
   private final MetricRegistryImpl metricRegistry = new MetricRegistryImpl(testClock);
 
   private static final MetricDescriptor LONG_METRIC_DESCRIPTOR =
-      MetricDescriptor.create(NAME, DESCRIPTION, UNIT, Type.GAUGE_INT64, LABEL_KEYS);
+      MetricDescriptor.create(NAME, DESCRIPTION, UNIT, Type.GAUGE_INT64, ALL_KEYS);
   private static final MetricDescriptor DOUBLE_METRIC_DESCRIPTOR =
-      MetricDescriptor.create(NAME_2, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, LABEL_KEYS);
+      MetricDescriptor.create(NAME_2, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, ALL_KEYS);
   private static final MetricDescriptor DERIVED_LONG_METRIC_DESCRIPTOR =
-      MetricDescriptor.create(NAME_3, DESCRIPTION, UNIT, Type.GAUGE_INT64, LABEL_KEYS);
+      MetricDescriptor.create(NAME_3, DESCRIPTION, UNIT, Type.GAUGE_INT64, ALL_KEYS);
   private static final MetricDescriptor DERIVED_DOUBLE_METRIC_DESCRIPTOR =
-      MetricDescriptor.create(NAME_4, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, LABEL_KEYS);
+      MetricDescriptor.create(NAME_4, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, ALL_KEYS);
 
   private static final ToLongFunction<Object> longFunction =
       new ToLongFunction<Object>() {
@@ -136,7 +145,7 @@ public class MetricRegistryImplTest {
             Metric.createWithOneTimeSeries(
                 LONG_METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
-                    LABEL_VALUES, Point.create(Value.longValue(0), TEST_TIME), null)));
+                    ALL_VALUES, Point.create(Value.longValue(0), TEST_TIME), null)));
   }
 
   @Test
@@ -150,7 +159,7 @@ public class MetricRegistryImplTest {
             Metric.createWithOneTimeSeries(
                 DOUBLE_METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
-                    LABEL_VALUES, Point.create(Value.doubleValue(0.0), TEST_TIME), null)));
+                    ALL_VALUES, Point.create(Value.doubleValue(0.0), TEST_TIME), null)));
   }
 
   @Test
@@ -164,7 +173,7 @@ public class MetricRegistryImplTest {
             Metric.createWithOneTimeSeries(
                 DERIVED_LONG_METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
-                    LABEL_VALUES, Point.create(Value.longValue(5), TEST_TIME), null)));
+                    ALL_VALUES, Point.create(Value.longValue(5), TEST_TIME), null)));
   }
 
   @Test
@@ -179,7 +188,7 @@ public class MetricRegistryImplTest {
             Metric.createWithOneTimeSeries(
                 DERIVED_DOUBLE_METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
-                    LABEL_VALUES, Point.create(Value.doubleValue(5.0), TEST_TIME), null)));
+                    ALL_VALUES, Point.create(Value.doubleValue(5.0), TEST_TIME), null)));
   }
 
   @Test
@@ -219,19 +228,19 @@ public class MetricRegistryImplTest {
             Metric.createWithOneTimeSeries(
                 LONG_METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
-                    LABEL_VALUES, Point.create(Value.longValue(200), TEST_TIME), null)),
+                    ALL_VALUES, Point.create(Value.longValue(200), TEST_TIME), null)),
             Metric.createWithOneTimeSeries(
                 DOUBLE_METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
-                    LABEL_VALUES, Point.create(Value.doubleValue(-300.13), TEST_TIME), null)),
+                    ALL_VALUES, Point.create(Value.doubleValue(-300.13), TEST_TIME), null)),
             Metric.createWithOneTimeSeries(
                 DERIVED_LONG_METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
-                    LABEL_VALUES, Point.create(Value.longValue(5), TEST_TIME), null)),
+                    ALL_VALUES, Point.create(Value.longValue(5), TEST_TIME), null)),
             Metric.createWithOneTimeSeries(
                 DERIVED_DOUBLE_METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
-                    LABEL_VALUES, Point.create(Value.doubleValue(5.0), TEST_TIME), null)));
+                    ALL_VALUES, Point.create(Value.doubleValue(5.0), TEST_TIME), null)));
   }
 
   @Test

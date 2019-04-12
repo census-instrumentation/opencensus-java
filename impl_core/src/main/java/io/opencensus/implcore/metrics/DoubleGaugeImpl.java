@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 /** Implementation of {@link DoubleGauge}. */
@@ -48,17 +49,32 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
       Collections.<List<LabelValue>, PointImpl>emptyMap();
   private final int labelKeysSize;
   private final List<LabelValue> defaultLabelValues;
+  private final List<LabelValue> constantLabelValues;
 
-  DoubleGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
-    labelKeysSize = labelKeys.size();
+  DoubleGaugeImpl(
+      String name,
+      String description,
+      String unit,
+      List<LabelKey> labelKeys,
+      Map<LabelKey, LabelValue> constantLabels) {
+    List<LabelValue> constantLabelValues = new ArrayList<LabelValue>();
+    List<LabelKey> allKeys = new ArrayList<>(labelKeys);
+    for (Entry<LabelKey, LabelValue> label : constantLabels.entrySet()) {
+      // Ensure constant label keys and values are in the same order.
+      allKeys.add(label.getKey());
+      constantLabelValues.add(label.getValue());
+    }
+    labelKeysSize = allKeys.size();
     this.metricDescriptor =
-        MetricDescriptor.create(name, description, unit, Type.GAUGE_DOUBLE, labelKeys);
+        MetricDescriptor.create(name, description, unit, Type.GAUGE_DOUBLE, allKeys);
+    this.constantLabelValues = Collections.unmodifiableList(constantLabelValues);
 
     // initialize defaultLabelValues
-    defaultLabelValues = new ArrayList<LabelValue>(labelKeysSize);
-    for (int i = 0; i < labelKeysSize; i++) {
+    defaultLabelValues = new ArrayList<LabelValue>(labelKeys.size());
+    for (int i = 0; i < labelKeys.size(); i++) {
       defaultLabelValues.add(UNSET_VALUE);
     }
+    defaultLabelValues.addAll(constantLabelValues);
   }
 
   @Override
@@ -70,9 +86,9 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
     }
 
     List<LabelValue> labelValuesCopy =
-        Collections.unmodifiableList(
-            new ArrayList<LabelValue>(checkNotNull(labelValues, "labelValues")));
-    return registerTimeSeries(labelValuesCopy);
+        new ArrayList<LabelValue>(checkNotNull(labelValues, "labelValues"));
+    labelValuesCopy.addAll(constantLabelValues);
+    return registerTimeSeries(Collections.unmodifiableList(labelValuesCopy));
   }
 
   @Override
@@ -87,11 +103,13 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
 
   @Override
   public synchronized void removeTimeSeries(List<LabelValue> labelValues) {
-    checkNotNull(labelValues, "labelValues");
+    List<LabelValue> labelValuesCopy =
+        new ArrayList<LabelValue>(checkNotNull(labelValues, "labelValues"));
+    labelValuesCopy.addAll(constantLabelValues);
 
     Map<List<LabelValue>, PointImpl> registeredPointsCopy =
         new LinkedHashMap<List<LabelValue>, PointImpl>(registeredPoints);
-    if (registeredPointsCopy.remove(labelValues) == null) {
+    if (registeredPointsCopy.remove(labelValuesCopy) == null) {
       // The element not present, no need to update the current map of points.
       return;
     }
