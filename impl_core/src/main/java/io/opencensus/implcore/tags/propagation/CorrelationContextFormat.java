@@ -60,11 +60,12 @@ final class CorrelationContextFormat extends TagContextTextFormat {
   private static final int TAGCONTEXT_SERIALIZED_SIZE_LIMIT = 8192;
   private static final char TAG_KEY_VALUE_DELIMITER = '=';
   private static final char TAG_DELIMITER = ',';
-  private static final Splitter TAG_KEY_VALUE_DELIMITER_SPLITTER =
-      Splitter.on(TAG_KEY_VALUE_DELIMITER);
-  private static final Splitter TAG_DELIMITER_SPLITTER = Splitter.on(TAG_DELIMITER);
+  private static final Splitter TAG_KEY_VALUE_SPLITTER = Splitter.on(TAG_KEY_VALUE_DELIMITER);
+  private static final Splitter TAG_SPLITTER = Splitter.on(TAG_DELIMITER);
 
-  // private static final char TAG_PROPERTIES_LEFT_PAREN = '[';
+  // TODO(songya): These constants are for tag metadata. Uncomment them when we decided to support
+  // encoding tag metadata.
+  private static final char TAG_PROPERTIES_LEFT_PAREN = '[';
   // private static final char TAG_PROPERTIES_RIGHT_PAREN = ']';
   // private static final char TAG_PROPERTIES_DELIMITER = ';';
   // private static final char TAG_PROPERTIES_KEY_VALUE_DELIMITER = '=';
@@ -157,19 +158,33 @@ final class CorrelationContextFormat extends TagContextTextFormat {
         return TagMapImpl.EMPTY;
       }
       Map<TagKey, TagValueWithMetadata> tags = new HashMap<>();
-      List<String> stringTags = TAG_DELIMITER_SPLITTER.splitToList(correlationContext);
+      List<String> stringTags = TAG_SPLITTER.splitToList(correlationContext);
       for (String stringTag : stringTags) {
-        List<String> keyValuePair = TAG_KEY_VALUE_DELIMITER_SPLITTER.splitToList(stringTag);
-        checkArgument(keyValuePair.size() == 2, "Malformed tag " + stringTag);
-        TagKey key = TagKey.create(keyValuePair.get(0));
-        TagValueWithMetadata valueWithMetadata =
-            TagValueWithMetadata.create(
-                TagValue.create(keyValuePair.get(1)), METADATA_UNLIMITED_PROPAGATION);
-        tags.put(key, valueWithMetadata);
+        decodeTag(stringTag, tags);
       }
       return new TagMapImpl(tags);
     } catch (IllegalArgumentException e) {
       throw new TagContextDeserializationException("Invalid TagContext: " + correlationContext, e);
     }
+  }
+
+  // Decodes tag key, value and metadata from the encoded string tag, then puts it into the tag map.
+  // The format of encoded string tag is name1=value1[;properties1=p1;properties2=p2].
+  private static void decodeTag(String stringTag, Map<TagKey, TagValueWithMetadata> tags) {
+    String keyWithValue;
+    int propertiesLeftParenIndex = stringTag.indexOf(TAG_PROPERTIES_LEFT_PAREN);
+    if (propertiesLeftParenIndex != -1) { // Tag with properties.
+      keyWithValue = stringTag.substring(0, propertiesLeftParenIndex);
+      // TODO(songya): support decoding tag properties.
+    } else { // Tag without properties.
+      keyWithValue = stringTag;
+    }
+    List<String> keyValuePair = TAG_KEY_VALUE_SPLITTER.splitToList(keyWithValue);
+    checkArgument(keyValuePair.size() == 2, "Malformed tag " + stringTag);
+    TagKey key = TagKey.create(keyValuePair.get(0));
+    TagValueWithMetadata valueWithMetadata =
+        TagValueWithMetadata.create(
+            TagValue.create(keyValuePair.get(1)), METADATA_UNLIMITED_PROPAGATION);
+    tags.put(key, valueWithMetadata);
   }
 }

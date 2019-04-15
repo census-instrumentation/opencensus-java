@@ -176,9 +176,8 @@ public class CorrelationContextFormatTest {
   @Test
   public void extract_WithUnknownProperties() throws TagContextDeserializationException {
     Map<String, String> carrier =
-        Collections.singletonMap(CORRELATION_CONTEXT, "k1=v1[property1;property2],k2=v2");
-    Tag expected =
-        Tag.create(K1, TagValue.create("v1[property1;property2]"), METADATA_UNLIMITED_PROPAGATION);
+        Collections.singletonMap(CORRELATION_CONTEXT, "k1=v1[;property1=p1;property2=p2],k2=v2");
+    Tag expected = Tag.create(K1, TagValue.create("v1"), METADATA_UNLIMITED_PROPAGATION);
     TagContext tagContext = textFormat.extract(carrier, getter);
     assertThat(TagsTestUtil.tagContextToList(tagContext)).containsExactly(expected, T2);
   }
