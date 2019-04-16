@@ -26,7 +26,7 @@ import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import com.google.errorprone.annotations.MustBeClosed;
 import io.jaegertracing.internal.exceptions.SenderException;
-import io.jaegertracing.thrift.internal.senders.HttpSender;
+import io.jaegertracing.thrift.internal.senders.ThriftSender;
 import io.jaegertracing.thriftjava.Log;
 import io.jaegertracing.thriftjava.Process;
 import io.jaegertracing.thriftjava.Span;
@@ -150,10 +150,10 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
   private final byte[] traceIdBuffer = new byte[TraceId.SIZE];
   private final byte[] optionsBuffer = new byte[Integer.SIZE / Byte.SIZE];
 
-  private final HttpSender sender;
+  private final ThriftSender sender;
   private final Process process;
 
-  JaegerExporterHandler(final HttpSender sender, final Process process) {
+  JaegerExporterHandler(final ThriftSender sender, final Process process) {
     this.sender = checkNotNull(sender, "Jaeger sender must NOT be null.");
     this.process = checkNotNull(process, "Process sending traces must NOT be null.");
   }
