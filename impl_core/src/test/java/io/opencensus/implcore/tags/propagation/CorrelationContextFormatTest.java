@@ -120,6 +120,15 @@ public class CorrelationContextFormatTest {
   }
 
   @Test
+  public void inject_MixedPropagatingAndNonPropagatingTags()
+      throws TagContextSerializationException {
+    Map<String, String> carrier = new HashMap<String, String>();
+    Tag tag = Tag.create(K1, V1, METADATA_NO_PROPAGATION);
+    textFormat.inject(makeTagContext(T1, tag, T2), carrier, setter);
+    assertThat(carrier).containsExactly(CORRELATION_CONTEXT, "k1=v1,k2=v2");
+  }
+
+  @Test
   @SuppressWarnings("deprecation")
   public void inject_TaggingDisabled() throws TagContextSerializationException {
     Map<String, String> carrier = new HashMap<String, String>();
