@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.ProjectName;
 import io.opencensus.exporter.metrics.util.MetricExporter;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.trace.Span;
@@ -51,18 +53,21 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
   private final String displayNamePrefix;
   private final Map<String, io.opencensus.metrics.export.MetricDescriptor>
       registeredMetricDescriptors = new LinkedHashMap<>();
+  private final Map<LabelKey, LabelValue> constantLabels;
   private final MetricExporter nextExporter;
 
   CreateMetricDescriptorExporter(
       String projectId,
       MetricServiceClient metricServiceClient,
       @javax.annotation.Nullable String metricNamePrefix,
+      Map<LabelKey, LabelValue> constantLabels,
       MetricExporter nextExporter) {
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.domain = StackdriverExportUtils.getDomain(metricNamePrefix);
     this.displayNamePrefix = StackdriverExportUtils.getDisplayNamePrefix(metricNamePrefix);
+    this.constantLabels = constantLabels;
     this.nextExporter = nextExporter;
   }
 
@@ -95,7 +100,7 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
     span.addAnnotation("Create Stackdriver Metric.");
     MetricDescriptor stackDriverMetricDescriptor =
         StackdriverExportUtils.createMetricDescriptor(
-            metricDescriptor, projectId, domain, displayNamePrefix);
+            metricDescriptor, projectId, domain, displayNamePrefix, constantLabels);
 
     CreateMetricDescriptorRequest request =
         CreateMetricDescriptorRequest.newBuilder()

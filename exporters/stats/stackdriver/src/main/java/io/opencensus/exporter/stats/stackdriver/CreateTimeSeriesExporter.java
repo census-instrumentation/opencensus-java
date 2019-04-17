@@ -26,6 +26,8 @@ import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
 import com.google.monitoring.v3.TimeSeries;
 import io.opencensus.exporter.metrics.util.MetricExporter;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
@@ -34,6 +36,7 @@ import io.opencensus.trace.Tracing;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,16 +48,19 @@ final class CreateTimeSeriesExporter extends MetricExporter {
   private final MetricServiceClient metricServiceClient;
   private final MonitoredResource monitoredResource;
   private final String domain;
+  private final Map<LabelKey, LabelValue> constantLabels;
 
   CreateTimeSeriesExporter(
       String projectId,
       MetricServiceClient metricServiceClient,
       MonitoredResource monitoredResource,
-      @javax.annotation.Nullable String metricNamePrefix) {
+      @javax.annotation.Nullable String metricNamePrefix,
+      Map<LabelKey, LabelValue> constantLabels) {
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.monitoredResource = monitoredResource;
     this.domain = StackdriverExportUtils.getDomain(metricNamePrefix);
+    this.constantLabels = constantLabels;
   }
 
   @Override
@@ -63,7 +69,7 @@ final class CreateTimeSeriesExporter extends MetricExporter {
     for (Metric metric : metrics) {
       timeSeriesList.addAll(
           StackdriverExportUtils.createTimeSeriesList(
-              metric, monitoredResource, domain, projectName.getProject()));
+              metric, monitoredResource, domain, projectName.getProject(), constantLabels));
     }
 
     Span span = tracer.getCurrentSpan();

@@ -18,6 +18,7 @@ package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.CUSTOM_OPENCENSUS_DOMAIN;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_CONSTANT_LABELS;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_DISPLAY_NAME_PREFIX;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -123,14 +124,22 @@ public class CreateMetricDescriptorExporterTest {
     FakeMetricExporter fakeMetricExporter = new FakeMetricExporter();
     CreateMetricDescriptorExporter exporter =
         new CreateMetricDescriptorExporter(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), null, fakeMetricExporter);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            null,
+            DEFAULT_CONSTANT_LABELS,
+            fakeMetricExporter);
     exporter.export(Arrays.asList(METRIC, METRIC_2));
 
     verify(mockStub, times(2)).createMetricDescriptorCallable();
 
     MetricDescriptor descriptor =
         StackdriverExportUtils.createMetricDescriptor(
-            METRIC_DESCRIPTOR, PROJECT_ID, CUSTOM_OPENCENSUS_DOMAIN, DEFAULT_DISPLAY_NAME_PREFIX);
+            METRIC_DESCRIPTOR,
+            PROJECT_ID,
+            CUSTOM_OPENCENSUS_DOMAIN,
+            DEFAULT_DISPLAY_NAME_PREFIX,
+            DEFAULT_CONSTANT_LABELS);
     verify(mockCreateMetricDescriptorCallable, times(1))
         .call(
             eq(
@@ -141,7 +150,11 @@ public class CreateMetricDescriptorExporterTest {
 
     MetricDescriptor descriptor2 =
         StackdriverExportUtils.createMetricDescriptor(
-            METRIC_DESCRIPTOR_2, PROJECT_ID, CUSTOM_OPENCENSUS_DOMAIN, DEFAULT_DISPLAY_NAME_PREFIX);
+            METRIC_DESCRIPTOR_2,
+            PROJECT_ID,
+            CUSTOM_OPENCENSUS_DOMAIN,
+            DEFAULT_DISPLAY_NAME_PREFIX,
+            DEFAULT_CONSTANT_LABELS);
     verify(mockCreateMetricDescriptorCallable, times(1))
         .call(
             eq(
@@ -157,7 +170,11 @@ public class CreateMetricDescriptorExporterTest {
     FakeMetricExporter fakeMetricExporter = new FakeMetricExporter();
     CreateMetricDescriptorExporter exporter =
         new CreateMetricDescriptorExporter(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), null, fakeMetricExporter);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            null,
+            DEFAULT_CONSTANT_LABELS,
+            fakeMetricExporter);
     exporter.export(Collections.<Metric>emptyList());
     verify(mockStub, times(0)).createMetricDescriptorCallable();
     assertThat(fakeMetricExporter.getLastExported()).isEmpty();
@@ -169,7 +186,11 @@ public class CreateMetricDescriptorExporterTest {
     doThrow(new IllegalArgumentException()).when(mockStub).createMetricDescriptorCallable();
     CreateMetricDescriptorExporter exporter =
         new CreateMetricDescriptorExporter(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), null, fakeMetricExporter);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            null,
+            DEFAULT_CONSTANT_LABELS,
+            fakeMetricExporter);
 
     exporter.export(Collections.singletonList(METRIC));
     verify(mockStub, times(1)).createMetricDescriptorCallable();
@@ -181,7 +202,11 @@ public class CreateMetricDescriptorExporterTest {
     FakeMetricExporter fakeMetricExporter = new FakeMetricExporter();
     CreateMetricDescriptorExporter exporter =
         new CreateMetricDescriptorExporter(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), null, fakeMetricExporter);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            null,
+            DEFAULT_CONSTANT_LABELS,
+            fakeMetricExporter);
     exporter.export(Collections.singletonList(METRIC));
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     assertThat(fakeMetricExporter.getLastExported()).containsExactly(METRIC);
@@ -196,7 +221,11 @@ public class CreateMetricDescriptorExporterTest {
     FakeMetricExporter fakeMetricExporter = new FakeMetricExporter();
     CreateMetricDescriptorExporter exporter =
         new CreateMetricDescriptorExporter(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), null, fakeMetricExporter);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            null,
+            DEFAULT_CONSTANT_LABELS,
+            fakeMetricExporter);
     exporter.export(Collections.singletonList(METRIC));
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     assertThat(fakeMetricExporter.getLastExported()).containsExactly(METRIC);
@@ -211,7 +240,11 @@ public class CreateMetricDescriptorExporterTest {
     FakeMetricExporter fakeMetricExporter = new FakeMetricExporter();
     CreateMetricDescriptorExporter exporter =
         new CreateMetricDescriptorExporter(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), null, fakeMetricExporter);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            null,
+            DEFAULT_CONSTANT_LABELS,
+            fakeMetricExporter);
     exporter.export(Collections.singletonList(METRIC_4));
 
     // Should not create MetricDescriptor for built-in metrics, but TimeSeries should be uploaded.

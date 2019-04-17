@@ -16,6 +16,7 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_CONSTANT_LABELS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -100,13 +101,21 @@ public class CreateTimeSeriesExporterTest {
   public void export() {
     CreateTimeSeriesExporter exporter =
         new CreateTimeSeriesExporter(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), DEFAULT_RESOURCE, null);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            DEFAULT_RESOURCE,
+            null,
+            DEFAULT_CONSTANT_LABELS);
     exporter.export(Collections.singletonList(METRIC));
     verify(mockStub, times(1)).createTimeSeriesCallable();
 
     List<TimeSeries> timeSeries =
         StackdriverExportUtils.createTimeSeriesList(
-            METRIC, DEFAULT_RESOURCE, StackdriverExportUtils.CUSTOM_OPENCENSUS_DOMAIN, PROJECT_ID);
+            METRIC,
+            DEFAULT_RESOURCE,
+            StackdriverExportUtils.CUSTOM_OPENCENSUS_DOMAIN,
+            PROJECT_ID,
+            DEFAULT_CONSTANT_LABELS);
 
     verify(mockCreateTimeSeriesCallable, times(1))
         .call(
@@ -121,7 +130,11 @@ public class CreateTimeSeriesExporterTest {
   public void splitInMultipleBatches() {
     CreateTimeSeriesExporter exporter =
         new CreateTimeSeriesExporter(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), DEFAULT_RESOURCE, null);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            DEFAULT_RESOURCE,
+            null,
+            DEFAULT_CONSTANT_LABELS);
     final int numExportedTimeSeries = 4 * StackdriverExportUtils.MAX_BATCH_EXPORT_SIZE;
     ArrayList<Metric> exportedMetrics = new ArrayList<>(numExportedTimeSeries);
     for (int i = 0; i < numExportedTimeSeries; i++) {
@@ -135,7 +148,11 @@ public class CreateTimeSeriesExporterTest {
   public void doNotExportForEmptyMetrics() {
     CreateTimeSeriesExporter exporter =
         new CreateTimeSeriesExporter(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), DEFAULT_RESOURCE, null);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            DEFAULT_RESOURCE,
+            null,
+            DEFAULT_CONSTANT_LABELS);
     exporter.export(Collections.<Metric>emptyList());
     verify(mockStub, times(0)).createTimeSeriesCallable();
   }

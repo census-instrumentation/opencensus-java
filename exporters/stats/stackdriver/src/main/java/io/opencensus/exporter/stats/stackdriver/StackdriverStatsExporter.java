@@ -18,6 +18,7 @@ package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_CONSTANT_LABELS;
 
 import com.google.api.MonitoredResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
@@ -34,8 +35,11 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.exporter.metrics.util.IntervalMetricReader;
 import io.opencensus.exporter.metrics.util.MetricReader;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.Metrics;
 import java.io.IOException;
+import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
@@ -86,7 +90,8 @@ public final class StackdriverStatsExporter {
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
       MonitoredResource monitoredResource,
-      @Nullable String metricNamePrefix) {
+      @Nullable String metricNamePrefix,
+      Map<LabelKey, LabelValue> constantLabels) {
     IntervalMetricReader.Options.Builder intervalMetricReaderOptionsBuilder =
         IntervalMetricReader.Options.builder();
     if (exportInterval != null) {
@@ -98,8 +103,13 @@ public final class StackdriverStatsExporter {
                 projectId,
                 metricServiceClient,
                 metricNamePrefix,
+                constantLabels,
                 new CreateTimeSeriesExporter(
-                    projectId, metricServiceClient, monitoredResource, metricNamePrefix)),
+                    projectId,
+                    metricServiceClient,
+                    monitoredResource,
+                    metricNamePrefix,
+                    constantLabels)),
             MetricReader.create(
                 MetricReader.Options.builder()
                     .setMetricProducerManager(
@@ -128,7 +138,7 @@ public final class StackdriverStatsExporter {
     checkNotNull(credentials, "credentials");
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(credentials, projectId, exportInterval, null, null);
+    createInternal(credentials, projectId, exportInterval, null, null, DEFAULT_CONSTANT_LABELS);
   }
 
   /**
@@ -158,7 +168,7 @@ public final class StackdriverStatsExporter {
       throws IOException {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(null, projectId, exportInterval, null, null);
+    createInternal(null, projectId, exportInterval, null, null, DEFAULT_CONSTANT_LABELS);
   }
 
   /**
@@ -196,7 +206,8 @@ public final class StackdriverStatsExporter {
         configuration.getProjectId(),
         configuration.getExportInterval(),
         configuration.getMonitoredResource(),
-        configuration.getMetricNamePrefix());
+        configuration.getMetricNamePrefix(),
+        configuration.getConstantLabels());
   }
 
   /**
@@ -226,7 +237,7 @@ public final class StackdriverStatsExporter {
    * @since 0.11.0
    */
   public static void createAndRegister() throws IOException {
-    createInternal(null, null, null, null, null);
+    createInternal(null, null, null, null, null, DEFAULT_CONSTANT_LABELS);
   }
 
   /**
@@ -253,7 +264,7 @@ public final class StackdriverStatsExporter {
   @Deprecated
   public static void createAndRegister(Duration exportInterval) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(null, null, exportInterval, null, null);
+    createInternal(null, null, exportInterval, null, null, DEFAULT_CONSTANT_LABELS);
   }
 
   /**
@@ -282,7 +293,8 @@ public final class StackdriverStatsExporter {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
     checkNotNull(monitoredResource, "monitoredResource");
-    createInternal(null, projectId, exportInterval, monitoredResource, null);
+    createInternal(
+        null, projectId, exportInterval, monitoredResource, null, DEFAULT_CONSTANT_LABELS);
   }
 
   /**
@@ -309,7 +321,7 @@ public final class StackdriverStatsExporter {
       Duration exportInterval, MonitoredResource monitoredResource) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
     checkNotNull(monitoredResource, "monitoredResource");
-    createInternal(null, null, exportInterval, monitoredResource, null);
+    createInternal(null, null, exportInterval, monitoredResource, null, DEFAULT_CONSTANT_LABELS);
   }
 
   // Use createInternal() (instead of constructor) to enforce singleton.
@@ -318,7 +330,8 @@ public final class StackdriverStatsExporter {
       @Nullable String projectId,
       @Nullable Duration exportInterval,
       @Nullable MonitoredResource monitoredResource,
-      @Nullable String metricNamePrefix)
+      @Nullable String metricNamePrefix,
+      Map<LabelKey, LabelValue> constantLabels)
       throws IOException {
     projectId =
         projectId == null
@@ -333,7 +346,8 @@ public final class StackdriverStatsExporter {
               createMetricServiceClient(credentials),
               exportInterval == null ? DEFAULT_INTERVAL : exportInterval,
               monitoredResource == null ? DEFAULT_RESOURCE : monitoredResource,
-              metricNamePrefix);
+              metricNamePrefix,
+              constantLabels);
     }
   }
 

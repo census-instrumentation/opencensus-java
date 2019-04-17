@@ -79,9 +79,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @SuppressWarnings("deprecation")
 final class StackdriverExportUtils {
 
-  // TODO(songya): do we want these constants to be customizable?
-  @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
-  @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
+  @VisibleForTesting
+  static final LabelKey OPENCENSUS_TASK_KEY =
+      LabelKey.create("opencensus_task", "Opencensus task identifier");
+
+  @VisibleForTesting
+  static final LabelValue OPENCENSUS_TASK_VALUE_DEFAULT =
+      LabelValue.create(generateDefaultTaskValue());
+
+  static final Map<LabelKey, LabelValue> DEFAULT_CONSTANT_LABELS =
+      Collections.singletonMap(OPENCENSUS_TASK_KEY, OPENCENSUS_TASK_VALUE_DEFAULT);
+
   @VisibleForTesting static final String STACKDRIVER_PROJECT_ID_KEY = "project_id";
   @VisibleForTesting static final String DEFAULT_DISPLAY_NAME_PREFIX = "OpenCensus/";
   @VisibleForTesting static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com/";
@@ -97,7 +105,6 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String AWS_REGION_VALUE_PREFIX = "aws:";
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
-  private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
 
   // Mappings for the well-known OC resources to applicable Stackdriver resources.
   private static final Map<String, String> GCP_RESOURCE_MAPPING = getGcpResourceLabelsMappings();
@@ -206,7 +213,8 @@ final class StackdriverExportUtils {
       io.opencensus.metrics.export.MetricDescriptor metricDescriptor,
       String projectId,
       String domain,
-      String displayNamePrefix) {
+      String displayNamePrefix,
+      Map<LabelKey, LabelValue> constantLabels) {
 
     MetricDescriptor.Builder builder = MetricDescriptor.newBuilder();
     String type = generateType(metricDescriptor.getName(), domain);
@@ -219,12 +227,9 @@ final class StackdriverExportUtils {
     for (LabelKey labelKey : metricDescriptor.getLabelKeys()) {
       builder.addLabels(createLabelDescriptor(labelKey));
     }
-    builder.addLabels(
-        LabelDescriptor.newBuilder()
-            .setKey(OPENCENSUS_TASK)
-            .setDescription(OPENCENSUS_TASK_DESCRIPTION)
-            .setValueType(ValueType.STRING)
-            .build());
+    for (LabelKey labelKey : constantLabels.keySet()) {
+      builder.addLabels(createLabelDescriptor(labelKey));
+    }
 
     builder.setUnit(metricDescriptor.getUnit());
     builder.setMetricKind(createMetricKind(metricDescriptor.getType()));
@@ -283,7 +288,8 @@ final class StackdriverExportUtils {
       io.opencensus.metrics.export.Metric metric,
       MonitoredResource monitoredResource,
       String domain,
-      String projectId) {
+      String projectId,
+      Map<LabelKey, LabelValue> constantLabels) {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     io.opencensus.metrics.export.MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
 
@@ -301,7 +307,8 @@ final class StackdriverExportUtils {
     for (io.opencensus.metrics.export.TimeSeries timeSeries : metric.getTimeSeriesList()) {
       // TODO(mayurkale): Consider using setPoints instead of builder clone and addPoints.
       TimeSeries.Builder builder = shared.clone();
-      builder.setMetric(createMetric(metricDescriptor, timeSeries.getLabelValues(), domain));
+      builder.setMetric(
+          createMetric(metricDescriptor, timeSeries.getLabelValues(), domain, constantLabels));
 
       io.opencensus.common.Timestamp startTimeStamp = timeSeries.getStartTimestamp();
       for (io.opencensus.metrics.export.Point point : timeSeries.getPoints()) {
@@ -317,7 +324,8 @@ final class StackdriverExportUtils {
   static Metric createMetric(
       io.opencensus.metrics.export.MetricDescriptor metricDescriptor,
       List<LabelValue> labelValues,
-      String domain) {
+      String domain,
+      Map<LabelKey, LabelValue> constantLabels) {
     Metric.Builder builder = Metric.newBuilder();
     builder.setType(generateType(metricDescriptor.getName(), domain));
     Map<String, String> stringTagMap = Maps.newHashMap();
@@ -329,7 +337,9 @@ final class StackdriverExportUtils {
       }
       stringTagMap.put(labelKeys.get(i).getKey(), value);
     }
-    stringTagMap.put(OPENCENSUS_TASK, OPENCENSUS_TASK_VALUE_DEFAULT);
+    for (Map.Entry<LabelKey, LabelValue> constantLabel : constantLabels.entrySet()) {
+      stringTagMap.put(constantLabel.getKey().getKey(), constantLabel.getValue().getValue());
+    }
     builder.putAllLabels(stringTagMap);
     return builder.build();
   }

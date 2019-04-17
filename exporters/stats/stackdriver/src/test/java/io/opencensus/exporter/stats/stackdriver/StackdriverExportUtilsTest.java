@@ -18,6 +18,7 @@ package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.CUSTOM_OPENCENSUS_DOMAIN;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_CONSTANT_LABELS;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_DISPLAY_NAME_PREFIX;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.PERCENTILE_LABEL_KEY;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.SNAPSHOT_SUFFIX_PERCENTILE;
@@ -125,6 +126,7 @@ public class StackdriverExportUtilsTest {
 
   private static final String DEFAULT_TASK_VALUE =
       "java-" + ManagementFactory.getRuntimeMXBean().getName();
+  private static final Map<LabelKey, LabelValue> EMPTY_CONSTANT_LABELS = Collections.emptyMap();
 
   private static final io.opencensus.trace.SpanContext SPAN_CONTEXT_INVALID =
       io.opencensus.trace.SpanContext.INVALID;
@@ -218,9 +220,10 @@ public class StackdriverExportUtilsTest {
 
   @Test
   public void testConstants() {
-    assertThat(StackdriverExportUtils.OPENCENSUS_TASK).isEqualTo("opencensus_task");
-    assertThat(StackdriverExportUtils.OPENCENSUS_TASK_DESCRIPTION)
-        .isEqualTo("Opencensus task identifier");
+    assertThat(StackdriverExportUtils.OPENCENSUS_TASK_KEY)
+        .isEqualTo(LabelKey.create("opencensus_task", "Opencensus task identifier"));
+    assertThat(StackdriverExportUtils.OPENCENSUS_TASK_VALUE_DEFAULT.getValue())
+        .isEqualTo(DEFAULT_TASK_VALUE);
     assertThat(StackdriverExportUtils.STACKDRIVER_PROJECT_ID_KEY).isEqualTo("project_id");
     assertThat(StackdriverExportUtils.MAX_BATCH_EXPORT_SIZE).isEqualTo(200);
     assertThat(StackdriverExportUtils.CUSTOM_METRIC_DOMAIN).isEqualTo("custom.googleapis.com/");
@@ -272,12 +275,12 @@ public class StackdriverExportUtilsTest {
   public void createMetric() {
     assertThat(
             StackdriverExportUtils.createMetric(
-                METRIC_DESCRIPTOR, LABEL_VALUE, CUSTOM_OPENCENSUS_DOMAIN))
+                METRIC_DESCRIPTOR, LABEL_VALUE, CUSTOM_OPENCENSUS_DOMAIN, DEFAULT_CONSTANT_LABELS))
         .isEqualTo(
             Metric.newBuilder()
                 .setType("custom.googleapis.com/opencensus/" + METRIC_NAME)
                 .putLabels("KEY1", "VALUE1")
-                .putLabels(StackdriverExportUtils.OPENCENSUS_TASK, DEFAULT_TASK_VALUE)
+                .putLabels(StackdriverExportUtils.OPENCENSUS_TASK_KEY.getKey(), DEFAULT_TASK_VALUE)
                 .build());
   }
 
@@ -285,12 +288,13 @@ public class StackdriverExportUtilsTest {
   public void createMetric_WithExternalMetricDomain() {
     String prometheusDomain = "external.googleapis.com/prometheus/";
     assertThat(
-            StackdriverExportUtils.createMetric(METRIC_DESCRIPTOR, LABEL_VALUE, prometheusDomain))
+            StackdriverExportUtils.createMetric(
+                METRIC_DESCRIPTOR, LABEL_VALUE, prometheusDomain, DEFAULT_CONSTANT_LABELS))
         .isEqualTo(
             Metric.newBuilder()
                 .setType(prometheusDomain + METRIC_NAME)
                 .putLabels("KEY1", "VALUE1")
-                .putLabels(StackdriverExportUtils.OPENCENSUS_TASK, DEFAULT_TASK_VALUE)
+                .putLabels(StackdriverExportUtils.OPENCENSUS_TASK_KEY.getKey(), DEFAULT_TASK_VALUE)
                 .build());
   }
 
@@ -298,11 +302,40 @@ public class StackdriverExportUtilsTest {
   public void createMetric_EmptyLabel() {
     assertThat(
             StackdriverExportUtils.createMetric(
-                METRIC_DESCRIPTOR_2, EMPTY_LABEL_VALUE, CUSTOM_OPENCENSUS_DOMAIN))
+                METRIC_DESCRIPTOR_2,
+                EMPTY_LABEL_VALUE,
+                CUSTOM_OPENCENSUS_DOMAIN,
+                DEFAULT_CONSTANT_LABELS))
         .isEqualTo(
             Metric.newBuilder()
                 .setType("custom.googleapis.com/opencensus/" + METRIC_NAME)
-                .putLabels(StackdriverExportUtils.OPENCENSUS_TASK, DEFAULT_TASK_VALUE)
+                .putLabels(StackdriverExportUtils.OPENCENSUS_TASK_KEY.getKey(), DEFAULT_TASK_VALUE)
+                .build());
+  }
+
+  @Test
+  public void createMetric_EmptyConstantLabels() {
+    assertThat(
+            StackdriverExportUtils.createMetric(
+                METRIC_DESCRIPTOR_2,
+                EMPTY_LABEL_VALUE,
+                CUSTOM_OPENCENSUS_DOMAIN,
+                EMPTY_CONSTANT_LABELS))
+        .isEqualTo(
+            Metric.newBuilder().setType("custom.googleapis.com/opencensus/" + METRIC_NAME).build());
+  }
+
+  @Test
+  public void createMetric_CustomConstantLabels() {
+    Map<LabelKey, LabelValue> constantLabels =
+        Collections.singletonMap(LabelKey.create("my_key", "desc"), LabelValue.create("value"));
+    assertThat(
+            StackdriverExportUtils.createMetric(
+                METRIC_DESCRIPTOR_2, EMPTY_LABEL_VALUE, CUSTOM_OPENCENSUS_DOMAIN, constantLabels))
+        .isEqualTo(
+            Metric.newBuilder()
+                .setType("custom.googleapis.com/opencensus/" + METRIC_NAME)
+                .putAllLabels(Collections.singletonMap("my_key", "value"))
                 .build());
   }
 
@@ -418,7 +451,11 @@ public class StackdriverExportUtilsTest {
   public void createMetricDescriptor() {
     MetricDescriptor metricDescriptor =
         StackdriverExportUtils.createMetricDescriptor(
-            METRIC_DESCRIPTOR, PROJECT_ID, "custom.googleapis.com/myorg/", "myorg/");
+            METRIC_DESCRIPTOR,
+            PROJECT_ID,
+            "custom.googleapis.com/myorg/",
+            "myorg/",
+            DEFAULT_CONSTANT_LABELS);
     assertThat(metricDescriptor.getName())
         .isEqualTo(
             "projects/"
@@ -440,8 +477,33 @@ public class StackdriverExportUtilsTest {
                 .setValueType(ValueType.STRING)
                 .build(),
             LabelDescriptor.newBuilder()
-                .setKey(StackdriverExportUtils.OPENCENSUS_TASK)
-                .setDescription(StackdriverExportUtils.OPENCENSUS_TASK_DESCRIPTION)
+                .setKey(StackdriverExportUtils.OPENCENSUS_TASK_KEY.getKey())
+                .setDescription(StackdriverExportUtils.OPENCENSUS_TASK_KEY.getDescription())
+                .setValueType(ValueType.STRING)
+                .build());
+  }
+
+  @Test
+  public void createMetricDescriptor_WithCustomConstantLabels() {
+    Map<LabelKey, LabelValue> constantLabels =
+        Collections.singletonMap(LabelKey.create("my_key", "desc"), LabelValue.create("value"));
+    MetricDescriptor metricDescriptor =
+        StackdriverExportUtils.createMetricDescriptor(
+            METRIC_DESCRIPTOR,
+            PROJECT_ID,
+            "custom.googleapis.com/myorg/",
+            "myorg/",
+            constantLabels);
+    assertThat(metricDescriptor.getLabelsList())
+        .containsExactly(
+            LabelDescriptor.newBuilder()
+                .setKey(LABEL_KEY.get(0).getKey())
+                .setDescription(LABEL_KEY.get(0).getDescription())
+                .setValueType(ValueType.STRING)
+                .build(),
+            LabelDescriptor.newBuilder()
+                .setKey("my_key")
+                .setDescription("desc")
                 .setValueType(ValueType.STRING)
                 .build());
   }
@@ -450,7 +512,11 @@ public class StackdriverExportUtilsTest {
   public void createMetricDescriptor_cumulative() {
     MetricDescriptor metricDescriptor =
         StackdriverExportUtils.createMetricDescriptor(
-            METRIC_DESCRIPTOR_2, PROJECT_ID, CUSTOM_OPENCENSUS_DOMAIN, DEFAULT_DISPLAY_NAME_PREFIX);
+            METRIC_DESCRIPTOR_2,
+            PROJECT_ID,
+            CUSTOM_OPENCENSUS_DOMAIN,
+            DEFAULT_DISPLAY_NAME_PREFIX,
+            DEFAULT_CONSTANT_LABELS);
     assertThat(metricDescriptor.getName())
         .isEqualTo(
             "projects/"
@@ -467,8 +533,8 @@ public class StackdriverExportUtilsTest {
     assertThat(metricDescriptor.getLabelsList())
         .containsExactly(
             LabelDescriptor.newBuilder()
-                .setKey(StackdriverExportUtils.OPENCENSUS_TASK)
-                .setDescription(StackdriverExportUtils.OPENCENSUS_TASK_DESCRIPTION)
+                .setKey(StackdriverExportUtils.OPENCENSUS_TASK_KEY.getKey())
+                .setDescription(StackdriverExportUtils.OPENCENSUS_TASK_KEY.getDescription())
                 .setValueType(ValueType.STRING)
                 .build());
   }
@@ -477,7 +543,11 @@ public class StackdriverExportUtilsTest {
   public void createTimeSeriesList_Cumulative() {
     List<TimeSeries> timeSeriesList =
         StackdriverExportUtils.createTimeSeriesList(
-            METRIC, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN, PROJECT_ID);
+            METRIC,
+            DEFAULT_RESOURCE,
+            CUSTOM_OPENCENSUS_DOMAIN,
+            PROJECT_ID,
+            DEFAULT_CONSTANT_LABELS);
     assertThat(timeSeriesList).hasSize(1);
     TimeSeries expectedTimeSeries =
         TimeSeries.newBuilder()
@@ -485,7 +555,10 @@ public class StackdriverExportUtilsTest {
             .setValueType(MetricDescriptor.ValueType.DOUBLE)
             .setMetric(
                 StackdriverExportUtils.createMetric(
-                    METRIC_DESCRIPTOR, LABEL_VALUE, CUSTOM_OPENCENSUS_DOMAIN))
+                    METRIC_DESCRIPTOR,
+                    LABEL_VALUE,
+                    CUSTOM_OPENCENSUS_DOMAIN,
+                    DEFAULT_CONSTANT_LABELS))
             .setResource(MonitoredResource.newBuilder().setType("global"))
             .addPoints(StackdriverExportUtils.createPoint(POINT, TIMESTAMP_2))
             .build();
@@ -496,7 +569,11 @@ public class StackdriverExportUtilsTest {
   public void createTimeSeriesList_Distribution() {
     List<TimeSeries> timeSeriesList =
         StackdriverExportUtils.createTimeSeriesList(
-            DISTRIBUTION_METRIC, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN, PROJECT_ID);
+            DISTRIBUTION_METRIC,
+            DEFAULT_RESOURCE,
+            CUSTOM_OPENCENSUS_DOMAIN,
+            PROJECT_ID,
+            DEFAULT_CONSTANT_LABELS);
 
     assertThat(timeSeriesList.size()).isEqualTo(1);
     TimeSeries timeSeries = timeSeriesList.get(0);
@@ -555,7 +632,11 @@ public class StackdriverExportUtilsTest {
 
     List<TimeSeries> timeSeriesList =
         StackdriverExportUtils.createTimeSeriesList(
-            metric, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN, PROJECT_ID);
+            metric,
+            DEFAULT_RESOURCE,
+            CUSTOM_OPENCENSUS_DOMAIN,
+            PROJECT_ID,
+            DEFAULT_CONSTANT_LABELS);
     assertThat(timeSeriesList).hasSize(2);
     TimeSeries expected1 =
         TimeSeries.newBuilder()
@@ -563,7 +644,10 @@ public class StackdriverExportUtilsTest {
             .setValueType(MetricDescriptor.ValueType.DOUBLE)
             .setMetric(
                 StackdriverExportUtils.createMetric(
-                    GAUGE_METRIC_DESCRIPTOR, LABEL_VALUE, CUSTOM_OPENCENSUS_DOMAIN))
+                    GAUGE_METRIC_DESCRIPTOR,
+                    LABEL_VALUE,
+                    CUSTOM_OPENCENSUS_DOMAIN,
+                    DEFAULT_CONSTANT_LABELS))
             .setResource(MonitoredResource.newBuilder().setType("global"))
             .addPoints(StackdriverExportUtils.createPoint(POINT, null))
             .build();
@@ -573,7 +657,10 @@ public class StackdriverExportUtilsTest {
             .setValueType(MetricDescriptor.ValueType.DOUBLE)
             .setMetric(
                 StackdriverExportUtils.createMetric(
-                    GAUGE_METRIC_DESCRIPTOR, LABEL_VALUE_2, CUSTOM_OPENCENSUS_DOMAIN))
+                    GAUGE_METRIC_DESCRIPTOR,
+                    LABEL_VALUE_2,
+                    CUSTOM_OPENCENSUS_DOMAIN,
+                    DEFAULT_CONSTANT_LABELS))
             .setResource(MonitoredResource.newBuilder().setType("global"))
             .addPoints(StackdriverExportUtils.createPoint(POINT_2, null))
             .build();
@@ -586,7 +673,7 @@ public class StackdriverExportUtilsTest {
         MonitoredResource.newBuilder().setType("global").putLabels("key", "value").build();
     List<TimeSeries> timeSeriesList =
         StackdriverExportUtils.createTimeSeriesList(
-            METRIC, resource, CUSTOM_OPENCENSUS_DOMAIN, PROJECT_ID);
+            METRIC, resource, CUSTOM_OPENCENSUS_DOMAIN, PROJECT_ID, DEFAULT_CONSTANT_LABELS);
     assertThat(timeSeriesList)
         .containsExactly(
             TimeSeries.newBuilder()
@@ -594,7 +681,10 @@ public class StackdriverExportUtilsTest {
                 .setValueType(MetricDescriptor.ValueType.DOUBLE)
                 .setMetric(
                     StackdriverExportUtils.createMetric(
-                        METRIC_DESCRIPTOR, LABEL_VALUE, CUSTOM_OPENCENSUS_DOMAIN))
+                        METRIC_DESCRIPTOR,
+                        LABEL_VALUE,
+                        CUSTOM_OPENCENSUS_DOMAIN,
+                        DEFAULT_CONSTANT_LABELS))
                 .setResource(resource)
                 .addPoints(StackdriverExportUtils.createPoint(POINT, TIMESTAMP_2))
                 .build());

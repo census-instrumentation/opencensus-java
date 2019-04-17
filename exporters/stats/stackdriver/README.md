@@ -156,6 +156,15 @@ Stackdriver exporter adds a new `Metric` label for each custom `Metric` to ensur
 of the `Timeseries`. The format of the label is: `{LANGUAGE}-{PID}@{HOSTNAME}`, if `{PID}` is not
 available a random number will be used.
 
+You have the option to override the "opencensus_task" metric label with custom constant labels with
+`StackdriverStatsConfiguration.Builder.setConstantLabels()`. If you do so, make sure that the 
+monitored resource together with these labels is unique to the current process. This is to ensure 
+that there is only a single writer to each time series in Stackdriver.
+
+You can also set `StackdriverStatsConfiguration.Builder.setConstantLabels()` to an empty map to 
+avoid getting the default "opencensus_task" label. You should only do this if you know that the 
+monitored resource uniquely identifies this process.
+
 ### Why did I get an error "java.lang.NoSuchMethodError: com.google.common...", like "java.lang.NoSuchMethodError:com.google.common.base.Throwables.throwIfInstanceOf"?
 This is probably because there is a version conflict on Guava in the dependency tree.
 

@@ -17,12 +17,16 @@
 package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_CONSTANT_LABELS;
 
 import com.google.api.MonitoredResource;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import io.opencensus.common.Duration;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
+import java.util.Collections;
 import java.util.Date;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,12 +56,14 @@ public class StackdriverStatsConfigurationTest {
             .setExportInterval(DURATION)
             .setMonitoredResource(RESOURCE)
             .setMetricNamePrefix(CUSTOM_PREFIX)
+            .setConstantLabels(Collections.<LabelKey, LabelValue>emptyMap())
             .build();
     assertThat(configuration.getCredentials()).isEqualTo(FAKE_CREDENTIALS);
     assertThat(configuration.getProjectId()).isEqualTo(PROJECT_ID);
     assertThat(configuration.getExportInterval()).isEqualTo(DURATION);
     assertThat(configuration.getMonitoredResource()).isEqualTo(RESOURCE);
     assertThat(configuration.getMetricNamePrefix()).isEqualTo(CUSTOM_PREFIX);
+    assertThat(configuration.getConstantLabels()).isEmpty();
   }
 
   @Test
@@ -68,5 +74,6 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getExportInterval()).isNull();
     assertThat(configuration.getMonitoredResource()).isNull();
     assertThat(configuration.getMetricNamePrefix()).isNull();
+    assertThat(configuration.getConstantLabels()).isEqualTo(DEFAULT_CONSTANT_LABELS);
   }
 }
