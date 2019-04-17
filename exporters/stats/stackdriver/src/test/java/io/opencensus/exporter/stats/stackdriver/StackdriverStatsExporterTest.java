@@ -51,11 +51,6 @@ public class StackdriverStatsExporterTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testConstants() {
-    assertThat(StackdriverStatsExporter.DEFAULT_INTERVAL).isEqualTo(Duration.create(60, 0));
-  }
-
-  @Test
   public void createWithNullStackdriverStatsConfiguration() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("configuration");

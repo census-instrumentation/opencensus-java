@@ -21,9 +21,14 @@ import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DE
 import com.google.api.MonitoredResource;
 import com.google.auth.Credentials;
 import com.google.auto.value.AutoValue;
+import com.google.cloud.ServiceOptions;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import io.opencensus.common.Duration;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -36,6 +41,11 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue
 @Immutable
 public abstract class StackdriverStatsConfiguration {
+
+  static final Duration DEFAULT_INTERVAL = Duration.create(60, 0);
+  static final MonitoredResource DEFAULT_RESOURCE = StackdriverExportUtils.getDefaultResource();
+  static final String DEFAULT_PROJECT_ID =
+      Strings.nullToEmpty(ServiceOptions.getDefaultProjectId());
 
   StackdriverStatsConfiguration() {}
 
@@ -54,7 +64,6 @@ public abstract class StackdriverStatsConfiguration {
    * @return the project id.
    * @since 0.11
    */
-  @Nullable
   public abstract String getProjectId();
 
   /**
@@ -63,7 +72,6 @@ public abstract class StackdriverStatsConfiguration {
    * @return the export interval.
    * @since 0.11
    */
-  @Nullable
   public abstract Duration getExportInterval();
 
   /**
@@ -72,7 +80,6 @@ public abstract class StackdriverStatsConfiguration {
    * @return the {@code MonitoredResource}.
    * @since 0.11
    */
-  @Nullable
   public abstract MonitoredResource getMonitoredResource();
 
   /**
@@ -100,7 +107,10 @@ public abstract class StackdriverStatsConfiguration {
    */
   public static Builder builder() {
     return new AutoValue_StackdriverStatsConfiguration.Builder()
-        .setConstantLabels(DEFAULT_CONSTANT_LABELS);
+        .setProjectId(DEFAULT_PROJECT_ID)
+        .setConstantLabels(DEFAULT_CONSTANT_LABELS)
+        .setExportInterval(DEFAULT_INTERVAL)
+        .setMonitoredResource(DEFAULT_RESOURCE);
   }
 
   /**
@@ -182,12 +192,31 @@ public abstract class StackdriverStatsConfiguration {
      */
     public abstract Builder setConstantLabels(Map<LabelKey, LabelValue> constantLabels);
 
+    abstract String getProjectId();
+
+    abstract Map<LabelKey, LabelValue> getConstantLabels();
+
+    abstract StackdriverStatsConfiguration autoBuild();
+
     /**
      * Builds a new {@link StackdriverStatsConfiguration} with current settings.
      *
      * @return a {@code StackdriverStatsConfiguration}.
      * @since 0.11
      */
-    public abstract StackdriverStatsConfiguration build();
+    public StackdriverStatsConfiguration build() {
+      // Make a defensive copy of constant labels.
+      setConstantLabels(
+          Collections.unmodifiableMap(
+              new LinkedHashMap<LabelKey, LabelValue>(getConstantLabels())));
+      Preconditions.checkArgument(
+          !Strings.isNullOrEmpty(getProjectId()),
+          "Cannot find a project ID from either configurations or application default.");
+      for (Map.Entry<LabelKey, LabelValue> constantLabel : getConstantLabels().entrySet()) {
+        Preconditions.checkNotNull(constantLabel.getKey(), "constant label key");
+        Preconditions.checkNotNull(constantLabel.getValue(), "constant label value");
+      }
+      return autoBuild();
+    }
   }
 }
