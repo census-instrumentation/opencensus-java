@@ -18,8 +18,13 @@ package io.opencensus.exporter.trace.stackdriver;
 
 import com.google.auth.Credentials;
 import com.google.auto.value.AutoValue;
+import com.google.cloud.ServiceOptions;
 import com.google.cloud.trace.v2.stub.TraceServiceStub;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import io.opencensus.trace.AttributeValue;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -32,6 +37,9 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue
 @Immutable
 public abstract class StackdriverTraceConfiguration {
+
+  private static final String DEFAULT_PROJECT_ID =
+      Strings.nullToEmpty(ServiceOptions.getDefaultProjectId());
 
   StackdriverTraceConfiguration() {}
 
@@ -50,7 +58,6 @@ public abstract class StackdriverTraceConfiguration {
    * @return the cloud project id.
    * @since 0.12
    */
-  @Nullable
   public abstract String getProjectId();
 
   /**
@@ -68,7 +75,6 @@ public abstract class StackdriverTraceConfiguration {
    * @return the map of attributes that is added to all the exported spans.
    * @since 0.19
    */
-  @Nullable
   public abstract Map<String, AttributeValue> getFixedAttributes();
 
   /**
@@ -78,7 +84,9 @@ public abstract class StackdriverTraceConfiguration {
    * @since 0.12
    */
   public static Builder builder() {
-    return new AutoValue_StackdriverTraceConfiguration.Builder();
+    return new AutoValue_StackdriverTraceConfiguration.Builder()
+        .setProjectId(DEFAULT_PROJECT_ID)
+        .setFixedAttributes(Collections.<String, AttributeValue>emptyMap());
   }
 
   /**
@@ -127,12 +135,31 @@ public abstract class StackdriverTraceConfiguration {
      */
     public abstract Builder setFixedAttributes(Map<String, AttributeValue> fixedAttributes);
 
+    abstract String getProjectId();
+
+    abstract Map<String, AttributeValue> getFixedAttributes();
+
+    abstract StackdriverTraceConfiguration autoBuild();
+
     /**
      * Builds a {@link StackdriverTraceConfiguration}.
      *
      * @return a {@code StackdriverTraceConfiguration}.
      * @since 0.12
      */
-    public abstract StackdriverTraceConfiguration build();
+    public StackdriverTraceConfiguration build() {
+      // Make a defensive copy of fixed attributes.
+      setFixedAttributes(
+          Collections.unmodifiableMap(
+              new LinkedHashMap<String, AttributeValue>(getFixedAttributes())));
+      Preconditions.checkArgument(
+          !Strings.isNullOrEmpty(getProjectId()),
+          "Cannot find a project ID from either configurations or application default.");
+      for (Map.Entry<String, AttributeValue> fixedAttribute : getFixedAttributes().entrySet()) {
+        Preconditions.checkNotNull(fixedAttribute.getKey(), "attribute key");
+        Preconditions.checkNotNull(fixedAttribute.getValue(), "attribute value");
+      }
+      return autoBuild();
+    }
   }
 }

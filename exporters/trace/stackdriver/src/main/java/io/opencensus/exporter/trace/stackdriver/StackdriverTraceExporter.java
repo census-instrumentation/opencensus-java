@@ -79,9 +79,6 @@ public final class StackdriverTraceExporter {
       Credentials credentials = configuration.getCredentials();
       String projectId = configuration.getProjectId();
 
-      // TODO(sebright): Handle null default project ID.
-      projectId = projectId != null ? projectId : castNonNull(ServiceOptions.getDefaultProjectId());
-
       StackdriverV2ExporterHandler handler;
       TraceServiceStub stub = configuration.getTraceServiceStub();
       if (stub == null) {
@@ -98,12 +95,6 @@ public final class StackdriverTraceExporter {
 
       registerInternal(handler);
     }
-  }
-
-  // TODO(sebright): Remove this method.
-  @SuppressWarnings("nullness")
-  private static <T> T castNonNull(@javax.annotation.Nullable T arg) {
-    return arg;
   }
 
   private static void registerInternal(Handler newHandler) {

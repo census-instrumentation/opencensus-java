@@ -148,19 +148,14 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private StackdriverV2ExporterHandler(
       String projectId,
       TraceServiceClient traceServiceClient,
-      @javax.annotation.Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes) {
-    this.projectId = checkNotNull(projectId, "projectId");
+      Map<String, io.opencensus.trace.AttributeValue> fixedAttributes) {
+    this.projectId = projectId;
     this.traceServiceClient = traceServiceClient;
-    if (fixedAttributes == null) {
-      this.fixedAttributes = Collections.emptyMap();
-    } else {
-      this.fixedAttributes = new HashMap<>();
-      for (Map.Entry<String, io.opencensus.trace.AttributeValue> label :
-          fixedAttributes.entrySet()) {
-        AttributeValue value = toAttributeValueProto(label.getValue());
-        if (value != null) {
-          this.fixedAttributes.put(label.getKey(), value);
-        }
+    this.fixedAttributes = new HashMap<>();
+    for (Map.Entry<String, io.opencensus.trace.AttributeValue> label : fixedAttributes.entrySet()) {
+      AttributeValue value = toAttributeValueProto(label.getValue());
+      if (value != null) {
+        this.fixedAttributes.put(label.getKey(), value);
       }
     }
     projectName = ProjectName.of(this.projectId);
@@ -169,14 +164,14 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   static StackdriverV2ExporterHandler createWithStub(
       String projectId,
       TraceServiceClient traceServiceClient,
-      @javax.annotation.Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes) {
+      Map<String, io.opencensus.trace.AttributeValue> fixedAttributes) {
     return new StackdriverV2ExporterHandler(projectId, traceServiceClient, fixedAttributes);
   }
 
   static StackdriverV2ExporterHandler createWithCredentials(
       String projectId,
       Credentials credentials,
-      @javax.annotation.Nullable Map<String, io.opencensus.trace.AttributeValue> fixedAttributes)
+      Map<String, io.opencensus.trace.AttributeValue> fixedAttributes)
       throws IOException {
     TraceServiceSettings traceServiceSettings =
         TraceServiceSettings.newBuilder()
