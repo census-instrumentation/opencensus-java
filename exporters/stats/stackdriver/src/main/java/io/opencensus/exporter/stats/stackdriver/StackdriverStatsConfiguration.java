@@ -16,10 +16,15 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_CONSTANT_LABELS;
+
 import com.google.api.MonitoredResource;
 import com.google.auth.Credentials;
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Duration;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
+import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -80,13 +85,22 @@ public abstract class StackdriverStatsConfiguration {
   public abstract String getMetricNamePrefix();
 
   /**
+   * Returns the constant labels that will be applied to every Stackdriver metric.
+   *
+   * @return the constant labels.
+   * @since 0.21
+   */
+  public abstract Map<LabelKey, LabelValue> getConstantLabels();
+
+  /**
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
    * @since 0.11
    */
   public static Builder builder() {
-    return new AutoValue_StackdriverStatsConfiguration.Builder();
+    return new AutoValue_StackdriverStatsConfiguration.Builder()
+        .setConstantLabels(DEFAULT_CONSTANT_LABELS);
   }
 
   /**
@@ -147,6 +161,26 @@ public abstract class StackdriverStatsConfiguration {
      * @since 0.16
      */
     public abstract Builder setMetricNamePrefix(String prefix);
+
+    /**
+     * Sets the constant labels that will be applied to every Stackdriver metric. This default
+     * ensures that the set of labels together with the default resource (global) are unique to this
+     * process, as required by stackdriver.
+     *
+     * <p>If not set, the exporter will use the "opencensus_task" label.
+     *
+     * <p>If you set constant labels, make sure that the monitored resource together with these
+     * labels is unique to the current process. This is to ensure that there is only a single writer
+     * to each time series in Stackdriver.
+     *
+     * <p>Set constant labels to empty to avoid getting the default "opencensus_task" label. You
+     * should only do this if you know that the monitored resource uniquely identifies this process.
+     *
+     * @param constantLabels constant labels that will be applied to every Stackdriver metric.
+     * @return this
+     * @since 0.21
+     */
+    public abstract Builder setConstantLabels(Map<LabelKey, LabelValue> constantLabels);
 
     /**
      * Builds a new {@link StackdriverStatsConfiguration} with current settings.
