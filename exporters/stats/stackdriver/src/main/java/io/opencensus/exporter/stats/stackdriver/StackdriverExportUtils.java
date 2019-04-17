@@ -338,7 +338,10 @@ final class StackdriverExportUtils {
       stringTagMap.put(labelKeys.get(i).getKey(), value);
     }
     for (Map.Entry<LabelKey, LabelValue> constantLabel : constantLabels.entrySet()) {
-      stringTagMap.put(constantLabel.getKey().getKey(), constantLabel.getValue().getValue());
+      String constantLabelKey = constantLabel.getKey().getKey();
+      String constantLabelValue = constantLabel.getValue().getValue();
+      constantLabelValue = constantLabelValue == null ? "" : constantLabelValue;
+      stringTagMap.put(constantLabelKey, constantLabelValue);
     }
     builder.putAllLabels(stringTagMap);
     return builder.build();

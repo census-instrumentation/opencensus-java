@@ -156,7 +156,7 @@ Stackdriver exporter adds a new `Metric` label for each custom `Metric` to ensur
 of the `Timeseries`. The format of the label is: `{LANGUAGE}-{PID}@{HOSTNAME}`, if `{PID}` is not
 available a random number will be used.
 
-You have the option to override the "opencensus_task" metric label with custom constant labels with
+You have the option to override the "opencensus_task" metric label with custom constant labels using
 `StackdriverStatsConfiguration.Builder.setConstantLabels()`. If you do so, make sure that the 
 monitored resource together with these labels is unique to the current process. This is to ensure 
 that there is only a single writer to each time series in Stackdriver.
