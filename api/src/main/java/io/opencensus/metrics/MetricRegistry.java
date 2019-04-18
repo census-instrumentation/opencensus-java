@@ -159,6 +159,64 @@ public abstract class MetricRegistry {
   @ExperimentalApi
   public abstract DerivedDoubleGauge addDerivedDoubleGauge(String name, MetricOptions options);
 
+  /**
+   * Builds a new long cumulative to be added to the registry. This is more convenient form when you
+   * want to manually increase values as per your service requirements.
+   *
+   * @param name the name of the metric.
+   * @param options the options for the metric.
+   * @return a {@code LongCumulative}.
+   * @throws NullPointerException if {@code name} is null.
+   * @throws IllegalArgumentException if different metric with the same name already registered.
+   * @since 0.20
+   */
+  @ExperimentalApi
+  public abstract LongCumulative addLongCumulative(String name, MetricOptions options);
+
+  /**
+   * Builds a new double cumulative to be added to the registry. This is more convenient form when
+   * you want to manually increase values as per your service requirements.
+   *
+   * @param name the name of the metric.
+   * @param options the options for the metric.
+   * @return a {@code DoubleCumulative}.
+   * @throws NullPointerException if {@code name} is null.
+   * @throws IllegalArgumentException if different metric with the same name already registered.
+   * @since 0.20
+   */
+  @ExperimentalApi
+  public abstract DoubleCumulative addDoubleCumulative(String name, MetricOptions options);
+
+  /**
+   * Builds a new derived long cumulative to be added to the registry. This is more convenient form
+   * when you want to define a cumulative by executing a {@link ToLongFunction} on an object.
+   *
+   * @param name the name of the metric.
+   * @param options the options for the metric.
+   * @return a {@code DerivedLongCumulative}.
+   * @throws NullPointerException if {@code name} is null.
+   * @throws IllegalArgumentException if different metric with the same name already registered.
+   * @since 0.17
+   */
+  @ExperimentalApi
+  public abstract DerivedLongCumulative addDerivedLongCumulative(
+      String name, MetricOptions options);
+
+  /**
+   * Builds a new derived double cumulative to be added to the registry. This is more convenient
+   * form when you want to define a cumulative by executing a {@link ToDoubleFunction} on an object.
+   *
+   * @param name the name of the metric.
+   * @param options the options for the metric.
+   * @return a {@code DerivedDoubleCumulative}.
+   * @throws NullPointerException if {@code name} is null.
+   * @throws IllegalArgumentException if different metric with the same name already registered.
+   * @since 0.17
+   */
+  @ExperimentalApi
+  public abstract DerivedDoubleCumulative addDerivedDoubleCumulative(
+      String name, MetricOptions options);
+
   static MetricRegistry newNoopMetricRegistry() {
     return new NoopMetricRegistry();
   }
@@ -195,6 +253,42 @@ public abstract class MetricRegistry {
     @Override
     public DerivedDoubleGauge addDerivedDoubleGauge(String name, MetricOptions options) {
       return DerivedDoubleGauge.newNoopDerivedDoubleGauge(
+          Utils.checkNotNull(name, "name"),
+          options.getDescription(),
+          options.getUnit(),
+          options.getLabelKeys());
+    }
+
+    @Override
+    public LongCumulative addLongCumulative(String name, MetricOptions options) {
+      return LongCumulative.newNoopLongCumulative(
+          Utils.checkNotNull(name, "name"),
+          options.getDescription(),
+          options.getUnit(),
+          options.getLabelKeys());
+    }
+
+    @Override
+    public DoubleCumulative addDoubleCumulative(String name, MetricOptions options) {
+      return DoubleCumulative.newNoopDoubleCumulative(
+          Utils.checkNotNull(name, "name"),
+          options.getDescription(),
+          options.getUnit(),
+          options.getLabelKeys());
+    }
+
+    @Override
+    public DerivedLongCumulative addDerivedLongCumulative(String name, MetricOptions options) {
+      return DerivedLongCumulative.newNoopDerivedLongCumulative(
+          Utils.checkNotNull(name, "name"),
+          options.getDescription(),
+          options.getUnit(),
+          options.getLabelKeys());
+    }
+
+    @Override
+    public DerivedDoubleCumulative addDerivedDoubleCumulative(String name, MetricOptions options) {
+      return DerivedDoubleCumulative.newNoopDerivedDoubleCumulative(
           Utils.checkNotNull(name, "name"),
           options.getDescription(),
           options.getUnit(),

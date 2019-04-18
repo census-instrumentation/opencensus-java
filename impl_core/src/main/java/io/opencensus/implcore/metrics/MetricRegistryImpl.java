@@ -19,9 +19,13 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
+import io.opencensus.metrics.DerivedDoubleCumulative;
 import io.opencensus.metrics.DerivedDoubleGauge;
+import io.opencensus.metrics.DerivedLongCumulative;
 import io.opencensus.metrics.DerivedLongGauge;
+import io.opencensus.metrics.DoubleCumulative;
 import io.opencensus.metrics.DoubleGauge;
+import io.opencensus.metrics.LongCumulative;
 import io.opencensus.metrics.LongGauge;
 import io.opencensus.metrics.MetricOptions;
 import io.opencensus.metrics.MetricRegistry;
@@ -94,6 +98,26 @@ public final class MetricRegistryImpl extends MetricRegistry {
             options.getConstantLabels());
     registeredMeters.registerMeter(name, derivedDoubleGauge);
     return derivedDoubleGauge;
+  }
+
+  @Override
+  public LongCumulative addLongCumulative(String name, MetricOptions options) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public DoubleCumulative addDoubleCumulative(String name, MetricOptions options) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public DerivedLongCumulative addDerivedLongCumulative(String name, MetricOptions options) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public DerivedDoubleCumulative addDerivedDoubleCumulative(String name, MetricOptions options) {
+    throw new UnsupportedOperationException();
   }
 
   private static final class RegisteredMeters {
