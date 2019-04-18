@@ -72,7 +72,7 @@ public class HelloWorldClient {
     initStatsExporter();
 
     // Create http client that will trace requests. By default trace context is propagated using
-    // using w3c TraceContext propagator.
+    // w3c TraceContext propagator.
     // To use B3 propagation use following
     //    OcJettyHttpClient httpClient =
     //        new OcJettyHttpClient(
