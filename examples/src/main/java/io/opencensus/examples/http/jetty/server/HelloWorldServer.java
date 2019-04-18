@@ -44,13 +44,15 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 /** Sample application that shows how to instrument jetty server. */
 public class HelloWorldServer extends AbstractHandler {
+
   private static final Logger logger = Logger.getLogger(HelloWorldServer.class.getName());
 
   public static class HelloServlet extends HttpServlet {
+
     private static String body = "<h1>Hello World Servlet Get</h1>";
 
     private static final long serialVersionUID = 1L;
@@ -179,18 +181,35 @@ public class HelloWorldServer extends AbstractHandler {
   public static void main(String[] args) throws Exception {
     initTracing();
     initStatsExporter();
-    ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-    context.setContextPath("/");
 
     Server server = new Server(8080);
-    ServletHandler handler = new ServletHandler();
-    server.setHandler(handler);
+    ServletContextHandler contextHandler =
+        new ServletContextHandler(ServletContextHandler.SESSIONS);
+    contextHandler.setContextPath("/helloworld");
+    ServletHolder sh = new ServletHolder(new HelloServlet());
+    contextHandler.addServlet(sh, "/request/*");
 
-    handler.addFilterWithMapping(
-        OcHttpServletFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
-    handler.addServletWithMapping(HelloServlet.class, "/*");
+    // Enable tracing by adding OcHttpServleFilter for all path
+    contextHandler.addFilter(OcHttpServletFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
-    server.start();
-    server.join();
+    // Uncomment following line to use B3Format for trace context propagation.
+    // contextHandler.setAttribute(
+    //    OC_TRACE_PROPAGATOR, Tracing.getPropagationComponent().getB3Format());
+
+    // By default publicEndpoint parameter is set to false and incoming trace context is added as
+    // a parent.
+    // If the endpoint for http request is public then uncomment following line to set the
+    // publicEndpoint parameter to true. When set to true incoming trace context is added as a
+    // parent link instead of as a parent.
+    //
+    // contextHandler.setInitParameter(OC_PUBLIC_ENDPOINT, "true");
+
+    server.setHandler(contextHandler);
+    try {
+      server.start();
+      server.join();
+    } catch (Exception e) {
+      logger.error("Failed to start application", e);
+    }
   }
 }
