@@ -85,6 +85,34 @@ public class MetricRegistryTest {
   }
 
   @Test
+  public void noopAddLongCumulative_NullName() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("name");
+    metricRegistry.addLongCumulative(null, METRIC_OPTIONS);
+  }
+
+  @Test
+  public void noopAddDoubleCumulative_NullName() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("name");
+    metricRegistry.addDoubleCumulative(null, METRIC_OPTIONS);
+  }
+
+  @Test
+  public void noopAddDerivedLongCumulative_NullName() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("name");
+    metricRegistry.addDerivedLongCumulative(null, METRIC_OPTIONS);
+  }
+
+  @Test
+  public void noopAddDerivedDoubleCumulative_NullName() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("name");
+    metricRegistry.addDerivedDoubleCumulative(null, METRIC_OPTIONS);
+  }
+
+  @Test
   public void noopSameAs() {
     LongGauge longGauge = metricRegistry.addLongGauge(NAME, METRIC_OPTIONS);
     assertThat(longGauge.getDefaultTimeSeries()).isSameAs(longGauge.getDefaultTimeSeries());
@@ -95,6 +123,16 @@ public class MetricRegistryTest {
     assertThat(doubleGauge.getDefaultTimeSeries()).isSameAs(doubleGauge.getDefaultTimeSeries());
     assertThat(doubleGauge.getDefaultTimeSeries())
         .isSameAs(doubleGauge.getOrCreateTimeSeries(LABEL_VALUES));
+
+    LongCumulative longCumulative = metricRegistry.addLongCumulative(NAME, METRIC_OPTIONS);
+    assertThat(longCumulative.getDefaultTimeSeries()).isSameAs(longCumulative.getDefaultTimeSeries());
+    assertThat(longCumulative.getDefaultTimeSeries())
+        .isSameAs(longCumulative.getOrCreateTimeSeries(LABEL_VALUES));
+
+    DoubleCumulative doubleCumulative = metricRegistry.addDoubleCumulative(NAME_2, METRIC_OPTIONS);
+    assertThat(doubleCumulative.getDefaultTimeSeries()).isSameAs(doubleCumulative.getDefaultTimeSeries());
+    assertThat(doubleCumulative.getDefaultTimeSeries())
+        .isSameAs(doubleCumulative.getOrCreateTimeSeries(LABEL_VALUES));
   }
 
   @Test
@@ -111,6 +149,20 @@ public class MetricRegistryTest {
     assertThat(metricRegistry.addDerivedDoubleGauge(NAME_4, METRIC_OPTIONS))
         .isInstanceOf(
             DerivedDoubleGauge.newNoopDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, LABEL_KEYS)
+                .getClass());
+
+    assertThat(metricRegistry.addLongCumulative(NAME, METRIC_OPTIONS))
+        .isInstanceOf(LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEYS).getClass());
+    assertThat(metricRegistry.addDoubleCumulative(NAME_2, METRIC_OPTIONS))
+        .isInstanceOf(
+            DoubleCumulative.newNoopDoubleCumulative(NAME_2, DESCRIPTION, UNIT, LABEL_KEYS).getClass());
+    assertThat(metricRegistry.addDerivedLongCumulative(NAME_3, METRIC_OPTIONS))
+        .isInstanceOf(
+            DerivedLongCumulative.newNoopDerivedLongCumulative(NAME_3, DESCRIPTION, UNIT, LABEL_KEYS)
+                .getClass());
+    assertThat(metricRegistry.addDerivedDoubleCumulative(NAME_4, METRIC_OPTIONS))
+        .isInstanceOf(
+            DerivedDoubleCumulative.newNoopDerivedDoubleCumulative(NAME_4, DESCRIPTION, UNIT, LABEL_KEYS)
                 .getClass());
   }
 }
