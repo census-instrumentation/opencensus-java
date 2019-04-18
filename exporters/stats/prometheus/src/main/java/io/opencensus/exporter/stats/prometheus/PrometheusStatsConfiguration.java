@@ -18,7 +18,6 @@ package io.opencensus.exporter.stats.prometheus;
 
 import com.google.auto.value.AutoValue;
 import io.prometheus.client.CollectorRegistry;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -38,8 +37,15 @@ public abstract class PrometheusStatsConfiguration {
    * @return the Prometheus {@code CollectorRegistry}.
    * @since 0.13
    */
-  @Nullable
   public abstract CollectorRegistry getRegistry();
+
+  /**
+   * Returns the namespace used for Prometheus metrics.
+   *
+   * @return the namespace.
+   * @since 0.21
+   */
+  public abstract String getNamespace();
 
   /**
    * Returns a new {@link Builder}.
@@ -48,7 +54,9 @@ public abstract class PrometheusStatsConfiguration {
    * @since 0.13
    */
   public static Builder builder() {
-    return new AutoValue_PrometheusStatsConfiguration.Builder();
+    return new AutoValue_PrometheusStatsConfiguration.Builder()
+        .setRegistry(CollectorRegistry.defaultRegistry)
+        .setNamespace("");
   }
 
   /**
@@ -69,6 +77,15 @@ public abstract class PrometheusStatsConfiguration {
      * @since 0.13
      */
     public abstract Builder setRegistry(CollectorRegistry registry);
+
+    /**
+     * Sets the namespace used for Prometheus metrics.
+     *
+     * @param namespace the namespace.
+     * @return this.
+     * @since 0.21
+     */
+    public abstract Builder setNamespace(String namespace);
 
     /**
      * Builds a new {@link PrometheusStatsConfiguration} with current settings.

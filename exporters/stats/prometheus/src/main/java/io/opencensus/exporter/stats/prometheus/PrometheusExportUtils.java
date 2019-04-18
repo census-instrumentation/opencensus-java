@@ -55,10 +55,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * <p>Each OpenCensus {@link Metric} will be converted to a Prometheus {@link MetricFamilySamples},
  * and each {@code Point} of the {@link Metric} will be converted to Prometheus {@link Sample}s.
  *
- * <p>{@link io.opencensus.metrics.export.Value.ValueDouble}, {@link
+ * <p>{@code io.opencensus.metrics.export.Value.ValueDouble}, {@code
  * io.opencensus.metrics.export.Value.ValueLong} will be converted to a single {@link Sample}.
- * {@link io.opencensus.metrics.export.Value.ValueSummary} will be converted to two {@link Sample}s
- * sum and count. {@link io.opencensus.metrics.export.Value.ValueDistribution} will be converted to
+ * {@code io.opencensus.metrics.export.Value.ValueSummary} will be converted to two {@code Sample}s
+ * sum and count. {@code io.opencensus.metrics.export.Value.ValueDistribution} will be converted to
  * a list of {@link Sample}s that have the sum, count and histogram buckets.
  *
  * <p>{@link LabelKey} and {@link LabelValue} will be converted to Prometheus {@code LabelName} and
@@ -76,9 +76,9 @@ final class PrometheusExportUtils {
   @VisibleForTesting static final String LABEL_NAME_QUANTILE = "quantile";
 
   // Converts a Metric to a Prometheus MetricFamilySamples.
-  static MetricFamilySamples createMetricFamilySamples(Metric metric) {
+  static MetricFamilySamples createMetricFamilySamples(Metric metric, String namespace) {
     MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
-    String name = Collector.sanitizeMetricName(metricDescriptor.getName());
+    String name = getNamespacedName(metricDescriptor.getName(), namespace);
     Type type = getType(metricDescriptor.getType());
     List<String> labelNames = convertToLabelNames(metricDescriptor.getLabelKeys());
     List<Sample> samples = Lists.newArrayList();
@@ -94,8 +94,8 @@ final class PrometheusExportUtils {
   // Converts a MetricDescriptor to a Prometheus MetricFamilySamples.
   // Used only for Prometheus metric registry, should not contain any actual samples.
   static MetricFamilySamples createDescribableMetricFamilySamples(
-      MetricDescriptor metricDescriptor) {
-    String name = Collector.sanitizeMetricName(metricDescriptor.getName());
+      MetricDescriptor metricDescriptor, String namespace) {
+    String name = getNamespacedName(metricDescriptor.getName(), namespace);
     Type type = getType(metricDescriptor.getType());
     List<String> labelNames = convertToLabelNames(metricDescriptor.getLabelKeys());
 
@@ -114,6 +114,16 @@ final class PrometheusExportUtils {
 
     return new MetricFamilySamples(
         name, type, metricDescriptor.getDescription(), Collections.<Sample>emptyList());
+  }
+
+  private static String getNamespacedName(String metricName, String namespace) {
+    if (!namespace.isEmpty()) {
+      if (!namespace.endsWith("/") && !namespace.endsWith("_")) {
+        namespace += '_';
+      }
+      metricName = namespace + metricName;
+    }
+    return Collector.sanitizeMetricName(metricName);
   }
 
   @VisibleForTesting
