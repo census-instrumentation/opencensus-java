@@ -125,12 +125,14 @@ public class MetricRegistryTest {
         .isSameAs(doubleGauge.getOrCreateTimeSeries(LABEL_VALUES));
 
     LongCumulative longCumulative = metricRegistry.addLongCumulative(NAME, METRIC_OPTIONS);
-    assertThat(longCumulative.getDefaultTimeSeries()).isSameAs(longCumulative.getDefaultTimeSeries());
+    assertThat(longCumulative.getDefaultTimeSeries())
+        .isSameAs(longCumulative.getDefaultTimeSeries());
     assertThat(longCumulative.getDefaultTimeSeries())
         .isSameAs(longCumulative.getOrCreateTimeSeries(LABEL_VALUES));
 
     DoubleCumulative doubleCumulative = metricRegistry.addDoubleCumulative(NAME_2, METRIC_OPTIONS);
-    assertThat(doubleCumulative.getDefaultTimeSeries()).isSameAs(doubleCumulative.getDefaultTimeSeries());
+    assertThat(doubleCumulative.getDefaultTimeSeries())
+        .isSameAs(doubleCumulative.getDefaultTimeSeries());
     assertThat(doubleCumulative.getDefaultTimeSeries())
         .isSameAs(doubleCumulative.getOrCreateTimeSeries(LABEL_VALUES));
   }
@@ -152,17 +154,21 @@ public class MetricRegistryTest {
                 .getClass());
 
     assertThat(metricRegistry.addLongCumulative(NAME, METRIC_OPTIONS))
-        .isInstanceOf(LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEYS).getClass());
+        .isInstanceOf(
+            LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEYS).getClass());
     assertThat(metricRegistry.addDoubleCumulative(NAME_2, METRIC_OPTIONS))
         .isInstanceOf(
-            DoubleCumulative.newNoopDoubleCumulative(NAME_2, DESCRIPTION, UNIT, LABEL_KEYS).getClass());
+            DoubleCumulative.newNoopDoubleCumulative(NAME_2, DESCRIPTION, UNIT, LABEL_KEYS)
+                .getClass());
     assertThat(metricRegistry.addDerivedLongCumulative(NAME_3, METRIC_OPTIONS))
         .isInstanceOf(
-            DerivedLongCumulative.newNoopDerivedLongCumulative(NAME_3, DESCRIPTION, UNIT, LABEL_KEYS)
+            DerivedLongCumulative.newNoopDerivedLongCumulative(
+                    NAME_3, DESCRIPTION, UNIT, LABEL_KEYS)
                 .getClass());
     assertThat(metricRegistry.addDerivedDoubleCumulative(NAME_4, METRIC_OPTIONS))
         .isInstanceOf(
-            DerivedDoubleCumulative.newNoopDerivedDoubleCumulative(NAME_4, DESCRIPTION, UNIT, LABEL_KEYS)
+            DerivedDoubleCumulative.newNoopDerivedDoubleCumulative(
+                    NAME_4, DESCRIPTION, UNIT, LABEL_KEYS)
                 .getClass());
   }
 }

@@ -54,7 +54,8 @@ public class DoubleCumulativeTest {
   @Test
   public void noopGetOrCreateTimeSeries_WithNullElement() {
     List<LabelValue> labelValues = Collections.singletonList(null);
-    DoubleCumulative doubleCumulative = DoubleCumulative.newNoopDoubleCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    DoubleCumulative doubleCumulative =
+        DoubleCumulative.newNoopDoubleCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValue");
     doubleCumulative.getOrCreateTimeSeries(labelValues);
@@ -62,7 +63,8 @@ public class DoubleCumulativeTest {
 
   @Test
   public void noopGetOrCreateTimeSeries_WithInvalidLabelSize() {
-    DoubleCumulative doubleCumulative = DoubleCumulative.newNoopDoubleCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    DoubleCumulative doubleCumulative =
+        DoubleCumulative.newNoopDoubleCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Label Keys and Label Values don't have same size.");
     doubleCumulative.getOrCreateTimeSeries(EMPTY_LABEL_VALUES);
@@ -70,7 +72,8 @@ public class DoubleCumulativeTest {
 
   @Test
   public void noopRemoveTimeSeries_WithNullLabelValues() {
-    DoubleCumulative doubleCumulative = DoubleCumulative.newNoopDoubleCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    DoubleCumulative doubleCumulative =
+        DoubleCumulative.newNoopDoubleCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValues");
     doubleCumulative.removeTimeSeries(null);
@@ -78,8 +81,10 @@ public class DoubleCumulativeTest {
 
   @Test
   public void noopSameAs() {
-    DoubleCumulative doubleCumulative = DoubleCumulative.newNoopDoubleCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
-    assertThat(doubleCumulative.getDefaultTimeSeries()).isSameAs(doubleCumulative.getDefaultTimeSeries());
+    DoubleCumulative doubleCumulative =
+        DoubleCumulative.newNoopDoubleCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    assertThat(doubleCumulative.getDefaultTimeSeries())
+        .isSameAs(doubleCumulative.getDefaultTimeSeries());
     assertThat(doubleCumulative.getDefaultTimeSeries())
         .isSameAs(doubleCumulative.getOrCreateTimeSeries(LABEL_VALUES));
   }

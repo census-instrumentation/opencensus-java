@@ -44,7 +44,8 @@ public class LongCumulativeTest {
 
   @Test
   public void noopGetOrCreateTimeSeries_WithNullLabelValues() {
-    LongCumulative longCumulative = LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, EMPTY_LABEL_KEYS);
+    LongCumulative longCumulative =
+        LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, EMPTY_LABEL_KEYS);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValues");
     longCumulative.getOrCreateTimeSeries(null);
@@ -53,7 +54,8 @@ public class LongCumulativeTest {
   @Test
   public void noopGetOrCreateTimeSeries_WithNullElement() {
     List<LabelValue> labelValues = Collections.singletonList(null);
-    LongCumulative longCumulative = LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    LongCumulative longCumulative =
+        LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValue");
     longCumulative.getOrCreateTimeSeries(labelValues);
@@ -61,7 +63,8 @@ public class LongCumulativeTest {
 
   @Test
   public void noopGetOrCreateTimeSeries_WithInvalidLabelSize() {
-    LongCumulative longCumulative = LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    LongCumulative longCumulative =
+        LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Label Keys and Label Values don't have same size.");
     longCumulative.getOrCreateTimeSeries(EMPTY_LABEL_VALUES);
@@ -69,7 +72,8 @@ public class LongCumulativeTest {
 
   @Test
   public void noopRemoveTimeSeries_WithNullLabelValues() {
-    LongCumulative longCumulative = LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    LongCumulative longCumulative =
+        LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValues");
     longCumulative.removeTimeSeries(null);
@@ -77,8 +81,10 @@ public class LongCumulativeTest {
 
   @Test
   public void noopSameAs() {
-    LongCumulative longCumulative = LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
-    assertThat(longCumulative.getDefaultTimeSeries()).isSameAs(longCumulative.getDefaultTimeSeries());
+    LongCumulative longCumulative =
+        LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    assertThat(longCumulative.getDefaultTimeSeries())
+        .isSameAs(longCumulative.getDefaultTimeSeries());
     assertThat(longCumulative.getDefaultTimeSeries())
         .isSameAs(longCumulative.getOrCreateTimeSeries(LABEL_VALUES));
   }
