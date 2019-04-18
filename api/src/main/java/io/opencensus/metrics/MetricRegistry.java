@@ -168,7 +168,7 @@ public abstract class MetricRegistry {
    * @return a {@code LongCumulative}.
    * @throws NullPointerException if {@code name} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
-   * @since 0.20
+   * @since 0.21
    */
   @ExperimentalApi
   public abstract LongCumulative addLongCumulative(String name, MetricOptions options);
@@ -182,7 +182,7 @@ public abstract class MetricRegistry {
    * @return a {@code DoubleCumulative}.
    * @throws NullPointerException if {@code name} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
-   * @since 0.20
+   * @since 0.21
    */
   @ExperimentalApi
   public abstract DoubleCumulative addDoubleCumulative(String name, MetricOptions options);
@@ -196,7 +196,7 @@ public abstract class MetricRegistry {
    * @return a {@code DerivedLongCumulative}.
    * @throws NullPointerException if {@code name} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
-   * @since 0.17
+   * @since 0.21
    */
   @ExperimentalApi
   public abstract DerivedLongCumulative addDerivedLongCumulative(
@@ -211,7 +211,7 @@ public abstract class MetricRegistry {
    * @return a {@code DerivedDoubleCumulative}.
    * @throws NullPointerException if {@code name} is null.
    * @throws IllegalArgumentException if different metric with the same name already registered.
-   * @since 0.17
+   * @since 0.21
    */
   @ExperimentalApi
   public abstract DerivedDoubleCumulative addDerivedDoubleCumulative(
