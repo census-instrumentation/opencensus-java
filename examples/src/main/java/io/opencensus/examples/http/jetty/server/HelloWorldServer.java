@@ -46,9 +46,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-/**
- * Sample application that shows how to instrument jetty server.
- */
+/** Sample application that shows how to instrument jetty server. */
 public class HelloWorldServer extends AbstractHandler {
 
   private static final Logger logger = Logger.getLogger(HelloWorldServer.class.getName());
@@ -199,7 +197,7 @@ public class HelloWorldServer extends AbstractHandler {
     //    OC_TRACE_PROPAGATOR, Tracing.getPropagationComponent().getB3Format());
 
     // By default publicEndpoint parameter is set to false and incoming trace context is added as
-    // a parent link.
+    // a parent.
     // If the endpoint for http request is public then uncomment following line to set the
     // publicEndpoint parameter to true. When set to true incoming trace context is added as a
     // parent link instead of as a parent.

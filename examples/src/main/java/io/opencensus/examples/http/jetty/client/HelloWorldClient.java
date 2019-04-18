@@ -35,9 +35,7 @@ import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-/**
- * Sample application that shows how to instrument jetty client.
- */
+/** Sample application that shows how to instrument jetty client. */
 public class HelloWorldClient {
 
   private static final Logger logger = Logger.getLogger(HelloWorldClient.class.getName());
@@ -84,23 +82,26 @@ public class HelloWorldClient {
     //            Tracing.getPropagationComponent().getB3Format());
     OcJettyHttpClient httpClient =
         new OcJettyHttpClient(
-            new HttpClientTransportOverHTTP(),
-            new SslContextFactory(),
-            null,
-            null);
+            new HttpClientTransportOverHTTP(), new SslContextFactory(), null, null);
 
     httpClient.start();
 
     do {
       HttpRequest request =
-          (HttpRequest) httpClient.newRequest("http://localhost:8080/helloworld/request")
-              .method(HttpMethod.GET);
+          (HttpRequest)
+              httpClient
+                  .newRequest("http://localhost:8080/helloworld/request")
+                  .method(HttpMethod.GET);
       HttpRequest asyncRequest =
-          (HttpRequest) httpClient.newRequest("http://localhost:8080/helloworld/request/async")
-              .method(HttpMethod.GET);
+          (HttpRequest)
+              httpClient
+                  .newRequest("http://localhost:8080/helloworld/request/async")
+                  .method(HttpMethod.GET);
       HttpRequest postRequest =
-          (HttpRequest) httpClient.newRequest("http://localhost:8080/helloworld/request")
-              .method(HttpMethod.POST);
+          (HttpRequest)
+              httpClient
+                  .newRequest("http://localhost:8080/helloworld/request")
+                  .method(HttpMethod.POST);
       postRequest.content(new StringContentProvider("{\"hello\": \"world\"}"), "application/json");
 
       if (request == null) {
