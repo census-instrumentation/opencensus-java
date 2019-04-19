@@ -17,6 +17,7 @@
 package io.opencensus.tags;
 
 import io.opencensus.common.Scope;
+import io.opencensus.tags.TagMetadata.TagTtl;
 
 /**
  * Builder for the {@link TagContext} class.
@@ -24,6 +25,10 @@ import io.opencensus.common.Scope;
  * @since 0.8
  */
 public abstract class TagContextBuilder {
+
+  private static final TagMetadata METADATA_NO_PROPAGATION =
+      TagMetadata.create(TagTtl.NO_PROPAGATION);
+
   /**
    * Adds the key/value pair regardless of whether the key is present.
    *
@@ -36,7 +41,8 @@ public abstract class TagContextBuilder {
    * @param value the {@code TagValue} to set for the given key.
    * @return this
    * @since 0.8
-   * @deprecated in favor of {@link #put(TagKey, TagValue, TagMetadata)}.
+   * @deprecated in favor of {@link #put(TagKey, TagValue, TagMetadata)}, or {@link
+   *     #putLocal(TagKey, TagValue)} if you only want in-process tags.
    */
   @Deprecated
   public abstract TagContextBuilder put(TagKey key, TagValue value);
@@ -54,6 +60,21 @@ public abstract class TagContextBuilder {
     @SuppressWarnings("deprecation")
     TagContextBuilder builder = put(key, value);
     return builder;
+  }
+
+  /**
+   * Adds a non-propagating tag to this {@code TagContextBuilder}.
+   *
+   * <p>This is equivalent to calling {@code put(key, value,
+   * TagMetadata.create(TagTtl.NO_PROPAGATION))}.
+   *
+   * @param key the {@code TagKey} which will be set.
+   * @param value the {@code TagValue} to set for the given key.
+   * @return this
+   * @since 0.21
+   */
+  public final TagContextBuilder putLocal(TagKey key, TagValue value) {
+    return put(key, value, METADATA_NO_PROPAGATION);
   }
 
   /**
