@@ -85,7 +85,7 @@ public abstract class TagContextBuilder {
    * <p>This is equivalent to calling {@code put(key, value,
    * TagMetadata.create(TagTtl.METADATA_UNLIMITED_PROPAGATION))}.
    *
-   * <p>Only call this method if you want propagating tags. If you just want tags for breaking down
+   * <p>Only call this method if you want propagating tags. If you want tags for breaking down
    * metrics, or there are sensitive messages in your tags, use {@link #putLocal(TagKey, TagValue)}
    * instead.
    *

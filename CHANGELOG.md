@@ -4,7 +4,7 @@
 - Add an option to allow users to override the default "opencensus_task" metric label in Stackdriver Stats Exporter.
 - Allow setting custom namespace in Prometheus exporter.
 - Add Cumulative (`DoubleCumulative`, `LongCumulative`, `DerivedDoubleCumulative`, `DerivedLongCumulative`) APIs.
-- Add convenient APIs `TagContextBuilder.putLocal()` that adds non-propagating tags, 
+- Add convenience APIs `TagContextBuilder.putLocal()` that adds non-propagating tags,
 and `TagContextBuilder.putPropagating()` that adds unlimited propagating tags.
 
 ## 0.20.0 - 2019-03-28
