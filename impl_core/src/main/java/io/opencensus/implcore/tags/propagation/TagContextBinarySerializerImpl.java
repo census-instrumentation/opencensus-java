@@ -37,13 +37,13 @@ final class TagContextBinarySerializerImpl extends TagContextBinarySerializer {
   public byte[] toByteArray(TagContext tags) throws TagContextSerializationException {
     return state.getInternal() == State.DISABLED
         ? EMPTY_BYTE_ARRAY
-        : SerializationUtils.serializeBinary(tags);
+        : BinarySerializationUtils.serializeBinary(tags);
   }
 
   @Override
   public TagContext fromByteArray(byte[] bytes) throws TagContextDeserializationException {
     return state.getInternal() == State.DISABLED
         ? TagMapImpl.EMPTY
-        : SerializationUtils.deserializeBinary(bytes);
+        : BinarySerializationUtils.deserializeBinary(bytes);
   }
 }

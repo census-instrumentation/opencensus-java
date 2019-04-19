@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for deserializing tags with {@link SerializationUtils} and {@link
+ * Tests for deserializing tags with {@link BinarySerializationUtils} and {@link
  * TagContextBinarySerializerImpl}.
  */
 @RunWith(JUnit4.class)
@@ -52,10 +52,10 @@ public class TagContextDeserializationTest {
 
   @Test
   public void testConstants() {
-    // Refer to the JavaDoc on SerializationUtils for the definitions on these constants.
-    assertThat(SerializationUtils.VERSION_ID).isEqualTo(0);
-    assertThat(SerializationUtils.TAG_FIELD_ID).isEqualTo(0);
-    assertThat(SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT).isEqualTo(8192);
+    // Refer to the JavaDoc on BinarySerializationUtils for the definitions on these constants.
+    assertThat(BinarySerializationUtils.VERSION_ID).isEqualTo(0);
+    assertThat(BinarySerializationUtils.TAG_FIELD_ID).isEqualTo(0);
+    assertThat(BinarySerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT).isEqualTo(8192);
   }
 
   @Test
@@ -63,7 +63,9 @@ public class TagContextDeserializationTest {
     TagContext expected = tagger.empty();
     TagContext actual =
         serializer.fromByteArray(
-            new byte[] {SerializationUtils.VERSION_ID}); // One byte that represents Version ID.
+            new byte[] {
+              BinarySerializationUtils.VERSION_ID
+            }); // One byte that represents Version ID.
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -79,8 +81,8 @@ public class TagContextDeserializationTest {
   public void testDeserializeTooLargeByteArrayThrowException()
       throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
-    for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
+    output.write(BinarySerializationUtils.VERSION_ID);
+    for (int i = 0; i < BinarySerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
       // Each tag will be with format {key : "0123", value : "0123"}, so the length of it is 8.
       String str;
       if (i < 10) {
@@ -110,8 +112,8 @@ public class TagContextDeserializationTest {
   public void testDeserializeTooLargeByteArrayThrowException_WithDuplicateTagKeys()
       throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
-    for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
+    output.write(BinarySerializationUtils.VERSION_ID);
+    for (int i = 0; i < BinarySerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
       // Each tag will be with format {key : "key_", value : "0123"}, so the length of it is 8.
       String str;
       if (i < 10) {
@@ -138,7 +140,7 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeInvalidTagKey() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
+    output.write(BinarySerializationUtils.VERSION_ID);
 
     // Encode an invalid tag key and a valid tag value:
     encodeTagToOutput("\2key", "value", output);
@@ -152,7 +154,7 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeInvalidTagValue() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
+    output.write(BinarySerializationUtils.VERSION_ID);
 
     // Encode a valid tag key and an invalid tag value:
     encodeTagToOutput("my key", "val\3", output);
@@ -166,7 +168,7 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeOneTag() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
+    output.write(BinarySerializationUtils.VERSION_ID);
     encodeTagToOutput("Key", "Value", output);
     TagContext expected =
         tagger.emptyBuilder().put(TagKey.create("Key"), TagValue.create("Value")).build();
@@ -176,7 +178,7 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeMultipleTags() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
+    output.write(BinarySerializationUtils.VERSION_ID);
     encodeTagToOutput("Key1", "Value1", output);
     encodeTagToOutput("Key2", "Value2", output);
     TagContext expected =
@@ -191,7 +193,7 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeDuplicateKeys() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
+    output.write(BinarySerializationUtils.VERSION_ID);
     encodeTagToOutput("Key1", "Value1", output);
     encodeTagToOutput("Key1", "Value2", output);
     TagContext expected =
@@ -203,7 +205,7 @@ public class TagContextDeserializationTest {
   public void testDeserializeNonConsecutiveDuplicateKeys()
       throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
+    output.write(BinarySerializationUtils.VERSION_ID);
     encodeTagToOutput("Key1", "Value1", output);
     encodeTagToOutput("Key2", "Value2", output);
     encodeTagToOutput("Key3", "Value3", output);
@@ -222,7 +224,7 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeDuplicateTags() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
+    output.write(BinarySerializationUtils.VERSION_ID);
     encodeTagToOutput("Key1", "Value1", output);
     encodeTagToOutput("Key1", "Value1", output);
     TagContext expected =
@@ -234,7 +236,7 @@ public class TagContextDeserializationTest {
   public void testDeserializeNonConsecutiveDuplicateTags()
       throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
+    output.write(BinarySerializationUtils.VERSION_ID);
     encodeTagToOutput("Key1", "Value1", output);
     encodeTagToOutput("Key2", "Value2", output);
     encodeTagToOutput("Key3", "Value3", output);
@@ -253,7 +255,7 @@ public class TagContextDeserializationTest {
   @Test
   public void stopParsingAtUnknownField() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
+    output.write(BinarySerializationUtils.VERSION_ID);
     encodeTagToOutput("Key1", "Value1", output);
     encodeTagToOutput("Key2", "Value2", output);
 
@@ -276,7 +278,7 @@ public class TagContextDeserializationTest {
   @Test
   public void stopParsingAtUnknownTagAtStart() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
+    output.write(BinarySerializationUtils.VERSION_ID);
 
     // Write unknown field ID 1.
     output.write(1);
@@ -297,7 +299,7 @@ public class TagContextDeserializationTest {
   public void testDeserializeWrongVersionId() throws TagContextDeserializationException {
     thrown.expect(TagContextDeserializationException.class);
     thrown.expectMessage("Wrong Version ID: 1. Currently supports version up to: 0");
-    serializer.fromByteArray(new byte[] {(byte) (SerializationUtils.VERSION_ID + 1)});
+    serializer.fromByteArray(new byte[] {(byte) (BinarySerializationUtils.VERSION_ID + 1)});
   }
 
   @Test
@@ -314,7 +316,7 @@ public class TagContextDeserializationTest {
   //         <tag_val_len> == varint encoded integer
   //         <tag_val> == tag_val_len bytes comprising UTF-8 string
   private static void encodeTagToOutput(String key, String value, ByteArrayDataOutput output) {
-    output.write(SerializationUtils.TAG_FIELD_ID);
+    output.write(BinarySerializationUtils.TAG_FIELD_ID);
     encodeString(key, output);
     encodeString(value, output);
   }

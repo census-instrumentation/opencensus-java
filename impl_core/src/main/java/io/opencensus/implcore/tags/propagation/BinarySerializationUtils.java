@@ -66,12 +66,12 @@ import java.util.Map;
  *       </ul>
  * </ul>
  */
-final class SerializationUtils {
+final class BinarySerializationUtils {
 
   private static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
       TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
 
-  private SerializationUtils() {}
+  private BinarySerializationUtils() {}
 
   @VisibleForTesting static final int VERSION_ID = 0;
   @VisibleForTesting static final int TAG_FIELD_ID = 0;
