@@ -62,10 +62,13 @@ public class RecordUtilsTest {
   private static final TagKey METHOD = TagKey.create("method");
   private static final TagValue CALLER_V = TagValue.create("some caller");
   private static final TagValue METHOD_V = TagValue.create("some method");
+  private static final TagValue STATUS_V = TagValue.create("ok");
   private static final TagValueWithMetadata CALLER_V_WITH_MD =
       TagValueWithMetadata.create(CALLER_V, METADATA_UNLIMITED_PROPAGATION);
   private static final TagValueWithMetadata METHOD_V_WITH_MD =
       TagValueWithMetadata.create(METHOD_V, METADATA_UNLIMITED_PROPAGATION);
+  private static final TagValueWithMetadata STATUS_V_WITH_MD =
+      TagValueWithMetadata.create(STATUS_V, METADATA_UNLIMITED_PROPAGATION);
 
   @Test
   public void testConstants() {
@@ -80,6 +83,19 @@ public class RecordUtilsTest {
 
     assertThat(RecordUtils.getTagValues(tags, columns))
         .containsExactly(CALLER_V, METHOD_V, RecordUtils.UNKNOWN_TAG_VALUE)
+        .inOrder();
+  }
+
+  @Test
+  public void testGetTagValues_MapDeprecatedRpcTag() {
+    List<TagKey> columns = Arrays.asList(RecordUtils.RPC_STATUS, RecordUtils.RPC_METHOD);
+    Map<TagKey, TagValueWithMetadata> tags =
+        ImmutableMap.of(
+            RecordUtils.GRPC_CLIENT_METHOD, METHOD_V_WITH_MD,
+            RecordUtils.GRPC_CLIENT_STATUS, STATUS_V_WITH_MD);
+
+    assertThat(RecordUtils.getTagValues(tags, columns))
+        .containsExactly(STATUS_V, METHOD_V)
         .inOrder();
   }
 
