@@ -50,8 +50,8 @@ public abstract class MetricRegistry {
   }
 
   /**
-   * Builds a new long gauge to be added to the registry. This is more convenient form when you want
-   * to manually increase and decrease values as per your service requirements.
+   * Builds a new long gauge to be added to the registry. This is a more convenient form when you
+   * want to manually increase and decrease values as per your service requirements.
    *
    * @param name the name of the metric.
    * @param options the options for the metric.
@@ -82,7 +82,7 @@ public abstract class MetricRegistry {
   }
 
   /**
-   * Builds a new double gauge to be added to the registry. This is more convenient form when you
+   * Builds a new double gauge to be added to the registry. This is a more convenient form when you
    * want to manually increase and decrease values as per your service requirements.
    *
    * @param name the name of the metric.
@@ -114,8 +114,8 @@ public abstract class MetricRegistry {
   }
 
   /**
-   * Builds a new derived long gauge to be added to the registry. This is more convenient form when
-   * you want to define a gauge by executing a {@link ToLongFunction} on an object.
+   * Builds a new derived long gauge to be added to the registry. This is a more convenient form
+   * when you want to define a gauge by executing a {@link ToLongFunction} on an object.
    *
    * @param name the name of the metric.
    * @param options the options for the metric.
@@ -146,7 +146,7 @@ public abstract class MetricRegistry {
   }
 
   /**
-   * Builds a new derived double gauge to be added to the registry. This is more convenient form
+   * Builds a new derived double gauge to be added to the registry. This is a more convenient form
    * when you want to define a gauge by executing a {@link ToDoubleFunction} on an object.
    *
    * @param name the name of the metric.
@@ -160,8 +160,8 @@ public abstract class MetricRegistry {
   public abstract DerivedDoubleGauge addDerivedDoubleGauge(String name, MetricOptions options);
 
   /**
-   * Builds a new long cumulative to be added to the registry. This is more convenient form when you
-   * want to manually increase values as per your service requirements.
+   * Builds a new long cumulative to be added to the registry. This is a more convenient form when
+   * you want to manually increase values as per your service requirements.
    *
    * @param name the name of the metric.
    * @param options the options for the metric.
@@ -174,7 +174,7 @@ public abstract class MetricRegistry {
   public abstract LongCumulative addLongCumulative(String name, MetricOptions options);
 
   /**
-   * Builds a new double cumulative to be added to the registry. This is more convenient form when
+   * Builds a new double cumulative to be added to the registry. This is a more convenient form when
    * you want to manually increase values as per your service requirements.
    *
    * @param name the name of the metric.
@@ -188,8 +188,8 @@ public abstract class MetricRegistry {
   public abstract DoubleCumulative addDoubleCumulative(String name, MetricOptions options);
 
   /**
-   * Builds a new derived long cumulative to be added to the registry. This is more convenient form
-   * when you want to define a cumulative by executing a {@link ToLongFunction} on an object.
+   * Builds a new derived long cumulative to be added to the registry. This is a more convenient
+   * form when you want to define a cumulative by executing a {@link ToLongFunction} on an object.
    *
    * @param name the name of the metric.
    * @param options the options for the metric.
@@ -203,7 +203,7 @@ public abstract class MetricRegistry {
       String name, MetricOptions options);
 
   /**
-   * Builds a new derived double cumulative to be added to the registry. This is more convenient
+   * Builds a new derived double cumulative to be added to the registry. This is a more convenient
    * form when you want to define a cumulative by executing a {@link ToDoubleFunction} on an object.
    *
    * @param name the name of the metric.

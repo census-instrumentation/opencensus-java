@@ -22,7 +22,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Long Cumulative metric, to report instantaneous measurement of an int64 value. Cumulative values
- * can go up or stay the same, but can never go down. The cumulative values cannot be negative.
+ * can go up or stay the same, but can never go down. Cumulative values cannot be negative.
  *
  * <p>Example 1: Create a Cumulative with default labels.
  *

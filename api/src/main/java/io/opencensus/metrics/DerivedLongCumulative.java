@@ -28,8 +28,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Derived Long Cumulative metric, to report cumulative measurement of an int64 value. Cumulative
- * values can go up or stay the same, but can never go down. The cumulative values cannot be
- * negative.
+ * values can go up or stay the same, but can never go down. Cumulative values cannot be negative.
  *
  * <p>Example: Create a Cumulative with an object and a callback function.
  *

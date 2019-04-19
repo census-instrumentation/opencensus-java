@@ -28,8 +28,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Derived Double Cumulative metric, to report cumulative measurement of a double value. Cumulative
- * values can go up or stay the same, but can never go down. The cumulative values cannot be
- * negative.
+ * values can go up or stay the same, but can never go down. Cumulative values cannot be negative.
  *
  * <p>Example: Create a Cumulative with an object and a callback function.
  *
