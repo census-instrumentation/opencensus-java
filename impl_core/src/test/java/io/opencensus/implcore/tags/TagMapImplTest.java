@@ -53,6 +53,8 @@ public class TagMapImplTest {
 
   private static final TagMetadata METADATA_UNLIMITED_PROPAGATION =
       TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
+  private static final TagMetadata METADATA_NO_PROPAGATION =
+      TagMetadata.create(TagTtl.NO_PROPAGATION);
 
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
@@ -109,6 +111,13 @@ public class TagMapImplTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("value");
     builder.put(K2, null);
+  }
+
+  @Test
+  public void putLocal() {
+    TagContext tags1 = tagger.emptyBuilder().put(K1, V1, METADATA_NO_PROPAGATION).build();
+    TagContext tags2 = tagger.emptyBuilder().putLocal(K1, V1).build();
+    assertThat(tags1).isEqualTo(tags2);
   }
 
   @Test
