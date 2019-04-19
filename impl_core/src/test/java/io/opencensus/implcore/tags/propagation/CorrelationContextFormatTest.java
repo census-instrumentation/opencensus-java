@@ -192,11 +192,10 @@ public class CorrelationContextFormatTest {
   }
 
   @Test
-  public void extract_WithSpaces() throws TagContextDeserializationException {
-    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1= v1, k2=v 2");
-    Tag expected1 = Tag.create(K1, TagValue.create(" v1"), METADATA_UNLIMITED_PROPAGATION);
-    Tag expected2 =
-        Tag.create(TagKey.create(" k2"), TagValue.create("v 2"), METADATA_UNLIMITED_PROPAGATION);
+  public void extract_TrimSpaces() throws TagContextDeserializationException {
+    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1= v1, k2=v2 ");
+    Tag expected1 = Tag.create(K1, V1, METADATA_UNLIMITED_PROPAGATION);
+    Tag expected2 = Tag.create(K2, V2, METADATA_UNLIMITED_PROPAGATION);
     TagContext tagContext = textFormat.extract(carrier, getter);
     assertThat(TagsTestUtil.tagContextToList(tagContext)).containsExactly(expected1, expected2);
   }
@@ -217,14 +216,14 @@ public class CorrelationContextFormatTest {
 
   @Test
   public void extract_MalformedTagKey() throws TagContextDeserializationException {
-    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1=v1,k\2=v2");
+    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1=v1,ké=v2");
     thrown.expect(TagContextDeserializationException.class);
     textFormat.extract(carrier, getter);
   }
 
   @Test
   public void extract_MalformedTagValue() throws TagContextDeserializationException {
-    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1=v1,k2=v\2");
+    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1=v1,k2=vé");
     thrown.expect(TagContextDeserializationException.class);
     textFormat.extract(carrier, getter);
   }

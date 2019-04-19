@@ -179,8 +179,8 @@ final class CorrelationContextFormat extends TagContextTextFormat {
     }
     List<String> keyValuePair = TAG_KEY_VALUE_SPLITTER.splitToList(keyWithValue);
     checkArgument(keyValuePair.size() == 2, "Malformed tag " + stringTag);
-    TagKey key = TagKey.create(keyValuePair.get(0));
-    TagValue value = TagValue.create(keyValuePair.get(1));
+    TagKey key = TagKey.create(keyValuePair.get(0).trim());
+    TagValue value = TagValue.create(keyValuePair.get(1).trim());
     TagValueWithMetadata valueWithMetadata =
         TagValueWithMetadata.create(value, METADATA_UNLIMITED_PROPAGATION);
     tags.put(key, valueWithMetadata);
