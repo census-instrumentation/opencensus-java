@@ -17,9 +17,8 @@
 package io.opencensus.implcore.stats;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
@@ -71,12 +70,10 @@ final class RecordUtils {
   @VisibleForTesting static final TagKey GRPC_CLIENT_METHOD = TagKey.create("grpc_client_method");
   private static final TagKey GRPC_SERVER_STATUS = TagKey.create("grpc_server_status");
   private static final TagKey GRPC_SERVER_METHOD = TagKey.create("grpc_server_method");
-  private static final Multimap<TagKey, TagKey> RPC_TAG_MAPPINGS =
-      ImmutableMultimap.<TagKey, TagKey>builder()
-          .put(RPC_STATUS, GRPC_CLIENT_STATUS)
-          .put(RPC_STATUS, GRPC_SERVER_STATUS)
-          .put(RPC_METHOD, GRPC_CLIENT_METHOD)
-          .put(RPC_METHOD, GRPC_SERVER_METHOD)
+  private static final Map<TagKey, TagKey[]> RPC_TAG_MAPPINGS =
+      ImmutableMap.<TagKey, TagKey[]>builder()
+          .put(RPC_STATUS, new TagKey[] {GRPC_CLIENT_STATUS, GRPC_SERVER_STATUS})
+          .put(RPC_METHOD, new TagKey[] {GRPC_CLIENT_METHOD, GRPC_SERVER_METHOD})
           .build();
 
   static Map<TagKey, TagValueWithMetadata> getTagMap(TagContext ctx) {
@@ -113,9 +110,14 @@ final class RecordUtils {
   }
 
   // TODO(songy23): remove the mapping once we completely remove the deprecated RPC constants.
+  @javax.annotation.Nullable
   private static TagValue getTagValueForDeprecatedRpcTag(
       Map<? extends TagKey, TagValueWithMetadata> tags, TagKey oldKey) {
-    for (TagKey newKey : RPC_TAG_MAPPINGS.get(oldKey)) {
+    TagKey[] newKeys = RPC_TAG_MAPPINGS.get(oldKey);
+    if (newKeys == null) { // fix checker framework
+      return UNKNOWN_TAG_VALUE;
+    }
+    for (TagKey newKey : newKeys) {
       if (tags.containsKey(newKey)) {
         return tags.get(newKey).getTagValue();
       }
