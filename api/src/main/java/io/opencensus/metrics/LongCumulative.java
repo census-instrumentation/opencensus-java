@@ -146,14 +146,6 @@ public abstract class LongCumulative {
      * @since 0.21
      */
     public abstract void add(long delta);
-
-    /**
-     * Sets the given value.
-     *
-     * @param val the new value.
-     * @since 0.21
-     */
-    public abstract void set(long val);
   }
 
   /** No-op implementations of LongCumulative class. */
@@ -199,9 +191,6 @@ public abstract class LongCumulative {
 
       @Override
       public void add(long delta) {}
-
-      @Override
-      public void set(long val) {}
     }
   }
 }

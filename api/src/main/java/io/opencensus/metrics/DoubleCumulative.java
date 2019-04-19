@@ -147,14 +147,6 @@ public abstract class DoubleCumulative {
      * @since 0.21
      */
     public abstract void add(double delta);
-
-    /**
-     * Sets the given value.
-     *
-     * @param val the new value.
-     * @since 0.21
-     */
-    public abstract void set(double val);
   }
 
   /** No-op implementations of DoubleCumulative class. */
@@ -204,9 +196,6 @@ public abstract class DoubleCumulative {
 
       @Override
       public void add(double delta) {}
-
-      @Override
-      public void set(double val) {}
     }
   }
 }
