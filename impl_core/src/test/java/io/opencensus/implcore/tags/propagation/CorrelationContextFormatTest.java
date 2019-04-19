@@ -201,6 +201,14 @@ public class CorrelationContextFormatTest {
   }
 
   @Test
+  public void extract_OverrideTagWithSpaces() throws TagContextDeserializationException {
+    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1= v1, k1=v2 ");
+    Tag expected = Tag.create(K1, V2, METADATA_UNLIMITED_PROPAGATION);
+    TagContext tagContext = textFormat.extract(carrier, getter);
+    assertThat(TagsTestUtil.tagContextToList(tagContext)).containsExactly(expected);
+  }
+
+  @Test
   public void extract_NoCorrelationContextHeader() throws TagContextDeserializationException {
     Map<String, String> carrier = Collections.singletonMap("unknown-header", "value");
     thrown.expect(TagContextDeserializationException.class);
