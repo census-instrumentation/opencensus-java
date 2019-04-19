@@ -2,6 +2,7 @@
 - Add HTTP text format serializer to Tag propagation component.
 - Support constant labels in Gauge APIs.
 - Add an option to allow users to override the default "opencensus_task" metric label in Stackdriver Stats Exporter.
+- Allow setting custom namespace in Prometheus exporter.
 
 ## 0.20.0 - 2019-03-28
 - Add OpenCensus Java OC-Agent Trace Exporter.

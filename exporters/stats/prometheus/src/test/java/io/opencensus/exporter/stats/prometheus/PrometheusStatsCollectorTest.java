@@ -108,7 +108,8 @@ public class PrometheusStatsCollectorTest {
 
   @Test
   public void testCollect() {
-    PrometheusStatsCollector collector = new PrometheusStatsCollector(mockMetricProducerManager);
+    PrometheusStatsCollector collector =
+        new PrometheusStatsCollector(mockMetricProducerManager, "");
     assertThat(collector.collect())
         .containsExactly(
             new MetricFamilySamples(
@@ -151,13 +152,15 @@ public class PrometheusStatsCollectorTest {
   @Test
   public void testCollect_SkipDistributionMetricWithLeLabelKey() {
     doReturn(Collections.singletonList(LE_LABEL_METRIC)).when(mockMetricProducer).getMetrics();
-    PrometheusStatsCollector collector = new PrometheusStatsCollector(mockMetricProducerManager);
+    PrometheusStatsCollector collector =
+        new PrometheusStatsCollector(mockMetricProducerManager, "");
     assertThat(collector.collect()).isEmpty();
   }
 
   @Test
   public void testDescribe() {
-    PrometheusStatsCollector collector = new PrometheusStatsCollector(mockMetricProducerManager);
+    PrometheusStatsCollector collector =
+        new PrometheusStatsCollector(mockMetricProducerManager, "");
     assertThat(collector.describe())
         .containsExactly(
             new MetricFamilySamples(
@@ -165,10 +168,24 @@ public class PrometheusStatsCollectorTest {
   }
 
   @Test
+  public void testDescribe_WithNamespace() {
+    String namespace = "myorg";
+    PrometheusStatsCollector collector =
+        new PrometheusStatsCollector(mockMetricProducerManager, namespace);
+    assertThat(collector.describe())
+        .containsExactly(
+            new MetricFamilySamples(
+                namespace + '_' + METRIC_NAME,
+                Type.HISTOGRAM,
+                METRIC_DESCRIPTION,
+                Collections.<Sample>emptyList()));
+  }
+
+  @Test
   public void testCollect_WithNoopViewManager() {
     PrometheusStatsCollector collector =
         new PrometheusStatsCollector(
-            ExportComponent.newNoopExportComponent().getMetricProducerManager());
+            ExportComponent.newNoopExportComponent().getMetricProducerManager(), "");
     assertThat(collector.collect()).isEmpty();
   }
 
@@ -176,7 +193,7 @@ public class PrometheusStatsCollectorTest {
   public void testDescribe_WithNoopViewManager() {
     PrometheusStatsCollector collector =
         new PrometheusStatsCollector(
-            ExportComponent.newNoopExportComponent().getMetricProducerManager());
+            ExportComponent.newNoopExportComponent().getMetricProducerManager(), "");
     assertThat(collector.describe()).isEmpty();
   }
 }

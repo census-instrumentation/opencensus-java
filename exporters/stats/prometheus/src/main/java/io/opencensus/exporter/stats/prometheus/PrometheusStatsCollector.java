@@ -52,6 +52,7 @@ public final class PrometheusStatsCollector extends Collector implements Collect
   private static final String EXPORT_METRICS_TO_PROMETHEUS = "ExportMetricsToPrometheus";
   private final MetricReader collectMetricReader;
   private final MetricReader describeMetricReader;
+  private final String namespace;
 
   /**
    * Creates a {@link PrometheusStatsCollector} and registers it to Prometheus {@link
@@ -68,7 +69,7 @@ public final class PrometheusStatsCollector extends Collector implements Collect
    * @since 0.12
    */
   public static void createAndRegister() {
-    new PrometheusStatsCollector(Metrics.getExportComponent().getMetricProducerManager())
+    new PrometheusStatsCollector(Metrics.getExportComponent().getMetricProducerManager(), "")
         .register();
   }
 
@@ -88,12 +89,18 @@ public final class PrometheusStatsCollector extends Collector implements Collect
     if (registry == null) {
       registry = CollectorRegistry.defaultRegistry;
     }
-    new PrometheusStatsCollector(Metrics.getExportComponent().getMetricProducerManager())
+    new PrometheusStatsCollector(
+            Metrics.getExportComponent().getMetricProducerManager(), configuration.getNamespace())
         .register(registry);
   }
 
   private static final class ExportMetricExporter extends MetricExporter {
     private final ArrayList<MetricFamilySamples> samples = new ArrayList<>();
+    private final String namespace;
+
+    private ExportMetricExporter(String namespace) {
+      this.namespace = namespace;
+    }
 
     @Override
     public void export(Collection<Metric> metrics) {
@@ -111,7 +118,7 @@ public final class PrometheusStatsCollector extends Collector implements Collect
           continue;
         }
         try {
-          samples.add(PrometheusExportUtils.createMetricFamilySamples(metric));
+          samples.add(PrometheusExportUtils.createMetricFamilySamples(metric, namespace));
         } catch (Throwable e) {
           logger.log(Level.WARNING, "Exception thrown when collecting metric samples.", e);
           tracer
@@ -127,13 +134,18 @@ public final class PrometheusStatsCollector extends Collector implements Collect
 
   @Override
   public List<MetricFamilySamples> collect() {
-    ExportMetricExporter exportMetricExporter = new ExportMetricExporter();
+    ExportMetricExporter exportMetricExporter = new ExportMetricExporter(namespace);
     collectMetricReader.readAndExport(exportMetricExporter);
     return exportMetricExporter.samples;
   }
 
   private static final class DescribeMetricExporter extends MetricExporter {
     private final ArrayList<MetricFamilySamples> samples = new ArrayList<>();
+    private final String namespace;
+
+    private DescribeMetricExporter(String namespace) {
+      this.namespace = namespace;
+    }
 
     @Override
     public void export(Collection<Metric> metrics) {
@@ -142,7 +154,7 @@ public final class PrometheusStatsCollector extends Collector implements Collect
         try {
           samples.add(
               PrometheusExportUtils.createDescribableMetricFamilySamples(
-                  metric.getMetricDescriptor()));
+                  metric.getMetricDescriptor(), namespace));
         } catch (Throwable e) {
           logger.log(Level.WARNING, "Exception thrown when describing metrics.", e);
           tracer
@@ -158,13 +170,13 @@ public final class PrometheusStatsCollector extends Collector implements Collect
 
   @Override
   public List<MetricFamilySamples> describe() {
-    DescribeMetricExporter describeMetricExporter = new DescribeMetricExporter();
+    DescribeMetricExporter describeMetricExporter = new DescribeMetricExporter(namespace);
     describeMetricReader.readAndExport(describeMetricExporter);
     return describeMetricExporter.samples;
   }
 
   @VisibleForTesting
-  PrometheusStatsCollector(MetricProducerManager metricProducerManager) {
+  PrometheusStatsCollector(MetricProducerManager metricProducerManager, String namespace) {
     this.collectMetricReader =
         MetricReader.create(
             MetricReader.Options.builder()
@@ -177,6 +189,7 @@ public final class PrometheusStatsCollector extends Collector implements Collect
                 .setMetricProducerManager(metricProducerManager)
                 .setSpanName(DESCRIBE_METRICS_FOR_PROMETHEUS)
                 .build());
+    this.namespace = namespace;
   }
 
   private static String exceptionMessage(Throwable e) {

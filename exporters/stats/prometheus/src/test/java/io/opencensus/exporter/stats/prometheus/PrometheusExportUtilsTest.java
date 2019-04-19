@@ -188,20 +188,47 @@ public class PrometheusExportUtilsTest {
   public void createDescribableMetricFamilySamples() {
     assertThat(
             PrometheusExportUtils.createDescribableMetricFamilySamples(
-                CUMULATIVE_METRIC_DESCRIPTOR))
+                CUMULATIVE_METRIC_DESCRIPTOR, ""))
         .isEqualTo(
             new MetricFamilySamples(
                 METRIC_NAME, Type.COUNTER, METRIC_DESCRIPTION, Collections.<Sample>emptyList()));
     assertThat(
-            PrometheusExportUtils.createDescribableMetricFamilySamples(SUMMARY_METRIC_DESCRIPTOR))
+            PrometheusExportUtils.createDescribableMetricFamilySamples(
+                SUMMARY_METRIC_DESCRIPTOR, ""))
         .isEqualTo(
             new MetricFamilySamples(
                 METRIC_NAME2, Type.SUMMARY, METRIC_DESCRIPTION, Collections.<Sample>emptyList()));
     assertThat(
-            PrometheusExportUtils.createDescribableMetricFamilySamples(HISTOGRAM_METRIC_DESCRIPTOR))
+            PrometheusExportUtils.createDescribableMetricFamilySamples(
+                HISTOGRAM_METRIC_DESCRIPTOR, ""))
         .isEqualTo(
             new MetricFamilySamples(
                 METRIC_NAME3, Type.HISTOGRAM, METRIC_DESCRIPTION, Collections.<Sample>emptyList()));
+  }
+
+  @Test
+  public void createDescribableMetricFamilySamples_WithNamespace() {
+    String namespace1 = "myorg";
+    assertThat(
+            PrometheusExportUtils.createDescribableMetricFamilySamples(
+                CUMULATIVE_METRIC_DESCRIPTOR, namespace1))
+        .isEqualTo(
+            new MetricFamilySamples(
+                namespace1 + '_' + METRIC_NAME,
+                Type.COUNTER,
+                METRIC_DESCRIPTION,
+                Collections.<Sample>emptyList()));
+
+    String namespace2 = "opencensus/";
+    assertThat(
+            PrometheusExportUtils.createDescribableMetricFamilySamples(
+                CUMULATIVE_METRIC_DESCRIPTOR, namespace2))
+        .isEqualTo(
+            new MetricFamilySamples(
+                "opencensus_" + METRIC_NAME,
+                Type.COUNTER,
+                METRIC_DESCRIPTION,
+                Collections.<Sample>emptyList()));
   }
 
   @Test
@@ -306,7 +333,7 @@ public class PrometheusExportUtilsTest {
         "Prometheus Histogram cannot have a label named 'le', "
             + "because it is a reserved label for bucket boundaries. "
             + "Please remove this key from your view.");
-    PrometheusExportUtils.createDescribableMetricFamilySamples(LE_LABEL_METRIC_DESCRIPTOR);
+    PrometheusExportUtils.createDescribableMetricFamilySamples(LE_LABEL_METRIC_DESCRIPTOR, "");
   }
 
   @Test
@@ -315,12 +342,13 @@ public class PrometheusExportUtilsTest {
     thrown.expectMessage(
         "Prometheus Summary cannot have a label named 'quantile', "
             + "because it is a reserved label. Please remove this key from your view.");
-    PrometheusExportUtils.createDescribableMetricFamilySamples(QUANTILE_LABEL_METRIC_DESCRIPTOR);
+    PrometheusExportUtils.createDescribableMetricFamilySamples(
+        QUANTILE_LABEL_METRIC_DESCRIPTOR, "");
   }
 
   @Test
   public void createMetricFamilySamples() {
-    assertThat(PrometheusExportUtils.createMetricFamilySamples(LONG_METRIC))
+    assertThat(PrometheusExportUtils.createMetricFamilySamples(LONG_METRIC, ""))
         .isEqualTo(
             new MetricFamilySamples(
                 METRIC_NAME,
@@ -332,7 +360,7 @@ public class PrometheusExportUtilsTest {
                         Arrays.asList("k1", "k2"),
                         Arrays.asList("v1", "v2"),
                         123456789))));
-    assertThat(PrometheusExportUtils.createMetricFamilySamples(SUMMARY_METRIC))
+    assertThat(PrometheusExportUtils.createMetricFamilySamples(SUMMARY_METRIC, ""))
         .isEqualTo(
             new MetricFamilySamples(
                 METRIC_NAME2,
@@ -354,7 +382,7 @@ public class PrometheusExportUtilsTest {
                         Arrays.asList("k_3", LABEL_NAME_QUANTILE),
                         Arrays.asList("v1", "0.99"),
                         10.2))));
-    assertThat(PrometheusExportUtils.createMetricFamilySamples(DISTRIBUTION_METRIC))
+    assertThat(PrometheusExportUtils.createMetricFamilySamples(DISTRIBUTION_METRIC, ""))
         .isEqualTo(
             new MetricFamilySamples(
                 METRIC_NAME3,
@@ -391,5 +419,22 @@ public class PrometheusExportUtilsTest {
                         Collections.singletonList("k1"),
                         Collections.singletonList("v-3"),
                         22.0))));
+  }
+
+  @Test
+  public void createMetricFamilySamples_WithNamespace() {
+    String namespace = "opencensus_";
+    assertThat(PrometheusExportUtils.createMetricFamilySamples(LONG_METRIC, namespace))
+        .isEqualTo(
+            new MetricFamilySamples(
+                namespace + METRIC_NAME,
+                Type.COUNTER,
+                METRIC_DESCRIPTION,
+                Collections.singletonList(
+                    new Sample(
+                        namespace + METRIC_NAME,
+                        Arrays.asList("k1", "k2"),
+                        Arrays.asList("v1", "v2"),
+                        123456789))));
   }
 }
