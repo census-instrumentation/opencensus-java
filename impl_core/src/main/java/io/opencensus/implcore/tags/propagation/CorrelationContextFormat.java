@@ -65,9 +65,7 @@ final class CorrelationContextFormat extends TagContextTextFormat {
 
   // TODO(songya): These constants are for tag metadata. Uncomment them when we decided to support
   // encoding tag metadata.
-  private static final char TAG_PROPERTIES_LEFT_PAREN = '[';
-  // private static final char TAG_PROPERTIES_RIGHT_PAREN = ']';
-  // private static final char TAG_PROPERTIES_DELIMITER = ';';
+  private static final char TAG_PROPERTIES_DELIMITER = ';';
   // private static final char TAG_PROPERTIES_KEY_VALUE_DELIMITER = '=';
 
   @VisibleForTesting
@@ -169,12 +167,12 @@ final class CorrelationContextFormat extends TagContextTextFormat {
   }
 
   // Decodes tag key, value and metadata from the encoded string tag, then puts it into the tag map.
-  // The format of encoded string tag is name1=value1[;properties1=p1;properties2=p2].
+  // The format of encoded string tag is name1=value1;properties1=p1;properties2=p2.
   private static void decodeTag(String stringTag, Map<TagKey, TagValueWithMetadata> tags) {
     String keyWithValue;
-    int propertiesLeftParenIndex = stringTag.indexOf(TAG_PROPERTIES_LEFT_PAREN);
-    if (propertiesLeftParenIndex != -1) { // Tag with properties.
-      keyWithValue = stringTag.substring(0, propertiesLeftParenIndex);
+    int firstPropertyIndex = stringTag.indexOf(TAG_PROPERTIES_DELIMITER);
+    if (firstPropertyIndex != -1) { // Tag with properties.
+      keyWithValue = stringTag.substring(0, firstPropertyIndex);
       // TODO(songya): support decoding tag properties.
     } else { // Tag without properties.
       keyWithValue = stringTag;
@@ -182,9 +180,9 @@ final class CorrelationContextFormat extends TagContextTextFormat {
     List<String> keyValuePair = TAG_KEY_VALUE_SPLITTER.splitToList(keyWithValue);
     checkArgument(keyValuePair.size() == 2, "Malformed tag " + stringTag);
     TagKey key = TagKey.create(keyValuePair.get(0));
+    TagValue value = TagValue.create(keyValuePair.get(1));
     TagValueWithMetadata valueWithMetadata =
-        TagValueWithMetadata.create(
-            TagValue.create(keyValuePair.get(1)), METADATA_UNLIMITED_PROPAGATION);
+        TagValueWithMetadata.create(value, METADATA_UNLIMITED_PROPAGATION);
     tags.put(key, valueWithMetadata);
   }
 }

@@ -185,7 +185,7 @@ public class CorrelationContextFormatTest {
   @Test
   public void extract_WithUnknownProperties() throws TagContextDeserializationException {
     Map<String, String> carrier =
-        Collections.singletonMap(CORRELATION_CONTEXT, "k1=v1[;property1=p1;property2=p2],k2=v2");
+        Collections.singletonMap(CORRELATION_CONTEXT, "k1=v1;property1=p1;property2=p2,k2=v2");
     Tag expected = Tag.create(K1, TagValue.create("v1"), METADATA_UNLIMITED_PROPAGATION);
     TagContext tagContext = textFormat.extract(carrier, getter);
     assertThat(TagsTestUtil.tagContextToList(tagContext)).containsExactly(expected, T2);
@@ -211,6 +211,36 @@ public class CorrelationContextFormatTest {
   @Test
   public void extract_MalformedTag() throws TagContextDeserializationException {
     Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1,v1,k2=v2");
+    thrown.expect(TagContextDeserializationException.class);
+    textFormat.extract(carrier, getter);
+  }
+
+  @Test
+  public void extract_MalformedTagKey() throws TagContextDeserializationException {
+    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1=v1,k\2=v2");
+    thrown.expect(TagContextDeserializationException.class);
+    textFormat.extract(carrier, getter);
+  }
+
+  @Test
+  public void extract_MalformedTagValue() throws TagContextDeserializationException {
+    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1=v1,k2=v\2");
+    thrown.expect(TagContextDeserializationException.class);
+    textFormat.extract(carrier, getter);
+  }
+
+  @Test
+  public void extract_TagKeyTooLong() throws TagContextDeserializationException {
+    String longKey = generateRandom(300);
+    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, longKey + "=v1");
+    thrown.expect(TagContextDeserializationException.class);
+    textFormat.extract(carrier, getter);
+  }
+
+  @Test
+  public void extract_TagValueTooLong() throws TagContextDeserializationException {
+    String longValue = generateRandom(300);
+    Map<String, String> carrier = Collections.singletonMap(CORRELATION_CONTEXT, "k1=" + longValue);
     thrown.expect(TagContextDeserializationException.class);
     textFormat.extract(carrier, getter);
   }
