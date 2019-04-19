@@ -42,10 +42,12 @@ import java.util.Map;
 public final class MetricRegistryImpl extends MetricRegistry {
   private final RegisteredMeters registeredMeters;
   private final MetricProducer metricProducer;
+  private final Clock clock;
 
   MetricRegistryImpl(Clock clock) {
     registeredMeters = new RegisteredMeters();
     metricProducer = new MetricProducerForRegistry(registeredMeters, clock);
+    this.clock = clock;
   }
 
   @Override
@@ -102,22 +104,58 @@ public final class MetricRegistryImpl extends MetricRegistry {
 
   @Override
   public LongCumulative addLongCumulative(String name, MetricOptions options) {
-    throw new UnsupportedOperationException();
+    LongCumulativeImpl longCumulativeMetric =
+        new LongCumulativeImpl(
+            checkNotNull(name, "name"),
+            options.getDescription(),
+            options.getUnit(),
+            options.getLabelKeys(),
+            options.getConstantLabels(),
+            clock.now());
+    registeredMeters.registerMeter(name, longCumulativeMetric);
+    return longCumulativeMetric;
   }
 
   @Override
   public DoubleCumulative addDoubleCumulative(String name, MetricOptions options) {
-    throw new UnsupportedOperationException();
+    DoubleCumulativeImpl longCumulativeMetric =
+        new DoubleCumulativeImpl(
+            checkNotNull(name, "name"),
+            options.getDescription(),
+            options.getUnit(),
+            options.getLabelKeys(),
+            options.getConstantLabels(),
+            clock.now());
+    registeredMeters.registerMeter(name, longCumulativeMetric);
+    return longCumulativeMetric;
   }
 
   @Override
   public DerivedLongCumulative addDerivedLongCumulative(String name, MetricOptions options) {
-    throw new UnsupportedOperationException();
+    DerivedLongCumulativeImpl derivedLongCumulative =
+        new DerivedLongCumulativeImpl(
+            checkNotNull(name, "name"),
+            options.getDescription(),
+            options.getUnit(),
+            options.getLabelKeys(),
+            options.getConstantLabels(),
+            clock.now());
+    registeredMeters.registerMeter(name, derivedLongCumulative);
+    return derivedLongCumulative;
   }
 
   @Override
   public DerivedDoubleCumulative addDerivedDoubleCumulative(String name, MetricOptions options) {
-    throw new UnsupportedOperationException();
+    DerivedDoubleCumulativeImpl derivedDoubleCumulative =
+        new DerivedDoubleCumulativeImpl(
+            checkNotNull(name, "name"),
+            options.getDescription(),
+            options.getUnit(),
+            options.getLabelKeys(),
+            options.getConstantLabels(),
+            clock.now());
+    registeredMeters.registerMeter(name, derivedDoubleCumulative);
+    return derivedDoubleCumulative;
   }
 
   private static final class RegisteredMeters {
