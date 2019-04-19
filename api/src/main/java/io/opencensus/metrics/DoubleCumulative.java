@@ -141,12 +141,12 @@ public abstract class DoubleCumulative {
   public abstract static class DoublePoint {
 
     /**
-     * Adds the given value to the current value. The values can be negative.
+     * Adds the given value to the current value. The values cannot be negative.
      *
-     * @param amt the value to add
+     * @param delta the value to add
      * @since 0.21
      */
-    public abstract void add(double amt);
+    public abstract void add(double delta);
 
     /**
      * Sets the given value.
@@ -203,7 +203,7 @@ public abstract class DoubleCumulative {
       private NoopDoublePoint() {}
 
       @Override
-      public void add(double amt) {}
+      public void add(double delta) {}
 
       @Override
       public void set(double val) {}

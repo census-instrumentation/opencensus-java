@@ -140,12 +140,12 @@ public abstract class LongCumulative {
   public abstract static class LongPoint {
 
     /**
-     * Adds the given value to the current value. The values can be negative.
+     * Adds the given value to the current value. The values cannot be negative.
      *
-     * @param amt the value to add
+     * @param delta the value to add
      * @since 0.21
      */
-    public abstract void add(long amt);
+    public abstract void add(long delta);
 
     /**
      * Sets the given value.
@@ -198,7 +198,7 @@ public abstract class LongCumulative {
       private NoopLongPoint() {}
 
       @Override
-      public void add(long amt) {}
+      public void add(long delta) {}
 
       @Override
       public void set(long val) {}
