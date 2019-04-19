@@ -121,6 +121,13 @@ public class TagMapImplTest {
   }
 
   @Test
+  public void putPropagating() {
+    TagContext tags1 = tagger.emptyBuilder().put(K1, V1, METADATA_UNLIMITED_PROPAGATION).build();
+    TagContext tags2 = tagger.emptyBuilder().putPropagating(K1, V1).build();
+    assertThat(tags1).isEqualTo(tags2);
+  }
+
+  @Test
   public void remove_existingKey() {
     TagContext tags = new TagMapImpl(ImmutableMap.of(K1, VM1, K2, VM2));
     assertThat(((TagMapImpl) tagger.toBuilder(tags).remove(K1).build()).getTags())
