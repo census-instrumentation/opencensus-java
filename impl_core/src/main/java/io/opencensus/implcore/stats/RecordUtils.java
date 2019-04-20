@@ -17,6 +17,7 @@
 package io.opencensus.implcore.stats;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
@@ -62,6 +63,19 @@ final class RecordUtils {
 
   @javax.annotation.Nullable @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = null;
 
+  // TODO(songy23): remove the mapping once we completely remove the deprecated RPC constants.
+  @VisibleForTesting static final TagKey RPC_STATUS = TagKey.create("canonical_status");
+  @VisibleForTesting static final TagKey RPC_METHOD = TagKey.create("method");
+  @VisibleForTesting static final TagKey GRPC_CLIENT_STATUS = TagKey.create("grpc_client_status");
+  @VisibleForTesting static final TagKey GRPC_CLIENT_METHOD = TagKey.create("grpc_client_method");
+  @VisibleForTesting static final TagKey GRPC_SERVER_STATUS = TagKey.create("grpc_server_status");
+  @VisibleForTesting static final TagKey GRPC_SERVER_METHOD = TagKey.create("grpc_server_method");
+  private static final Map<TagKey, TagKey[]> RPC_TAG_MAPPINGS =
+      ImmutableMap.<TagKey, TagKey[]>builder()
+          .put(RPC_STATUS, new TagKey[] {GRPC_CLIENT_STATUS, GRPC_SERVER_STATUS})
+          .put(RPC_METHOD, new TagKey[] {GRPC_CLIENT_METHOD, GRPC_SERVER_METHOD})
+          .build();
+
   static Map<TagKey, TagValueWithMetadata> getTagMap(TagContext ctx) {
     if (ctx instanceof TagMapImpl) {
       return ((TagMapImpl) ctx).getTags();
@@ -83,13 +97,30 @@ final class RecordUtils {
     for (int i = 0; i < columns.size(); ++i) {
       TagKey tagKey = columns.get(i);
       if (!tags.containsKey(tagKey)) {
-        // replace not found key values by null.
-        tagValues.add(UNKNOWN_TAG_VALUE);
+        @javax.annotation.Nullable TagValue tagValue = UNKNOWN_TAG_VALUE;
+        TagKey[] newKeys = RPC_TAG_MAPPINGS.get(tagKey);
+        if (newKeys != null) {
+          tagValue = getTagValueForDeprecatedRpcTag(tags, newKeys);
+        }
+        tagValues.add(tagValue);
       } else {
         tagValues.add(tags.get(tagKey).getTagValue());
       }
     }
     return tagValues;
+  }
+
+  // TODO(songy23): remove the mapping once we completely remove the deprecated RPC constants.
+  @javax.annotation.Nullable
+  private static TagValue getTagValueForDeprecatedRpcTag(
+      Map<? extends TagKey, TagValueWithMetadata> tags, TagKey[] newKeys) {
+    for (TagKey newKey : newKeys) {
+      TagValueWithMetadata valueWithMetadata = tags.get(newKey);
+      if (valueWithMetadata != null) {
+        return valueWithMetadata.getTagValue();
+      }
+    }
+    return UNKNOWN_TAG_VALUE;
   }
 
   /**

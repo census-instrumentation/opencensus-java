@@ -296,6 +296,30 @@ public final class StatsRecorderImplTest {
   }
 
   @Test
+  public void record_MapDeprecatedRpcConstants() {
+    View view =
+        View.create(
+            VIEW_NAME,
+            "description",
+            MEASURE_DOUBLE,
+            Sum.create(),
+            Arrays.asList(RecordUtils.RPC_METHOD));
+
+    viewManager.registerView(view);
+    MeasureMap statsRecord = statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, 1.0);
+    statsRecord.record(new SimpleTagContext(Tag.create(RecordUtils.GRPC_CLIENT_METHOD, VALUE)));
+    ViewData viewData = viewManager.getView(VIEW_NAME);
+
+    // There should be two entries.
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 1.0)),
+        1e-6);
+  }
+
+  @Test
   @SuppressWarnings("deprecation")
   public void record_StatsDisabled() {
     View view =
