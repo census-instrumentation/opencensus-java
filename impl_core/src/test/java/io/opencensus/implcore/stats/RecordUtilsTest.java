@@ -135,6 +135,19 @@ public class RecordUtilsTest {
   }
 
   @Test
+  public void testGetTagValues_WithNewTags() {
+    List<TagKey> columns = Arrays.asList(RecordUtils.GRPC_CLIENT_METHOD, RecordUtils.GRPC_SERVER_METHOD);
+    Map<TagKey, TagValueWithMetadata> tags =
+        ImmutableMap.of(
+            RecordUtils.GRPC_SERVER_METHOD, METHOD_V_WITH_MD,
+            RecordUtils.GRPC_CLIENT_METHOD, METHOD_V_2_WITH_MD);
+
+    assertThat(RecordUtils.getTagValues(tags, columns))
+        .containsExactly(METHOD_V_2, METHOD_V)
+        .inOrder();
+  }
+
+  @Test
   public void createMutableAggregation() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
 
