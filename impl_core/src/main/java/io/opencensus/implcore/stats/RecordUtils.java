@@ -68,8 +68,8 @@ final class RecordUtils {
   @VisibleForTesting static final TagKey RPC_METHOD = TagKey.create("method");
   @VisibleForTesting static final TagKey GRPC_CLIENT_STATUS = TagKey.create("grpc_client_status");
   @VisibleForTesting static final TagKey GRPC_CLIENT_METHOD = TagKey.create("grpc_client_method");
-  private static final TagKey GRPC_SERVER_STATUS = TagKey.create("grpc_server_status");
-  private static final TagKey GRPC_SERVER_METHOD = TagKey.create("grpc_server_method");
+  @VisibleForTesting static final TagKey GRPC_SERVER_STATUS = TagKey.create("grpc_server_status");
+  @VisibleForTesting static final TagKey GRPC_SERVER_METHOD = TagKey.create("grpc_server_method");
   private static final Map<TagKey, TagKey[]> RPC_TAG_MAPPINGS =
       ImmutableMap.<TagKey, TagKey[]>builder()
           .put(RPC_STATUS, new TagKey[] {GRPC_CLIENT_STATUS, GRPC_SERVER_STATUS})
