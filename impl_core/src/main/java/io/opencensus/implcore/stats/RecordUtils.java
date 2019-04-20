@@ -98,8 +98,9 @@ final class RecordUtils {
       TagKey tagKey = columns.get(i);
       if (!tags.containsKey(tagKey)) {
         @javax.annotation.Nullable TagValue tagValue = UNKNOWN_TAG_VALUE;
-        if (RPC_TAG_MAPPINGS.containsKey(tagKey)) {
-          tagValue = getTagValueForDeprecatedRpcTag(tags, tagKey);
+        TagKey[] newKeys = RPC_TAG_MAPPINGS.get(tagKey);
+        if (newKeys != null) {
+          tagValue = getTagValueForDeprecatedRpcTag(tags, newKeys);
         }
         tagValues.add(tagValue);
       } else {
@@ -112,14 +113,11 @@ final class RecordUtils {
   // TODO(songy23): remove the mapping once we completely remove the deprecated RPC constants.
   @javax.annotation.Nullable
   private static TagValue getTagValueForDeprecatedRpcTag(
-      Map<? extends TagKey, TagValueWithMetadata> tags, TagKey oldKey) {
-    TagKey[] newKeys = RPC_TAG_MAPPINGS.get(oldKey);
-    if (newKeys == null) { // fix checker framework
-      return UNKNOWN_TAG_VALUE;
-    }
+      Map<? extends TagKey, TagValueWithMetadata> tags, TagKey[] newKeys) {
     for (TagKey newKey : newKeys) {
-      if (tags.containsKey(newKey)) {
-        return tags.get(newKey).getTagValue();
+      TagValueWithMetadata valueWithMetadata = tags.get(newKey);
+      if (valueWithMetadata != null) {
+        return valueWithMetadata.getTagValue();
       }
     }
     return UNKNOWN_TAG_VALUE;
