@@ -34,7 +34,7 @@ import java.nio.charset.Charset;
  */
 final class GcpMetadataConfig {
 
-  private static final String METADATA_URL = "http://metadata/computeMetadata/v1/";
+  private static final String METADATA_URL = "http://metadata.google.internal/computeMetadata/v1/";
 
   private GcpMetadataConfig() {}
 
