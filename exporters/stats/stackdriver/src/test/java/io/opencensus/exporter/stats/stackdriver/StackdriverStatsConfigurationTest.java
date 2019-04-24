@@ -121,28 +121,32 @@ public class StackdriverStatsConfigurationTest {
 
   @Test
   public void disallowNullResource() {
-    StackdriverStatsConfiguration.Builder builder = StackdriverStatsConfiguration.builder();
+    StackdriverStatsConfiguration.Builder builder =
+        StackdriverStatsConfiguration.builder().setProjectId(PROJECT_ID);
     thrown.expect(NullPointerException.class);
     builder.setMonitoredResource(null);
   }
 
   @Test
   public void disallowNullExportInterval() {
-    StackdriverStatsConfiguration.Builder builder = StackdriverStatsConfiguration.builder();
+    StackdriverStatsConfiguration.Builder builder =
+        StackdriverStatsConfiguration.builder().setProjectId(PROJECT_ID);
     thrown.expect(NullPointerException.class);
     builder.setExportInterval(null);
   }
 
   @Test
   public void disallowNullConstantLabels() {
-    StackdriverStatsConfiguration.Builder builder = StackdriverStatsConfiguration.builder();
+    StackdriverStatsConfiguration.Builder builder =
+        StackdriverStatsConfiguration.builder().setProjectId(PROJECT_ID);
     thrown.expect(NullPointerException.class);
     builder.setConstantLabels(null);
   }
 
   @Test
   public void disallowNullConstantLabelKey() {
-    StackdriverStatsConfiguration.Builder builder = StackdriverStatsConfiguration.builder();
+    StackdriverStatsConfiguration.Builder builder =
+        StackdriverStatsConfiguration.builder().setProjectId(PROJECT_ID);
     Map<LabelKey, LabelValue> labels = Collections.singletonMap(null, LabelValue.create("val"));
     builder.setConstantLabels(labels);
     thrown.expect(NullPointerException.class);
@@ -151,7 +155,8 @@ public class StackdriverStatsConfigurationTest {
 
   @Test
   public void disallowNullConstantLabelValue() {
-    StackdriverStatsConfiguration.Builder builder = StackdriverStatsConfiguration.builder();
+    StackdriverStatsConfiguration.Builder builder =
+        StackdriverStatsConfiguration.builder().setProjectId(PROJECT_ID);
     Map<LabelKey, LabelValue> labels =
         Collections.singletonMap(LabelKey.create("key", "desc"), null);
     builder.setConstantLabels(labels);
@@ -162,14 +167,20 @@ public class StackdriverStatsConfigurationTest {
   @Test
   public void allowNullCredentials() {
     StackdriverStatsConfiguration configuration =
-        StackdriverStatsConfiguration.builder().setCredentials(null).build();
+        StackdriverStatsConfiguration.builder()
+            .setProjectId(PROJECT_ID)
+            .setCredentials(null)
+            .build();
     assertThat(configuration.getCredentials()).isNull();
   }
 
   @Test
   public void allowNullMetricPrefix() {
     StackdriverStatsConfiguration configuration =
-        StackdriverStatsConfiguration.builder().setMetricNamePrefix(null).build();
+        StackdriverStatsConfiguration.builder()
+            .setProjectId(PROJECT_ID)
+            .setMetricNamePrefix(null)
+            .build();
     assertThat(configuration.getMetricNamePrefix()).isNull();
   }
 }
