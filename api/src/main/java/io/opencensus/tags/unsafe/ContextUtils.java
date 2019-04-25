@@ -17,6 +17,7 @@
 package io.opencensus.tags.unsafe;
 
 import io.grpc.Context;
+import io.opencensus.internal.Utils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import java.util.Collections;
@@ -41,9 +42,36 @@ public final class ContextUtils {
    * {@link io.grpc.Context}.
    *
    * @since 0.8
+   * @deprecated from API since 0.21. Use {@link #withValue(Context, TagContext)} and {@link
+   * #getValue(Context)} instead.
    */
+  // TODO(songy23): make this private once gRPC migrates to use the alternative APIs.
+  @Deprecated
   public static final Context.Key<TagContext> TAG_CONTEXT_KEY =
       Context.keyWithDefault("opencensus-tag-context-key", EMPTY_TAG_CONTEXT);
+
+  /**
+   * Creates a new {@code Context} with the given value set.
+   *
+   * @param context the parent {@code Context}.
+   * @param tagContext the value to be set.
+   * @return a new context with the given value set.
+   * @since 0.21
+   */
+  public static Context withValue(Context context, TagContext tagContext) {
+    return Utils.checkNotNull(context, "context").withValue(TAG_CONTEXT_KEY, tagContext);
+  }
+
+  /**
+   * Returns the value from the specified {@code Context}.
+   *
+   * @param context the specified {@code Context}.
+   * @return the value from the specified {@code Context}.
+   * @since 0.21
+   */
+  public static TagContext getValue(Context context) {
+    return TAG_CONTEXT_KEY.get(context);
+  }
 
   @Immutable
   private static final class EmptyTagContext extends TagContext {

@@ -34,7 +34,7 @@ final class CurrentSpanUtils {
    */
   @Nullable
   static Span getCurrentSpan() {
-    return ContextUtils.CONTEXT_SPAN_KEY.get();
+    return ContextUtils.getValue(Context.current());
   }
 
   /**
@@ -90,7 +90,7 @@ final class CurrentSpanUtils {
     private ScopeInSpan(Span span, boolean endSpan) {
       this.span = span;
       this.endSpan = endSpan;
-      origContext = Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, span).attach();
+      origContext = ContextUtils.withValue(Context.current(), span).attach();
     }
 
     @Override
@@ -116,8 +116,7 @@ final class CurrentSpanUtils {
 
     @Override
     public void run() {
-      Context origContext =
-          Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, span).attach();
+      Context origContext = ContextUtils.withValue(Context.current(), span).attach();
       try {
         runnable.run();
       } catch (Throwable t) {
@@ -150,8 +149,7 @@ final class CurrentSpanUtils {
 
     @Override
     public V call() throws Exception {
-      Context origContext =
-          Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, span).attach();
+      Context origContext = ContextUtils.withValue(Context.current(), span).attach();
       try {
         return callable.call();
       } catch (Exception e) {

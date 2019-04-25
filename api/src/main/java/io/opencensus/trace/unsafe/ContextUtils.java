@@ -17,6 +17,7 @@
 package io.opencensus.trace.unsafe;
 
 import io.grpc.Context;
+import io.opencensus.internal.Utils;
 import io.opencensus.trace.Span;
 
 /*>>>
@@ -39,7 +40,35 @@ public final class ContextUtils {
    * The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}.
    *
    * @since 0.5
+   * @deprecated from API since 0.21. Use {@link #withValue(Context, Span)} and {@link
+   * #getValue(Context)} instead.
    */
+  // TODO(songy23): make this private once gRPC migrates to use the alternative APIs.
+  @Deprecated
   public static final Context.Key</*@Nullable*/ Span> CONTEXT_SPAN_KEY =
-      Context.key("opencensus-trace-span-key");
+      Context.<Span>key("opencensus-trace-span-key");
+
+  /**
+   * Creates a new {@code Context} with the given value set.
+   *
+   * @param context the parent {@code Context}.
+   * @param span the value to be set.
+   * @return a new context with the given value set.
+   * @since 0.21
+   */
+  public static Context withValue(Context context, Span span) {
+    return Utils.checkNotNull(context, "context").withValue(CONTEXT_SPAN_KEY, span);
+  }
+
+  /**
+   * Returns the value from the specified {@code Context}.
+   *
+   * @param context the specified {@code Context}.
+   * @return the value from the specified {@code Context}.
+   * @since 0.21
+   */
+  @javax.annotation.Nullable
+  public static Span getValue(Context context) {
+    return CONTEXT_SPAN_KEY.get(Utils.checkNotNull(context, "context"));
+  }
 }
