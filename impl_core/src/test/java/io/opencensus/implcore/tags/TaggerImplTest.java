@@ -143,7 +143,7 @@ public class TaggerImplTest {
   }
 
   private TagContextBuilder getResultOfCurrentBuilder(TagContext tagsToSet) {
-    Context orig = ContextUtils.withValue(Context.current(), tagsToSet);
+    Context orig = ContextUtils.withValue(Context.current(), tagsToSet).attach();
     try {
       return tagger.currentBuilder();
     } finally {
@@ -240,7 +240,7 @@ public class TaggerImplTest {
   }
 
   private TagContext getResultOfGetCurrentTagContext(TagContext tagsToSet) {
-    Context orig = ContextUtils.withValue(Context.current(), tagsToSet);
+    Context orig = ContextUtils.withValue(Context.current(), tagsToSet).attach();
     try {
       return tagger.getCurrentTagContext();
     } finally {

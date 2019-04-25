@@ -55,7 +55,7 @@ public class CurrentTagMapUtilsTest {
 
   @Test
   public void testGetCurrentTagMap_ContextSetToNull() {
-    Context orig = ContextUtils.withValue(Context.current(), null);
+    Context orig = ContextUtils.withValue(Context.current(), null).attach();
     try {
       TagContext tags = CurrentTagMapUtils.getCurrentTagMap();
       assertThat(tags).isNotNull();
