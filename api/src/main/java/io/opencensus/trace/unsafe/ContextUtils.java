@@ -41,7 +41,7 @@ public final class ContextUtils {
    *
    * @since 0.5
    * @deprecated from API since 0.21. Use {@link #withValue(Context, Span)} and {@link
-   * #getValue(Context)} instead.
+   *     #getValue(Context)} instead.
    */
   // TODO(songy23): make this private once gRPC migrates to use the alternative APIs.
   @Deprecated
