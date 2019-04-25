@@ -57,7 +57,7 @@ public final class ContextUtils {
    * @return a new context with the given value set.
    * @since 0.21
    */
-  public static Context withValue(Context context, Span span) {
+  public static Context withValue(Context context, @javax.annotation.Nullable Span span) {
     return Utils.checkNotNull(context, "context").withValue(CONTEXT_SPAN_KEY, span);
   }
 
