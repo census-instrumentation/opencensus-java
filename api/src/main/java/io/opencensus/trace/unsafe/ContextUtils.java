@@ -18,6 +18,7 @@ package io.opencensus.trace.unsafe;
 
 import io.grpc.Context;
 import io.opencensus.internal.Utils;
+import io.opencensus.trace.BlankSpan;
 import io.opencensus.trace.Span;
 
 /*>>>
@@ -67,8 +68,9 @@ public final class ContextUtils {
    * @return the value from the specified {@code Context}.
    * @since 0.21
    */
-  @javax.annotation.Nullable
   public static Span getValue(Context context) {
-    return CONTEXT_SPAN_KEY.get(Utils.checkNotNull(context, "context"));
+    @javax.annotation.Nullable
+    Span span = CONTEXT_SPAN_KEY.get(Utils.checkNotNull(context, "context"));
+    return span == null ? BlankSpan.INSTANCE : span;
   }
 }

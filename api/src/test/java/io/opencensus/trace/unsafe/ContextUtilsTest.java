@@ -32,15 +32,16 @@ public class ContextUtilsTest {
   @Test
   public void testGetCurrentSpan_DefaultContext() {
     Span span = ContextUtils.getValue(Context.current());
-    assertThat(span).isNull();
+    assertThat(span).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
-  public void testGetCurrentSpan_ContextSetToNonNull() {
-    Context orig = ContextUtils.withValue(Context.current(), BlankSpan.INSTANCE).attach();
+  public void testGetCurrentSpan_ContextSetToNull() {
+    Context orig = ContextUtils.withValue(Context.current(), null).attach();
     try {
       Span span = ContextUtils.getValue(Context.current());
-      assertThat(span).isNotNull();
+      // ContextUtils.getValue always returns non-null.
+      assertThat(span).isEqualTo(BlankSpan.INSTANCE);
     } finally {
       Context.current().detach(orig);
     }

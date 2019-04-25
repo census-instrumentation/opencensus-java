@@ -6,6 +6,7 @@
 - Add Cumulative (`DoubleCumulative`, `LongCumulative`, `DerivedDoubleCumulative`, `DerivedLongCumulative`) APIs.
 - Add convenience APIs `TagContextBuilder.putLocal()` that adds non-propagating tags,
 and `TagContextBuilder.putPropagating()` that adds unlimited propagating tags.
+- Deprecate context keys for tags and spans. Provide helper methods for interacting with context.
 
 ## 0.20.0 - 2019-03-28
 - Add OpenCensus Java OC-Agent Trace Exporter.
