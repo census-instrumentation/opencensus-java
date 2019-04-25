@@ -24,6 +24,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import javax.annotation.concurrent.Immutable;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /**
  * Utility methods for accessing the {@link TagContext} contained in the {@link io.grpc.Context}.
  *
@@ -47,7 +51,7 @@ public final class ContextUtils {
    */
   // TODO(songy23): make this private once gRPC migrates to use the alternative APIs.
   @Deprecated
-  public static final Context.Key<TagContext> TAG_CONTEXT_KEY =
+  public static final Context.Key</*@Nullable*/ TagContext> TAG_CONTEXT_KEY =
       Context.keyWithDefault("opencensus-tag-context-key", EMPTY_TAG_CONTEXT);
 
   /**
@@ -70,7 +74,8 @@ public final class ContextUtils {
    * @since 0.21
    */
   public static TagContext getValue(Context context) {
-    return TAG_CONTEXT_KEY.get(context);
+    @javax.annotation.Nullable TagContext tags = TAG_CONTEXT_KEY.get(context);
+    return tags == null ? EMPTY_TAG_CONTEXT : tags;
   }
 
   @Immutable
