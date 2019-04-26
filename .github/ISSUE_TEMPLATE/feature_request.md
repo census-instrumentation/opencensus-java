@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea for this project.
-labels: feature-request, triage-me
+labels: feature-request
 ---
 
 **NB:** Before opening a feature request against this repo, consider whether the feature should be available across all languages in the OpenCensus libraries. If so, please [open an issue on opencensus-specs](https://github.com/census-instrumentation/opencensus-specs/issues/new) first.
