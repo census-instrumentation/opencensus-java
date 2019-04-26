@@ -143,8 +143,7 @@ final class OpenCensusSleuthSpanContextHolder {
       this.autoClose = autoClose;
       this.parent = CURRENT_SPAN.get();
       this.ocSpan = new OpenCensusSleuthSpan(span);
-      this.ocCurrentContext =
-          Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, this.ocSpan);
+      this.ocCurrentContext = ContextUtils.withValue(Context.current(), this.ocSpan);
     }
   }
 

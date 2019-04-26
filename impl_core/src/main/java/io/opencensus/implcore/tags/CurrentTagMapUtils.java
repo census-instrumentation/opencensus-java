@@ -34,7 +34,7 @@ final class CurrentTagMapUtils {
    * @return the {@code TagContext} from the current context.
    */
   static TagContext getCurrentTagMap() {
-    return ContextUtils.TAG_CONTEXT_KEY.get();
+    return ContextUtils.getValue(Context.current());
   }
 
   /**
@@ -60,7 +60,7 @@ final class CurrentTagMapUtils {
      * @param tags the {@code TagContext} to be added to the current {@code Context}.
      */
     private WithTagMap(TagContext tags) {
-      orig = Context.current().withValue(ContextUtils.TAG_CONTEXT_KEY, tags).attach();
+      orig = ContextUtils.withValue(Context.current(), tags).attach();
     }
 
     @Override

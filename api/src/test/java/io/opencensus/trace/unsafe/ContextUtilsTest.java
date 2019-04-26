@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, OpenCensus Authors
+ * Copyright 2019, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,44 +14,36 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags.unsafe;
+package io.opencensus.trace.unsafe;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.Lists;
 import io.grpc.Context;
-import io.opencensus.tags.InternalUtils;
-import io.opencensus.tags.Tag;
-import io.opencensus.tags.TagContext;
-import java.util.List;
+import io.opencensus.trace.BlankSpan;
+import io.opencensus.trace.Span;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link ContextUtils}. */
 @RunWith(JUnit4.class)
-public final class ContextUtilsTest {
+public class ContextUtilsTest {
 
   @Test
-  public void testGetCurrentTagContext_DefaultContext() {
-    TagContext tags = ContextUtils.getValue(Context.current());
-    assertThat(tags).isNotNull();
-    assertThat(asList(tags)).isEmpty();
+  public void testGetCurrentSpan_DefaultContext() {
+    Span span = ContextUtils.getValue(Context.current());
+    assertThat(span).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
-  public void testGetCurrentTagContext_ContextSetToNull() {
+  public void testGetCurrentSpan_ContextSetToNull() {
     Context orig = ContextUtils.withValue(Context.current(), null).attach();
     try {
-      TagContext tags = ContextUtils.getValue(Context.current());
-      assertThat(tags).isNotNull();
-      assertThat(asList(tags)).isEmpty();
+      Span span = ContextUtils.getValue(Context.current());
+      // ContextUtils.getValue always returns non-null.
+      assertThat(span).isEqualTo(BlankSpan.INSTANCE);
     } finally {
       Context.current().detach(orig);
     }
-  }
-
-  private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(InternalUtils.getTags(tags));
   }
 }

@@ -68,51 +68,51 @@ public class CurrentSpanUtilsTest {
 
   @Test
   public void getCurrentSpan_WhenNoContext() {
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void getCurrentSpan() {
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
-    Context origContext = Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, span).attach();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
+    Context origContext = ContextUtils.withValue(Context.current(), span).attach();
     // Make sure context is detached even if test fails.
     try {
       assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
     } finally {
       Context.current().detach(origContext);
     }
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void withSpan_CloseDetaches() {
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Scope ws = CurrentSpanUtils.withSpan(span, false);
     try {
       assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
     } finally {
       ws.close();
     }
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     verifyZeroInteractions(span);
   }
 
   @Test
   public void withSpan_CloseDetachesAndEndsSpan() {
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Scope ss = CurrentSpanUtils.withSpan(span, true);
     try {
       assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
     } finally {
       ss.close();
     }
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   @Test
   public void withSpanRunnable() {
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Runnable runnable =
         new Runnable() {
           @Override
@@ -123,12 +123,12 @@ public class CurrentSpanUtilsTest {
         };
     CurrentSpanUtils.withSpan(span, false, runnable).run();
     verifyZeroInteractions(span);
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void withSpanRunnable_EndSpan() {
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Runnable runnable =
         new Runnable() {
           @Override
@@ -139,13 +139,13 @@ public class CurrentSpanUtilsTest {
         };
     CurrentSpanUtils.withSpan(span, true, runnable).run();
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void withSpanRunnable_WithError() {
     final AssertionError error = new AssertionError("MyError");
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Runnable runnable =
         new Runnable() {
           @Override
@@ -158,13 +158,13 @@ public class CurrentSpanUtilsTest {
     executeRunnableAndExpectError(runnable, error);
     verify(span).setStatus(Status.UNKNOWN.withDescription("MyError"));
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void withSpanRunnable_WithErrorNoMessage() {
     final AssertionError error = new AssertionError();
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Runnable runnable =
         new Runnable() {
           @Override
@@ -177,13 +177,13 @@ public class CurrentSpanUtilsTest {
     executeRunnableAndExpectError(runnable, error);
     verify(span).setStatus(Status.UNKNOWN.withDescription("AssertionError"));
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void withSpanCallable() throws Exception {
     final Object ret = new Object();
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Callable<Object> callable =
         new Callable<Object>() {
           @Override
@@ -195,13 +195,13 @@ public class CurrentSpanUtilsTest {
         };
     assertThat(CurrentSpanUtils.withSpan(span, false, callable).call()).isEqualTo(ret);
     verifyZeroInteractions(span);
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void withSpanCallable_EndSpan() throws Exception {
     final Object ret = new Object();
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Callable<Object> callable =
         new Callable<Object>() {
           @Override
@@ -213,13 +213,13 @@ public class CurrentSpanUtilsTest {
         };
     assertThat(CurrentSpanUtils.withSpan(span, true, callable).call()).isEqualTo(ret);
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void withSpanCallable_WithException() {
     final Exception exception = new Exception("MyException");
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Callable<Object> callable =
         new Callable<Object>() {
           @Override
@@ -232,13 +232,13 @@ public class CurrentSpanUtilsTest {
     executeCallableAndExpectError(callable, exception);
     verify(span).setStatus(Status.UNKNOWN.withDescription("MyException"));
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void withSpanCallable_WithExceptionNoMessage() {
     final Exception exception = new Exception();
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Callable<Object> callable =
         new Callable<Object>() {
           @Override
@@ -251,13 +251,13 @@ public class CurrentSpanUtilsTest {
     executeCallableAndExpectError(callable, exception);
     verify(span).setStatus(Status.UNKNOWN.withDescription("Exception"));
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void withSpanCallable_WithError() {
     final AssertionError error = new AssertionError("MyError");
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Callable<Object> callable =
         new Callable<Object>() {
           @Override
@@ -270,13 +270,13 @@ public class CurrentSpanUtilsTest {
     executeCallableAndExpectError(callable, error);
     verify(span).setStatus(Status.UNKNOWN.withDescription("MyError"));
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void withSpanCallable_WithErrorNoMessage() {
     final AssertionError error = new AssertionError();
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Callable<Object> callable =
         new Callable<Object>() {
           @Override
@@ -289,6 +289,6 @@ public class CurrentSpanUtilsTest {
     executeCallableAndExpectError(callable, error);
     verify(span).setStatus(Status.UNKNOWN.withDescription("AssertionError"));
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }
 }

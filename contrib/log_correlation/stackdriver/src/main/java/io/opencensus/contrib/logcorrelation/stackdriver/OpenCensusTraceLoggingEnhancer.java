@@ -19,6 +19,7 @@ package io.opencensus.contrib.logcorrelation.stackdriver;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.logging.LogEntry;
 import com.google.cloud.logging.LoggingEnhancer;
+import io.grpc.Context;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.TraceId;
@@ -98,7 +99,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   }
 
   private static SpanContext getCurrentSpanContext() {
-    Span span = ContextUtils.CONTEXT_SPAN_KEY.get();
+    Span span = ContextUtils.getValue(Context.current());
     return span == null ? SpanContext.INVALID : span.getContext();
   }
 

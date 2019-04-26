@@ -16,6 +16,7 @@
 
 package io.opencensus.implcore.stats;
 
+import io.grpc.Context;
 import io.opencensus.metrics.data.AttachmentValue;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
@@ -68,7 +69,7 @@ final class MeasureMapImpl extends MeasureMap {
   @Override
   public void record() {
     // Use the context key directly, to avoid depending on the tags implementation.
-    record(ContextUtils.TAG_CONTEXT_KEY.get());
+    record(ContextUtils.getValue(Context.current()));
   }
 
   @Override
