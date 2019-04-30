@@ -60,6 +60,7 @@ public class CreateMetricDescriptorExporterTest {
   private static final String METRIC_NAME = CUSTOM_OPENCENSUS_DOMAIN + "my_metric";
   private static final String METRIC_NAME_2 = CUSTOM_OPENCENSUS_DOMAIN + "my_metric_2";
   private static final String METRIC_NAME_3 = "bigquery.googleapis.com/query/count";
+  private static final String METRIC_NAME_CUSTOM_DOMAIN = "my.org/my_metric_3";
   private static final String METRIC_DESCRIPTION = "metric_description";
   private static final String METRIC_DESCRIPTION_2 = "metric_description2";
   private static final String METRIC_UNIT = "us";
@@ -86,6 +87,15 @@ public class CreateMetricDescriptorExporterTest {
       io.opencensus.metrics.export.MetricDescriptor.create(
           METRIC_NAME_3, METRIC_DESCRIPTION, METRIC_UNIT, Type.CUMULATIVE_INT64, LABEL_KEY);
 
+  // Metric with no domain.
+  private static final io.opencensus.metrics.export.MetricDescriptor METRIC_DESCRIPTOR_5 =
+      io.opencensus.metrics.export.MetricDescriptor.create(
+          METRIC_NAME_CUSTOM_DOMAIN,
+          METRIC_DESCRIPTION,
+          METRIC_UNIT,
+          Type.CUMULATIVE_INT64,
+          LABEL_KEY);
+
   private static final Value VALUE_LONG = Value.longValue(12345678);
   private static final Timestamp TIMESTAMP = Timestamp.fromMillis(3000);
   private static final Timestamp TIMESTAMP_2 = Timestamp.fromMillis(1000);
@@ -102,6 +112,8 @@ public class CreateMetricDescriptorExporterTest {
       Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_3, CUMULATIVE_TIME_SERIES);
   private static final Metric METRIC_4 =
       Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_4, CUMULATIVE_TIME_SERIES);
+  private static final Metric METRIC_5 =
+      Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_5, CUMULATIVE_TIME_SERIES);
 
   @Mock private MetricServiceStub mockStub;
 
@@ -163,6 +175,36 @@ public class CreateMetricDescriptorExporterTest {
                     .setMetricDescriptor(descriptor2)
                     .build()));
     assertThat(fakeMetricExporter.getLastExported()).containsExactly(METRIC, METRIC_2);
+  }
+
+  @Test
+  public void export_MetricNameWithCustomDomain() {
+    FakeMetricExporter fakeMetricExporter = new FakeMetricExporter();
+    CreateMetricDescriptorExporter exporter =
+        new CreateMetricDescriptorExporter(
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            null,
+            DEFAULT_CONSTANT_LABELS,
+            fakeMetricExporter);
+    exporter.export(Arrays.asList(METRIC_5));
+
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+
+    MetricDescriptor descriptor =
+        StackdriverExportUtils.createMetricDescriptor(
+            METRIC_DESCRIPTOR_5,
+            PROJECT_ID,
+            CUSTOM_OPENCENSUS_DOMAIN,
+            DEFAULT_DISPLAY_NAME_PREFIX,
+            DEFAULT_CONSTANT_LABELS);
+    verify(mockCreateMetricDescriptorCallable, times(1))
+        .call(
+            eq(
+                CreateMetricDescriptorRequest.newBuilder()
+                    .setName("projects/" + PROJECT_ID)
+                    .setMetricDescriptor(descriptor)
+                    .build()));
   }
 
   @Test

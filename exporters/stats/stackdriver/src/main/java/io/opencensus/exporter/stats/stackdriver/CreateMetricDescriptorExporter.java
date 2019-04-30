@@ -44,7 +44,8 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
   private static final Logger logger =
       Logger.getLogger(CreateMetricDescriptorExporter.class.getName());
   private static final ImmutableSet<String> SUPPORTED_EXTERNAL_DOMAINS =
-      ImmutableSet.<String>of("custom.googleapis.com/", "external.googleapis.com/");
+      ImmutableSet.<String>of("custom.googleapis.com", "external.googleapis.com");
+  private static final String GOOGLE_APIS_DOMAIN_SUFFIX = "googleapis.com";
 
   private final String projectId;
   private final ProjectName projectName;
@@ -92,7 +93,7 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
       }
     }
     registeredMetricDescriptors.put(metricName, metricDescriptor);
-    if (!isSupportedExternalMetric(metricName)) {
+    if (isBuiltInMetric(metricName)) {
       return true; // skip creating metric descriptor for stackdriver built-in metrics.
     }
 
@@ -153,12 +154,17 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
     nextExporter.export(registeredMetrics);
   }
 
-  private static boolean isSupportedExternalMetric(String metricName) {
-    for (String domain : SUPPORTED_EXTERNAL_DOMAINS) {
-      if (metricName.startsWith(domain)) {
-        return true;
-      }
+  private static boolean isBuiltInMetric(String metricName) {
+    int domainIndex = metricName.indexOf('/');
+    if (domainIndex < 0) {
+      return false;
     }
-    return false;
+    String metricDomain = metricName.substring(0, domainIndex);
+    if (!metricDomain.endsWith(GOOGLE_APIS_DOMAIN_SUFFIX)) {
+      return false; // domains like "my.org" are not Stackdriver built-in metrics.
+    }
+    // All googleapis.com domains except "custom.googleapis.com" or "external.googleapis.com"
+    // are built-in metrics.
+    return !SUPPORTED_EXTERNAL_DOMAINS.contains(metricDomain);
   }
 }
