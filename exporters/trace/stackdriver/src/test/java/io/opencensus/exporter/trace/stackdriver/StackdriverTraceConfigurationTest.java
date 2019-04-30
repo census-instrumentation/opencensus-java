@@ -98,14 +98,16 @@ public class StackdriverTraceConfigurationTest {
 
   @Test
   public void disallowNullFixedAttributes() {
-    StackdriverTraceConfiguration.Builder builder = StackdriverTraceConfiguration.builder();
+    StackdriverTraceConfiguration.Builder builder =
+        StackdriverTraceConfiguration.builder().setProjectId("test");
     thrown.expect(NullPointerException.class);
     builder.setFixedAttributes(null);
   }
 
   @Test
   public void disallowNullFixedAttributeKey() {
-    StackdriverTraceConfiguration.Builder builder = StackdriverTraceConfiguration.builder();
+    StackdriverTraceConfiguration.Builder builder =
+        StackdriverTraceConfiguration.builder().setProjectId("test");
     Map<String, AttributeValue> attributes =
         Collections.singletonMap(null, AttributeValue.stringAttributeValue("val"));
     builder.setFixedAttributes(attributes);
@@ -115,7 +117,8 @@ public class StackdriverTraceConfigurationTest {
 
   @Test
   public void disallowNullFixedAttributeValue() {
-    StackdriverTraceConfiguration.Builder builder = StackdriverTraceConfiguration.builder();
+    StackdriverTraceConfiguration.Builder builder =
+        StackdriverTraceConfiguration.builder().setProjectId("test");
     Map<String, AttributeValue> attributes = Collections.singletonMap("key", null);
     builder.setFixedAttributes(attributes);
     thrown.expect(NullPointerException.class);
