@@ -89,6 +89,11 @@ public abstract class MetricOptions {
         .setConstantLabels(Collections.<LabelKey, LabelValue>emptyMap());
   }
 
+  /**
+   * Builder for {@link MetricOptions}.
+   *
+   * @since 0.20
+   */
   @AutoValue.Builder
   public abstract static class Builder {
 
