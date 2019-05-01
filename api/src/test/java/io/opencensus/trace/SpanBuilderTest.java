@@ -49,47 +49,47 @@ public class SpanBuilderTest {
 
   @Test
   public void startScopedSpan() {
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    assertThat(tracer.getCurrentSpan()).isSameInstanceAs(BlankSpan.INSTANCE);
     Scope scope = spanBuilder.startScopedSpan();
     try {
-      assertThat(tracer.getCurrentSpan()).isSameAs(span);
+      assertThat(tracer.getCurrentSpan()).isSameInstanceAs(span);
     } finally {
       scope.close();
     }
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    assertThat(tracer.getCurrentSpan()).isSameInstanceAs(BlankSpan.INSTANCE);
   }
 
   @Test
   public void startSpanAndRun() {
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    assertThat(tracer.getCurrentSpan()).isSameInstanceAs(BlankSpan.INSTANCE);
     spanBuilder.startSpanAndRun(
         new Runnable() {
           @Override
           public void run() {
-            assertThat(tracer.getCurrentSpan()).isSameAs(span);
+            assertThat(tracer.getCurrentSpan()).isSameInstanceAs(span);
           }
         });
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    assertThat(tracer.getCurrentSpan()).isSameInstanceAs(BlankSpan.INSTANCE);
   }
 
   @Test
   public void startSpanAndCall() throws Exception {
     final Object ret = new Object();
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    assertThat(tracer.getCurrentSpan()).isSameInstanceAs(BlankSpan.INSTANCE);
     assertThat(
             spanBuilder.startSpanAndCall(
                 new Callable<Object>() {
                   @Override
                   public Object call() throws Exception {
-                    assertThat(tracer.getCurrentSpan()).isSameAs(span);
+                    assertThat(tracer.getCurrentSpan()).isSameInstanceAs(span);
                     return ret;
                   }
                 }))
         .isEqualTo(ret);
     verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    assertThat(tracer.getCurrentSpan()).isSameInstanceAs(BlankSpan.INSTANCE);
   }
 
   @Test
@@ -99,6 +99,6 @@ public class SpanBuilderTest {
     spanBuilder.setRecordEvents(true);
     spanBuilder.setSampler(Samplers.alwaysSample());
     spanBuilder.setSpanKind(Kind.SERVER);
-    assertThat(spanBuilder.startSpan()).isSameAs(BlankSpan.INSTANCE);
+    assertThat(spanBuilder.startSpan()).isSameInstanceAs(BlankSpan.INSTANCE);
   }
 }

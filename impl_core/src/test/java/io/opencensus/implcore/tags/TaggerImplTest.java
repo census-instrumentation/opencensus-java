@@ -80,13 +80,13 @@ public class TaggerImplTest {
   @Test
   public void emptyBuilder_TaggingDisabled() {
     tagsComponent.setState(TaggingState.DISABLED);
-    assertThat(tagger.emptyBuilder()).isSameAs(NoopTagMapBuilder.INSTANCE);
+    assertThat(tagger.emptyBuilder()).isSameInstanceAs(NoopTagMapBuilder.INSTANCE);
   }
 
   @Test
   public void emptyBuilder_TaggingReenabled() {
     tagsComponent.setState(TaggingState.DISABLED);
-    assertThat(tagger.emptyBuilder()).isSameAs(NoopTagMapBuilder.INSTANCE);
+    assertThat(tagger.emptyBuilder()).isSameInstanceAs(NoopTagMapBuilder.INSTANCE);
     tagsComponent.setState(TaggingState.ENABLED);
     TagContextBuilder builder = tagger.emptyBuilder();
     assertThat(builder).isInstanceOf(TagMapBuilderImpl.class);
@@ -128,14 +128,14 @@ public class TaggerImplTest {
   public void currentBuilder_TaggingDisabled() {
     tagsComponent.setState(TaggingState.DISABLED);
     assertThat(getResultOfCurrentBuilder(new SimpleTagContext(TAG1)))
-        .isSameAs(NoopTagMapBuilder.INSTANCE);
+        .isSameInstanceAs(NoopTagMapBuilder.INSTANCE);
   }
 
   @Test
   public void currentBuilder_TaggingReenabled() {
     TagContext tags = new SimpleTagContext(TAG1);
     tagsComponent.setState(TaggingState.DISABLED);
-    assertThat(getResultOfCurrentBuilder(tags)).isSameAs(NoopTagMapBuilder.INSTANCE);
+    assertThat(getResultOfCurrentBuilder(tags)).isSameInstanceAs(NoopTagMapBuilder.INSTANCE);
     tagsComponent.setState(TaggingState.ENABLED);
     TagContextBuilder builder = getResultOfCurrentBuilder(tags);
     assertThat(builder).isInstanceOf(TagMapBuilderImpl.class);
@@ -178,14 +178,15 @@ public class TaggerImplTest {
   @Test
   public void toBuilder_TaggingDisabled() {
     tagsComponent.setState(TaggingState.DISABLED);
-    assertThat(tagger.toBuilder(new SimpleTagContext(TAG1))).isSameAs(NoopTagMapBuilder.INSTANCE);
+    assertThat(tagger.toBuilder(new SimpleTagContext(TAG1)))
+        .isSameInstanceAs(NoopTagMapBuilder.INSTANCE);
   }
 
   @Test
   public void toBuilder_TaggingReenabled() {
     TagContext tags = new SimpleTagContext(TAG1);
     tagsComponent.setState(TaggingState.DISABLED);
-    assertThat(tagger.toBuilder(tags)).isSameAs(NoopTagMapBuilder.INSTANCE);
+    assertThat(tagger.toBuilder(tags)).isSameInstanceAs(NoopTagMapBuilder.INSTANCE);
     tagsComponent.setState(TaggingState.ENABLED);
     TagContextBuilder builder = tagger.toBuilder(tags);
     assertThat(builder).isInstanceOf(TagMapBuilderImpl.class);
@@ -275,7 +276,8 @@ public class TaggerImplTest {
   @Test
   public void withTagContext_ReturnsNoopScopeWhenTaggingIsDisabled() {
     tagsComponent.setState(TaggingState.DISABLED);
-    assertThat(tagger.withTagContext(new SimpleTagContext(TAG1))).isSameAs(NoopScope.getInstance());
+    assertThat(tagger.withTagContext(new SimpleTagContext(TAG1)))
+        .isSameInstanceAs(NoopScope.getInstance());
   }
 
   @Test

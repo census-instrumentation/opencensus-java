@@ -125,7 +125,7 @@ public class DoubleCumulativeImplTest {
     point.add(100);
     DoublePoint point1 = doubleCumulativeMetric.getOrCreateTimeSeries(LABEL_VALUES);
     point1.add(500);
-    assertThat(point).isSameAs(point1);
+    assertThat(point).isSameInstanceAs(point1);
 
     testClock.advanceTime(ONE_MINUTE);
     Timestamp endTime = testClock.now();
@@ -175,7 +175,7 @@ public class DoubleCumulativeImplTest {
                     DEFAULT_LABEL_VALUES,
                     Point.create(Value.doubleValue(100), endTime),
                     START_TIME)));
-    assertThat(point).isSameAs(point1);
+    assertThat(point).isSameInstanceAs(point1);
   }
 
   @Test

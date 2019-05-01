@@ -31,13 +31,14 @@ import org.junit.runners.JUnit4;
 public class TraceComponentTest {
   @Test
   public void defaultTracer() {
-    assertThat(TraceComponent.newNoopTraceComponent().getTracer()).isSameAs(Tracer.getNoopTracer());
+    assertThat(TraceComponent.newNoopTraceComponent().getTracer())
+        .isSameInstanceAs(Tracer.getNoopTracer());
   }
 
   @Test
   public void defaultBinaryPropagationHandler() {
     assertThat(TraceComponent.newNoopTraceComponent().getPropagationComponent())
-        .isSameAs(PropagationComponent.getNoopPropagationComponent());
+        .isSameInstanceAs(PropagationComponent.getNoopPropagationComponent());
   }
 
   @Test
@@ -54,6 +55,6 @@ public class TraceComponentTest {
   @Test
   public void defaultTraceConfig() {
     assertThat(TraceComponent.newNoopTraceComponent().getTraceConfig())
-        .isSameAs(TraceConfig.getNoopTraceConfig());
+        .isSameInstanceAs(TraceConfig.getNoopTraceConfig());
   }
 }

@@ -222,7 +222,7 @@ subprojects {
                 junit: 'junit:junit:4.12',
                 mockito: 'org.mockito:mockito-core:1.9.5',
                 spring_test: "org.springframework:spring-test:${springVersion}",
-                truth: 'com.google.truth:truth:0.42',
+                truth: 'com.google.truth:truth:0.44',
                 dropwizard: "io.dropwizard.metrics:metrics-core:${dropwizardVersion}",
                 dropwizard5: "io.dropwizard.metrics5:metrics-core:${dropwizard5Version}",
         ]

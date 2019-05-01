@@ -117,7 +117,7 @@ public class DoubleGaugeImplTest {
                 Collections.singletonList(
                     TimeSeries.createWithOnePoint(
                         LABEL_VALUES, Point.create(Value.doubleValue(500), TEST_TIME), null))));
-    assertThat(point).isSameAs(point1);
+    assertThat(point).isSameInstanceAs(point1);
   }
 
   @Test
@@ -158,7 +158,7 @@ public class DoubleGaugeImplTest {
                         DEFAULT_LABEL_VALUES,
                         Point.create(Value.doubleValue(400), TEST_TIME),
                         null))));
-    assertThat(point).isSameAs(point1);
+    assertThat(point).isSameInstanceAs(point1);
   }
 
   @Test

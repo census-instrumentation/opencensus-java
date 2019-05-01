@@ -116,7 +116,7 @@ public class LongGaugeImplTest {
                 METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
                     LABEL_VALUES, Point.create(Value.longValue(500), TEST_TIME), null)));
-    assertThat(point).isSameAs(point1);
+    assertThat(point).isSameInstanceAs(point1);
   }
 
   @Test
@@ -154,7 +154,7 @@ public class LongGaugeImplTest {
                 METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
                     DEFAULT_LABEL_VALUES, Point.create(Value.longValue(400), TEST_TIME), null)));
-    assertThat(point).isSameAs(point1);
+    assertThat(point).isSameInstanceAs(point1);
   }
 
   @Test

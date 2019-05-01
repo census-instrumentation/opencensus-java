@@ -84,8 +84,8 @@ public class DoubleCumulativeTest {
     DoubleCumulative doubleCumulative =
         DoubleCumulative.newNoopDoubleCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     assertThat(doubleCumulative.getDefaultTimeSeries())
-        .isSameAs(doubleCumulative.getDefaultTimeSeries());
+        .isSameInstanceAs(doubleCumulative.getDefaultTimeSeries());
     assertThat(doubleCumulative.getDefaultTimeSeries())
-        .isSameAs(doubleCumulative.getOrCreateTimeSeries(LABEL_VALUES));
+        .isSameInstanceAs(doubleCumulative.getOrCreateTimeSeries(LABEL_VALUES));
   }
 }

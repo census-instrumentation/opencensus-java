@@ -77,7 +77,7 @@ public class CurrentSpanUtilsTest {
     Context origContext = ContextUtils.withValue(Context.current(), span).attach();
     // Make sure context is detached even if test fails.
     try {
-      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
     } finally {
       Context.current().detach(origContext);
     }
@@ -89,7 +89,7 @@ public class CurrentSpanUtilsTest {
     assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Scope ws = CurrentSpanUtils.withSpan(span, false);
     try {
-      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
     } finally {
       ws.close();
     }
@@ -102,7 +102,7 @@ public class CurrentSpanUtilsTest {
     assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
     Scope ss = CurrentSpanUtils.withSpan(span, true);
     try {
-      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
     } finally {
       ss.close();
     }
@@ -118,7 +118,7 @@ public class CurrentSpanUtilsTest {
           @Override
           public void run() {
             // When we run the runnable we will have the span in the current Context.
-            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
           }
         };
     CurrentSpanUtils.withSpan(span, false, runnable).run();
@@ -134,7 +134,7 @@ public class CurrentSpanUtilsTest {
           @Override
           public void run() {
             // When we run the runnable we will have the span in the current Context.
-            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
           }
         };
     CurrentSpanUtils.withSpan(span, true, runnable).run();
@@ -151,7 +151,7 @@ public class CurrentSpanUtilsTest {
           @Override
           public void run() {
             // When we run the runnable we will have the span in the current Context.
-            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
             throw error;
           }
         };
@@ -170,7 +170,7 @@ public class CurrentSpanUtilsTest {
           @Override
           public void run() {
             // When we run the runnable we will have the span in the current Context.
-            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
             throw error;
           }
         };
@@ -189,7 +189,7 @@ public class CurrentSpanUtilsTest {
           @Override
           public Object call() throws Exception {
             // When we run the runnable we will have the span in the current Context.
-            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
             return ret;
           }
         };
@@ -207,7 +207,7 @@ public class CurrentSpanUtilsTest {
           @Override
           public Object call() throws Exception {
             // When we run the runnable we will have the span in the current Context.
-            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
             return ret;
           }
         };
@@ -225,7 +225,7 @@ public class CurrentSpanUtilsTest {
           @Override
           public Object call() throws Exception {
             // When we run the runnable we will have the span in the current Context.
-            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
             throw exception;
           }
         };
@@ -244,7 +244,7 @@ public class CurrentSpanUtilsTest {
           @Override
           public Object call() throws Exception {
             // When we run the runnable we will have the span in the current Context.
-            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
             throw exception;
           }
         };
@@ -263,7 +263,7 @@ public class CurrentSpanUtilsTest {
           @Override
           public Object call() throws Exception {
             // When we run the runnable we will have the span in the current Context.
-            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
             throw error;
           }
         };
@@ -282,7 +282,7 @@ public class CurrentSpanUtilsTest {
           @Override
           public Object call() throws Exception {
             // When we run the runnable we will have the span in the current Context.
-            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+            assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
             throw error;
           }
         };

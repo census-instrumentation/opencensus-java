@@ -69,9 +69,10 @@ public final class NoopTagsTest {
 
   @Test
   public void noopTagsComponent() {
-    assertThat(NoopTags.newNoopTagsComponent().getTagger()).isSameAs(NoopTags.getNoopTagger());
+    assertThat(NoopTags.newNoopTagsComponent().getTagger())
+        .isSameInstanceAs(NoopTags.getNoopTagger());
     assertThat(NoopTags.newNoopTagsComponent().getTagPropagationComponent())
-        .isSameAs(NoopTags.getNoopTagPropagationComponent());
+        .isSameInstanceAs(NoopTags.getNoopTagPropagationComponent());
   }
 
   @Test
@@ -107,12 +108,13 @@ public final class NoopTagsTest {
   @Test
   public void noopTagger() {
     Tagger noopTagger = NoopTags.getNoopTagger();
-    assertThat(noopTagger.empty()).isSameAs(NoopTags.getNoopTagContext());
-    assertThat(noopTagger.getCurrentTagContext()).isSameAs(NoopTags.getNoopTagContext());
-    assertThat(noopTagger.emptyBuilder()).isSameAs(NoopTags.getNoopTagContextBuilder());
-    assertThat(noopTagger.toBuilder(TAG_CONTEXT)).isSameAs(NoopTags.getNoopTagContextBuilder());
-    assertThat(noopTagger.currentBuilder()).isSameAs(NoopTags.getNoopTagContextBuilder());
-    assertThat(noopTagger.withTagContext(TAG_CONTEXT)).isSameAs(NoopScope.getInstance());
+    assertThat(noopTagger.empty()).isSameInstanceAs(NoopTags.getNoopTagContext());
+    assertThat(noopTagger.getCurrentTagContext()).isSameInstanceAs(NoopTags.getNoopTagContext());
+    assertThat(noopTagger.emptyBuilder()).isSameInstanceAs(NoopTags.getNoopTagContextBuilder());
+    assertThat(noopTagger.toBuilder(TAG_CONTEXT))
+        .isSameInstanceAs(NoopTags.getNoopTagContextBuilder());
+    assertThat(noopTagger.currentBuilder()).isSameInstanceAs(NoopTags.getNoopTagContextBuilder());
+    assertThat(noopTagger.withTagContext(TAG_CONTEXT)).isSameInstanceAs(NoopScope.getInstance());
   }
 
   @Test
@@ -131,12 +133,14 @@ public final class NoopTagsTest {
 
   @Test
   public void noopTagContextBuilder() {
-    assertThat(NoopTags.getNoopTagContextBuilder().build()).isSameAs(NoopTags.getNoopTagContext());
+    assertThat(NoopTags.getNoopTagContextBuilder().build())
+        .isSameInstanceAs(NoopTags.getNoopTagContext());
     assertThat(NoopTags.getNoopTagContextBuilder().put(KEY, VALUE).build())
-        .isSameAs(NoopTags.getNoopTagContext());
-    assertThat(NoopTags.getNoopTagContextBuilder().buildScoped()).isSameAs(NoopScope.getInstance());
+        .isSameInstanceAs(NoopTags.getNoopTagContext());
+    assertThat(NoopTags.getNoopTagContextBuilder().buildScoped())
+        .isSameInstanceAs(NoopScope.getInstance());
     assertThat(NoopTags.getNoopTagContextBuilder().put(KEY, VALUE).buildScoped())
-        .isSameAs(NoopScope.getInstance());
+        .isSameInstanceAs(NoopScope.getInstance());
   }
 
   @Test
@@ -175,9 +179,9 @@ public final class NoopTagsTest {
   @Test
   public void noopTagPropagationComponent() {
     assertThat(NoopTags.getNoopTagPropagationComponent().getBinarySerializer())
-        .isSameAs(NoopTags.getNoopTagContextBinarySerializer());
+        .isSameInstanceAs(NoopTags.getNoopTagContextBinarySerializer());
     assertThat(NoopTags.getNoopTagPropagationComponent().getCorrelationContextFormat())
-        .isSameAs(NoopTags.getNoopTagContextTextSerializer());
+        .isSameInstanceAs(NoopTags.getNoopTagContextTextSerializer());
   }
 
   @Test

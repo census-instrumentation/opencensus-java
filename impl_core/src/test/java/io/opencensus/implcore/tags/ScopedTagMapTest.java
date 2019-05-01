@@ -68,7 +68,7 @@ public class ScopedTagMapTest {
     TagContext scopedTags = tagger.emptyBuilder().put(KEY_1, VALUE_1).build();
     Scope scope = tagger.withTagContext(scopedTags);
     try {
-      assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
+      assertThat(tagger.getCurrentTagContext()).isSameInstanceAs(scopedTags);
     } finally {
       scope.close();
     }
@@ -83,7 +83,7 @@ public class ScopedTagMapTest {
       TagContext newTags = tagger.currentBuilder().put(KEY_2, VALUE_2).build();
       assertThat(tagContextToList(newTags))
           .containsExactly(Tag.create(KEY_1, VALUE_1), Tag.create(KEY_2, VALUE_2));
-      assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
+      assertThat(tagger.getCurrentTagContext()).isSameInstanceAs(scopedTags);
     } finally {
       scope.close();
     }
@@ -114,7 +114,7 @@ public class ScopedTagMapTest {
       } finally {
         scope2.close();
       }
-      assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
+      assertThat(tagger.getCurrentTagContext()).isSameInstanceAs(scopedTags);
     } finally {
       scope1.close();
     }
@@ -145,7 +145,7 @@ public class ScopedTagMapTest {
       } finally {
         scope2.close(); // Close Scope 2
       }
-      assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
+      assertThat(tagger.getCurrentTagContext()).isSameInstanceAs(scopedTags);
     } finally {
       scope1.close();
     }

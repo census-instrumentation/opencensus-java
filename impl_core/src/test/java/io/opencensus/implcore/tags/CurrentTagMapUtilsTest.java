@@ -70,7 +70,7 @@ public class CurrentTagMapUtilsTest {
     assertThat(tagContextToList(CurrentTagMapUtils.getCurrentTagMap())).isEmpty();
     Scope scopedTags = CurrentTagMapUtils.withTagMap(tagContext);
     try {
-      assertThat(CurrentTagMapUtils.getCurrentTagMap()).isSameAs(tagContext);
+      assertThat(CurrentTagMapUtils.getCurrentTagMap()).isSameInstanceAs(tagContext);
     } finally {
       scopedTags.close();
     }
@@ -82,14 +82,15 @@ public class CurrentTagMapUtilsTest {
     Runnable runnable;
     Scope scopedTags = CurrentTagMapUtils.withTagMap(tagContext);
     try {
-      assertThat(CurrentTagMapUtils.getCurrentTagMap()).isSameAs(tagContext);
+      assertThat(CurrentTagMapUtils.getCurrentTagMap()).isSameInstanceAs(tagContext);
       runnable =
           Context.current()
               .wrap(
                   new Runnable() {
                     @Override
                     public void run() {
-                      assertThat(CurrentTagMapUtils.getCurrentTagMap()).isSameAs(tagContext);
+                      assertThat(CurrentTagMapUtils.getCurrentTagMap())
+                          .isSameInstanceAs(tagContext);
                     }
                   });
     } finally {
