@@ -16,20 +16,20 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.20.0</version>
+    <version>..</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-http-util</artifactId>
-    <version>0.20.0</version>
+    <version>..</version>
   </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.20.0'
-compile 'io.opencensus:opencensus-contrib-http-util:0.20.0'
+compile 'io.opencensus:opencensus-api:..'
+compile 'io.opencensus:opencensus-contrib-http-util:..'
 ```
 
 ## Instrumenting HTTP libraries/frameworks

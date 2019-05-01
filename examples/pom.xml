@@ -12,7 +12,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- change to the version you want to use. -->
     <jetty.version>9.4.17.v20190418</jetty.version>
-    <opencensus.version>0.20.0</opencensus.version><!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
+    <opencensus.version>..</opencensus.version><!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
     <grpc.version>1.19.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
   </properties>
   <dependencies>
