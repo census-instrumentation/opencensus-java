@@ -1,4 +1,6 @@
 ## Unreleased
+
+## 0.21.0 - 2019-04-30
 - Add HTTP text format serializer to Tag propagation component.
 - Support constant labels in Gauge APIs.
 - Add an option to allow users to override the default "opencensus_task" metric label in Stackdriver Stats Exporter.
