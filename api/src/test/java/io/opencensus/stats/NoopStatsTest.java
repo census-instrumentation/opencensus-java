@@ -58,7 +58,7 @@ public final class NoopStatsTest {
   @Test
   public void noopStatsComponent() {
     assertThat(NoopStats.newNoopStatsComponent().getStatsRecorder())
-        .isSameAs(NoopStats.getNoopStatsRecorder());
+        .isSameInstanceAs(NoopStats.getNoopStatsRecorder());
     assertThat(NoopStats.newNoopStatsComponent().getViewManager())
         .isInstanceOf(NoopStats.newNoopViewManager().getClass());
   }

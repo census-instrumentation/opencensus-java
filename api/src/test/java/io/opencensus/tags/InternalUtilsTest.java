@@ -39,6 +39,6 @@ public final class InternalUtilsTest {
             return iterator;
           }
         };
-    assertThat(InternalUtils.getTags(ctx)).isSameAs(iterator);
+    assertThat(InternalUtils.getTags(ctx)).isSameInstanceAs(iterator);
   }
 }

@@ -61,13 +61,13 @@ public class TracingTest {
 
   @Test
   public void defaultTracer() {
-    assertThat(Tracing.getTracer()).isSameAs(Tracer.getNoopTracer());
+    assertThat(Tracing.getTracer()).isSameInstanceAs(Tracer.getNoopTracer());
   }
 
   @Test
   public void defaultBinaryPropagationHandler() {
     assertThat(Tracing.getPropagationComponent())
-        .isSameAs(PropagationComponent.getNoopPropagationComponent());
+        .isSameInstanceAs(PropagationComponent.getNoopPropagationComponent());
   }
 
   @Test
@@ -78,6 +78,6 @@ public class TracingTest {
 
   @Test
   public void defaultTraceConfig() {
-    assertThat(Tracing.getTraceConfig()).isSameAs(TraceConfig.getNoopTraceConfig());
+    assertThat(Tracing.getTraceConfig()).isSameInstanceAs(TraceConfig.getNoopTraceConfig());
   }
 }

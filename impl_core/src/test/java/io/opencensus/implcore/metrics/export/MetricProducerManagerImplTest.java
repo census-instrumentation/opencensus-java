@@ -64,7 +64,7 @@ public class MetricProducerManagerImplTest {
     assertThat(metricProducerSet).containsExactly(metricProducer);
     metricProducerManager.add(metricProducer);
     // Returns the same object.
-    assertThat(metricProducerManager.getAllMetricProducer()).isSameAs(metricProducerSet);
+    assertThat(metricProducerManager.getAllMetricProducer()).isSameInstanceAs(metricProducerSet);
   }
 
   @Test
@@ -105,7 +105,7 @@ public class MetricProducerManagerImplTest {
     assertThat(metricProducerSet).containsExactly(metricProducer);
     metricProducerManager.remove(metricProducerOther);
     // Returns the same object.
-    assertThat(metricProducerManager.getAllMetricProducer()).isSameAs(metricProducerSet);
+    assertThat(metricProducerManager.getAllMetricProducer()).isSameInstanceAs(metricProducerSet);
   }
 
   @Test

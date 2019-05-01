@@ -115,26 +115,27 @@ public class MetricRegistryTest {
   @Test
   public void noopSameAs() {
     LongGauge longGauge = metricRegistry.addLongGauge(NAME, METRIC_OPTIONS);
-    assertThat(longGauge.getDefaultTimeSeries()).isSameAs(longGauge.getDefaultTimeSeries());
+    assertThat(longGauge.getDefaultTimeSeries()).isSameInstanceAs(longGauge.getDefaultTimeSeries());
     assertThat(longGauge.getDefaultTimeSeries())
-        .isSameAs(longGauge.getOrCreateTimeSeries(LABEL_VALUES));
+        .isSameInstanceAs(longGauge.getOrCreateTimeSeries(LABEL_VALUES));
 
     DoubleGauge doubleGauge = metricRegistry.addDoubleGauge(NAME_2, METRIC_OPTIONS);
-    assertThat(doubleGauge.getDefaultTimeSeries()).isSameAs(doubleGauge.getDefaultTimeSeries());
     assertThat(doubleGauge.getDefaultTimeSeries())
-        .isSameAs(doubleGauge.getOrCreateTimeSeries(LABEL_VALUES));
+        .isSameInstanceAs(doubleGauge.getDefaultTimeSeries());
+    assertThat(doubleGauge.getDefaultTimeSeries())
+        .isSameInstanceAs(doubleGauge.getOrCreateTimeSeries(LABEL_VALUES));
 
     LongCumulative longCumulative = metricRegistry.addLongCumulative(NAME, METRIC_OPTIONS);
     assertThat(longCumulative.getDefaultTimeSeries())
-        .isSameAs(longCumulative.getDefaultTimeSeries());
+        .isSameInstanceAs(longCumulative.getDefaultTimeSeries());
     assertThat(longCumulative.getDefaultTimeSeries())
-        .isSameAs(longCumulative.getOrCreateTimeSeries(LABEL_VALUES));
+        .isSameInstanceAs(longCumulative.getOrCreateTimeSeries(LABEL_VALUES));
 
     DoubleCumulative doubleCumulative = metricRegistry.addDoubleCumulative(NAME_2, METRIC_OPTIONS);
     assertThat(doubleCumulative.getDefaultTimeSeries())
-        .isSameAs(doubleCumulative.getDefaultTimeSeries());
+        .isSameInstanceAs(doubleCumulative.getDefaultTimeSeries());
     assertThat(doubleCumulative.getDefaultTimeSeries())
-        .isSameAs(doubleCumulative.getOrCreateTimeSeries(LABEL_VALUES));
+        .isSameInstanceAs(doubleCumulative.getOrCreateTimeSeries(LABEL_VALUES));
   }
 
   @Test

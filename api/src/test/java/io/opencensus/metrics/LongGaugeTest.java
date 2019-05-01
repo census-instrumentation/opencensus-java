@@ -78,8 +78,8 @@ public class LongGaugeTest {
   @Test
   public void noopSameAs() {
     LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
-    assertThat(longGauge.getDefaultTimeSeries()).isSameAs(longGauge.getDefaultTimeSeries());
+    assertThat(longGauge.getDefaultTimeSeries()).isSameInstanceAs(longGauge.getDefaultTimeSeries());
     assertThat(longGauge.getDefaultTimeSeries())
-        .isSameAs(longGauge.getOrCreateTimeSeries(LABEL_VALUES));
+        .isSameInstanceAs(longGauge.getOrCreateTimeSeries(LABEL_VALUES));
   }
 }

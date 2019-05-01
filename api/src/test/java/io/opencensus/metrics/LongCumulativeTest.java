@@ -84,8 +84,8 @@ public class LongCumulativeTest {
     LongCumulative longCumulative =
         LongCumulative.newNoopLongCumulative(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     assertThat(longCumulative.getDefaultTimeSeries())
-        .isSameAs(longCumulative.getDefaultTimeSeries());
+        .isSameInstanceAs(longCumulative.getDefaultTimeSeries());
     assertThat(longCumulative.getDefaultTimeSeries())
-        .isSameAs(longCumulative.getOrCreateTimeSeries(LABEL_VALUES));
+        .isSameInstanceAs(longCumulative.getOrCreateTimeSeries(LABEL_VALUES));
   }
 }

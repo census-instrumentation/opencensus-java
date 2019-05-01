@@ -79,8 +79,9 @@ public class DoubleGaugeTest {
   @Test
   public void noopSameAs() {
     DoubleGauge doubleGauge = DoubleGauge.newNoopDoubleGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
-    assertThat(doubleGauge.getDefaultTimeSeries()).isSameAs(doubleGauge.getDefaultTimeSeries());
     assertThat(doubleGauge.getDefaultTimeSeries())
-        .isSameAs(doubleGauge.getOrCreateTimeSeries(LABEL_VALUES));
+        .isSameInstanceAs(doubleGauge.getDefaultTimeSeries());
+    assertThat(doubleGauge.getDefaultTimeSeries())
+        .isSameInstanceAs(doubleGauge.getOrCreateTimeSeries(LABEL_VALUES));
   }
 }

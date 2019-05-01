@@ -70,6 +70,6 @@ public class TextFormatTest {
                     return null;
                   }
                 }))
-        .isSameAs(SpanContext.INVALID);
+        .isSameInstanceAs(SpanContext.INVALID);
   }
 }

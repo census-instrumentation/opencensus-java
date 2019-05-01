@@ -125,7 +125,7 @@ public class LongCumulativeImplTest {
     point.add(100);
     LongPoint point1 = longCumulativeMetric.getOrCreateTimeSeries(LABEL_VALUES);
     point1.add(500);
-    assertThat(point).isSameAs(point1);
+    assertThat(point).isSameInstanceAs(point1);
 
     testClock.advanceTime(ONE_MINUTE);
     Timestamp endTime = testClock.now();
@@ -175,7 +175,7 @@ public class LongCumulativeImplTest {
                     DEFAULT_LABEL_VALUES,
                     Point.create(Value.longValue(100), endTime),
                     START_TIME)));
-    assertThat(point).isSameAs(point1);
+    assertThat(point).isSameInstanceAs(point1);
   }
 
   @Test
