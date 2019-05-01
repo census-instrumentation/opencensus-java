@@ -84,9 +84,9 @@ public class SpanOperationsBenchmark {
     public void setup() {
       tracer = BenchmarksUtil.getTracer(implementation);
       attributeSpan = createSpan("Attribute");
-      annotationSpanEmpty = createSpan("AnnotaionSpanEmpty");
-      annotationSpanAttributes = createSpan("AnnotaionSpanAttributes");
-      annotationSpanAnnotation = createSpan("AnnotaionSpanAnnotation");
+      annotationSpanEmpty = createSpan("AnnotationSpanEmpty");
+      annotationSpanAttributes = createSpan("AnnotationSpanAttributes");
+      annotationSpanAnnotation = createSpan("AnnotationSpanAnnotation");
       messageEventSpan = createSpan("MessageEventSpan");
       linkSpan = createSpan("LinkSpan");
       initAttributes();
