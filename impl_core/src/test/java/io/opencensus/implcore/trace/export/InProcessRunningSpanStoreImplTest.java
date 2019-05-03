@@ -28,14 +28,16 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.RunningSpanStore.Filter;
 import java.util.Random;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link InProcessRunningSpanStoreImpl}. */
+/** Unit tests for {@link InProcessRunningSpanStore}. */
 @RunWith(JUnit4.class)
 public class InProcessRunningSpanStoreImplTest {
 
@@ -44,18 +46,23 @@ public class InProcessRunningSpanStoreImplTest {
   private final Random random = new Random(1234);
   private final SpanExporterImpl sampledSpansServiceExporter =
       SpanExporterImpl.create(4, Duration.create(1, 0));
-  private final InProcessRunningSpanStoreImpl activeSpansExporter =
-      new InProcessRunningSpanStoreImpl();
+  private final InProcessRunningSpanStore activeSpansExporter = new InProcessRunningSpanStore();
   private final StartEndHandler startEndHandler =
       new StartEndHandlerImpl(
           sampledSpansServiceExporter, activeSpansExporter, null, new SimpleEventQueue());
+
+  @Before
+  public void setUp() {
+    activeSpansExporter.setEnabled(true);
+  }
 
   private RecordEventsSpanImpl createSpan(String spanName) {
     final SpanContext spanContext =
         SpanContext.create(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
-            TraceOptions.DEFAULT);
+            TraceOptions.DEFAULT,
+            Tracestate.builder().build());
     return RecordEventsSpanImpl.startSpan(
         spanContext,
         spanName,

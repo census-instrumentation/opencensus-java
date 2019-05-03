@@ -20,9 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList.Element;
 import javax.annotation.Nullable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -31,7 +29,6 @@ import org.junit.runners.JUnit4;
 public class ConcurrentIntrusiveListTest {
   private final ConcurrentIntrusiveList<FakeElement> intrusiveList =
       new ConcurrentIntrusiveList<FakeElement>();
-  @Rule public final ExpectedException exception = ExpectedException.none();
 
   @Test
   public void emptyList() {
@@ -42,11 +39,11 @@ public class ConcurrentIntrusiveListTest {
   @Test
   public void addRemoveAdd_SameElement() {
     FakeElement element = new FakeElement();
-    intrusiveList.addElement(element);
+    assertThat(intrusiveList.addElement(element)).isTrue();
     assertThat(intrusiveList.size()).isEqualTo(1);
-    intrusiveList.removeElement(element);
+    assertThat(intrusiveList.removeElement(element)).isTrue();
     assertThat(intrusiveList.size()).isEqualTo(0);
-    intrusiveList.addElement(element);
+    assertThat(intrusiveList.addElement(element)).isTrue();
     assertThat(intrusiveList.size()).isEqualTo(1);
   }
 
@@ -84,16 +81,13 @@ public class ConcurrentIntrusiveListTest {
   @Test
   public void addAlreadyAddedElement() {
     FakeElement element = new FakeElement();
-    intrusiveList.addElement(element);
-    exception.expect(IllegalArgumentException.class);
-    intrusiveList.addElement(element);
+    assertThat(intrusiveList.addElement(element)).isTrue();
+    assertThat(intrusiveList.addElement(element)).isFalse();
   }
 
   @Test
   public void removeNotAddedElement() {
-    FakeElement element = new FakeElement();
-    exception.expect(IllegalArgumentException.class);
-    intrusiveList.removeElement(element);
+    assertThat(intrusiveList.removeElement(new FakeElement())).isFalse();
   }
 
   private static final class FakeElement implements Element<FakeElement> {

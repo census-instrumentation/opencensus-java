@@ -16,8 +16,6 @@
 
 package io.opencensus.implcore.trace.internal;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList.Element;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,10 +69,11 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
    * @param element the element to add.
    * @throws IllegalArgumentException if the element is already in a list.
    */
-  public synchronized void addElement(T element) {
-    checkArgument(
-        element.getNext() == null && element.getPrev() == null && element != head,
-        "Element already in a list.");
+  public synchronized boolean addElement(T element) {
+    if (element.getNext() != null || element.getPrev() != null || element == head) {
+      // Element already in a list.
+      return false;
+    }
     size++;
     if (head == null) {
       head = element;
@@ -83,6 +82,7 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
       element.setNext(head);
       head = element;
     }
+    return true;
   }
 
   /**
@@ -91,10 +91,11 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
    * @param element the element to remove.
    * @throws IllegalArgumentException if the element is not in the list.
    */
-  public synchronized void removeElement(T element) {
-    checkArgument(
-        element.getNext() != null || element.getPrev() != null || element == head,
-        "Element not in the list.");
+  public synchronized boolean removeElement(T element) {
+    if (element.getNext() == null && element.getPrev() == null && element != head) {
+      // Element not in the list.
+      return false;
+    }
     size--;
     T prev = element.getPrev();
     T next = element.getNext();
@@ -117,6 +118,7 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
       element.setNext(null);
       element.setPrev(null);
     }
+    return true;
   }
 
   /**

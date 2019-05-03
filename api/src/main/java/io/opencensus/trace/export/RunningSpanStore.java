@@ -68,6 +68,13 @@ public abstract class RunningSpanStore {
   public abstract Collection<SpanData> getRunningSpans(Filter filter);
 
   /**
+   * Enables the {@code RunningSpanStore}. Default the {@code RunningSpanStore} is not enabled.
+   *
+   * @param enable {@code true} if the {@code RunningSpanStore} should be enabled.
+   */
+  public abstract void setEnabled(boolean enable);
+
+  /**
    * The summary of all available data.
    *
    * @since 0.5
@@ -197,5 +204,8 @@ public abstract class RunningSpanStore {
       Utils.checkNotNull(filter, "filter");
       return Collections.<SpanData>emptyList();
     }
+
+    @Override
+    public void setEnabled(boolean enable) {}
   }
 }

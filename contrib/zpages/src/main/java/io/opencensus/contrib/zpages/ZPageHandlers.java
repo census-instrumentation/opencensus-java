@@ -78,6 +78,10 @@ public final class ZPageHandlers {
   private static final ZPageHandler statszZPageHandler =
       StatszZPageHandler.create(Stats.getViewManager());
 
+  static {
+    Tracing.getExportComponent().getRunningSpanStore().setEnabled(true);
+  }
+
   private static final Object monitor = new Object();
 
   @GuardedBy("monitor")

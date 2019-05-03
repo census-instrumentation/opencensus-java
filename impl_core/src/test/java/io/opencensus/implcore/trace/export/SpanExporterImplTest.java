@@ -57,7 +57,9 @@ public class SpanExporterImplTest {
   private final SpanContext notSampledSpanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
-  private final RunningSpanStoreImpl runningSpanStore = new InProcessRunningSpanStoreImpl();
+  private final InProcessRunningSpanStore runningSpanStore = new InProcessRunningSpanStore();
+  private final SampledSpanStoreImpl sampledSpanStore =
+      SampledSpanStoreImpl.getNoopSampledSpanStoreImpl();
   private final TestHandler serviceHandler = new TestHandler();
   @Mock private Handler mockServiceHandler;
 
@@ -104,7 +106,8 @@ public class SpanExporterImplTest {
   public void exportDifferentSampledSpans() {
     SpanExporterImpl spanExporter = SpanExporterImpl.create(4, Duration.create(1, 0));
     StartEndHandler startEndHandler =
-        new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());
+        new StartEndHandlerImpl(
+            spanExporter, runningSpanStore, sampledSpanStore, new SimpleEventQueue());
 
     spanExporter.registerHandler("test.service", serviceHandler);
 
@@ -118,7 +121,8 @@ public class SpanExporterImplTest {
   public void exportMoreSpansThanTheBufferSize() {
     SpanExporterImpl spanExporter = SpanExporterImpl.create(4, Duration.create(1, 0));
     StartEndHandler startEndHandler =
-        new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());
+        new StartEndHandlerImpl(
+            spanExporter, runningSpanStore, sampledSpanStore, new SimpleEventQueue());
 
     spanExporter.registerHandler("test.service", serviceHandler);
 
@@ -159,7 +163,8 @@ public class SpanExporterImplTest {
 
     SpanExporterImpl spanExporter = SpanExporterImpl.create(4, Duration.create(1, 0));
     StartEndHandler startEndHandler =
-        new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());
+        new StartEndHandlerImpl(
+            spanExporter, runningSpanStore, sampledSpanStore, new SimpleEventQueue());
 
     spanExporter.registerHandler("test.service", serviceHandler);
 
@@ -177,7 +182,8 @@ public class SpanExporterImplTest {
   public void exportSpansToMultipleServices() {
     SpanExporterImpl spanExporter = SpanExporterImpl.create(4, Duration.create(1, 0));
     StartEndHandler startEndHandler =
-        new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());
+        new StartEndHandlerImpl(
+            spanExporter, runningSpanStore, sampledSpanStore, new SimpleEventQueue());
 
     spanExporter.registerHandler("test.service", serviceHandler);
 
@@ -195,7 +201,8 @@ public class SpanExporterImplTest {
   public void exportNotSampledSpans() {
     SpanExporterImpl spanExporter = SpanExporterImpl.create(4, Duration.create(1, 0));
     StartEndHandler startEndHandler =
-        new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());
+        new StartEndHandlerImpl(
+            spanExporter, runningSpanStore, sampledSpanStore, new SimpleEventQueue());
 
     spanExporter.registerHandler("test.service", serviceHandler);
 
@@ -217,7 +224,8 @@ public class SpanExporterImplTest {
     // Set the export delay to zero, for no timeout, in order to confirm the #flush() below works
     SpanExporterImpl spanExporter = SpanExporterImpl.create(4, Duration.create(0, 0));
     StartEndHandler startEndHandler =
-        new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());
+        new StartEndHandlerImpl(
+            spanExporter, runningSpanStore, sampledSpanStore, new SimpleEventQueue());
 
     spanExporter.registerHandler("test.service", serviceHandler);
 

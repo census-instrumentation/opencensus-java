@@ -41,6 +41,13 @@ public abstract class SampledSpanStoreImpl extends SampledSpanStore {
    */
   public abstract void considerForSampling(RecordEventsSpanImpl span);
 
+  /**
+   * Returns {@code true} if the SampledSpanStore is enabled.
+   *
+   * @return {@code true} if the SampledSpanStore is enabled.
+   */
+  public abstract boolean getEnabled();
+
   protected void shutdown() {}
 
   private static final class NoopSampledSpanStoreImpl extends SampledSpanStoreImpl {
@@ -56,6 +63,11 @@ public abstract class SampledSpanStoreImpl extends SampledSpanStore {
 
     @Override
     public void considerForSampling(RecordEventsSpanImpl span) {}
+
+    @Override
+    public boolean getEnabled() {
+      return false;
+    }
 
     @Override
     @SuppressWarnings("deprecation")
