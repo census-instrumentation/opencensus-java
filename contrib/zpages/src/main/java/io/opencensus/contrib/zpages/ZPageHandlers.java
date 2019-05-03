@@ -79,7 +79,8 @@ public final class ZPageHandlers {
       StatszZPageHandler.create(Stats.getViewManager());
 
   static {
-    Tracing.getExportComponent().getRunningSpanStore().setEnabled(true);
+    // Sets the maximum number of elements as Integer.MAX_VALUE.
+    Tracing.getExportComponent().getRunningSpanStore().setMaxNumberOfSpans(Integer.MAX_VALUE);
   }
 
   private static final Object monitor = new Object();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, OpenCensus Authors
+ * Copyright 2019, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package io.opencensus.implcore.trace.export;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 import io.opencensus.implcore.trace.RecordEventsSpanImpl;
 import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList;
@@ -75,22 +77,6 @@ public final class InProcessRunningSpanStore extends RunningSpanStore {
   }
 
   @Override
-  public void setEnabled(boolean enable) {
-    // Make sure that we execute these requests in order and atomic.
-    synchronized (this) {
-      if (enable) {
-        if (impl != null) {
-          // Already enabled
-          return;
-        }
-        impl = new InProcessRunningSpanStoreImpl();
-      } else {
-        impl = null;
-      }
-    }
-  }
-
-  @Override
   public Summary getSummary() {
     InProcessRunningSpanStoreImpl impl = this.impl;
     if (impl != null) {
@@ -108,9 +94,27 @@ public final class InProcessRunningSpanStore extends RunningSpanStore {
     return Collections.emptyList();
   }
 
+  @Override
+  public void setMaxNumberOfSpans(int maxNumberOfSpans) {
+    checkArgument(maxNumberOfSpans >= 0, "Invalid negative maxNumberOfElements");
+    synchronized (this) {
+      InProcessRunningSpanStoreImpl currentImpl = this.impl;
+      if (currentImpl != null) {
+        currentImpl.clear();
+      }
+      this.impl = null;
+      if (maxNumberOfSpans > 0) {
+        impl = new InProcessRunningSpanStoreImpl(maxNumberOfSpans);
+      }
+    }
+  }
+
   private static final class InProcessRunningSpanStoreImpl {
-    private final ConcurrentIntrusiveList<RecordEventsSpanImpl> runningSpans =
-        new ConcurrentIntrusiveList<>();
+    private final ConcurrentIntrusiveList<RecordEventsSpanImpl> runningSpans;
+
+    private InProcessRunningSpanStoreImpl(int maxNumberOfElements) {
+      runningSpans = new ConcurrentIntrusiveList<>(maxNumberOfElements);
+    }
 
     private void onStart(RecordEventsSpanImpl span) {
       runningSpans.addElement(span);
@@ -150,6 +154,10 @@ public final class InProcessRunningSpanStore extends RunningSpanStore {
         }
       }
       return ret;
+    }
+
+    private void clear() {
+      runningSpans.clear();
     }
   }
 }

@@ -53,7 +53,7 @@ public class InProcessRunningSpanStoreImplTest {
 
   @Before
   public void setUp() {
-    activeSpansExporter.setEnabled(true);
+    activeSpansExporter.setMaxNumberOfSpans(10);
   }
 
   private RecordEventsSpanImpl createSpan(String spanName) {
@@ -171,5 +171,24 @@ public class InProcessRunningSpanStoreImplTest {
     span1.end();
     span2.end();
     span3.end();
+  }
+
+  @Test
+  public void setMaxNumberOfSpans() {
+    RecordEventsSpanImpl span1 = createSpan(SPAN_NAME_1);
+    RecordEventsSpanImpl span2 = createSpan(SPAN_NAME_2);
+    assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(2);
+    // This will reset all the spans.
+    activeSpansExporter.setMaxNumberOfSpans(10);
+    assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(0);
+    span1.end();
+    span2.end();
+    // Add spans again.
+    RecordEventsSpanImpl span3 = createSpan(SPAN_NAME_1);
+    RecordEventsSpanImpl span4 = createSpan(SPAN_NAME_2);
+    assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(2);
+    span3.end();
+    span4.end();
+    assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(0);
   }
 }
