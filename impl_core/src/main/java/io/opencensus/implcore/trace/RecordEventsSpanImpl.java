@@ -586,4 +586,15 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
         timestampConverter != null ? timestampConverter : TimestampConverter.now(clock);
     startNanoTime = clock.nowNanos();
   }
+
+  @SuppressWarnings("NoFinalizer")
+  @Override
+  protected void finalize() throws Throwable {
+    synchronized (this) {
+      if (!hasBeenEnded) {
+        logger.log(Level.SEVERE, "Span " + name + " is GC'ed without being ended.");
+      }
+    }
+    super.finalize();
+  }
 }
