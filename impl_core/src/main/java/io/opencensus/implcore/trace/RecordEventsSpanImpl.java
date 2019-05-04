@@ -587,8 +587,9 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
     startNanoTime = clock.nowNanos();
   }
 
+  @SuppressWarnings("NoFinalizer")
   @Override
-  public void finalize() throws Throwable {
+  protected void finalize() throws Throwable {
     synchronized (this) {
       if (!hasBeenEnded) {
         logger.log(Level.WARNING, "Span " + name + " is GC'ed without being ended.");
