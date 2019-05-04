@@ -60,21 +60,36 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class ConcurrentIntrusiveList<T extends Element<T>> {
+  private final int capacity;
   private int size = 0;
   @Nullable private T head = null;
 
-  public ConcurrentIntrusiveList() {}
+  /**
+   * Constructs a new {@code ConcurrentIntrusiveList}.
+   *
+   * @param capacity must be greater than {@code 0}.
+   */
+  public ConcurrentIntrusiveList(int capacity) {
+    checkArgument(capacity > 0, "Capacity needs to be greater than 0.");
+    this.capacity = capacity;
+  }
 
   /**
-   * Adds the given {@code element} to the list.
+   * Adds the given {@code element} to the list. If the number of elements will be larger than the
+   * capacity then the oldest element in the list will be removed.
    *
    * @param element the element to add.
-   * @throws IllegalArgumentException if the element is already in a list.
+   * @return {@code false} if the element is already in the list or if adding this element will
+   *     exceed capacity.
    */
-  public synchronized void addElement(T element) {
-    checkArgument(
-        element.getNext() == null && element.getPrev() == null && element != head,
-        "Element already in a list.");
+  public synchronized boolean addElement(T element) {
+    if (element.getNext() != null
+        || element.getPrev() != null
+        || element == head
+        || size >= capacity) {
+      // Element already in a list.
+      return false;
+    }
     size++;
     if (head == null) {
       head = element;
@@ -83,18 +98,19 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
       element.setNext(head);
       head = element;
     }
+    return true;
   }
 
   /**
    * Removes the given {@code element} from the list.
    *
    * @param element the element to remove.
-   * @throws IllegalArgumentException if the element is not in the list.
    */
-  public synchronized void removeElement(T element) {
-    checkArgument(
-        element.getNext() != null || element.getPrev() != null || element == head,
-        "Element not in the list.");
+  public synchronized boolean removeElement(T element) {
+    if (element.getNext() == null && element.getPrev() == null && element != head) {
+      // Element not in the list.
+      return false;
+    }
     size--;
     T prev = element.getPrev();
     T next = element.getNext();
@@ -117,6 +133,7 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
       element.setNext(null);
       element.setPrev(null);
     }
+    return true;
   }
 
   /**
@@ -126,6 +143,19 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
    */
   public synchronized int size() {
     return size;
+  }
+
+  /** Clears all the elements from the list. */
+  public synchronized void clear() {
+    while (true) {
+      T currentHead = head;
+      if (currentHead == null) {
+        // No more elements in the list.
+        return;
+      }
+      // This will move the head.
+      removeElement(currentHead);
+    }
   }
 
   /**

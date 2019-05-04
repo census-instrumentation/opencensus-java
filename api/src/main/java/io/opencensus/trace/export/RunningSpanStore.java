@@ -68,6 +68,17 @@ public abstract class RunningSpanStore {
   public abstract Collection<SpanData> getRunningSpans(Filter filter);
 
   /**
+   * Sets the maximum number of Spans in th {@code RunningSpanStore}.
+   *
+   * <p>{@code 0} means disabled, by default the {@code RunningSpanStore} is disabled.
+   *
+   * @param maxNumberOfSpans the maximum number of Spans in th {@code RunningSpanStore}.
+   * @throws IllegalArgumentException if {@code maxNumberOfSpans} is negative.
+   * @since 0.22
+   */
+  public abstract void setMaxNumberOfSpans(int maxNumberOfSpans);
+
+  /**
    * The summary of all available data.
    *
    * @since 0.5
@@ -196,6 +207,11 @@ public abstract class RunningSpanStore {
     public Collection<SpanData> getRunningSpans(Filter filter) {
       Utils.checkNotNull(filter, "filter");
       return Collections.<SpanData>emptyList();
+    }
+
+    @Override
+    public void setMaxNumberOfSpans(int maxNumberOfSpans) {
+      Utils.checkArgument(maxNumberOfSpans >= 0, "Invalid negative maxNumberOfElements");
     }
   }
 }

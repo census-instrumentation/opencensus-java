@@ -29,7 +29,7 @@ public final class ExportComponentImpl extends ExportComponent {
   private static final Duration EXPORTER_SCHEDULE_DELAY = Duration.create(5, 0);
 
   private final SpanExporterImpl spanExporter;
-  private final RunningSpanStoreImpl runningSpanStore;
+  private final InProcessRunningSpanStore inProcessRunningSpanStore;
   private final SampledSpanStoreImpl sampledSpanStore;
 
   @Override
@@ -38,8 +38,8 @@ public final class ExportComponentImpl extends ExportComponent {
   }
 
   @Override
-  public RunningSpanStoreImpl getRunningSpanStore() {
-    return runningSpanStore;
+  public InProcessRunningSpanStore getRunningSpanStore() {
+    return inProcessRunningSpanStore;
   }
 
   @Override
@@ -81,10 +81,7 @@ public final class ExportComponentImpl extends ExportComponent {
    */
   private ExportComponentImpl(boolean supportInProcessStores, EventQueue eventQueue) {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY);
-    this.runningSpanStore =
-        supportInProcessStores
-            ? new InProcessRunningSpanStoreImpl()
-            : RunningSpanStoreImpl.getNoopRunningSpanStoreImpl();
+    this.inProcessRunningSpanStore = InProcessRunningSpanStore.create();
     this.sampledSpanStore =
         supportInProcessStores
             ? new InProcessSampledSpanStoreImpl(eventQueue)

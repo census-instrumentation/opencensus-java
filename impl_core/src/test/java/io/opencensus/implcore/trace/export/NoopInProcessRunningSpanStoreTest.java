@@ -39,9 +39,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link RunningSpanStoreImpl.NoopRunningSpanStoreImpl}. */
+/** Unit tests for noop {@link InProcessRunningSpanStore}. */
 @RunWith(JUnit4.class)
-public class NoopRunningSpanStoreImplTest {
+public class NoopInProcessRunningSpanStoreTest {
 
   private static final String SPAN_NAME = "MySpanName";
 
@@ -57,7 +57,7 @@ public class NoopRunningSpanStoreImplTest {
   // maxSpansToReturn=0 means all
   private final Filter filter = Filter.create(SPAN_NAME, 0 /* maxSpansToReturn */);
   private final EventQueue eventQueue = new SimpleEventQueue();
-  private final RunningSpanStoreImpl runningSpanStoreImpl =
+  private final InProcessRunningSpanStore runningSpanStoreImpl =
       ExportComponentImpl.createWithoutInProcessStores(eventQueue).getRunningSpanStore();
 
   @Before

@@ -40,9 +40,9 @@ public class ExportComponentImplTest {
   @Test
   public void implementationOfActiveSpans() {
     assertThat(exportComponentWithInProcess.getRunningSpanStore())
-        .isInstanceOf(InProcessRunningSpanStoreImpl.class);
+        .isInstanceOf(InProcessRunningSpanStore.class);
     assertThat(exportComponentWithoutInProcess.getRunningSpanStore())
-        .isInstanceOf(RunningSpanStoreImpl.getNoopRunningSpanStoreImpl().getClass());
+        .isInstanceOf(InProcessRunningSpanStore.class);
   }
 
   @Test

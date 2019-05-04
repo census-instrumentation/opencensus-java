@@ -19,19 +19,18 @@ package io.opencensus.implcore.trace.internal;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList.Element;
+import java.util.ArrayList;
 import javax.annotation.Nullable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link ConcurrentIntrusiveList}. */
 @RunWith(JUnit4.class)
 public class ConcurrentIntrusiveListTest {
+  private static final int CAPACITY = 5;
   private final ConcurrentIntrusiveList<FakeElement> intrusiveList =
-      new ConcurrentIntrusiveList<FakeElement>();
-  @Rule public final ExpectedException exception = ExpectedException.none();
+      new ConcurrentIntrusiveList<>(CAPACITY);
 
   @Test
   public void emptyList() {
@@ -42,11 +41,11 @@ public class ConcurrentIntrusiveListTest {
   @Test
   public void addRemoveAdd_SameElement() {
     FakeElement element = new FakeElement();
-    intrusiveList.addElement(element);
+    assertThat(intrusiveList.addElement(element)).isTrue();
     assertThat(intrusiveList.size()).isEqualTo(1);
-    intrusiveList.removeElement(element);
+    assertThat(intrusiveList.removeElement(element)).isTrue();
     assertThat(intrusiveList.size()).isEqualTo(0);
-    intrusiveList.addElement(element);
+    assertThat(intrusiveList.addElement(element)).isTrue();
     assertThat(intrusiveList.size()).isEqualTo(1);
   }
 
@@ -82,18 +81,69 @@ public class ConcurrentIntrusiveListTest {
   }
 
   @Test
+  public void clear() {
+    FakeElement element1 = new FakeElement();
+    FakeElement element2 = new FakeElement();
+    FakeElement element3 = new FakeElement();
+    intrusiveList.addElement(element1);
+    intrusiveList.addElement(element2);
+    intrusiveList.addElement(element3);
+    assertThat(intrusiveList.size()).isEqualTo(3);
+    intrusiveList.clear();
+    // Check that elements are no longer in the list.
+    assertThat(intrusiveList.removeElement(element1)).isFalse();
+    assertThat(intrusiveList.removeElement(element2)).isFalse();
+    assertThat(intrusiveList.removeElement(element3)).isFalse();
+  }
+
+  @Test
+  public void addMoreThanCapacity() {
+    ArrayList<FakeElement> elements = new ArrayList<>(2 * CAPACITY);
+    for (int i = 0; i < CAPACITY; i++) {
+      FakeElement element = new FakeElement();
+      elements.add(element);
+      assertThat(intrusiveList.addElement(element)).isTrue();
+    }
+
+    assertThat(intrusiveList.size()).isEqualTo(CAPACITY);
+
+    // Try to add more elements. All will fail.
+    for (int i = 0; i < CAPACITY; i++) {
+      assertThat(intrusiveList.addElement(new FakeElement())).isFalse();
+      assertThat(intrusiveList.size()).isEqualTo(CAPACITY);
+    }
+
+    // Check that the first CAPACITY elements are not in the list.
+    for (int i = 0; i < CAPACITY; i++) {
+      assertThat(intrusiveList.removeElement(elements.get(i))).isTrue();
+    }
+  }
+
+  @Test
+  public void addMoreThanCapacity_ThenRemoveAndAdd() {
+    ArrayList<FakeElement> elements = new ArrayList<>(2 * CAPACITY);
+    for (int i = 0; i < CAPACITY; i++) {
+      FakeElement element = new FakeElement();
+      elements.add(element);
+      assertThat(intrusiveList.addElement(element)).isTrue();
+    }
+
+    assertThat(intrusiveList.removeElement(elements.get(CAPACITY / 2))).isTrue();
+
+    // Now we can add another element
+    assertThat(intrusiveList.addElement(new FakeElement())).isTrue();
+  }
+
+  @Test
   public void addAlreadyAddedElement() {
     FakeElement element = new FakeElement();
-    intrusiveList.addElement(element);
-    exception.expect(IllegalArgumentException.class);
-    intrusiveList.addElement(element);
+    assertThat(intrusiveList.addElement(element)).isTrue();
+    assertThat(intrusiveList.addElement(element)).isFalse();
   }
 
   @Test
   public void removeNotAddedElement() {
-    FakeElement element = new FakeElement();
-    exception.expect(IllegalArgumentException.class);
-    intrusiveList.removeElement(element);
+    assertThat(intrusiveList.removeElement(new FakeElement())).isFalse();
   }
 
   private static final class FakeElement implements Element<FakeElement> {
