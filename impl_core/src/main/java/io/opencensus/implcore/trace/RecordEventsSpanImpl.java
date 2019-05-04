@@ -592,7 +592,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
   protected void finalize() throws Throwable {
     synchronized (this) {
       if (!hasBeenEnded) {
-        logger.log(Level.WARNING, "Span " + name + " is GC'ed without being ended.");
+        logger.log(Level.SEVERE, "Span " + name + " is GC'ed without being ended.");
       }
     }
     super.finalize();
