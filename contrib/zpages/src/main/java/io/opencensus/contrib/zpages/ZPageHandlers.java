@@ -25,6 +25,7 @@ import io.opencensus.stats.View;
 import io.opencensus.trace.Tracing;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -79,6 +80,7 @@ public final class ZPageHandlers {
       StatszZPageHandler.create(Stats.getViewManager());
 
   private static final Object monitor = new Object();
+  private static final AtomicBoolean isRunningSpanStoreInitialized = new AtomicBoolean(false);
 
   @GuardedBy("monitor")
   @Nullable
@@ -94,8 +96,9 @@ public final class ZPageHandlers {
    * <p>If no sampled spans based on latency and error codes are available for a given name, make
    * sure that the span name is registered to the {@code SampledSpanStore}.
    *
-   * <p>When this method is called, {@link io.opencensus.trace.export.RunningSpanStore} will be
-   * enabled automatically.
+   * <p>When this method is called for the first time, {@link
+   * io.opencensus.trace.export.RunningSpanStore} will be enabled automatically. Subsequent calls
+   * won't update {@link io.opencensus.trace.export.RunningSpanStore} again.
    *
    * @return a {@code ZPageHandler} for tracing debug.
    * @since 0.6
@@ -147,7 +150,6 @@ public final class ZPageHandlers {
    * @since 0.6
    */
   public static void registerAllToHttpServer(HttpServer server) {
-    enableRunningSpanStore();
     server.createContext(tracezZPageHandler.getUrlPath(), new ZPageHttpHandler(tracezZPageHandler));
     server.createContext(
         traceConfigzZPageHandler.getUrlPath(), new ZPageHttpHandler(traceConfigzZPageHandler));
@@ -202,8 +204,11 @@ public final class ZPageHandlers {
   }
 
   // Sets the maximum number of elements as Integer.MAX_VALUE to enable RunningSpanStore.
+  // This method will only execute once even if called multiple times.
   private static void enableRunningSpanStore() {
-    Tracing.getExportComponent().getRunningSpanStore().setMaxNumberOfSpans(Integer.MAX_VALUE);
+    if (!(isRunningSpanStoreInitialized.getAndSet(true))) {
+      Tracing.getExportComponent().getRunningSpanStore().setMaxNumberOfSpans(Integer.MAX_VALUE);
+    }
   }
 
   private ZPageHandlers() {}
