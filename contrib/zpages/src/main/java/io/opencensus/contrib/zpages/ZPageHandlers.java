@@ -78,12 +78,8 @@ public final class ZPageHandlers {
   private static final ZPageHandler statszZPageHandler =
       StatszZPageHandler.create(Stats.getViewManager());
 
-  static {
-    // Sets the maximum number of elements as Integer.MAX_VALUE.
-    Tracing.getExportComponent().getRunningSpanStore().setMaxNumberOfSpans(Integer.MAX_VALUE);
-  }
-
   private static final Object monitor = new Object();
+  private static volatile boolean isRunningSpanStoreInitialized = false;
 
   @GuardedBy("monitor")
   @Nullable
@@ -99,10 +95,15 @@ public final class ZPageHandlers {
    * <p>If no sampled spans based on latency and error codes are available for a given name, make
    * sure that the span name is registered to the {@code SampledSpanStore}.
    *
+   * <p>When this method is called for the first time, {@link
+   * io.opencensus.trace.export.RunningSpanStore} will be enabled automatically. Subsequent calls
+   * won't update {@link io.opencensus.trace.export.RunningSpanStore} again.
+   *
    * @return a {@code ZPageHandler} for tracing debug.
    * @since 0.6
    */
   public static ZPageHandler getTracezZPageHandler() {
+    enableRunningSpanStore();
     return tracezZPageHandler;
   }
 
@@ -198,6 +199,20 @@ public final class ZPageHandlers {
       }
       server.stop(STOP_DELAY);
       server = null;
+    }
+  }
+
+  // Sets the maximum number of elements as Integer.MAX_VALUE to enable RunningSpanStore.
+  // This method will only execute once even if called multiple times.
+  private static void enableRunningSpanStore() {
+    if (!isRunningSpanStoreInitialized) {
+      synchronized (monitor) {
+        if (isRunningSpanStoreInitialized) {
+          return; // Already initialized, small race
+        }
+        Tracing.getExportComponent().getRunningSpanStore().setMaxNumberOfSpans(Integer.MAX_VALUE);
+        isRunningSpanStoreInitialized = true;
+      }
     }
   }
 
