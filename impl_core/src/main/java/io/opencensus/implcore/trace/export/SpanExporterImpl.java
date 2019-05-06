@@ -118,7 +118,7 @@ public final class SpanExporterImpl extends SpanExporter {
     private void addSpan(RecordEventsSpanImpl span) {
       synchronized (monitor) {
         this.spans.add(span);
-        if (spans.size() > bufferSize) {
+        if (spans.size() >= bufferSize) {
           monitor.notifyAll();
         }
       }
@@ -152,19 +152,9 @@ public final class SpanExporterImpl extends SpanExporter {
     }
 
     private Worker(int bufferSize, Duration scheduleDelay) {
-      spans = new ArrayList<RecordEventsSpanImpl>(bufferSize);
+      spans = new ArrayList<>(bufferSize);
       this.bufferSize = bufferSize;
       this.scheduleDelayMillis = scheduleDelay.toMillis();
-    }
-
-    // Returns an unmodifiable list of all buffered spans data to ensure that any registered
-    // service handler cannot modify the list.
-    private static List<SpanData> fromSpanImplToSpanData(List<RecordEventsSpanImpl> spans) {
-      List<SpanData> spanDatas = new ArrayList<SpanData>(spans.size());
-      for (RecordEventsSpanImpl span : spans) {
-        spanDatas.add(span.toSpanData());
-      }
-      return Collections.unmodifiableList(spanDatas);
     }
 
     @Override
@@ -172,7 +162,7 @@ public final class SpanExporterImpl extends SpanExporter {
       while (true) {
         // Copy all the batched spans in a separate list to release the monitor lock asap to
         // avoid blocking the producer thread.
-        List<RecordEventsSpanImpl> spansCopy;
+        ArrayList<RecordEventsSpanImpl> spansCopy;
         synchronized (monitor) {
           if (spans.size() < bufferSize) {
             do {
@@ -187,27 +177,43 @@ public final class SpanExporterImpl extends SpanExporter {
               }
             } while (spans.isEmpty());
           }
-          spansCopy = new ArrayList<RecordEventsSpanImpl>(spans);
+          spansCopy = new ArrayList<>(spans);
           spans.clear();
         }
         // Execute the batch export outside the synchronized to not block all producers.
-        final List<SpanData> spanDataList = fromSpanImplToSpanData(spansCopy);
-        if (!spanDataList.isEmpty()) {
-          onBatchExport(spanDataList);
-        }
+        exportBatches(spansCopy);
       }
     }
 
-    void flush() {
-      List<RecordEventsSpanImpl> spansCopy;
+    private void flush() {
+      ArrayList<RecordEventsSpanImpl> spansCopy;
       synchronized (monitor) {
-        spansCopy = new ArrayList<RecordEventsSpanImpl>(spans);
+        spansCopy = new ArrayList<>(spans);
         spans.clear();
       }
+      // Execute the batch export outside the synchronized to not block all producers.
+      exportBatches(spansCopy);
+    }
 
-      final List<SpanData> spanDataList = fromSpanImplToSpanData(spansCopy);
+    private void exportBatches(ArrayList<RecordEventsSpanImpl> spanList) {
+      ArrayList<SpanData> spanDataList = new ArrayList<>(bufferSize);
+      for (int i = 0; i < spanList.size(); i++) {
+        spanDataList.add(spanList.get(i).toSpanData());
+        // Remove the reference to the RecordEventsSpanImpl to allow GC to free the memory.
+        spanList.set(i, null);
+        if (spanDataList.size() == bufferSize) {
+          // One full batch, export it now. Wrap the list with unmodifiableList to ensure exporter
+          // does not change the list.
+          onBatchExport(Collections.unmodifiableList(spanDataList));
+          // Cannot clear because the exporter may still have a reference to this list (e.g. async
+          // scheduled work), so just create a new list.
+          spanDataList = new ArrayList<>(bufferSize);
+        }
+      }
+      // Last incomplete batch, send this as well.
       if (!spanDataList.isEmpty()) {
-        onBatchExport(spanDataList);
+        // Wrap the list with unmodifiableList to ensure exporter does not change the list.
+        onBatchExport(Collections.unmodifiableList(spanDataList));
       }
     }
   }
