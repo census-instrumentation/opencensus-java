@@ -203,7 +203,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
        */
       builder
           .batchWriteSpansSettings()
-          .setRetryableCodes()
+          .setRetryableCodes() // Sets to empty so no retryable code will be used.
           // RetrySettings.newBuilder().build() returns settings with no retries.
           .setRetrySettings(RetrySettings.newBuilder().build());
     }
