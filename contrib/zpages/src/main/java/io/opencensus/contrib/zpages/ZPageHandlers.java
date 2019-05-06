@@ -25,7 +25,6 @@ import io.opencensus.stats.View;
 import io.opencensus.trace.Tracing;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -80,7 +79,7 @@ public final class ZPageHandlers {
       StatszZPageHandler.create(Stats.getViewManager());
 
   private static final Object monitor = new Object();
-  private static final AtomicBoolean isRunningSpanStoreInitialized = new AtomicBoolean(false);
+  private static volatile boolean isRunningSpanStoreInitialized = false;
 
   @GuardedBy("monitor")
   @Nullable
@@ -206,8 +205,14 @@ public final class ZPageHandlers {
   // Sets the maximum number of elements as Integer.MAX_VALUE to enable RunningSpanStore.
   // This method will only execute once even if called multiple times.
   private static void enableRunningSpanStore() {
-    if (!(isRunningSpanStoreInitialized.getAndSet(true))) {
-      Tracing.getExportComponent().getRunningSpanStore().setMaxNumberOfSpans(Integer.MAX_VALUE);
+    if (!isRunningSpanStoreInitialized) {
+      synchronized (monitor) {
+        if (isRunningSpanStoreInitialized) {
+          return; // Already initialized, small race
+        }
+        Tracing.getExportComponent().getRunningSpanStore().setMaxNumberOfSpans(Integer.MAX_VALUE);
+        isRunningSpanStoreInitialized = true;
+      }
     }
   }
 
