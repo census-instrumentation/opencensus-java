@@ -20,8 +20,10 @@ import com.google.auth.Credentials;
 import com.google.auto.value.AutoValue;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.trace.v2.stub.TraceServiceStub;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import io.opencensus.common.Duration;
 import io.opencensus.trace.AttributeValue;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -78,6 +80,15 @@ public abstract class StackdriverTraceConfiguration {
   public abstract Map<String, AttributeValue> getFixedAttributes();
 
   /**
+   * Returns the deadline for exporting to Stackdriver Trace backend.
+   *
+   * @return the export deadline.
+   * @since 0.22
+   */
+  @Nullable
+  public abstract Duration getDeadline();
+
+  /**
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
@@ -96,6 +107,8 @@ public abstract class StackdriverTraceConfiguration {
    */
   @AutoValue.Builder
   public abstract static class Builder {
+
+    @VisibleForTesting static final Duration ZERO = Duration.fromMillis(0);
 
     Builder() {}
 
@@ -135,9 +148,24 @@ public abstract class StackdriverTraceConfiguration {
      */
     public abstract Builder setFixedAttributes(Map<String, AttributeValue> fixedAttributes);
 
+    /**
+     * Sets the deadline for exporting to Stackdriver Trace backend.
+     *
+     * <p>If both {@code TraceServiceStub} and {@code Deadline} are set, {@code TraceServiceStub}
+     * takes precedence and {@code Deadline} will not be respected.
+     *
+     * @param deadline the export deadline.
+     * @return this
+     * @since 0.22
+     */
+    public abstract Builder setDeadline(Duration deadline);
+
     abstract String getProjectId();
 
     abstract Map<String, AttributeValue> getFixedAttributes();
+
+    @Nullable
+    abstract Duration getDeadline();
 
     abstract StackdriverTraceConfiguration autoBuild();
 
@@ -158,6 +186,10 @@ public abstract class StackdriverTraceConfiguration {
       for (Map.Entry<String, AttributeValue> fixedAttribute : getFixedAttributes().entrySet()) {
         Preconditions.checkNotNull(fixedAttribute.getKey(), "attribute key");
         Preconditions.checkNotNull(fixedAttribute.getValue(), "attribute value");
+      }
+      @Nullable Duration deadline = getDeadline();
+      if (deadline != null) {
+        Preconditions.checkArgument(deadline.compareTo(ZERO) > 0, "Deadline must be positive.");
       }
       return autoBuild();
     }

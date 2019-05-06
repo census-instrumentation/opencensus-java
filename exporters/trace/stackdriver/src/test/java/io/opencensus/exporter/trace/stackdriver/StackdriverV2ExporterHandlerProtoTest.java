@@ -156,7 +156,8 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         StackdriverV2ExporterHandler.createWithCredentials(
             PROJECT_ID,
             FAKE_CREDENTIALS,
-            Collections.<String, io.opencensus.trace.AttributeValue>emptyMap());
+            Collections.<String, io.opencensus.trace.AttributeValue>emptyMap(),
+            null);
   }
 
   @Test

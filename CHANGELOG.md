@@ -1,6 +1,7 @@
 ## Unreleased
 - Disable RunningSpanStore by default unless the z-pages contrib is linked and initialized. This may
 break behaviors for applications that rely on this to be always enabled.
+- Provide a `Deadline` option to Stackdriver Trace exporter.
 
 ## 0.21.0 - 2019-04-30
 - Add HTTP text format serializer to Tag propagation component.
