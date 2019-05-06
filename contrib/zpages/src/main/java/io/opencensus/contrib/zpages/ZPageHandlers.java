@@ -94,6 +94,9 @@ public final class ZPageHandlers {
    * <p>If no sampled spans based on latency and error codes are available for a given name, make
    * sure that the span name is registered to the {@code SampledSpanStore}.
    *
+   * <p>When this method is called, {@link io.opencensus.trace.export.RunningSpanStore} will be
+   * enabled automatically.
+   *
    * @return a {@code ZPageHandler} for tracing debug.
    * @since 0.6
    */
