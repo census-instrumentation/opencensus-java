@@ -17,6 +17,7 @@
 package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_DEADLINE;
 
 import com.google.api.gax.core.GoogleCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
@@ -130,7 +131,8 @@ public class StackdriverStatsExporterTest {
   public void createMetricServiceClient() throws IOException {
     MetricServiceClient client;
     synchronized (StackdriverStatsExporter.monitor) {
-      client = StackdriverStatsExporter.createMetricServiceClient(FAKE_CREDENTIALS);
+      client =
+          StackdriverStatsExporter.createMetricServiceClient(FAKE_CREDENTIALS, DEFAULT_DEADLINE);
     }
     assertThat(client.getSettings().getCredentialsProvider().getCredentials())
         .isEqualTo(FAKE_CREDENTIALS);
@@ -145,7 +147,7 @@ public class StackdriverStatsExporterTest {
     try {
       MetricServiceClient client;
       synchronized (StackdriverStatsExporter.monitor) {
-        client = StackdriverStatsExporter.createMetricServiceClient(null);
+        client = StackdriverStatsExporter.createMetricServiceClient(null, DEFAULT_DEADLINE);
       }
       assertThat(client.getSettings().getCredentialsProvider())
           .isInstanceOf(GoogleCredentialsProvider.class);

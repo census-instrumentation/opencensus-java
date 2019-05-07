@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_CONSTANT_LABELS;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_DEADLINE;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_PROJECT_ID;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_RESOURCE;
 
@@ -33,6 +34,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
+import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.common.OpenCensusLibraryInformation;
@@ -136,7 +138,14 @@ public final class StackdriverStatsExporter {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
     createInternal(
-        credentials, projectId, exportInterval, DEFAULT_RESOURCE, null, DEFAULT_CONSTANT_LABELS);
+        credentials,
+        projectId,
+        exportInterval,
+        DEFAULT_RESOURCE,
+        null,
+        DEFAULT_CONSTANT_LABELS,
+        DEFAULT_DEADLINE,
+        null);
   }
 
   /**
@@ -167,7 +176,14 @@ public final class StackdriverStatsExporter {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
     createInternal(
-        null, projectId, exportInterval, DEFAULT_RESOURCE, null, DEFAULT_CONSTANT_LABELS);
+        null,
+        projectId,
+        exportInterval,
+        DEFAULT_RESOURCE,
+        null,
+        DEFAULT_CONSTANT_LABELS,
+        DEFAULT_DEADLINE,
+        null);
   }
 
   /**
@@ -206,7 +222,9 @@ public final class StackdriverStatsExporter {
         configuration.getExportInterval(),
         configuration.getMonitoredResource(),
         configuration.getMetricNamePrefix(),
-        configuration.getConstantLabels());
+        configuration.getConstantLabels(),
+        configuration.getDeadline(),
+        configuration.getMetricServiceStub());
   }
 
   /**
@@ -266,7 +284,14 @@ public final class StackdriverStatsExporter {
     checkArgument(
         !DEFAULT_PROJECT_ID.isEmpty(), "Cannot find a project ID from application default.");
     createInternal(
-        null, DEFAULT_PROJECT_ID, exportInterval, DEFAULT_RESOURCE, null, DEFAULT_CONSTANT_LABELS);
+        null,
+        DEFAULT_PROJECT_ID,
+        exportInterval,
+        DEFAULT_RESOURCE,
+        null,
+        DEFAULT_CONSTANT_LABELS,
+        DEFAULT_DEADLINE,
+        null);
   }
 
   /**
@@ -296,7 +321,14 @@ public final class StackdriverStatsExporter {
     checkNotNull(exportInterval, "exportInterval");
     checkNotNull(monitoredResource, "monitoredResource");
     createInternal(
-        null, projectId, exportInterval, monitoredResource, null, DEFAULT_CONSTANT_LABELS);
+        null,
+        projectId,
+        exportInterval,
+        monitoredResource,
+        null,
+        DEFAULT_CONSTANT_LABELS,
+        DEFAULT_DEADLINE,
+        null);
   }
 
   /**
@@ -326,7 +358,14 @@ public final class StackdriverStatsExporter {
     checkArgument(
         !DEFAULT_PROJECT_ID.isEmpty(), "Cannot find a project ID from application default.");
     createInternal(
-        null, DEFAULT_PROJECT_ID, exportInterval, monitoredResource, null, DEFAULT_CONSTANT_LABELS);
+        null,
+        DEFAULT_PROJECT_ID,
+        exportInterval,
+        monitoredResource,
+        null,
+        DEFAULT_CONSTANT_LABELS,
+        DEFAULT_DEADLINE,
+        null);
   }
 
   // Use createInternal() (instead of constructor) to enforce singleton.
@@ -336,14 +375,20 @@ public final class StackdriverStatsExporter {
       Duration exportInterval,
       MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix,
-      Map<LabelKey, LabelValue> constantLabels)
+      Map<LabelKey, LabelValue> constantLabels,
+      Duration deadline,
+      @Nullable MetricServiceStub stub)
       throws IOException {
     synchronized (monitor) {
       checkState(instance == null, "Stackdriver stats exporter is already created.");
+      MetricServiceClient client =
+          stub == null
+              ? createMetricServiceClient(credentials, deadline)
+              : MetricServiceClient.create(stub);
       instance =
           new StackdriverStatsExporter(
               projectId,
-              createMetricServiceClient(credentials),
+              client,
               exportInterval,
               monitoredResource,
               metricNamePrefix,
@@ -354,8 +399,8 @@ public final class StackdriverStatsExporter {
   // Initialize MetricServiceClient inside lock to avoid creating multiple clients.
   @GuardedBy("monitor")
   @VisibleForTesting
-  static MetricServiceClient createMetricServiceClient(@Nullable Credentials credentials)
-      throws IOException {
+  static MetricServiceClient createMetricServiceClient(
+      @Nullable Credentials credentials, Duration deadline) throws IOException {
     MetricServiceSettings.Builder settingsBuilder =
         MetricServiceSettings.newBuilder()
             .setTransportChannelProvider(
@@ -365,6 +410,13 @@ public final class StackdriverStatsExporter {
     if (credentials != null) {
       settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
     }
+
+    org.threeten.bp.Duration stackdriverDuration =
+        org.threeten.bp.Duration.ofMillis(deadline.toMillis());
+    // We use createMetricDescriptor and createTimeSeries APIs in this exporter.
+    settingsBuilder.createMetricDescriptorSettings().setSimpleTimeoutNoRetries(stackdriverDuration);
+    settingsBuilder.createTimeSeriesSettings().setSimpleTimeoutNoRetries(stackdriverDuration);
+
     return MetricServiceClient.create(settingsBuilder.build());
   }
 

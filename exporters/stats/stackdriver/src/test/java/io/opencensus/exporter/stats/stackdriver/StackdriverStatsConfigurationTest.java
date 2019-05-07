@@ -18,6 +18,7 @@ package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_CONSTANT_LABELS;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_DEADLINE;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_INTERVAL;
 
 import com.google.api.MonitoredResource;
@@ -25,6 +26,7 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
+import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
 import io.opencensus.common.Duration;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
@@ -36,6 +38,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 /** Unit tests for {@link StackdriverStatsConfiguration}. */
 @RunWith(JUnit4.class)
@@ -45,12 +49,15 @@ public class StackdriverStatsConfigurationTest {
       GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
   private static final String PROJECT_ID = "project";
   private static final Duration DURATION = Duration.create(10, 0);
+  private static final Duration NEG_ONE_SECOND = Duration.create(-1, 0);
   private static final MonitoredResource RESOURCE =
       MonitoredResource.newBuilder()
           .setType("gce-instance")
           .putLabels("instance-id", "instance")
           .build();
   private static final String CUSTOM_PREFIX = "myorg";
+
+  @Mock private final MetricServiceStub mockStub = Mockito.mock(MetricServiceStub.class);
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -69,6 +76,8 @@ public class StackdriverStatsConfigurationTest {
             .setMonitoredResource(RESOURCE)
             .setMetricNamePrefix(CUSTOM_PREFIX)
             .setConstantLabels(Collections.<LabelKey, LabelValue>emptyMap())
+            .setDeadline(DURATION)
+            .setMetricServiceStub(mockStub)
             .build();
     assertThat(configuration.getCredentials()).isEqualTo(FAKE_CREDENTIALS);
     assertThat(configuration.getProjectId()).isEqualTo(PROJECT_ID);
@@ -76,6 +85,8 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getMonitoredResource()).isEqualTo(RESOURCE);
     assertThat(configuration.getMetricNamePrefix()).isEqualTo(CUSTOM_PREFIX);
     assertThat(configuration.getConstantLabels()).isEmpty();
+    assertThat(configuration.getDeadline()).isEqualTo(DURATION);
+    assertThat(configuration.getMetricServiceStub()).isEqualTo(mockStub);
   }
 
   @Test
@@ -93,6 +104,8 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getMonitoredResource()).isNotNull();
     assertThat(configuration.getMetricNamePrefix()).isNull();
     assertThat(configuration.getConstantLabels()).isEqualTo(DEFAULT_CONSTANT_LABELS);
+    assertThat(configuration.getDeadline()).isEqualTo(DEFAULT_DEADLINE);
+    assertThat(configuration.getMetricServiceStub()).isNull();
   }
 
   @Test
@@ -182,5 +195,23 @@ public class StackdriverStatsConfigurationTest {
             .setMetricNamePrefix(null)
             .build();
     assertThat(configuration.getMetricNamePrefix()).isNull();
+  }
+
+  @Test
+  public void disallowZeroDuration() {
+    StackdriverStatsConfiguration.Builder builder =
+        StackdriverStatsConfiguration.builder().setProjectId("test");
+    builder.setDeadline(StackdriverStatsConfiguration.Builder.ZERO);
+    thrown.expect(IllegalArgumentException.class);
+    builder.build();
+  }
+
+  @Test
+  public void disallowNegativeDuration() {
+    StackdriverStatsConfiguration.Builder builder =
+        StackdriverStatsConfiguration.builder().setProjectId("test");
+    builder.setDeadline(NEG_ONE_SECOND);
+    thrown.expect(IllegalArgumentException.class);
+    builder.build();
   }
 }
