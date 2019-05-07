@@ -23,17 +23,23 @@ import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DE
 import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_PROJECT_ID;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_RESOURCE;
 
+import com.google.api.MetricDescriptor;
 import com.google.api.MonitoredResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.FixedHeaderProvider;
 import com.google.api.gax.rpc.HeaderProvider;
+import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.monitoring.v3.CreateMetricDescriptorRequest;
+import com.google.monitoring.v3.CreateTimeSeriesRequest;
+import com.google.protobuf.Empty;
 import io.opencensus.common.Duration;
 import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.exporter.metrics.util.IntervalMetricReader;
@@ -136,7 +142,13 @@ public final class StackdriverStatsExporter {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
     createInternal(
-        credentials, projectId, exportInterval, DEFAULT_RESOURCE, null, DEFAULT_CONSTANT_LABELS);
+        credentials,
+        projectId,
+        exportInterval,
+        DEFAULT_RESOURCE,
+        null,
+        DEFAULT_CONSTANT_LABELS,
+        null);
   }
 
   /**
@@ -167,7 +179,7 @@ public final class StackdriverStatsExporter {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
     createInternal(
-        null, projectId, exportInterval, DEFAULT_RESOURCE, null, DEFAULT_CONSTANT_LABELS);
+        null, projectId, exportInterval, DEFAULT_RESOURCE, null, DEFAULT_CONSTANT_LABELS, null);
   }
 
   /**
@@ -206,7 +218,8 @@ public final class StackdriverStatsExporter {
         configuration.getExportInterval(),
         configuration.getMonitoredResource(),
         configuration.getMetricNamePrefix(),
-        configuration.getConstantLabels());
+        configuration.getConstantLabels(),
+        configuration.getDeadline());
   }
 
   /**
@@ -266,7 +279,13 @@ public final class StackdriverStatsExporter {
     checkArgument(
         !DEFAULT_PROJECT_ID.isEmpty(), "Cannot find a project ID from application default.");
     createInternal(
-        null, DEFAULT_PROJECT_ID, exportInterval, DEFAULT_RESOURCE, null, DEFAULT_CONSTANT_LABELS);
+        null,
+        DEFAULT_PROJECT_ID,
+        exportInterval,
+        DEFAULT_RESOURCE,
+        null,
+        DEFAULT_CONSTANT_LABELS,
+        null);
   }
 
   /**
@@ -296,7 +315,7 @@ public final class StackdriverStatsExporter {
     checkNotNull(exportInterval, "exportInterval");
     checkNotNull(monitoredResource, "monitoredResource");
     createInternal(
-        null, projectId, exportInterval, monitoredResource, null, DEFAULT_CONSTANT_LABELS);
+        null, projectId, exportInterval, monitoredResource, null, DEFAULT_CONSTANT_LABELS, null);
   }
 
   /**
@@ -326,7 +345,13 @@ public final class StackdriverStatsExporter {
     checkArgument(
         !DEFAULT_PROJECT_ID.isEmpty(), "Cannot find a project ID from application default.");
     createInternal(
-        null, DEFAULT_PROJECT_ID, exportInterval, monitoredResource, null, DEFAULT_CONSTANT_LABELS);
+        null,
+        DEFAULT_PROJECT_ID,
+        exportInterval,
+        monitoredResource,
+        null,
+        DEFAULT_CONSTANT_LABELS,
+        null);
   }
 
   // Use createInternal() (instead of constructor) to enforce singleton.
@@ -336,14 +361,15 @@ public final class StackdriverStatsExporter {
       Duration exportInterval,
       MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix,
-      Map<LabelKey, LabelValue> constantLabels)
+      Map<LabelKey, LabelValue> constantLabels,
+      @Nullable Duration deadline)
       throws IOException {
     synchronized (monitor) {
       checkState(instance == null, "Stackdriver stats exporter is already created.");
       instance =
           new StackdriverStatsExporter(
               projectId,
-              createMetricServiceClient(credentials),
+              createMetricServiceClient(credentials, deadline),
               exportInterval,
               monitoredResource,
               metricNamePrefix,
@@ -354,8 +380,8 @@ public final class StackdriverStatsExporter {
   // Initialize MetricServiceClient inside lock to avoid creating multiple clients.
   @GuardedBy("monitor")
   @VisibleForTesting
-  static MetricServiceClient createMetricServiceClient(@Nullable Credentials credentials)
-      throws IOException {
+  static MetricServiceClient createMetricServiceClient(
+      @Nullable Credentials credentials, @Nullable Duration deadline) throws IOException {
     MetricServiceSettings.Builder settingsBuilder =
         MetricServiceSettings.newBuilder()
             .setTransportChannelProvider(
@@ -365,6 +391,38 @@ public final class StackdriverStatsExporter {
     if (credentials != null) {
       settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
     }
+
+    // We use createMetricDescriptor and createTimeSeries APIs in this exporter.
+    UnaryCallSettings.Builder<CreateMetricDescriptorRequest, MetricDescriptor>
+        createMetricDescriptorSettings = settingsBuilder.createMetricDescriptorSettings();
+    UnaryCallSettings.Builder<CreateTimeSeriesRequest, Empty> createTimeSeriesSettings =
+        settingsBuilder.createTimeSeriesSettings();
+    if (deadline != null) {
+      org.threeten.bp.Duration stackdriverDuration =
+          org.threeten.bp.Duration.ofMillis(deadline.toMillis());
+      createMetricDescriptorSettings.setSimpleTimeoutNoRetries(stackdriverDuration);
+      createTimeSeriesSettings.setSimpleTimeoutNoRetries(stackdriverDuration);
+    } else {
+      /*
+       * Default retry settings for Stackdriver Monitoring client is:
+       * settings =
+       *   RetrySettings.newBuilder()
+       *       .setInitialRetryDelay(Duration.ofMillis(100L))
+       *       .setRetryDelayMultiplier(1.3)
+       *       .setMaxRetryDelay(Duration.ofMillis(60000L))
+       *       .setInitialRpcTimeout(Duration.ofMillis(20000L))
+       *       .setRpcTimeoutMultiplier(1.0)
+       *       .setMaxRpcTimeout(Duration.ofMillis(20000L))
+       *       .setTotalTimeout(Duration.ofMillis(600000L))
+       *       .build();
+       *
+       * Override the default settings with settings that don't retry.
+       */
+      RetrySettings noRetrySettings = RetrySettings.newBuilder().build();
+      createMetricDescriptorSettings.setRetryableCodes().setRetrySettings(noRetrySettings);
+      createTimeSeriesSettings.setRetryableCodes().setRetrySettings(noRetrySettings);
+    }
+
     return MetricServiceClient.create(settingsBuilder.build());
   }
 

@@ -45,6 +45,7 @@ public class StackdriverStatsConfigurationTest {
       GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
   private static final String PROJECT_ID = "project";
   private static final Duration DURATION = Duration.create(10, 0);
+  private static final Duration NEG_ONE_SECOND = Duration.create(-1, 0);
   private static final MonitoredResource RESOURCE =
       MonitoredResource.newBuilder()
           .setType("gce-instance")
@@ -69,6 +70,7 @@ public class StackdriverStatsConfigurationTest {
             .setMonitoredResource(RESOURCE)
             .setMetricNamePrefix(CUSTOM_PREFIX)
             .setConstantLabels(Collections.<LabelKey, LabelValue>emptyMap())
+            .setDeadline(DURATION)
             .build();
     assertThat(configuration.getCredentials()).isEqualTo(FAKE_CREDENTIALS);
     assertThat(configuration.getProjectId()).isEqualTo(PROJECT_ID);
@@ -76,6 +78,7 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getMonitoredResource()).isEqualTo(RESOURCE);
     assertThat(configuration.getMetricNamePrefix()).isEqualTo(CUSTOM_PREFIX);
     assertThat(configuration.getConstantLabels()).isEmpty();
+    assertThat(configuration.getDeadline()).isEqualTo(DURATION);
   }
 
   @Test
@@ -93,6 +96,7 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getMonitoredResource()).isNotNull();
     assertThat(configuration.getMetricNamePrefix()).isNull();
     assertThat(configuration.getConstantLabels()).isEqualTo(DEFAULT_CONSTANT_LABELS);
+    assertThat(configuration.getDeadline()).isNull();
   }
 
   @Test
@@ -182,5 +186,23 @@ public class StackdriverStatsConfigurationTest {
             .setMetricNamePrefix(null)
             .build();
     assertThat(configuration.getMetricNamePrefix()).isNull();
+  }
+
+  @Test
+  public void disallowZeroDuration() {
+    StackdriverStatsConfiguration.Builder builder =
+        StackdriverStatsConfiguration.builder().setProjectId("test");
+    builder.setDeadline(StackdriverStatsConfiguration.Builder.ZERO);
+    thrown.expect(IllegalArgumentException.class);
+    builder.build();
+  }
+
+  @Test
+  public void disallowNegativeDuration() {
+    StackdriverStatsConfiguration.Builder builder =
+        StackdriverStatsConfiguration.builder().setProjectId("test");
+    builder.setDeadline(NEG_ONE_SECOND);
+    thrown.expect(IllegalArgumentException.class);
+    builder.build();
   }
 }

@@ -130,7 +130,7 @@ public class StackdriverStatsExporterTest {
   public void createMetricServiceClient() throws IOException {
     MetricServiceClient client;
     synchronized (StackdriverStatsExporter.monitor) {
-      client = StackdriverStatsExporter.createMetricServiceClient(FAKE_CREDENTIALS);
+      client = StackdriverStatsExporter.createMetricServiceClient(FAKE_CREDENTIALS, null);
     }
     assertThat(client.getSettings().getCredentialsProvider().getCredentials())
         .isEqualTo(FAKE_CREDENTIALS);
@@ -145,7 +145,7 @@ public class StackdriverStatsExporterTest {
     try {
       MetricServiceClient client;
       synchronized (StackdriverStatsExporter.monitor) {
-        client = StackdriverStatsExporter.createMetricServiceClient(null);
+        client = StackdriverStatsExporter.createMetricServiceClient(null, null);
       }
       assertThat(client.getSettings().getCredentialsProvider())
           .isInstanceOf(GoogleCredentialsProvider.class);
