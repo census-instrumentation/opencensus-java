@@ -17,6 +17,7 @@
 package io.opencensus.exporter.trace.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.trace.stackdriver.StackdriverTraceConfiguration.DEFAULT_DEADLINE;
 import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.createResourceLabelKey;
 import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.toStringAttributeValueProto;
 
@@ -156,7 +157,8 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         StackdriverV2ExporterHandler.createWithCredentials(
             PROJECT_ID,
             FAKE_CREDENTIALS,
-            Collections.<String, io.opencensus.trace.AttributeValue>emptyMap());
+            Collections.<String, io.opencensus.trace.AttributeValue>emptyMap(),
+            DEFAULT_DEADLINE);
   }
 
   @Test

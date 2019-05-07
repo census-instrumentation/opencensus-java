@@ -86,7 +86,8 @@ public final class StackdriverTraceExporter {
             StackdriverV2ExporterHandler.createWithCredentials(
                 projectId,
                 credentials != null ? credentials : GoogleCredentials.getApplicationDefault(),
-                configuration.getFixedAttributes());
+                configuration.getFixedAttributes(),
+                configuration.getDeadline());
       } else {
         handler =
             StackdriverV2ExporterHandler.createWithStub(

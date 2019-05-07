@@ -22,6 +22,7 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
+import io.opencensus.common.Duration;
 import io.opencensus.trace.AttributeValue;
 import java.util.Collections;
 import java.util.Date;
@@ -39,6 +40,8 @@ public class StackdriverTraceConfigurationTest {
   private static final Credentials FAKE_CREDENTIALS =
       GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
   private static final String PROJECT_ID = "project";
+  private static final Duration ONE_MINUTE = Duration.create(60, 0);
+  private static final Duration NEG_ONE_MINUTE = Duration.create(-60, 0);
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -55,6 +58,8 @@ public class StackdriverTraceConfigurationTest {
     assertThat(configuration.getProjectId()).isNotNull();
     assertThat(configuration.getTraceServiceStub()).isNull();
     assertThat(configuration.getFixedAttributes()).isEmpty();
+    assertThat(configuration.getDeadline())
+        .isEqualTo(StackdriverTraceConfiguration.DEFAULT_DEADLINE);
   }
 
   @Test
@@ -66,10 +71,12 @@ public class StackdriverTraceConfigurationTest {
             .setCredentials(FAKE_CREDENTIALS)
             .setProjectId(PROJECT_ID)
             .setFixedAttributes(attributes)
+            .setDeadline(ONE_MINUTE)
             .build();
     assertThat(configuration.getCredentials()).isEqualTo(FAKE_CREDENTIALS);
     assertThat(configuration.getProjectId()).isEqualTo(PROJECT_ID);
     assertThat(configuration.getFixedAttributes()).isEqualTo(attributes);
+    assertThat(configuration.getDeadline()).isEqualTo(ONE_MINUTE);
   }
 
   @Test
@@ -122,6 +129,24 @@ public class StackdriverTraceConfigurationTest {
     Map<String, AttributeValue> attributes = Collections.singletonMap("key", null);
     builder.setFixedAttributes(attributes);
     thrown.expect(NullPointerException.class);
+    builder.build();
+  }
+
+  @Test
+  public void disallowZeroDuration() {
+    StackdriverTraceConfiguration.Builder builder =
+        StackdriverTraceConfiguration.builder().setProjectId("test");
+    builder.setDeadline(StackdriverTraceConfiguration.Builder.ZERO);
+    thrown.expect(IllegalArgumentException.class);
+    builder.build();
+  }
+
+  @Test
+  public void disallowNegativeDuration() {
+    StackdriverTraceConfiguration.Builder builder =
+        StackdriverTraceConfiguration.builder().setProjectId("test");
+    builder.setDeadline(NEG_ONE_MINUTE);
+    thrown.expect(IllegalArgumentException.class);
     builder.build();
   }
 }

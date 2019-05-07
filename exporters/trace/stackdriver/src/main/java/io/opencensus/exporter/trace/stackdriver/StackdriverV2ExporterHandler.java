@@ -37,6 +37,7 @@ import com.google.devtools.cloudtrace.v2.TruncatableString;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
 import com.google.rpc.Status;
+import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.OpenCensusLibraryInformation;
@@ -171,15 +172,19 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   static StackdriverV2ExporterHandler createWithCredentials(
       String projectId,
       Credentials credentials,
-      Map<String, io.opencensus.trace.AttributeValue> fixedAttributes)
+      Map<String, io.opencensus.trace.AttributeValue> fixedAttributes,
+      Duration deadline)
       throws IOException {
-    TraceServiceSettings traceServiceSettings =
+    TraceServiceSettings.Builder builder =
         TraceServiceSettings.newBuilder()
             .setCredentialsProvider(
-                FixedCredentialsProvider.create(checkNotNull(credentials, "credentials")))
-            .build();
+                FixedCredentialsProvider.create(checkNotNull(credentials, "credentials")));
+    // We only use the batchWriteSpans API in this exporter.
+    builder
+        .batchWriteSpansSettings()
+        .setSimpleTimeoutNoRetries(org.threeten.bp.Duration.ofMillis(deadline.toMillis()));
     return new StackdriverV2ExporterHandler(
-        projectId, TraceServiceClient.create(traceServiceSettings), fixedAttributes);
+        projectId, TraceServiceClient.create(builder.build()), fixedAttributes);
   }
 
   @VisibleForTesting
