@@ -58,7 +58,8 @@ public class StackdriverTraceConfigurationTest {
     assertThat(configuration.getProjectId()).isNotNull();
     assertThat(configuration.getTraceServiceStub()).isNull();
     assertThat(configuration.getFixedAttributes()).isEmpty();
-    assertThat(configuration.getDeadline()).isNull();
+    assertThat(configuration.getDeadline())
+        .isEqualTo(StackdriverTraceConfiguration.DEFAULT_DEADLINE);
   }
 
   @Test

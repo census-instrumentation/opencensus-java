@@ -43,6 +43,8 @@ public abstract class StackdriverTraceConfiguration {
   private static final String DEFAULT_PROJECT_ID =
       Strings.nullToEmpty(ServiceOptions.getDefaultProjectId());
 
+  @VisibleForTesting static final Duration DEFAULT_DEADLINE = Duration.create(10, 0);
+
   StackdriverTraceConfiguration() {}
 
   /**
@@ -82,10 +84,11 @@ public abstract class StackdriverTraceConfiguration {
   /**
    * Returns the deadline for exporting to Stackdriver Trace backend.
    *
+   * <p>Default value is 10 seconds.
+   *
    * @return the export deadline.
    * @since 0.22
    */
-  @Nullable
   public abstract Duration getDeadline();
 
   /**
@@ -97,7 +100,8 @@ public abstract class StackdriverTraceConfiguration {
   public static Builder builder() {
     return new AutoValue_StackdriverTraceConfiguration.Builder()
         .setProjectId(DEFAULT_PROJECT_ID)
-        .setFixedAttributes(Collections.<String, AttributeValue>emptyMap());
+        .setFixedAttributes(Collections.<String, AttributeValue>emptyMap())
+        .setDeadline(DEFAULT_DEADLINE);
   }
 
   /**
@@ -164,7 +168,6 @@ public abstract class StackdriverTraceConfiguration {
 
     abstract Map<String, AttributeValue> getFixedAttributes();
 
-    @Nullable
     abstract Duration getDeadline();
 
     abstract StackdriverTraceConfiguration autoBuild();
@@ -187,10 +190,7 @@ public abstract class StackdriverTraceConfiguration {
         Preconditions.checkNotNull(fixedAttribute.getKey(), "attribute key");
         Preconditions.checkNotNull(fixedAttribute.getValue(), "attribute value");
       }
-      @Nullable Duration deadline = getDeadline();
-      if (deadline != null) {
-        Preconditions.checkArgument(deadline.compareTo(ZERO) > 0, "Deadline must be positive.");
-      }
+      Preconditions.checkArgument(getDeadline().compareTo(ZERO) > 0, "Deadline must be positive.");
       return autoBuild();
     }
   }

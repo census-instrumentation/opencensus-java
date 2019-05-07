@@ -19,7 +19,6 @@ package io.opencensus.exporter.trace.stackdriver;
 import static com.google.api.client.util.Preconditions.checkNotNull;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.Credentials;
 import com.google.cloud.trace.v2.TraceServiceClient;
 import com.google.cloud.trace.v2.TraceServiceSettings;
@@ -174,39 +173,16 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
       String projectId,
       Credentials credentials,
       Map<String, io.opencensus.trace.AttributeValue> fixedAttributes,
-      @javax.annotation.Nullable Duration deadline)
+      Duration deadline)
       throws IOException {
     TraceServiceSettings.Builder builder =
         TraceServiceSettings.newBuilder()
             .setCredentialsProvider(
                 FixedCredentialsProvider.create(checkNotNull(credentials, "credentials")));
-    if (deadline != null) {
-      // We only use the batchWriteSpans API in this exporter.
-      builder
-          .batchWriteSpansSettings()
-          .setSimpleTimeoutNoRetries(org.threeten.bp.Duration.ofMillis(deadline.toMillis()));
-    } else {
-      /*
-       * Default retry settings for Stackdriver Trace client is:
-       * settings =
-       *   RetrySettings.newBuilder()
-       *       .setInitialRetryDelay(Duration.ofMillis(100L))
-       *       .setRetryDelayMultiplier(1.2)
-       *       .setMaxRetryDelay(Duration.ofMillis(1000L))
-       *       .setInitialRpcTimeout(Duration.ofMillis(30000L))
-       *       .setRpcTimeoutMultiplier(1.5)
-       *       .setMaxRpcTimeout(Duration.ofMillis(60000L))
-       *       .setTotalTimeout(Duration.ofMillis(120000L))
-       *       .build();
-       *
-       * Override the default settings with settings that don't retry.
-       */
-      builder
-          .batchWriteSpansSettings()
-          .setRetryableCodes() // Sets to empty so no retryable code will be used.
-          // RetrySettings.newBuilder().build() returns settings with no retries.
-          .setRetrySettings(RetrySettings.newBuilder().build());
-    }
+    // We only use the batchWriteSpans API in this exporter.
+    builder
+        .batchWriteSpansSettings()
+        .setSimpleTimeoutNoRetries(org.threeten.bp.Duration.ofMillis(deadline.toMillis()));
     return new StackdriverV2ExporterHandler(
         projectId, TraceServiceClient.create(builder.build()), fixedAttributes);
   }
