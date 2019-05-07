@@ -104,8 +104,6 @@ public abstract class StackdriverStatsConfiguration {
   /**
    * Returns the deadline for exporting to Stackdriver Monitoring backend.
    *
-   * <p>
-   *
    * @return the export deadline.
    * @since 0.22
    */
