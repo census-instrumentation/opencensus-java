@@ -195,6 +195,7 @@ public final class SpanExporterImpl extends SpanExporter {
       exportBatches(spansCopy);
     }
 
+    @SuppressWarnings("argument.type.incompatible")
     private void exportBatches(ArrayList<RecordEventsSpanImpl> spanList) {
       ArrayList<SpanData> spanDataList = new ArrayList<>(bufferSize);
       for (int i = 0; i < spanList.size(); i++) {
