@@ -36,6 +36,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
+import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
@@ -148,6 +149,7 @@ public final class StackdriverStatsExporter {
         DEFAULT_RESOURCE,
         null,
         DEFAULT_CONSTANT_LABELS,
+        null,
         null);
   }
 
@@ -179,7 +181,14 @@ public final class StackdriverStatsExporter {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
     createInternal(
-        null, projectId, exportInterval, DEFAULT_RESOURCE, null, DEFAULT_CONSTANT_LABELS, null);
+        null,
+        projectId,
+        exportInterval,
+        DEFAULT_RESOURCE,
+        null,
+        DEFAULT_CONSTANT_LABELS,
+        null,
+        null);
   }
 
   /**
@@ -219,7 +228,8 @@ public final class StackdriverStatsExporter {
         configuration.getMonitoredResource(),
         configuration.getMetricNamePrefix(),
         configuration.getConstantLabels(),
-        configuration.getDeadline());
+        configuration.getDeadline(),
+        configuration.getMetricServiceStub());
   }
 
   /**
@@ -285,6 +295,7 @@ public final class StackdriverStatsExporter {
         DEFAULT_RESOURCE,
         null,
         DEFAULT_CONSTANT_LABELS,
+        null,
         null);
   }
 
@@ -315,7 +326,14 @@ public final class StackdriverStatsExporter {
     checkNotNull(exportInterval, "exportInterval");
     checkNotNull(monitoredResource, "monitoredResource");
     createInternal(
-        null, projectId, exportInterval, monitoredResource, null, DEFAULT_CONSTANT_LABELS, null);
+        null,
+        projectId,
+        exportInterval,
+        monitoredResource,
+        null,
+        DEFAULT_CONSTANT_LABELS,
+        null,
+        null);
   }
 
   /**
@@ -351,6 +369,7 @@ public final class StackdriverStatsExporter {
         monitoredResource,
         null,
         DEFAULT_CONSTANT_LABELS,
+        null,
         null);
   }
 
@@ -362,14 +381,19 @@ public final class StackdriverStatsExporter {
       MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix,
       Map<LabelKey, LabelValue> constantLabels,
-      @Nullable Duration deadline)
+      @Nullable Duration deadline,
+      @Nullable MetricServiceStub stub)
       throws IOException {
     synchronized (monitor) {
       checkState(instance == null, "Stackdriver stats exporter is already created.");
+      MetricServiceClient client =
+          stub == null
+              ? createMetricServiceClient(credentials, deadline)
+              : MetricServiceClient.create(stub);
       instance =
           new StackdriverStatsExporter(
               projectId,
-              createMetricServiceClient(credentials, deadline),
+              client,
               exportInterval,
               monitoredResource,
               metricNamePrefix,

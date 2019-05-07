@@ -25,6 +25,7 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
+import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
 import io.opencensus.common.Duration;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
@@ -36,6 +37,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 /** Unit tests for {@link StackdriverStatsConfiguration}. */
 @RunWith(JUnit4.class)
@@ -52,6 +55,8 @@ public class StackdriverStatsConfigurationTest {
           .putLabels("instance-id", "instance")
           .build();
   private static final String CUSTOM_PREFIX = "myorg";
+
+  @Mock private final MetricServiceStub mockStub = Mockito.mock(MetricServiceStub.class);
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -71,6 +76,7 @@ public class StackdriverStatsConfigurationTest {
             .setMetricNamePrefix(CUSTOM_PREFIX)
             .setConstantLabels(Collections.<LabelKey, LabelValue>emptyMap())
             .setDeadline(DURATION)
+            .setMetricServiceStub(mockStub)
             .build();
     assertThat(configuration.getCredentials()).isEqualTo(FAKE_CREDENTIALS);
     assertThat(configuration.getProjectId()).isEqualTo(PROJECT_ID);
@@ -79,6 +85,7 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getMetricNamePrefix()).isEqualTo(CUSTOM_PREFIX);
     assertThat(configuration.getConstantLabels()).isEmpty();
     assertThat(configuration.getDeadline()).isEqualTo(DURATION);
+    assertThat(configuration.getMetricServiceStub()).isEqualTo(mockStub);
   }
 
   @Test
@@ -97,6 +104,7 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getMetricNamePrefix()).isNull();
     assertThat(configuration.getConstantLabels()).isEqualTo(DEFAULT_CONSTANT_LABELS);
     assertThat(configuration.getDeadline()).isNull();
+    assertThat(configuration.getMetricServiceStub()).isNull();
   }
 
   @Test

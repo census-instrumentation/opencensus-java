@@ -22,6 +22,7 @@ import com.google.api.MonitoredResource;
 import com.google.auth.Credentials;
 import com.google.auto.value.AutoValue;
 import com.google.cloud.ServiceOptions;
+import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -103,11 +104,23 @@ public abstract class StackdriverStatsConfiguration {
   /**
    * Returns the deadline for exporting to Stackdriver Monitoring backend.
    *
+   * <p>
+   *
    * @return the export deadline.
    * @since 0.22
    */
   @Nullable
   public abstract Duration getDeadline();
+
+  /**
+   * Returns the {@link MetricServiceStub} to be used to make calls to Stackdriver Monitoring v3
+   * APIs. This is for for advanced usage.
+   *
+   * @return the {@code MetricServiceStub}.
+   * @since 0.22
+   */
+  @Nullable
+  public abstract MetricServiceStub getMetricServiceStub();
 
   /**
    * Returns a new {@link Builder}.
@@ -207,11 +220,24 @@ public abstract class StackdriverStatsConfiguration {
     /**
      * Sets the deadline for exporting to Stackdriver Monitoring backend.
      *
+     * <p>If both {@code MetricServiceStub} and {@code Deadline} are set, {@code MetricServiceStub}
+     * takes precedence and {@code Deadline} will not be respected.
+     *
      * @param deadline the export deadline.
      * @return this
      * @since 0.22
      */
     public abstract Builder setDeadline(Duration deadline);
+
+    /**
+     * Sets the {@link MetricServiceStub} to be used to make calls to Stackdriver Monitoring v3
+     * APIs. This is for for advanced usage.
+     *
+     * @param stub the {@code MetricServiceStub}.
+     * @return this
+     * @since 0.22
+     */
+    public abstract Builder setMetricServiceStub(MetricServiceStub stub);
 
     abstract String getProjectId();
 
