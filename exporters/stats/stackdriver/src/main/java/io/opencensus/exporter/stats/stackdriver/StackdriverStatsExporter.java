@@ -20,17 +20,15 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_CONSTANT_LABELS;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_DEADLINE;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_PROJECT_ID;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_RESOURCE;
 
-import com.google.api.MetricDescriptor;
 import com.google.api.MonitoredResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
-import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.FixedHeaderProvider;
 import com.google.api.gax.rpc.HeaderProvider;
-import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
@@ -38,9 +36,6 @@ import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.monitoring.v3.CreateMetricDescriptorRequest;
-import com.google.monitoring.v3.CreateTimeSeriesRequest;
-import com.google.protobuf.Empty;
 import io.opencensus.common.Duration;
 import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.exporter.metrics.util.IntervalMetricReader;
@@ -149,7 +144,7 @@ public final class StackdriverStatsExporter {
         DEFAULT_RESOURCE,
         null,
         DEFAULT_CONSTANT_LABELS,
-        null,
+        DEFAULT_DEADLINE,
         null);
   }
 
@@ -187,7 +182,7 @@ public final class StackdriverStatsExporter {
         DEFAULT_RESOURCE,
         null,
         DEFAULT_CONSTANT_LABELS,
-        null,
+        DEFAULT_DEADLINE,
         null);
   }
 
@@ -295,7 +290,7 @@ public final class StackdriverStatsExporter {
         DEFAULT_RESOURCE,
         null,
         DEFAULT_CONSTANT_LABELS,
-        null,
+        DEFAULT_DEADLINE,
         null);
   }
 
@@ -332,7 +327,7 @@ public final class StackdriverStatsExporter {
         monitoredResource,
         null,
         DEFAULT_CONSTANT_LABELS,
-        null,
+        DEFAULT_DEADLINE,
         null);
   }
 
@@ -369,7 +364,7 @@ public final class StackdriverStatsExporter {
         monitoredResource,
         null,
         DEFAULT_CONSTANT_LABELS,
-        null,
+        DEFAULT_DEADLINE,
         null);
   }
 
@@ -381,7 +376,7 @@ public final class StackdriverStatsExporter {
       MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix,
       Map<LabelKey, LabelValue> constantLabels,
-      @Nullable Duration deadline,
+      Duration deadline,
       @Nullable MetricServiceStub stub)
       throws IOException {
     synchronized (monitor) {
@@ -405,7 +400,7 @@ public final class StackdriverStatsExporter {
   @GuardedBy("monitor")
   @VisibleForTesting
   static MetricServiceClient createMetricServiceClient(
-      @Nullable Credentials credentials, @Nullable Duration deadline) throws IOException {
+      @Nullable Credentials credentials, Duration deadline) throws IOException {
     MetricServiceSettings.Builder settingsBuilder =
         MetricServiceSettings.newBuilder()
             .setTransportChannelProvider(
@@ -416,36 +411,11 @@ public final class StackdriverStatsExporter {
       settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
     }
 
+    org.threeten.bp.Duration stackdriverDuration =
+        org.threeten.bp.Duration.ofMillis(deadline.toMillis());
     // We use createMetricDescriptor and createTimeSeries APIs in this exporter.
-    UnaryCallSettings.Builder<CreateMetricDescriptorRequest, MetricDescriptor>
-        createMetricDescriptorSettings = settingsBuilder.createMetricDescriptorSettings();
-    UnaryCallSettings.Builder<CreateTimeSeriesRequest, Empty> createTimeSeriesSettings =
-        settingsBuilder.createTimeSeriesSettings();
-    if (deadline != null) {
-      org.threeten.bp.Duration stackdriverDuration =
-          org.threeten.bp.Duration.ofMillis(deadline.toMillis());
-      createMetricDescriptorSettings.setSimpleTimeoutNoRetries(stackdriverDuration);
-      createTimeSeriesSettings.setSimpleTimeoutNoRetries(stackdriverDuration);
-    } else {
-      /*
-       * Default retry settings for Stackdriver Monitoring client is:
-       * settings =
-       *   RetrySettings.newBuilder()
-       *       .setInitialRetryDelay(Duration.ofMillis(100L))
-       *       .setRetryDelayMultiplier(1.3)
-       *       .setMaxRetryDelay(Duration.ofMillis(60000L))
-       *       .setInitialRpcTimeout(Duration.ofMillis(20000L))
-       *       .setRpcTimeoutMultiplier(1.0)
-       *       .setMaxRpcTimeout(Duration.ofMillis(20000L))
-       *       .setTotalTimeout(Duration.ofMillis(600000L))
-       *       .build();
-       *
-       * Override the default settings with settings that don't retry.
-       */
-      RetrySettings noRetrySettings = RetrySettings.newBuilder().build();
-      createMetricDescriptorSettings.setRetryableCodes().setRetrySettings(noRetrySettings);
-      createTimeSeriesSettings.setRetryableCodes().setRetrySettings(noRetrySettings);
-    }
+    settingsBuilder.createMetricDescriptorSettings().setSimpleTimeoutNoRetries(stackdriverDuration);
+    settingsBuilder.createTimeSeriesSettings().setSimpleTimeoutNoRetries(stackdriverDuration);
 
     return MetricServiceClient.create(settingsBuilder.build());
   }

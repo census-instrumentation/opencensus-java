@@ -18,6 +18,7 @@ package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverExportUtils.DEFAULT_CONSTANT_LABELS;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_DEADLINE;
 import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration.DEFAULT_INTERVAL;
 
 import com.google.api.MonitoredResource;
@@ -103,7 +104,7 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getMonitoredResource()).isNotNull();
     assertThat(configuration.getMetricNamePrefix()).isNull();
     assertThat(configuration.getConstantLabels()).isEqualTo(DEFAULT_CONSTANT_LABELS);
-    assertThat(configuration.getDeadline()).isNull();
+    assertThat(configuration.getDeadline()).isEqualTo(DEFAULT_DEADLINE);
     assertThat(configuration.getMetricServiceStub()).isNull();
   }
 

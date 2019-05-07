@@ -48,6 +48,7 @@ public abstract class StackdriverStatsConfiguration {
   static final MonitoredResource DEFAULT_RESOURCE = StackdriverExportUtils.getDefaultResource();
   static final String DEFAULT_PROJECT_ID =
       Strings.nullToEmpty(ServiceOptions.getDefaultProjectId());
+  static final Duration DEFAULT_DEADLINE = Duration.create(10, 0);
 
   StackdriverStatsConfiguration() {}
 
@@ -104,10 +105,11 @@ public abstract class StackdriverStatsConfiguration {
   /**
    * Returns the deadline for exporting to Stackdriver Monitoring backend.
    *
+   * <p>Default value is 10 seconds if not set.
+   *
    * @return the export deadline.
    * @since 0.22
    */
-  @Nullable
   public abstract Duration getDeadline();
 
   /**
@@ -131,7 +133,8 @@ public abstract class StackdriverStatsConfiguration {
         .setProjectId(DEFAULT_PROJECT_ID)
         .setConstantLabels(DEFAULT_CONSTANT_LABELS)
         .setExportInterval(DEFAULT_INTERVAL)
-        .setMonitoredResource(DEFAULT_RESOURCE);
+        .setMonitoredResource(DEFAULT_RESOURCE)
+        .setDeadline(DEFAULT_DEADLINE);
   }
 
   /**
@@ -241,7 +244,6 @@ public abstract class StackdriverStatsConfiguration {
 
     abstract Map<LabelKey, LabelValue> getConstantLabels();
 
-    @Nullable
     abstract Duration getDeadline();
 
     abstract StackdriverStatsConfiguration autoBuild();
@@ -264,10 +266,7 @@ public abstract class StackdriverStatsConfiguration {
         Preconditions.checkNotNull(constantLabel.getKey(), "constant label key");
         Preconditions.checkNotNull(constantLabel.getValue(), "constant label value");
       }
-      @Nullable Duration deadline = getDeadline();
-      if (deadline != null) {
-        Preconditions.checkArgument(deadline.compareTo(ZERO) > 0, "Deadline must be positive.");
-      }
+      Preconditions.checkArgument(getDeadline().compareTo(ZERO) > 0, "Deadline must be positive.");
       return autoBuild();
     }
   }
