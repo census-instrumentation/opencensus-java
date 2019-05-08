@@ -36,7 +36,11 @@ import zipkin2.reporter.urlconnection.URLConnectionSender;
  *
  * <pre>{@code
  * public static void main(String[] args) {
- *   ZipkinTraceExporter.createAndRegister("http://127.0.0.1:9411/api/v2/spans", "myservicename");
+ *   ZipkinTraceExporter.createAndRegister(
+ *     ZipkinExporterConfiguration.builder()
+ *       .setV2Url("http://127.0.0.1:9411/api/v2/spans")
+ *       .setServiceName("myservicename")
+ *       .build());
  *   ... // Do work.
  * }
  * }</pre>
@@ -58,13 +62,42 @@ public final class ZipkinTraceExporter {
    * Creates and registers the Zipkin Trace exporter to the OpenCensus library. Only one Zipkin
    * exporter can be registered at any point.
    *
+   * @param configuration configuration for this exporter.
+   * @throws IllegalStateException if a Zipkin exporter is already registered.
+   * @since 0.22
+   */
+  public static void createAndRegister(ZipkinExporterConfiguration configuration) {
+    synchronized (monitor) {
+      checkState(handler == null, "Zipkin exporter is already registered.");
+      Sender sender = configuration.getSender();
+      if (sender == null) {
+        sender = URLConnectionSender.create(configuration.getV2Url());
+      }
+      Handler newHandler =
+          new ZipkinExporterHandler(
+              configuration.getEncoder(),
+              sender,
+              configuration.getServiceName(),
+              configuration.getDeadline());
+      handler = newHandler;
+      register(Tracing.getExportComponent().getSpanExporter(), newHandler);
+    }
+  }
+
+  /**
+   * Creates and registers the Zipkin Trace exporter to the OpenCensus library. Only one Zipkin
+   * exporter can be registered at any point.
+   *
    * @param v2Url Ex http://127.0.0.1:9411/api/v2/spans
    * @param serviceName the {@link Span#localServiceName() local service name} of the process.
    * @throws IllegalStateException if a Zipkin exporter is already registered.
    * @since 0.12
+   * @deprecated in favor of {@link #createAndRegister(ZipkinExporterConfiguration)}.
    */
+  @Deprecated
   public static void createAndRegister(String v2Url, String serviceName) {
-    createAndRegister(SpanBytesEncoder.JSON_V2, URLConnectionSender.create(v2Url), serviceName);
+    createAndRegister(
+        ZipkinExporterConfiguration.builder().setV2Url(v2Url).setServiceName(serviceName).build());
   }
 
   /**
@@ -76,15 +109,17 @@ public final class ZipkinTraceExporter {
    * @param serviceName the {@link Span#localServiceName() local service name} of the process.
    * @throws IllegalStateException if a Zipkin exporter is already registered.
    * @since 0.12
+   * @deprecated in favor of {@link #createAndRegister(ZipkinExporterConfiguration)}.
    */
+  @Deprecated
   public static void createAndRegister(
       SpanBytesEncoder encoder, Sender sender, String serviceName) {
-    synchronized (monitor) {
-      checkState(handler == null, "Zipkin exporter is already registered.");
-      Handler newHandler = new ZipkinExporterHandler(encoder, sender, serviceName);
-      handler = newHandler;
-      register(Tracing.getExportComponent().getSpanExporter(), newHandler);
-    }
+    createAndRegister(
+        ZipkinExporterConfiguration.builder()
+            .setSender(sender)
+            .setEncoder(encoder)
+            .setServiceName(serviceName)
+            .build());
   }
 
   /**
