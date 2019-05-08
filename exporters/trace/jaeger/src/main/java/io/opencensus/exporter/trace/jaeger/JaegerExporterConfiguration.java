@@ -63,7 +63,7 @@ public abstract class JaegerExporterConfiguration {
   public abstract ThriftSender getThriftSender();
 
   /**
-   * Returns the deadline for exporting to Stackdriver Trace backend.
+   * Returns the deadline for exporting to Jaeger.
    *
    * <p>Default value is 10 seconds.
    *
