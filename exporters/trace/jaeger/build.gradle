@@ -6,6 +6,8 @@ description = 'OpenCensus Trace Jaeger Exporter'
 }
 
 dependencies {
+    compileOnly libraries.auto_value
+
     compile project(':opencensus-api'),
             libraries.guava
 

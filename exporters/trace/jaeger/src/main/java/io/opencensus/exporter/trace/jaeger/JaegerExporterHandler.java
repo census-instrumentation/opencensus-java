@@ -24,6 +24,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
+import com.google.common.util.concurrent.SimpleTimeLimiter;
+import com.google.common.util.concurrent.TimeLimiter;
 import com.google.errorprone.annotations.MustBeClosed;
 import io.jaegertracing.internal.exceptions.SenderException;
 import io.jaegertracing.thrift.internal.senders.ThriftSender;
@@ -34,6 +36,7 @@ import io.jaegertracing.thriftjava.SpanRef;
 import io.jaegertracing.thriftjava.SpanRefType;
 import io.jaegertracing.thriftjava.Tag;
 import io.jaegertracing.thriftjava.TagType;
+import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
@@ -57,6 +60,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -152,25 +159,45 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
 
   private final ThriftSender sender;
   private final Process process;
+  private final Duration deadline;
 
-  JaegerExporterHandler(final ThriftSender sender, final Process process) {
+  JaegerExporterHandler(final ThriftSender sender, final Process process, Duration deadline) {
     this.sender = checkNotNull(sender, "Jaeger sender must NOT be null.");
     this.process = checkNotNull(process, "Process sending traces must NOT be null.");
+    this.deadline = deadline;
   }
 
   @Override
   public void export(final Collection<SpanData> spanDataList) {
     final Scope exportScope = newExportScope();
     try {
-      doExport(spanDataList);
-    } catch (SenderException e) {
-      tracer
-          .getCurrentSpan() // exportScope above.
-          .setStatus(Status.UNKNOWN.withDescription(getMessageOrDefault(e)));
-      logger.log(Level.WARNING, "Failed to export traces to Jaeger: " + e);
+      TimeLimiter timeLimiter = SimpleTimeLimiter.create(Executors.newSingleThreadExecutor());
+      timeLimiter.callWithTimeout(
+          new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+              doExport(spanDataList);
+              return null;
+            }
+          },
+          deadline.toMillis(),
+          TimeUnit.MILLISECONDS);
+    } catch (TimeoutException e) {
+      handleException(getMessageOrDefault(e), "Timeout when exporting traces to Jaeger: " + e);
+    } catch (InterruptedException e) {
+      handleException(getMessageOrDefault(e), "Interrupted when exporting traces to Jaeger: " + e);
+    } catch (Exception e) {
+      handleException(getMessageOrDefault(e), "Failed to export traces to Jaeger: " + e);
     } finally {
       exportScope.close();
     }
+  }
+
+  private static void handleException(String description, String logMessage) {
+    tracer
+        .getCurrentSpan() // exportScope above.
+        .setStatus(Status.UNKNOWN.withDescription(description));
+    logger.log(Level.WARNING, logMessage);
   }
 
   @MustBeClosed
@@ -186,7 +213,7 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
     sender.send(process, spans);
   }
 
-  private static String getMessageOrDefault(final SenderException e) {
+  private static String getMessageOrDefault(final Exception e) {
     return e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
   }
 

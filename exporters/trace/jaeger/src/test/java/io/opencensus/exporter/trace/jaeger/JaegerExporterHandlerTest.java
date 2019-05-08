@@ -17,6 +17,7 @@
 package io.opencensus.exporter.trace.jaeger;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.trace.jaeger.JaegerExporterConfiguration.DEFAULT_DEADLINE;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mockito.Matchers.eq;
@@ -60,7 +61,8 @@ public class JaegerExporterHandlerTest {
 
   private final HttpSender mockSender = mock(HttpSender.class);
   private final Process process = new Process("test");
-  private final JaegerExporterHandler handler = new JaegerExporterHandler(mockSender, process);
+  private final JaegerExporterHandler handler =
+      new JaegerExporterHandler(mockSender, process, DEFAULT_DEADLINE);
 
   @Captor private ArgumentCaptor<List<Span>> captor;
 
