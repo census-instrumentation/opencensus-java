@@ -9,6 +9,7 @@ Monitoring client to make RPCs.
 with default value 10 seconds.
 - Use `ZipkinExporterConfiguration` for creating `ZipkinTraceExporter`. Provide a `Deadline` option
 with default value 10 seconds.
+- Provide a `Deadline` option to Datadog and Elasticsearch exporter. Default value is 10 seconds.
 
 ## 0.21.0 - 2019-04-30
 - Add HTTP text format serializer to Tag propagation component.

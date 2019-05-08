@@ -17,6 +17,7 @@
 package io.opencensus.exporter.trace.datadog;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.trace.datadog.DatadogTraceConfiguration.DEFAULT_DEADLINE;
 
 import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Timestamp;
@@ -56,7 +57,8 @@ public class DatadogExporterHandlerTest {
 
   @Before
   public void setup() throws Exception {
-    this.handler = new DatadogExporterHandler("http://localhost", "service", "web");
+    this.handler =
+        new DatadogExporterHandler("http://localhost", "service", "web", DEFAULT_DEADLINE);
   }
 
   @Test
