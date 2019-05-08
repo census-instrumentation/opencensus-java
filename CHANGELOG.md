@@ -5,6 +5,8 @@ break behaviors for applications that rely on this to be always enabled.
 - Provide a `Deadline` option to Stackdriver Stats exporter. Default value is 10 seconds.
 Also provide a `MetricServiceStub` option so that advanced users can use a custom Stackdriver
 Monitoring client to make RPCs.
+- Use `JaegerExporterConfiguration` for creating `JaegerTraceExporter`. Provide a `Deadline` option
+with default value 10 seconds.
 
 ## 0.21.0 - 2019-04-30
 - Add HTTP text format serializer to Tag propagation component.
