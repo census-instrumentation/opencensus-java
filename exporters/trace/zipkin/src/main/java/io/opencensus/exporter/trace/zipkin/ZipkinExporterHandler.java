@@ -19,6 +19,9 @@ package io.opencensus.exporter.trace.zipkin;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import com.google.common.util.concurrent.SimpleTimeLimiter;
+import com.google.common.util.concurrent.TimeLimiter;
+import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Scope;
@@ -43,6 +46,10 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import zipkin2.Endpoint;
@@ -64,11 +71,14 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
   private final SpanBytesEncoder encoder;
   private final Sender sender;
   private final Endpoint localEndpoint;
+  private final Duration deadline;
 
-  ZipkinExporterHandler(SpanBytesEncoder encoder, Sender sender, String serviceName) {
+  ZipkinExporterHandler(
+      SpanBytesEncoder encoder, Sender sender, String serviceName, Duration deadline) {
     this.encoder = encoder;
     this.sender = sender;
     this.localEndpoint = produceLocalEndpoint(serviceName);
+    this.deadline = deadline;
   }
 
   /** Logic borrowed from brave.internal.Platform.produceLocalEndpoint */
@@ -187,29 +197,49 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
   }
 
   @Override
-  public void export(Collection<SpanData> spanDataList) {
+  public void export(final Collection<SpanData> spanDataList) {
     // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
     // sets the default sampler to always sample and we get the gRPC span of the zipkin
     // export call always sampled and go to an infinite loop.
     Scope scope =
         tracer.spanBuilder("SendZipkinSpans").setSampler(probabilitySampler).startScopedSpan();
     try {
-      List<byte[]> encodedSpans = new ArrayList<byte[]>(spanDataList.size());
-      for (SpanData spanData : spanDataList) {
-        encodedSpans.add(encoder.encode(generateSpan(spanData, localEndpoint)));
-      }
-      try {
-        sender.sendSpans(encodedSpans).execute();
-      } catch (IOException e) {
-        tracer
-            .getCurrentSpan()
-            .setStatus(
-                Status.UNKNOWN.withDescription(
-                    e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
-        throw new RuntimeException(e); // TODO: should we instead do drop metrics?
-      }
+      TimeLimiter timeLimiter = SimpleTimeLimiter.create(Executors.newSingleThreadExecutor());
+      timeLimiter.callWithTimeout(
+          new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+              doExport(spanDataList);
+              return null;
+            }
+          },
+          deadline.toMillis(),
+          TimeUnit.MILLISECONDS);
+    } catch (TimeoutException e) {
+      handleException(getMessageOrDefault(e), "Timeout when exporting traces to Zipkin: " + e);
+    } catch (InterruptedException e) {
+      handleException(getMessageOrDefault(e), "Interrupted when exporting traces to Zipkin: " + e);
+    } catch (Exception e) {
+      handleException(getMessageOrDefault(e), "Failed to export traces to Zipkin: " + e);
     } finally {
       scope.close();
     }
+  }
+
+  private void doExport(Collection<SpanData> spanDataList) throws IOException {
+    List<byte[]> encodedSpans = new ArrayList<byte[]>(spanDataList.size());
+    for (SpanData spanData : spanDataList) {
+      encodedSpans.add(encoder.encode(generateSpan(spanData, localEndpoint)));
+    }
+    sender.sendSpans(encodedSpans).execute();
+  }
+
+  private static void handleException(String description, String logMessage) {
+    tracer.getCurrentSpan().setStatus(Status.UNKNOWN.withDescription(description));
+    logger.log(Level.WARNING, logMessage);
+  }
+
+  private static String getMessageOrDefault(final Exception e) {
+    return e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
   }
 }

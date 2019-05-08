@@ -7,6 +7,8 @@ Also provide a `MetricServiceStub` option so that advanced users can use a custo
 Monitoring client to make RPCs.
 - Use `JaegerExporterConfiguration` for creating `JaegerTraceExporter`. Provide a `Deadline` option
 with default value 10 seconds.
+- Use `ZipkinExporterConfiguration` for creating `ZipkinTraceExporter`. Provide a `Deadline` option
+with default value 10 seconds.
 
 ## 0.21.0 - 2019-04-30
 - Add HTTP text format serializer to Tag propagation component.
