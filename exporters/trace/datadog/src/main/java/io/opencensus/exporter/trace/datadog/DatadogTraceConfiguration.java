@@ -17,6 +17,9 @@
 package io.opencensus.exporter.trace.datadog;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import io.opencensus.common.Duration;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -27,6 +30,9 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue
 @Immutable
 public abstract class DatadogTraceConfiguration {
+
+  @VisibleForTesting static final Duration DEFAULT_DEADLINE = Duration.create(10, 0);
+  @VisibleForTesting static final Duration ZERO = Duration.fromMillis(0);
 
   DatadogTraceConfiguration() {}
 
@@ -55,13 +61,23 @@ public abstract class DatadogTraceConfiguration {
   public abstract String getType();
 
   /**
+   * Returns the deadline for exporting to Datadog.
+   *
+   * <p>Default value is 10 seconds.
+   *
+   * @return the export deadline.
+   * @since 0.22
+   */
+  public abstract Duration getDeadline();
+
+  /**
    * Return a new {@link Builder}.
    *
    * @return a {@code Builder}
    * @since 0.19
    */
   public static Builder builder() {
-    return new AutoValue_DatadogTraceConfiguration.Builder();
+    return new AutoValue_DatadogTraceConfiguration.Builder().setDeadline(DEFAULT_DEADLINE);
   }
 
   /**
@@ -101,6 +117,28 @@ public abstract class DatadogTraceConfiguration {
      */
     public abstract Builder setType(String type);
 
-    public abstract DatadogTraceConfiguration build();
+    /**
+     * Sets the deadline for exporting to Datadog.
+     *
+     * @param deadline the export deadline.
+     * @return this
+     * @since 0.22
+     */
+    public abstract Builder setDeadline(Duration deadline);
+
+    abstract Duration getDeadline();
+
+    abstract DatadogTraceConfiguration autoBuild();
+
+    /**
+     * Builds a {@link DatadogTraceConfiguration}.
+     *
+     * @return a {@code DatadogTraceConfiguration}.
+     * @since 0.22
+     */
+    public DatadogTraceConfiguration build() {
+      Preconditions.checkArgument(getDeadline().compareTo(ZERO) > 0, "Deadline must be positive.");
+      return autoBuild();
+    }
   }
 }

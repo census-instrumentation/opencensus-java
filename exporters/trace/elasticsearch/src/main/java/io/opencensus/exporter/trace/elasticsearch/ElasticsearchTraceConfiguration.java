@@ -17,8 +17,10 @@
 package io.opencensus.exporter.trace.elasticsearch;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import io.opencensus.common.Duration;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -31,6 +33,9 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class ElasticsearchTraceConfiguration {
 
+  @VisibleForTesting static final Duration DEFAULT_DEADLINE = Duration.create(10, 0);
+  @VisibleForTesting static final Duration ZERO = Duration.fromMillis(0);
+
   /**
    * Returns a new {@link Builder}.
    *
@@ -38,7 +43,7 @@ public abstract class ElasticsearchTraceConfiguration {
    * @since 0.20.0
    */
   public static Builder builder() {
-    return new AutoValue_ElasticsearchTraceConfiguration.Builder();
+    return new AutoValue_ElasticsearchTraceConfiguration.Builder().setDeadline(DEFAULT_DEADLINE);
   }
 
   /**
@@ -90,6 +95,16 @@ public abstract class ElasticsearchTraceConfiguration {
    * @since 0.20.0
    */
   public abstract String getElasticsearchType();
+
+  /**
+   * Returns the deadline for exporting to Elasticsearch.
+   *
+   * <p>Default value is 10 seconds.
+   *
+   * @return the export deadline.
+   * @since 0.22
+   */
+  public abstract Duration getDeadline();
 
   /**
    * Builds a {@link ElasticsearchTraceConfiguration}.
@@ -158,6 +173,15 @@ public abstract class ElasticsearchTraceConfiguration {
     public abstract Builder setElasticsearchType(String elasticsearchType);
 
     /**
+     * Sets the deadline for exporting to Elasticsearch.
+     *
+     * @param deadline the export deadline.
+     * @return this
+     * @since 0.22
+     */
+    public abstract Builder setDeadline(Duration deadline);
+
+    /**
      * Builder for {@link ElasticsearchTraceConfiguration}.
      *
      * @return a {@code ElasticsearchTraceConfiguration}.
@@ -174,6 +198,9 @@ public abstract class ElasticsearchTraceConfiguration {
       Preconditions.checkArgument(
           !Strings.isNullOrEmpty(elasticsearchTraceConfiguration.getElasticsearchIndex()),
           "Invalid Elasticsearch type.");
+      Preconditions.checkArgument(
+          elasticsearchTraceConfiguration.getDeadline().compareTo(ZERO) > 0,
+          "Deadline must be positive.");
       return elasticsearchTraceConfiguration;
     }
   }
