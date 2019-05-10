@@ -42,7 +42,7 @@ import java.util.logging.Logger;
 /**
  * An abstract class that allows different tracing services to export recorded data for sampled
  * spans in their own format within a given time frame. If export does not complete within the time
- * framework, spans will be dropped.
+ * frame, spans will be dropped and no retries will be performed.
  *
  * <p>Only extend this class if the client APIs don't support timeout natively. If there is a
  * timeout option in the client APIs (for example Stackdriver Trace V2 API allows you to set
