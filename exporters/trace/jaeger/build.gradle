@@ -9,6 +9,7 @@ dependencies {
     compileOnly libraries.auto_value
 
     compile project(':opencensus-api'),
+            project(':opencensus-exporter-trace-util'),
             libraries.guava
 
     compile(libraries.jaeger_reporter) {

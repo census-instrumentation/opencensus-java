@@ -19,25 +19,18 @@ package io.opencensus.exporter.trace.zipkin;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import com.google.common.util.concurrent.SimpleTimeLimiter;
-import com.google.common.util.concurrent.TimeLimiter;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
+import io.opencensus.exporter.trace.util.TimeLimitedHandler;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.Status;
-import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanData.TimedEvent;
-import io.opencensus.trace.export.SpanExporter;
-import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -46,10 +39,6 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import zipkin2.Endpoint;
@@ -61,24 +50,21 @@ import zipkin2.reporter.Sender;
 import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
-final class ZipkinExporterHandler extends SpanExporter.Handler {
-  private static final Tracer tracer = Tracing.getTracer();
-  private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
+final class ZipkinExporterHandler extends TimeLimitedHandler {
   private static final Logger logger = Logger.getLogger(ZipkinExporterHandler.class.getName());
-
+  private static final String EXPORT_SPAN_NAME = "SendZipkinSpans";
   private static final String STATUS_CODE = "census.status_code";
   private static final String STATUS_DESCRIPTION = "census.status_description";
   private final SpanBytesEncoder encoder;
   private final Sender sender;
   private final Endpoint localEndpoint;
-  private final Duration deadline;
 
   ZipkinExporterHandler(
       SpanBytesEncoder encoder, Sender sender, String serviceName, Duration deadline) {
+    super(deadline, EXPORT_SPAN_NAME);
     this.encoder = encoder;
     this.sender = sender;
     this.localEndpoint = produceLocalEndpoint(serviceName);
-    this.deadline = deadline;
   }
 
   /** Logic borrowed from brave.internal.Platform.produceLocalEndpoint */
@@ -197,49 +183,11 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
   }
 
   @Override
-  public void export(final Collection<SpanData> spanDataList) {
-    // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
-    // sets the default sampler to always sample and we get the gRPC span of the zipkin
-    // export call always sampled and go to an infinite loop.
-    Scope scope =
-        tracer.spanBuilder("SendZipkinSpans").setSampler(probabilitySampler).startScopedSpan();
-    try {
-      TimeLimiter timeLimiter = SimpleTimeLimiter.create(Executors.newSingleThreadExecutor());
-      timeLimiter.callWithTimeout(
-          new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-              doExport(spanDataList);
-              return null;
-            }
-          },
-          deadline.toMillis(),
-          TimeUnit.MILLISECONDS);
-    } catch (TimeoutException e) {
-      handleException(getMessageOrDefault(e), "Timeout when exporting traces to Zipkin: " + e);
-    } catch (InterruptedException e) {
-      handleException(getMessageOrDefault(e), "Interrupted when exporting traces to Zipkin: " + e);
-    } catch (Exception e) {
-      handleException(getMessageOrDefault(e), "Failed to export traces to Zipkin: " + e);
-    } finally {
-      scope.close();
-    }
-  }
-
-  private void doExport(Collection<SpanData> spanDataList) throws IOException {
+  public void timeLimitedExport(final Collection<SpanData> spanDataList) throws IOException {
     List<byte[]> encodedSpans = new ArrayList<byte[]>(spanDataList.size());
     for (SpanData spanData : spanDataList) {
       encodedSpans.add(encoder.encode(generateSpan(spanData, localEndpoint)));
     }
     sender.sendSpans(encodedSpans).execute();
-  }
-
-  private static void handleException(String description, String logMessage) {
-    tracer.getCurrentSpan().setStatus(Status.UNKNOWN.withDescription(description));
-    logger.log(Level.WARNING, logMessage);
-  }
-
-  private static String getMessageOrDefault(final Exception e) {
-    return e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
   }
 }

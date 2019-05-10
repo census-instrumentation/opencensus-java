@@ -224,6 +224,7 @@ General guidelines on imports:
     </subpackage>
     <subpackage name="trace">
       <allow pkg="io.opencensus.trace"/>
+      <allow pkg="io.opencensus.exporter.trace.util"/>
       <subpackage name="instana">
         <allow pkg="io.opencensus.exporter.trace.instana"/>
       </subpackage>

@@ -16,26 +16,19 @@
 
 package io.opencensus.exporter.trace.datadog;
 
-import com.google.common.util.concurrent.SimpleTimeLimiter;
-import com.google.common.util.concurrent.TimeLimiter;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Functions;
-import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
+import io.opencensus.exporter.trace.util.TimeLimitedHandler;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Sampler;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
-import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanData;
-import io.opencensus.trace.export.SpanExporter;
-import io.opencensus.trace.samplers.Samplers;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -47,10 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
@@ -59,10 +49,9 @@ import javax.annotation.Nullable;
   "AndroidJdkLibsChecker",
   "Java7ApiChecker"
 })
-final class DatadogExporterHandler extends SpanExporter.Handler {
+final class DatadogExporterHandler extends TimeLimitedHandler {
 
-  private static final Tracer tracer = Tracing.getTracer();
-  private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
+  private static final String EXPORT_SPAN_NAME = "ExportDatadogTraces";
   private static final Gson gson =
       new GsonBuilder()
           .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -71,14 +60,13 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
   private final URL agentEndpoint;
   private final String service;
   private final String type;
-  private final Duration deadline;
 
   DatadogExporterHandler(String agentEndpoint, String service, String type, Duration deadline)
       throws MalformedURLException {
+    super(deadline, EXPORT_SPAN_NAME);
     this.agentEndpoint = new URL(agentEndpoint);
     this.service = service;
     this.type = type;
-    this.deadline = deadline;
   }
 
   private static String attributeValueToString(AttributeValue attributeValue) {
@@ -171,32 +159,7 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
   }
 
   @Override
-  public void export(final Collection<SpanData> spanDataList) {
-    // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
-    // sets the default sampler to always sample and we get the gRPC span of the datadog
-    // export call always sampled and go to an infinite loop.
-    try (Scope ss =
-        tracer
-            .spanBuilder("ExportDatadogTraces")
-            .setSampler(probabilitySpampler)
-            .startScopedSpan()) {
-      TimeLimiter timeLimiter = SimpleTimeLimiter.create(Executors.newSingleThreadExecutor());
-      timeLimiter.callWithTimeout(
-          new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-              doExport(spanDataList);
-              return null;
-            }
-          },
-          deadline.toMillis(),
-          TimeUnit.MILLISECONDS);
-    } catch (Exception e) {
-      handleException(e);
-    }
-  }
-
-  private void doExport(Collection<SpanData> spanDataList) throws IOException {
+  public void timeLimitedExport(Collection<SpanData> spanDataList) throws Exception {
     final String data = convertToJson(spanDataList);
 
     final HttpURLConnection connection = (HttpURLConnection) agentEndpoint.openConnection();
@@ -208,16 +171,7 @@ final class DatadogExporterHandler extends SpanExporter.Handler {
     outputStream.flush();
     outputStream.close();
     if (connection.getResponseCode() != 200) {
-      handleException(new Exception("Response " + connection.getResponseCode()));
+      throw new Exception("Response " + connection.getResponseCode());
     }
-  }
-
-  private static void handleException(Exception e) {
-    Status status = e instanceof TimeoutException ? Status.DEADLINE_EXCEEDED : Status.UNKNOWN;
-    tracer
-        .getCurrentSpan()
-        .setStatus(
-            status.withDescription(
-                e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
   }
 }
