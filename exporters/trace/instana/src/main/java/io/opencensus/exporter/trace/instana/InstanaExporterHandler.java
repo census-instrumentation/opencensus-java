@@ -23,20 +23,16 @@ import com.google.common.io.BaseEncoding;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
+import io.opencensus.exporter.trace.util.TimeLimitedHandler;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.TraceId;
-import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanData;
-import io.opencensus.trace.export.SpanExporter;
-import io.opencensus.trace.samplers.Samplers;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -63,13 +59,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * Major TODO is the limitation of Instana to only suport 64bit trace ids, which will be resolved.
  * Until then it is crossing fingers and treating it as 50% sampler :).
  */
-final class InstanaExporterHandler extends SpanExporter.Handler {
+final class InstanaExporterHandler extends TimeLimitedHandler {
 
-  private static final Tracer tracer = Tracing.getTracer();
-  private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
+  private static final String EXPORT_SPAN_NAME = "ExportInstanaTraces";
   private final URL agentEndpoint;
 
-  InstanaExporterHandler(URL agentEndpoint) {
+  InstanaExporterHandler(URL agentEndpoint, Duration deadline) {
+    super(deadline, EXPORT_SPAN_NAME);
     this.agentEndpoint = agentEndpoint;
   }
 
@@ -180,56 +176,36 @@ final class InstanaExporterHandler extends SpanExporter.Handler {
   }
 
   @Override
-  public void export(Collection<SpanData> spanDataList) {
-    // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
-    // sets the default sampler to always sample and we get the gRPC span of the instana
-    // export call always sampled and go to an infinite loop.
-    Scope scope =
-        tracer.spanBuilder("ExportInstanaTraces").setSampler(probabilitySpampler).startScopedSpan();
-    try {
-      String json = convertToJson(spanDataList);
+  public void timeLimitedExport(Collection<SpanData> spanDataList) throws Exception {
+    String json = convertToJson(spanDataList);
 
-      OutputStream outputStream = null;
-      InputStream inputStream = null;
-      try {
-        HttpURLConnection connection = (HttpURLConnection) agentEndpoint.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-        outputStream = connection.getOutputStream();
-        outputStream.write(json.getBytes(Charset.defaultCharset()));
-        outputStream.flush();
-        inputStream = connection.getInputStream();
-        if (connection.getResponseCode() != 200) {
-          tracer
-              .getCurrentSpan()
-              .setStatus(
-                  Status.UNKNOWN.withDescription("Response " + connection.getResponseCode()));
-        }
-      } catch (IOException e) {
-        tracer
-            .getCurrentSpan()
-            .setStatus(
-                Status.UNKNOWN.withDescription(
-                    e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
-        // dropping span batch
-      } finally {
-        if (inputStream != null) {
-          try {
-            inputStream.close();
-          } catch (IOException e) {
-            // ignore
-          }
-        }
-        if (outputStream != null) {
-          try {
-            outputStream.close();
-          } catch (IOException e) {
-            // ignore
-          }
-        }
+    OutputStream outputStream = null;
+    InputStream inputStream = null;
+    try {
+      HttpURLConnection connection = (HttpURLConnection) agentEndpoint.openConnection();
+      connection.setRequestMethod("POST");
+      connection.setDoOutput(true);
+      outputStream = connection.getOutputStream();
+      outputStream.write(json.getBytes(Charset.defaultCharset()));
+      outputStream.flush();
+      inputStream = connection.getInputStream();
+      if (connection.getResponseCode() != 200) {
+        throw new Exception("Response " + connection.getResponseCode());
       }
     } finally {
-      scope.close();
+      closeStream(inputStream);
+      closeStream(outputStream);
+    }
+  }
+
+  // Closes an input or output stream and ignores potential IOException.
+  private static void closeStream(@javax.annotation.Nullable Closeable stream) {
+    if (stream != null) {
+      try {
+        stream.close();
+      } catch (IOException e) {
+        // ignore
+      }
     }
   }
 }

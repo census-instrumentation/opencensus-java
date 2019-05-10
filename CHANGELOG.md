@@ -5,10 +5,8 @@ break behaviors for applications that rely on this to be always enabled.
 - Provide a `Deadline` option to Stackdriver Stats exporter. Default value is 10 seconds.
 Also provide a `MetricServiceStub` option so that advanced users can use a custom Stackdriver
 Monitoring client to make RPCs.
-- Use `JaegerExporterConfiguration` for creating `JaegerTraceExporter`. Provide a `Deadline` option
-with default value 10 seconds.
-- Use `ZipkinExporterConfiguration` for creating `ZipkinTraceExporter`. Provide a `Deadline` option
-with default value 10 seconds.
+- Use `Configuration` builder pattern for creating `JaegerTraceExporter`, `ZipkinTraceExporter` and
+`InstanaTraceExporter`. Provide a `Deadline` option with default value 10 seconds.
 - Provide a `Deadline` option to Datadog and Elasticsearch exporter. Default value is 10 seconds.
 - Extract the common timeout logic of Trace exporters to `opencensus-exporter-trace-util`.
 

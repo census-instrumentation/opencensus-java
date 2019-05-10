@@ -34,7 +34,9 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * <pre>{@code
  * public static void main(String[] args) {
- *   InstanaTraceExporter.createAndRegister("http://localhost:42699/com.instana.plugin.generic.trace");
+ *   String agentEndpoint = "http://localhost:42699/com.instana.plugin.generic.trace";
+ *   InstanaTraceExporter.createAndRegister(
+ *     InstanaExporterConfiguration.builder().setAgentEndpoint(agentEndpoint).build());
  *   ... // Do work.
  * }
  * }</pre>
@@ -56,18 +58,37 @@ public final class InstanaTraceExporter {
    * Creates and registers the Instana Trace exporter to the OpenCensus library. Only one Instana
    * exporter can be registered at any point.
    *
+   * @param configuration Configuration for InstanaTraceExporter.
+   * @throws MalformedURLException if the agentEndpoint is not a valid http url.
+   * @throws IllegalStateException if a Instana exporter is already registered.
+   * @since 0.22
+   */
+  public static void createAndRegister(InstanaExporterConfiguration configuration)
+      throws MalformedURLException {
+    synchronized (monitor) {
+      checkState(handler == null, "Instana exporter is already registered.");
+      Handler newHandler =
+          new InstanaExporterHandler(
+              new URL(configuration.getAgentEndpoint()), configuration.getDeadline());
+      handler = newHandler;
+      register(Tracing.getExportComponent().getSpanExporter(), newHandler);
+    }
+  }
+
+  /**
+   * Creates and registers the Instana Trace exporter to the OpenCensus library. Only one Instana
+   * exporter can be registered at any point.
+   *
    * @param agentEndpoint Ex http://localhost:42699/com.instana.plugin.generic.trace
    * @throws MalformedURLException if the agentEndpoint is not a valid http url.
    * @throws IllegalStateException if a Instana exporter is already registered.
    * @since 0.12
+   * @deprecated in favor of {@link #createAndRegister(InstanaExporterConfiguration)}.
    */
+  @Deprecated
   public static void createAndRegister(String agentEndpoint) throws MalformedURLException {
-    synchronized (monitor) {
-      checkState(handler == null, "Instana exporter is already registered.");
-      Handler newHandler = new InstanaExporterHandler(new URL(agentEndpoint));
-      handler = newHandler;
-      register(Tracing.getExportComponent().getSpanExporter(), newHandler);
-    }
+    createAndRegister(
+        InstanaExporterConfiguration.builder().setAgentEndpoint(agentEndpoint).build());
   }
 
   /**
