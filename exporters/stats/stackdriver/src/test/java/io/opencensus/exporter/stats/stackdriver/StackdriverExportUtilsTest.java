@@ -844,7 +844,6 @@ public class StackdriverExportUtilsTest {
     Map<String, String> expectedResourceLabels = new HashMap<String, String>();
     expectedResourceLabels.put("project_id", "proj1");
     expectedResourceLabels.put("location", "zone1");
-    expectedResourceLabels.put("instance_id", "instance1");
     expectedResourceLabels.put("cluster_name", "cluster1");
     expectedResourceLabels.put("namespace_name", "namespace1");
     expectedResourceLabels.put("pod_name", "pod1");
@@ -856,7 +855,7 @@ public class StackdriverExportUtilsTest {
     assertThat(monitoredResourceBuilder.getType()).isNotNull();
     assertThat(monitoredResourceBuilder.getLabelsMap()).isNotEmpty();
     assertThat(monitoredResourceBuilder.getType()).isEqualTo("k8s_container");
-    assertThat(monitoredResourceBuilder.getLabelsMap().size()).isEqualTo(7);
+    assertThat(monitoredResourceBuilder.getLabelsMap().size()).isEqualTo(6);
     assertThat(monitoredResourceBuilder.getLabelsMap())
         .containsExactlyEntriesIn(expectedResourceLabels);
   }
