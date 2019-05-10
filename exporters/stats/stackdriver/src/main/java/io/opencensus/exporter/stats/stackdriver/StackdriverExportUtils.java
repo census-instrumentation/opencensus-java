@@ -683,7 +683,6 @@ final class StackdriverExportUtils {
     Map<String, String> resourceLabels = new LinkedHashMap<String, String>();
     resourceLabels.put("project_id", STACKDRIVER_PROJECT_ID_KEY);
     resourceLabels.put("location", CloudResource.ZONE_KEY);
-    resourceLabels.put("instance_id", HostResource.ID_KEY);
     resourceLabels.put("cluster_name", K8sResource.CLUSTER_NAME_KEY);
     resourceLabels.put("namespace_name", K8sResource.NAMESPACE_NAME_KEY);
     resourceLabels.put("pod_name", K8sResource.POD_NAME_KEY);
