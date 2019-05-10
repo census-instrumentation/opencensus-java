@@ -73,9 +73,10 @@ public abstract class TimeLimitedHandler extends SpanExporter.Handler {
    * TimeLimitedHandler}.
    *
    * @param spanDataList a list of {@code SpanData} objects to be exported.
+   * @throws Exception throws exception when failed to export.
    * @since 0.22
    */
-  public abstract void timeLimitedExport(Collection<SpanData> spanDataList);
+  public abstract void timeLimitedExport(Collection<SpanData> spanDataList) throws Exception;
 
   @Override
   public void export(final Collection<SpanData> spanDataList) {

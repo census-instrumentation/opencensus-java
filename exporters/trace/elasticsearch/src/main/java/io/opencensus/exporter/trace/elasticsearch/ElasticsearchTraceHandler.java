@@ -17,17 +17,9 @@
 package io.opencensus.exporter.trace.elasticsearch;
 
 import com.google.common.io.BaseEncoding;
-import com.google.common.util.concurrent.SimpleTimeLimiter;
-import com.google.common.util.concurrent.TimeLimiter;
-import io.opencensus.common.Duration;
-import io.opencensus.common.Scope;
-import io.opencensus.trace.Sampler;
-import io.opencensus.trace.Status;
-import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
+import io.opencensus.exporter.trace.util.TimeLimitedHandler;
 import io.opencensus.trace.export.SpanData;
-import io.opencensus.trace.export.SpanExporter;
-import io.opencensus.trace.samplers.Samplers;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,26 +29,21 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import javax.annotation.Nullable;
 
-final class ElasticsearchTraceHandler extends SpanExporter.Handler {
+final class ElasticsearchTraceHandler extends TimeLimitedHandler {
 
   private final ElasticsearchTraceConfiguration elasticsearchTraceConfiguration;
   private final String appName;
   private final URL indexUrl;
-  private final Duration deadline;
   private static final String CONTENT_TYPE = "application/json";
   private static final String REQUEST_METHOD = "POST";
   private static final int CONNECTION_TIMEOUT_MILLISECONDS = 6000;
-  private static final Tracer tracer = Tracing.getTracer();
-  private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
+  private static final String EXPORT_SPAN_NAME = "ExportElasticsearchTraces";
 
   ElasticsearchTraceHandler(ElasticsearchTraceConfiguration elasticsearchTraceConfiguration)
       throws MalformedURLException {
-
+    super(elasticsearchTraceConfiguration.getDeadline(), EXPORT_SPAN_NAME);
     this.elasticsearchTraceConfiguration = elasticsearchTraceConfiguration;
     StringBuilder sb = new StringBuilder();
     sb.append(elasticsearchTraceConfiguration.getElasticsearchUrl()).append("/");
@@ -64,7 +51,6 @@ final class ElasticsearchTraceHandler extends SpanExporter.Handler {
     sb.append(elasticsearchTraceConfiguration.getElasticsearchType()).append("/");
     indexUrl = new URL(sb.toString());
     appName = elasticsearchTraceConfiguration.getAppName();
-    deadline = elasticsearchTraceConfiguration.getDeadline();
   }
 
   /**
@@ -73,33 +59,7 @@ final class ElasticsearchTraceHandler extends SpanExporter.Handler {
    * @param spanDataList Collection of {@code SpanData} to be exported.
    */
   @Override
-  public void export(final Collection<SpanData> spanDataList) {
-    Scope scope =
-        tracer
-            .spanBuilder("ExportElasticsearchTraces")
-            .setSampler(probabilitySampler)
-            .setRecordEvents(true)
-            .startScopedSpan();
-    try {
-      TimeLimiter timeLimiter = SimpleTimeLimiter.create(Executors.newSingleThreadExecutor());
-      timeLimiter.callWithTimeout(
-          new Callable<Void>() {
-            @Override
-            public Void call() {
-              doExport(spanDataList);
-              return null;
-            }
-          },
-          deadline.toMillis(),
-          TimeUnit.MILLISECONDS);
-    } catch (Exception e) {
-      handleException(e);
-    } finally {
-      scope.close();
-    }
-  }
-
-  private void doExport(Collection<SpanData> spanDataList) {
+  public void timeLimitedExport(Collection<SpanData> spanDataList) throws Exception {
     List<String> jsonList = JsonConversionUtils.convertToJson(appName, spanDataList);
     if (jsonList.isEmpty()) {
       return;
@@ -130,36 +90,23 @@ final class ElasticsearchTraceHandler extends SpanExporter.Handler {
         outputStream.flush();
         inputStream = connection.getInputStream();
         if (connection.getResponseCode() != 200) {
-          handleException(new Exception("Response " + connection.getResponseCode()));
+          throw new Exception("Response " + connection.getResponseCode());
         }
-      } catch (IOException e) {
-        handleException(e);
-        // dropping span batch
       } finally {
-        if (inputStream != null) {
-          try {
-            inputStream.close();
-          } catch (IOException e) {
-            // ignore
-          }
-        }
-        if (outputStream != null) {
-          try {
-            outputStream.close();
-          } catch (IOException e) {
-            // ignore
-          }
-        }
+        closeStream(inputStream);
+        closeStream(outputStream);
       }
     }
   }
 
-  private static void handleException(Exception e) {
-    Status status = e instanceof TimeoutException ? Status.DEADLINE_EXCEEDED : Status.UNKNOWN;
-    tracer
-        .getCurrentSpan()
-        .setStatus(
-            status.withDescription(
-                e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+  // Closes an input or output stream and ignores potential IOException.
+  private static void closeStream(@Nullable Closeable stream) {
+    if (stream != null) {
+      try {
+        stream.close();
+      } catch (IOException e) {
+        // ignore
+      }
+    }
   }
 }

@@ -9,6 +9,7 @@ dependencies {
     compileOnly libraries.findbugs_annotations
 
     compile project(':opencensus-api'),
+        project(':opencensus-exporter-trace-util'),
         libraries.guava,
         libraries.gson, 
         libraries.auto_value

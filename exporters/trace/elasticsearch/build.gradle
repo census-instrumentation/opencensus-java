@@ -11,6 +11,7 @@ dependencies {
     compileOnly libraries.auto_value
 
     compile project(':opencensus-api'),
+            project(':opencensus-exporter-trace-util'),
             libraries.guava
 
     testCompile project(':opencensus-api')
