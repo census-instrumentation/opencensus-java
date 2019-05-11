@@ -63,7 +63,8 @@ public class OcAgentTraceExporterIntegrationTest {
   @Before
   public void setUp() throws IOException {
     fakeOcAgentTraceServiceGrpc = new FakeOcAgentTraceServiceGrpcImpl();
-    agent = getServer(OcAgentTraceExporterHandler.DEFAULT_END_POINT, fakeOcAgentTraceServiceGrpc);
+    agent =
+        getServer(OcAgentTraceExporterConfiguration.DEFAULT_END_POINT, fakeOcAgentTraceServiceGrpc);
   }
 
   @After

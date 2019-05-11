@@ -34,12 +34,16 @@ public class OcAgentMetricsExporterConfigurationTest {
   public void defaultConfiguration() {
     OcAgentMetricsExporterConfiguration configuration =
         OcAgentMetricsExporterConfiguration.builder().build();
-    assertThat(configuration.getEndPoint()).isNull();
-    assertThat(configuration.getServiceName()).isNull();
+    assertThat(configuration.getEndPoint())
+        .isEqualTo(OcAgentMetricsExporterConfiguration.DEFAULT_END_POINT);
+    assertThat(configuration.getServiceName())
+        .isEqualTo(OcAgentMetricsExporterConfiguration.DEFAULT_SERVICE_NAME);
     assertThat(configuration.getUseInsecure()).isTrue();
     assertThat(configuration.getSslContext()).isNull();
-    assertThat(configuration.getRetryInterval()).isNull();
-    assertThat(configuration.getExportInterval()).isNull();
+    assertThat(configuration.getRetryInterval())
+        .isEqualTo(OcAgentMetricsExporterConfiguration.DEFAULT_RETRY_INTERVAL);
+    assertThat(configuration.getExportInterval())
+        .isEqualTo(OcAgentMetricsExporterConfiguration.DEFAULT_EXPORT_INTERVAL);
   }
 
   @Test

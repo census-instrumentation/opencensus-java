@@ -17,6 +17,8 @@
 package io.opencensus.exporter.trace.ocagent;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
 import javax.annotation.Nullable;
@@ -31,6 +33,11 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class OcAgentTraceExporterConfiguration {
 
+  @VisibleForTesting static final String DEFAULT_END_POINT = "localhost:55678";
+  @VisibleForTesting static final String DEFAULT_SERVICE_NAME = "OpenCensus";
+  @VisibleForTesting static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0);
+  @VisibleForTesting static final Duration ZERO = Duration.create(0, 0);
+
   OcAgentTraceExporterConfiguration() {}
 
   /**
@@ -39,7 +46,6 @@ public abstract class OcAgentTraceExporterConfiguration {
    * @return the end point of OC-Agent.
    * @since 0.20
    */
-  @Nullable
   public abstract String getEndPoint();
 
   /**
@@ -48,7 +54,6 @@ public abstract class OcAgentTraceExporterConfiguration {
    * @return whether to disable client transport security for the exporter's gRPC connection or not.
    * @since 0.20
    */
-  @Nullable
   public abstract Boolean getUseInsecure();
 
   /**
@@ -66,7 +71,6 @@ public abstract class OcAgentTraceExporterConfiguration {
    * @return the service name.
    * @since 0.20
    */
-  @Nullable
   public abstract String getServiceName();
 
   /**
@@ -75,7 +79,6 @@ public abstract class OcAgentTraceExporterConfiguration {
    * @return the retry time interval.
    * @since 0.20
    */
-  @Nullable
   public abstract Duration getRetryInterval();
 
   /**
@@ -94,8 +97,11 @@ public abstract class OcAgentTraceExporterConfiguration {
    */
   public static Builder builder() {
     return new AutoValue_OcAgentTraceExporterConfiguration.Builder()
+        .setEndPoint(DEFAULT_END_POINT)
+        .setServiceName(DEFAULT_SERVICE_NAME)
         .setEnableConfig(true)
-        .setUseInsecure(true);
+        .setUseInsecure(true)
+        .setRetryInterval(DEFAULT_RETRY_INTERVAL);
   }
 
   /**
@@ -165,12 +171,20 @@ public abstract class OcAgentTraceExporterConfiguration {
 
     // TODO(songya): add an option that controls whether to always keep the RPC connection alive.
 
+    abstract Duration getRetryInterval();
+
+    abstract OcAgentTraceExporterConfiguration autoBuild();
+
     /**
      * Builds a {@link OcAgentTraceExporterConfiguration}.
      *
      * @return a {@code OcAgentTraceExporterConfiguration}.
      * @since 0.20
      */
-    public abstract OcAgentTraceExporterConfiguration build();
+    public OcAgentTraceExporterConfiguration build() {
+      Preconditions.checkArgument(
+          getRetryInterval().compareTo(ZERO) > 0, "Retry interval must be positive.");
+      return autoBuild();
+    }
   }
 }

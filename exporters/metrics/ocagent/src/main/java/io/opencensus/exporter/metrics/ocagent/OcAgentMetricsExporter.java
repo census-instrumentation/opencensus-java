@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
 import io.opencensus.metrics.Metrics;
@@ -46,12 +45,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class OcAgentMetricsExporter {
-
-  @VisibleForTesting static final String DEFAULT_END_POINT = "localhost:55678";
-  private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
-  private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
-  private static final Duration DEFAULT_EXPORT_INTERVAL = Duration.create(60, 0); // 1 minute
-  private static final Duration ZERO = Duration.create(0, 0);
 
   private static final Object monitor = new Object();
 
@@ -80,29 +73,14 @@ public final class OcAgentMetricsExporter {
   }
 
   private static void createInternal(
-      @Nullable String endPoint,
-      @Nullable Boolean useInsecure,
+      String endPoint,
+      boolean useInsecure,
       @Nullable SslContext sslContext,
-      @Nullable String serviceName,
-      @Nullable Duration exportInterval,
-      @Nullable Duration retryInterval) {
-    if (endPoint == null || endPoint.isEmpty()) {
-      endPoint = DEFAULT_END_POINT;
-    }
-    if (useInsecure == null) {
-      useInsecure = false;
-    }
+      String serviceName,
+      Duration exportInterval,
+      Duration retryInterval) {
     checkArgument(
         useInsecure == (sslContext == null), "Either use insecure or provide a valid SslContext.");
-    if (serviceName == null || serviceName.isEmpty()) {
-      serviceName = DEFAULT_SERVICE_NAME;
-    }
-    if (exportInterval == null) {
-      exportInterval = DEFAULT_EXPORT_INTERVAL;
-    }
-    if (retryInterval == null) {
-      retryInterval = DEFAULT_RETRY_INTERVAL;
-    }
     synchronized (monitor) {
       checkState(exporter == null, "OcAgent Metrics exporter is already created.");
       exporter =
@@ -126,8 +104,6 @@ public final class OcAgentMetricsExporter {
       Duration exportInterval,
       Duration retryInterval,
       MetricProducerManager metricProducerManager) {
-    checkArgument(exportInterval.compareTo(ZERO) > 0, "Duration must be positive");
-    checkArgument(retryInterval.compareTo(ZERO) > 0, "Duration must be positive");
     OcAgentMetricsExporterWorker worker =
         new OcAgentMetricsExporterWorker(
             endPoint,

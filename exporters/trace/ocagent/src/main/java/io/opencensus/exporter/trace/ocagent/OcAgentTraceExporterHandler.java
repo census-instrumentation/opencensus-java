@@ -16,7 +16,6 @@
 
 package io.opencensus.exporter.trace.ocagent;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.NegotiationType;
@@ -38,10 +37,6 @@ final class OcAgentTraceExporterHandler extends Handler {
   private static final Logger logger =
       Logger.getLogger(OcAgentTraceExporterHandler.class.getName());
 
-  @VisibleForTesting static final String DEFAULT_END_POINT = "localhost:55678";
-  private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
-  // private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
-
   private final String endPoint;
   private final Node node;
   private final Boolean useInsecure;
@@ -50,29 +45,13 @@ final class OcAgentTraceExporterHandler extends Handler {
   @javax.annotation.Nullable
   private OcAgentTraceServiceExportRpcHandler exportRpcHandler; // Thread-safe
 
-  OcAgentTraceExporterHandler() {
-    this(null, null, null, null, null, /* enableConfig= */ true);
-  }
-
   OcAgentTraceExporterHandler(
-      @Nullable String endPoint,
-      @Nullable String serviceName,
-      @Nullable Boolean useInsecure,
+      String endPoint,
+      String serviceName,
+      boolean useInsecure,
       @Nullable SslContext sslContext,
-      @Nullable Duration retryInterval,
+      Duration retryInterval,
       boolean enableConfig) {
-    if (endPoint == null) {
-      endPoint = DEFAULT_END_POINT;
-    }
-    if (serviceName == null) {
-      serviceName = DEFAULT_SERVICE_NAME;
-    }
-    if (useInsecure == null) {
-      useInsecure = false;
-    }
-    // if (retryInterval == null) {
-    //   retryInterval = DEFAULT_RETRY_INTERVAL;
-    // }
     this.endPoint = endPoint;
     this.node = OcAgentNodeUtils.getNodeInfo(serviceName);
     this.useInsecure = useInsecure;

@@ -59,11 +59,7 @@ public final class OcAgentTraceExporter {
    * @since 0.20
    */
   public static void createAndRegister() {
-    synchronized (monitor) {
-      checkState(handler == null, "OC-Agent exporter is already registered.");
-      OcAgentTraceExporterHandler newHandler = new OcAgentTraceExporterHandler();
-      registerInternal(newHandler);
-    }
+    createAndRegister(OcAgentTraceExporterConfiguration.builder().build());
   }
 
   /**
