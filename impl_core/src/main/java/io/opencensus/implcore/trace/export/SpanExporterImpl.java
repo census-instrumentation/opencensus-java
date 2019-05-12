@@ -38,6 +38,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.GuardedBy;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /** Implementation of the {@link SpanExporter}. */
 public final class SpanExporterImpl extends SpanExporter {
   private static final Logger logger = Logger.getLogger(ExportComponent.class.getName());
@@ -82,34 +86,6 @@ public final class SpanExporterImpl extends SpanExporter {
   static SpanExporterImpl create(int bufferSize, Duration scheduleDelay) {
     // TODO(bdrutu): Consider to add a shutdown hook to not avoid dropping data.
     final Worker worker = new Worker(bufferSize, scheduleDelay);
-    droppedSpans.createTimeSeries(
-        Collections.<LabelValue>emptyList(),
-        worker,
-        new ToLongFunction<Worker>() {
-          @Override
-          public long applyAsLong(Worker worker) {
-            return worker.getDroppedSpans();
-          }
-        });
-    referencedSpans.createTimeSeries(
-        Collections.<LabelValue>emptyList(),
-        worker,
-        new ToLongFunction<Worker>() {
-          @Override
-          public long applyAsLong(Worker worker) {
-            return worker.getReferencedSpans();
-          }
-        });
-    pushedSpans.createTimeSeries(
-        Collections.<LabelValue>emptyList(),
-        worker,
-        new ToLongFunction<Worker>() {
-          @Override
-          public long applyAsLong(Worker value) {
-            return worker.getPushedSpans();
-          }
-        });
-
     return new SpanExporterImpl(worker);
   }
 
@@ -146,6 +122,42 @@ public final class SpanExporterImpl extends SpanExporter {
         new DaemonThreadFactory("ExportComponent.ServiceExporterThread").newThread(worker);
     this.workerThread.start();
     this.worker = worker;
+    droppedSpans.createTimeSeries(
+        Collections.<LabelValue>emptyList(),
+        this.worker,
+        new ToLongFunction</*@Nullable*/ Worker>() {
+          @Override
+          public long applyAsLong(/*@Nullable*/ Worker worker) {
+            if (worker == null) {
+              return 0;
+            }
+            return worker.getDroppedSpans();
+          }
+        });
+    referencedSpans.createTimeSeries(
+        Collections.<LabelValue>emptyList(),
+        this.worker,
+        new ToLongFunction</*@Nullable*/ Worker>() {
+          @Override
+          public long applyAsLong(/*@Nullable*/ Worker worker) {
+            if (worker == null) {
+              return 0;
+            }
+            return worker.getReferencedSpans();
+          }
+        });
+    pushedSpans.createTimeSeries(
+        Collections.<LabelValue>emptyList(),
+        this.worker,
+        new ToLongFunction</*@Nullable*/ Worker>() {
+          @Override
+          public long applyAsLong(/*@Nullable*/ Worker worker) {
+            if (worker == null) {
+              return 0;
+            }
+            return worker.getPushedSpans();
+          }
+        });
   }
 
   @VisibleForTesting
