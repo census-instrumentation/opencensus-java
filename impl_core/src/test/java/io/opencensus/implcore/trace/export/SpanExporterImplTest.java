@@ -176,13 +176,6 @@ public class SpanExporterImplTest {
         monitor.notifyAll();
       }
     }
-
-    private void block() {
-      synchronized (monitor) {
-        condition = Boolean.FALSE;
-        monitor.notifyAll();
-      }
-    }
   }
 
   @Test
@@ -222,18 +215,16 @@ public class SpanExporterImplTest {
     exported.clear();
     spansToExport.clear();
 
-    assertThat(spanExporter.getReferencedSpans()).isEqualTo(0);
-    blockingExporter.block();
+    // We cannot compare with maxReferencedSpans here because the worker thread may get
+    // unscheduled immediately after exporting, but before updating the pushed spans, if that is
+    // the case at most bufferSize spans will miss.
+    assertThat(spanExporter.getPushedSpans()).isAtLeast((long) maxReferencedSpans - bufferSize);
 
     for (int i = 0; i < 7; i++) {
       spansToExport.add(createSampledEndedSpan(startEndHandler, "span_3_" + i).toSpanData());
       // No more dropped spans.
       assertThat(spanExporter.getDroppedSpans()).isEqualTo(7);
     }
-
-    assertThat(spanExporter.getReferencedSpans()).isEqualTo(7);
-    // Release the blocking exporter
-    blockingExporter.unblock();
 
     exported = serviceHandler.waitForExport(7);
     assertThat(exported).isNotNull();
