@@ -18,8 +18,14 @@ package io.opencensus.implcore.trace.export;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
+import io.opencensus.common.ToLongFunction;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.trace.RecordEventsSpanImpl;
+import io.opencensus.metrics.DerivedLongCumulative;
+import io.opencensus.metrics.DerivedLongGauge;
+import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.MetricOptions;
+import io.opencensus.metrics.Metrics;
 import io.opencensus.trace.export.ExportComponent;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter;
@@ -35,6 +41,30 @@ import javax.annotation.concurrent.GuardedBy;
 /** Implementation of the {@link SpanExporter}. */
 public final class SpanExporterImpl extends SpanExporter {
   private static final Logger logger = Logger.getLogger(ExportComponent.class.getName());
+  private static final DerivedLongCumulative droppedSpans =
+      Metrics.getMetricRegistry()
+          .addDerivedLongCumulative(
+              "oc_worker_spans_dropped",
+              MetricOptions.builder()
+                  .setDescription("Number of spans dropped by the exporter thread.")
+                  .setUnit("1")
+                  .build());
+  private static final DerivedLongCumulative pushedSpans =
+      Metrics.getMetricRegistry()
+          .addDerivedLongCumulative(
+              "oc_worker_spans_pushed",
+              MetricOptions.builder()
+                  .setDescription("Number of spans pushed by the exporter thread to the exporter.")
+                  .setUnit("1")
+                  .build());
+  private static final DerivedLongGauge referencedSpans =
+      Metrics.getMetricRegistry()
+          .addDerivedLongGauge(
+              "oc_worker_spans_referenced",
+              MetricOptions.builder()
+                  .setDescription("Current number of spans referenced by the exporter thread.")
+                  .setUnit("1")
+                  .build());
 
   private final Worker worker;
   private final Thread workerThread;
@@ -51,7 +81,35 @@ public final class SpanExporterImpl extends SpanExporter {
    */
   static SpanExporterImpl create(int bufferSize, Duration scheduleDelay) {
     // TODO(bdrutu): Consider to add a shutdown hook to not avoid dropping data.
-    Worker worker = new Worker(bufferSize, scheduleDelay);
+    final Worker worker = new Worker(bufferSize, scheduleDelay);
+    droppedSpans.createTimeSeries(
+        Collections.<LabelValue>emptyList(),
+        worker,
+        new ToLongFunction<Worker>() {
+          @Override
+          public long applyAsLong(Worker worker) {
+            return worker.getDroppedSpans();
+          }
+        });
+    referencedSpans.createTimeSeries(
+        Collections.<LabelValue>emptyList(),
+        worker,
+        new ToLongFunction<Worker>() {
+          @Override
+          public long applyAsLong(Worker worker) {
+            return worker.getReferencedSpans();
+          }
+        });
+    pushedSpans.createTimeSeries(
+        Collections.<LabelValue>emptyList(),
+        worker,
+        new ToLongFunction<Worker>() {
+          @Override
+          public long applyAsLong(Worker value) {
+            return worker.getPushedSpans();
+          }
+        });
+
     return new SpanExporterImpl(worker);
   }
 
@@ -95,6 +153,21 @@ public final class SpanExporterImpl extends SpanExporter {
     return workerThread;
   }
 
+  @VisibleForTesting
+  long getDroppedSpans() {
+    return worker.getDroppedSpans();
+  }
+
+  @VisibleForTesting
+  long getReferencedSpans() {
+    return worker.getReferencedSpans();
+  }
+
+  @VisibleForTesting
+  long getPushedSpans() {
+    return worker.getPushedSpans();
+  }
+
   // Worker in a thread that batches multiple span data and calls the registered services to export
   // that data.
   //
@@ -110,14 +183,29 @@ public final class SpanExporterImpl extends SpanExporter {
     @GuardedBy("monitor")
     private final List<RecordEventsSpanImpl> spans;
 
-    private final Map<String, Handler> serviceHandlers = new ConcurrentHashMap<String, Handler>();
+    @GuardedBy("monitor")
+    private long referencedSpans = 0;
+
+    @GuardedBy("monitor")
+    private long droppedSpans = 0;
+
+    @GuardedBy("monitor")
+    private long pushedSpans = 0;
+
+    private final Map<String, Handler> serviceHandlers = new ConcurrentHashMap<>();
     private final int bufferSize;
+    private final long maxReferencedSpans;
     private final long scheduleDelayMillis;
 
     // See SpanExporterImpl#addSpan.
     private void addSpan(RecordEventsSpanImpl span) {
       synchronized (monitor) {
+        if (referencedSpans + 1L > maxReferencedSpans) {
+          droppedSpans++;
+          return;
+        }
         this.spans.add(span);
+        referencedSpans++;
         if (spans.size() >= bufferSize) {
           monitor.notifyAll();
         }
@@ -154,6 +242,7 @@ public final class SpanExporterImpl extends SpanExporter {
     private Worker(int bufferSize, Duration scheduleDelay) {
       spans = new ArrayList<>(bufferSize);
       this.bufferSize = bufferSize;
+      this.maxReferencedSpans = 10L * bufferSize;
       this.scheduleDelayMillis = scheduleDelay.toMillis();
     }
 
@@ -195,6 +284,24 @@ public final class SpanExporterImpl extends SpanExporter {
       exportBatches(spansCopy);
     }
 
+    private long getDroppedSpans() {
+      synchronized (monitor) {
+        return droppedSpans;
+      }
+    }
+
+    private long getReferencedSpans() {
+      synchronized (monitor) {
+        return referencedSpans;
+      }
+    }
+
+    private long getPushedSpans() {
+      synchronized (monitor) {
+        return pushedSpans;
+      }
+    }
+
     @SuppressWarnings("argument.type.incompatible")
     private void exportBatches(ArrayList<RecordEventsSpanImpl> spanList) {
       ArrayList<SpanData> spanDataList = new ArrayList<>(bufferSize);
@@ -209,12 +316,23 @@ public final class SpanExporterImpl extends SpanExporter {
           // Cannot clear because the exporter may still have a reference to this list (e.g. async
           // scheduled work), so just create a new list.
           spanDataList = new ArrayList<>(bufferSize);
+          // We removed reference for bufferSize Spans.
+          synchronized (monitor) {
+            referencedSpans -= bufferSize;
+            pushedSpans += bufferSize;
+          }
         }
       }
       // Last incomplete batch, send this as well.
       if (!spanDataList.isEmpty()) {
         // Wrap the list with unmodifiableList to ensure exporter does not change the list.
         onBatchExport(Collections.unmodifiableList(spanDataList));
+        // We removed reference for spanDataList.size() Spans.
+        synchronized (monitor) {
+          referencedSpans -= spanDataList.size();
+          pushedSpans += spanDataList.size();
+        }
+        spanDataList.clear();
       }
     }
   }

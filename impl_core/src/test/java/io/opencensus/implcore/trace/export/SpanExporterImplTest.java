@@ -31,11 +31,15 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter.Handler;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import javax.annotation.concurrent.GuardedBy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,10 +57,14 @@ public class SpanExporterImplTest {
       SpanContext.create(
           TraceId.generateRandomId(random),
           SpanId.generateRandomId(random),
-          TraceOptions.builder().setIsSampled(true).build());
+          TraceOptions.builder().setIsSampled(true).build(),
+          Tracestate.builder().build());
   private final SpanContext notSampledSpanContext =
       SpanContext.create(
-          TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
+          TraceId.generateRandomId(random),
+          SpanId.generateRandomId(random),
+          TraceOptions.DEFAULT,
+          Tracestate.builder().build());
   private final InProcessRunningSpanStore runningSpanStore = new InProcessRunningSpanStore();
   private final SampledSpanStoreImpl sampledSpanStore =
       SampledSpanStoreImpl.getNoopSampledSpanStoreImpl();
@@ -141,6 +149,95 @@ public class SpanExporterImplTest {
             span4.toSpanData(),
             span5.toSpanData(),
             span6.toSpanData());
+  }
+
+  private static class BlockingExporter extends Handler {
+    final Object monitor = new Object();
+
+    @GuardedBy("monitor")
+    Boolean condition = Boolean.FALSE;
+
+    @Override
+    public void export(Collection<SpanData> spanDataList) {
+      synchronized (monitor) {
+        while (!condition) {
+          try {
+            monitor.wait();
+          } catch (InterruptedException e) {
+            // Do nothing
+          }
+        }
+      }
+    }
+
+    private void unblock() {
+      synchronized (monitor) {
+        condition = Boolean.TRUE;
+        monitor.notifyAll();
+      }
+    }
+
+    private void block() {
+      synchronized (monitor) {
+        condition = Boolean.FALSE;
+        monitor.notifyAll();
+      }
+    }
+  }
+
+  @Test
+  public void exportMoreSpansThanTheMaximumLimit() {
+    final int bufferSize = 4;
+    final int maxReferencedSpans = bufferSize * 10;
+    SpanExporterImpl spanExporter = SpanExporterImpl.create(bufferSize, Duration.create(1, 0));
+    StartEndHandler startEndHandler =
+        new StartEndHandlerImpl(
+            spanExporter, runningSpanStore, sampledSpanStore, new SimpleEventQueue());
+    BlockingExporter blockingExporter = new BlockingExporter();
+
+    spanExporter.registerHandler("test.service", serviceHandler);
+    spanExporter.registerHandler("test.blocking", blockingExporter);
+
+    List<SpanData> spansToExport = new ArrayList<>(maxReferencedSpans);
+    for (int i = 0; i < maxReferencedSpans; i++) {
+      spansToExport.add(createSampledEndedSpan(startEndHandler, "span_1_" + i).toSpanData());
+    }
+
+    assertThat(spanExporter.getReferencedSpans()).isEqualTo(maxReferencedSpans);
+
+    // Now we should start dropping.
+    for (int i = 0; i < 7; i++) {
+      createSampledEndedSpan(startEndHandler, "span_2_" + i);
+      assertThat(spanExporter.getDroppedSpans()).isEqualTo(i + 1);
+    }
+
+    assertThat(spanExporter.getReferencedSpans()).isEqualTo(maxReferencedSpans);
+
+    // Release the blocking exporter
+    blockingExporter.unblock();
+
+    List<SpanData> exported = serviceHandler.waitForExport(maxReferencedSpans);
+    assertThat(exported).isNotNull();
+    assertThat(exported).containsExactlyElementsIn(spansToExport);
+    exported.clear();
+    spansToExport.clear();
+
+    assertThat(spanExporter.getReferencedSpans()).isEqualTo(0);
+    blockingExporter.block();
+
+    for (int i = 0; i < 7; i++) {
+      spansToExport.add(createSampledEndedSpan(startEndHandler, "span_3_" + i).toSpanData());
+      // No more dropped spans.
+      assertThat(spanExporter.getDroppedSpans()).isEqualTo(7);
+    }
+
+    assertThat(spanExporter.getReferencedSpans()).isEqualTo(7);
+    // Release the blocking exporter
+    blockingExporter.unblock();
+
+    exported = serviceHandler.waitForExport(7);
+    assertThat(exported).isNotNull();
+    assertThat(exported).containsExactlyElementsIn(spansToExport);
   }
 
   @Test
