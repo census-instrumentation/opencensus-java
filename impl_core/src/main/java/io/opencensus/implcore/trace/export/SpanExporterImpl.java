@@ -123,41 +123,41 @@ public final class SpanExporterImpl extends SpanExporter {
     this.workerThread.start();
     this.worker = worker;
     droppedSpans.createTimeSeries(
-        Collections.<LabelValue>emptyList(),
-        this.worker,
-        new ToLongFunction</*@Nullable*/ Worker>() {
-          @Override
-          public long applyAsLong(/*@Nullable*/ Worker worker) {
-            if (worker == null) {
-              return 0;
-            }
-            return worker.getDroppedSpans();
-          }
-        });
+        Collections.<LabelValue>emptyList(), this.worker, new ReportDroppedSpans());
     referencedSpans.createTimeSeries(
-        Collections.<LabelValue>emptyList(),
-        this.worker,
-        new ToLongFunction</*@Nullable*/ Worker>() {
-          @Override
-          public long applyAsLong(/*@Nullable*/ Worker worker) {
-            if (worker == null) {
-              return 0;
-            }
-            return worker.getReferencedSpans();
-          }
-        });
+        Collections.<LabelValue>emptyList(), this.worker, new ReportReferencedSpans());
     pushedSpans.createTimeSeries(
-        Collections.<LabelValue>emptyList(),
-        this.worker,
-        new ToLongFunction</*@Nullable*/ Worker>() {
-          @Override
-          public long applyAsLong(/*@Nullable*/ Worker worker) {
-            if (worker == null) {
-              return 0;
-            }
-            return worker.getPushedSpans();
-          }
-        });
+        Collections.<LabelValue>emptyList(), this.worker, new ReportPushedSpans());
+  }
+
+  private static class ReportDroppedSpans implements ToLongFunction</*@Nullable*/ Worker> {
+    @Override
+    public long applyAsLong(/*@Nullable*/ Worker worker) {
+      if (worker == null) {
+        return 0;
+      }
+      return worker.getDroppedSpans();
+    }
+  }
+
+  private static class ReportReferencedSpans implements ToLongFunction</*@Nullable*/ Worker> {
+    @Override
+    public long applyAsLong(/*@Nullable*/ Worker worker) {
+      if (worker == null) {
+        return 0;
+      }
+      return worker.getReferencedSpans();
+    }
+  }
+
+  private static class ReportPushedSpans implements ToLongFunction</*@Nullable*/ Worker> {
+    @Override
+    public long applyAsLong(/*@Nullable*/ Worker worker) {
+      if (worker == null) {
+        return 0;
+      }
+      return worker.getPushedSpans();
+    }
   }
 
   @VisibleForTesting
