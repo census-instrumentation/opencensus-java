@@ -181,7 +181,7 @@ public class SpanExporterImplTest {
   @Test
   public void exportMoreSpansThanTheMaximumLimit() {
     final int bufferSize = 4;
-    final int maxReferencedSpans = bufferSize * 10;
+    final int maxReferencedSpans = bufferSize * 4;
     SpanExporterImpl spanExporter = SpanExporterImpl.create(bufferSize, Duration.create(1, 0));
     StartEndHandler startEndHandler =
         new StartEndHandlerImpl(

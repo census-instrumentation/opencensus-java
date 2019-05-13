@@ -85,7 +85,7 @@ public final class SpanExporterImpl extends SpanExporter {
    */
   static SpanExporterImpl create(int bufferSize, Duration scheduleDelay) {
     // TODO(bdrutu): Consider to add a shutdown hook to not avoid dropping data.
-    final Worker worker = new Worker(bufferSize, scheduleDelay);
+    Worker worker = new Worker(bufferSize, scheduleDelay);
     return new SpanExporterImpl(worker);
   }
 
@@ -212,7 +212,7 @@ public final class SpanExporterImpl extends SpanExporter {
     // See SpanExporterImpl#addSpan.
     private void addSpan(RecordEventsSpanImpl span) {
       synchronized (monitor) {
-        if (referencedSpans + 1L > maxReferencedSpans) {
+        if (referencedSpans == maxReferencedSpans) {
           droppedSpans++;
           return;
         }
@@ -254,7 +254,11 @@ public final class SpanExporterImpl extends SpanExporter {
     private Worker(int bufferSize, Duration scheduleDelay) {
       spans = new ArrayList<>(bufferSize);
       this.bufferSize = bufferSize;
-      this.maxReferencedSpans = 10L * bufferSize;
+      // We notify the worker thread when bufferSize elements in the queue, so we will most likely
+      // have to process more than bufferSize elements but less than 2 * bufferSize in that cycle.
+      // During the processing time we want to allow the same amount of elements to be queued.
+      // So we need to have 4 * bufferSize maximum elements referenced as an estimate.
+      this.maxReferencedSpans = 4L * bufferSize;
       this.scheduleDelayMillis = scheduleDelay.toMillis();
     }
 
