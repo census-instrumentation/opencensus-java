@@ -20,7 +20,6 @@ import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -34,10 +33,8 @@ public final class TestHandler extends SpanExporter.Handler {
 
   private final Object monitor = new Object();
 
-  // TODO: Decide whether to use a different class instead of LinkedList.
   @GuardedBy("monitor")
-  @SuppressWarnings("JdkObsolete")
-  private final List<SpanData> spanDataList = new LinkedList<SpanData>();
+  private final List<SpanData> spanDataList = new ArrayList<>();
 
   @Override
   public void export(Collection<SpanData> spanDataList) {
@@ -69,7 +66,7 @@ public final class TestHandler extends SpanExporter.Handler {
           return null;
         }
       }
-      ret = new ArrayList<SpanData>(spanDataList);
+      ret = new ArrayList<>(spanDataList);
       spanDataList.clear();
     }
     return ret;
