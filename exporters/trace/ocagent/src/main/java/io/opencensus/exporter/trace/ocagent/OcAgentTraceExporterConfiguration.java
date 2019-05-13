@@ -43,6 +43,8 @@ public abstract class OcAgentTraceExporterConfiguration {
   /**
    * Returns the end point of OC-Agent. The end point can be dns, ip:port, etc.
    *
+   * <p>Default value is "localhost:55678" if not set.
+   *
    * @return the end point of OC-Agent.
    * @since 0.20
    */
@@ -51,6 +53,8 @@ public abstract class OcAgentTraceExporterConfiguration {
   /**
    * Returns whether to disable client transport security for the exporter's gRPC connection or not.
    *
+   * <p>Default value is true if not set.
+   *
    * @return whether to disable client transport security for the exporter's gRPC connection or not.
    * @since 0.20
    */
@@ -58,6 +62,8 @@ public abstract class OcAgentTraceExporterConfiguration {
 
   /**
    * Returns the {@link SslContext} for secure TLS gRPC connection.
+   *
+   * <p>If not set OcAgent exporter will use insecure connection by default.
    *
    * @return the {@code SslContext}.
    * @since 0.20
@@ -68,6 +74,8 @@ public abstract class OcAgentTraceExporterConfiguration {
   /**
    * Returns the service name to be used for this {@link OcAgentTraceExporter}.
    *
+   * <p>Default value is "OpenCensus" if not set.
+   *
    * @return the service name.
    * @since 0.20
    */
@@ -76,6 +84,8 @@ public abstract class OcAgentTraceExporterConfiguration {
   /**
    * Returns the retry time interval when trying to connect to Agent.
    *
+   * <p>Default value is 5 minutes.
+   *
    * @return the retry time interval.
    * @since 0.20
    */
@@ -83,6 +93,8 @@ public abstract class OcAgentTraceExporterConfiguration {
 
   /**
    * Returns whether the {@link OcAgentTraceExporter} should handle the config streams.
+   *
+   * <p>Config service is enabled by default.
    *
    * @return whether the {@code OcAgentTraceExporter} should handle the config streams.
    * @since 0.20
