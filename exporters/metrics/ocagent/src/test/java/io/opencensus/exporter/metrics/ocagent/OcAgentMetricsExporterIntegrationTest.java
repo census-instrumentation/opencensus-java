@@ -181,7 +181,9 @@ public class OcAgentMetricsExporterIntegrationTest {
   @Before
   public void setUp() {
     fakeOcAgentMetricsServiceGrpc = new FakeOcAgentMetricsServiceGrpcImpl();
-    agent = getServer(OcAgentMetricsExporter.DEFAULT_END_POINT, fakeOcAgentMetricsServiceGrpc);
+    agent =
+        getServer(
+            OcAgentMetricsExporterConfiguration.DEFAULT_END_POINT, fakeOcAgentMetricsServiceGrpc);
   }
 
   @After

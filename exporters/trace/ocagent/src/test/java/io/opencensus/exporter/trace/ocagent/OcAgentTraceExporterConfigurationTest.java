@@ -34,11 +34,14 @@ public class OcAgentTraceExporterConfigurationTest {
   public void defaultConfiguration() {
     OcAgentTraceExporterConfiguration configuration =
         OcAgentTraceExporterConfiguration.builder().build();
-    assertThat(configuration.getEndPoint()).isNull();
-    assertThat(configuration.getServiceName()).isNull();
+    assertThat(configuration.getEndPoint())
+        .isEqualTo(OcAgentTraceExporterConfiguration.DEFAULT_END_POINT);
+    assertThat(configuration.getServiceName())
+        .isEqualTo(OcAgentTraceExporterConfiguration.DEFAULT_SERVICE_NAME);
     assertThat(configuration.getUseInsecure()).isTrue();
     assertThat(configuration.getSslContext()).isNull();
-    assertThat(configuration.getRetryInterval()).isNull();
+    assertThat(configuration.getRetryInterval())
+        .isEqualTo(OcAgentTraceExporterConfiguration.DEFAULT_RETRY_INTERVAL);
     assertThat(configuration.getEnableConfig()).isTrue();
   }
 

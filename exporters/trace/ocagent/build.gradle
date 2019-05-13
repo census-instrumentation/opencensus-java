@@ -9,7 +9,8 @@ dependencies {
     compileOnly libraries.auto_value
 
     compile project(':opencensus-api'),
-            project(':opencensus-contrib-resource-util')
+            project(':opencensus-contrib-resource-util'),
+            project(':opencensus-exporter-trace-util')
 
     compile (libraries.grpc_core) {
         // We will always be more up to date.
