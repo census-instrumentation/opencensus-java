@@ -36,6 +36,7 @@ public abstract class OcAgentTraceExporterConfiguration {
   @VisibleForTesting static final String DEFAULT_END_POINT = "localhost:55678";
   @VisibleForTesting static final String DEFAULT_SERVICE_NAME = "OpenCensus";
   @VisibleForTesting static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0);
+  @VisibleForTesting static final Duration DEFAULT_DEADLINE = Duration.create(10, 0);
   @VisibleForTesting static final Duration ZERO = Duration.create(0, 0);
 
   OcAgentTraceExporterConfiguration() {}
@@ -102,6 +103,16 @@ public abstract class OcAgentTraceExporterConfiguration {
   public abstract boolean getEnableConfig();
 
   /**
+   * Returns the deadline for exporting to Agent/Collector.
+   *
+   * <p>Default value is 10 seconds.
+   *
+   * @return the export deadline.
+   * @since 0.22
+   */
+  public abstract Duration getDeadline();
+
+  /**
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
@@ -113,7 +124,8 @@ public abstract class OcAgentTraceExporterConfiguration {
         .setServiceName(DEFAULT_SERVICE_NAME)
         .setEnableConfig(true)
         .setUseInsecure(true)
-        .setRetryInterval(DEFAULT_RETRY_INTERVAL);
+        .setRetryInterval(DEFAULT_RETRY_INTERVAL)
+        .setDeadline(DEFAULT_DEADLINE);
   }
 
   /**
@@ -181,11 +193,22 @@ public abstract class OcAgentTraceExporterConfiguration {
      */
     public abstract Builder setEnableConfig(boolean enableConfig);
 
+    /**
+     * Sets the deadline for exporting to Agent/Collector.
+     *
+     * @param deadline the export deadline.
+     * @return this
+     * @since 0.22
+     */
+    public abstract Builder setDeadline(Duration deadline);
+
     // TODO(songya): add an option that controls whether to always keep the RPC connection alive.
 
     abstract Duration getRetryInterval();
 
     abstract OcAgentTraceExporterConfiguration autoBuild();
+
+    abstract Duration getDeadline();
 
     /**
      * Builds a {@link OcAgentTraceExporterConfiguration}.
@@ -194,6 +217,7 @@ public abstract class OcAgentTraceExporterConfiguration {
      * @since 0.20
      */
     public OcAgentTraceExporterConfiguration build() {
+      Preconditions.checkArgument(getDeadline().compareTo(ZERO) > 0, "Deadline must be positive.");
       Preconditions.checkArgument(
           getRetryInterval().compareTo(ZERO) > 0, "Retry interval must be positive.");
       return autoBuild();

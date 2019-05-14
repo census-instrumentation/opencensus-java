@@ -79,7 +79,8 @@ public final class OcAgentTraceExporter {
               configuration.getUseInsecure(),
               configuration.getSslContext(),
               configuration.getRetryInterval(),
-              configuration.getEnableConfig());
+              configuration.getEnableConfig(),
+              configuration.getDeadline());
       registerInternal(newHandler);
     }
   }

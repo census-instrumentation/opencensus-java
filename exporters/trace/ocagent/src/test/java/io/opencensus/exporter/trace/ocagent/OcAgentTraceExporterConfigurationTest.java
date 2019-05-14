@@ -43,6 +43,8 @@ public class OcAgentTraceExporterConfigurationTest {
     assertThat(configuration.getRetryInterval())
         .isEqualTo(OcAgentTraceExporterConfiguration.DEFAULT_RETRY_INTERVAL);
     assertThat(configuration.getEnableConfig()).isTrue();
+    assertThat(configuration.getDeadline())
+        .isEqualTo(OcAgentTraceExporterConfiguration.DEFAULT_DEADLINE);
   }
 
   @Test
@@ -57,6 +59,7 @@ public class OcAgentTraceExporterConfigurationTest {
             .setSslContext(sslContext)
             .setRetryInterval(oneMinute)
             .setEnableConfig(false)
+            .setDeadline(oneMinute)
             .build();
     assertThat(configuration.getEndPoint()).isEqualTo("192.168.0.1:50051");
     assertThat(configuration.getServiceName()).isEqualTo("service");
@@ -64,5 +67,6 @@ public class OcAgentTraceExporterConfigurationTest {
     assertThat(configuration.getSslContext()).isEqualTo(sslContext);
     assertThat(configuration.getRetryInterval()).isEqualTo(oneMinute);
     assertThat(configuration.getEnableConfig()).isFalse();
+    assertThat(configuration.getDeadline()).isEqualTo(oneMinute);
   }
 }

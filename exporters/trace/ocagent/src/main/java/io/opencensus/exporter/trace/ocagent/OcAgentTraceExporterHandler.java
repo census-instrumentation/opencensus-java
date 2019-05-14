@@ -22,20 +22,21 @@ import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
+import io.opencensus.exporter.trace.util.TimeLimitedHandler;
 import io.opencensus.proto.agent.common.v1.Node;
 import io.opencensus.proto.agent.trace.v1.ExportTraceServiceRequest;
 import io.opencensus.proto.agent.trace.v1.TraceServiceGrpc;
 import io.opencensus.trace.export.SpanData;
-import io.opencensus.trace.export.SpanExporter.Handler;
 import java.util.Collection;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /** Exporting handler for OC-Agent Tracing. */
-final class OcAgentTraceExporterHandler extends Handler {
+final class OcAgentTraceExporterHandler extends TimeLimitedHandler {
 
   private static final Logger logger =
       Logger.getLogger(OcAgentTraceExporterHandler.class.getName());
+  private static final String EXPORT_SPAN_NAME = "ExportOpenCensusProtoSpans";
 
   private final String endPoint;
   private final Node node;
@@ -51,7 +52,9 @@ final class OcAgentTraceExporterHandler extends Handler {
       boolean useInsecure,
       @Nullable SslContext sslContext,
       Duration retryInterval,
-      boolean enableConfig) {
+      boolean enableConfig,
+      Duration deadline) {
+    super(deadline, EXPORT_SPAN_NAME);
     this.endPoint = endPoint;
     this.node = OcAgentNodeUtils.getNodeInfo(serviceName);
     this.useInsecure = useInsecure;
@@ -59,7 +62,7 @@ final class OcAgentTraceExporterHandler extends Handler {
   }
 
   @Override
-  public void export(Collection<SpanData> spanDataList) {
+  public void timeLimitedExport(Collection<SpanData> spanDataList) {
     if (exportRpcHandler == null || exportRpcHandler.isCompleted()) {
       // If not connected, try to initiate a new connection when a new batch of spans arrive.
       // Export RPC doesn't respect the retry interval.

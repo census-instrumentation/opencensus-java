@@ -7,7 +7,7 @@ Also provide a `MetricServiceStub` option so that advanced users can use a custo
 Monitoring client to make RPCs.
 - Use `Configuration` builder pattern for creating `JaegerTraceExporter`, `ZipkinTraceExporter` and
 `InstanaTraceExporter`. Provide a `Deadline` option with default value 10 seconds.
-- Provide a `Deadline` option to Datadog and Elasticsearch exporter. Default value is 10 seconds.
+- Provide a `Deadline` option to Datadog, Elasticsearch and OcAgent exporter. Default value is 10 seconds.
 - Extract the common timeout logic of Trace exporters to `opencensus-exporter-trace-util`.
 
 ## 0.21.0 - 2019-04-30
