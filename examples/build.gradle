@@ -33,7 +33,7 @@ repositories {
 group = "io.opencensus"
 version = "0.23.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
-def opencensusVersion = "0.21.0" // LATEST_OPENCENSUS_RELEASE_VERSION
+def opencensusVersion = "0.22.0" // LATEST_OPENCENSUS_RELEASE_VERSION
 def grpcVersion = "1.19.0" // CURRENT_GRPC_VERSION
 def prometheusVersion = "0.6.0"
 def jettyVersion = "9.4.17.v20190418"
