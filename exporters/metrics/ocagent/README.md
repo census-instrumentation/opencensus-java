@@ -26,6 +26,12 @@ For Maven add to your `pom.xml`:
     <version>0.22.0</version>
     <scope>runtime</scope>
   </dependency>
+  <dependency>
+    <groupId>io.netty</groupId>
+    <artifactId>netty-tcnative-boringssl-static</artifactId>
+    <version>2.0.20.Final</version>
+    <scope>runtime</scope>
+  </dependency>
 </dependencies>
 ```
 
@@ -34,6 +40,7 @@ For Gradle add to your dependencies:
 compile 'io.opencensus:opencensus-api:0.22.0'
 compile 'io.opencensus:opencensus-exporter-metrics-ocagent:0.22.0'
 runtime 'io.opencensus:opencensus-impl:0.22.0'
+runtime 'io.netty:netty-tcnative-boringssl-static:2.0.20.Final'
 ```
 
 ### Register the exporter
