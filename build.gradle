@@ -169,6 +169,7 @@ subprojects {
         log4j2Version = '2.11.1'
         signalfxVersion = '0.0.48'
         springBootVersion = '1.5.15.RELEASE'
+        springBootTestVersion = '2.1.1.RELEASE'
         springCloudVersion = '1.3.4.RELEASE'
         springVersion = '4.3.12.RELEASE'
         prometheusVersion = '0.6.0'
