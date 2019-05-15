@@ -591,4 +591,28 @@ public class RecordEventsSpanImplTest {
             testClock);
     assertThat(span.getKind()).isEqualTo(Kind.SERVER);
   }
+
+  @Test
+  public void startEndTimes() {
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
+            spanContext,
+            SPAN_NAME,
+            Kind.SERVER,
+            parentSpanId,
+            false,
+            TraceParams.DEFAULT,
+            startEndHandler,
+            timestampConverter,
+            testClock);
+
+    Timestamp start = Timestamp.create(1234, 5678);
+    Timestamp end = Timestamp.create(4567, 7890);
+
+    span.setStartTime(start);
+    span.end(EndSpanOptions.DEFAULT, end);
+
+    assertThat(span.getStartNanoTime()).isEqualTo(timestampConverter.convertTimestamp(start));
+    assertThat(span.getEndNanoTime()).isEqualTo(timestampConverter.convertTimestamp(end));
+  }
 }

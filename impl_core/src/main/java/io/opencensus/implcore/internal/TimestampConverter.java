@@ -22,7 +22,7 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * This class provides a mechanism for converting {@link System#nanoTime() nanoTime} values to
- * {@link Timestamp}.
+ * {@link Timestamp} and back.
  */
 @Immutable
 public final class TimestampConverter {
@@ -42,6 +42,16 @@ public final class TimestampConverter {
    */
   public Timestamp convertNanoTime(long nanoTime) {
     return timestamp.addNanos(nanoTime - this.nanoTime);
+  }
+
+  /**
+   * Converts a {@link Timestamp} value to {@link System#nanoTime() nanoTime}.
+   *
+   * @param timestamp value to convert.
+   * @return the nanoTime representation of the time.
+   */
+  public long convertTimestamp(Timestamp timestamp) {
+    return timestamp.subtractTimestamp(this.timestamp).getNanos() + this.nanoTime;
   }
 
   private TimestampConverter(Timestamp timestamp, long nanoTime) {

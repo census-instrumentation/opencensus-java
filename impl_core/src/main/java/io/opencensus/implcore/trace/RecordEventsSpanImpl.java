@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.EvictingQueue;
 import io.opencensus.common.Clock;
+import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.TimestampConverter;
 import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList.Element;
 import io.opencensus.trace.Annotation;
@@ -76,7 +77,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
   // millisecond granularity for Timestamp and tracing events are recorded more often.
   private final TimestampConverter timestampConverter;
   // The start time of the span.
-  private final long startNanoTime;
+  private long startNanoTime;
   // Set of recorded attributes. DO NOT CALL any other method that changes the ordering of events.
   @GuardedBy("this")
   @Nullable
@@ -175,6 +176,17 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
   public Status getStatus() {
     synchronized (this) {
       return getStatusWithDefault();
+    }
+  }
+
+  /**
+   * Returns the start nano time (see {@link System#nanoTime()}).
+   *
+   * @return the start nano time.
+   */
+  public long getStartNanoTime() {
+    synchronized (this) {
+      return startNanoTime;
     }
   }
 
@@ -367,7 +379,23 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
   }
 
   @Override
+  public void setStartTime(Timestamp startTimestamp) {
+    synchronized (this) {
+      this.startNanoTime = this.timestampConverter.convertTimestamp(startTimestamp);
+    }
+  }
+
+  @Override
   public void end(EndSpanOptions options) {
+    end(options, clock.nowNanos());
+  }
+
+  @Override
+  public void end(EndSpanOptions options, Timestamp endTimestamp) {
+    end(options, this.timestampConverter.convertTimestamp(endTimestamp));
+  }
+
+  private void end(EndSpanOptions options, long endNanoTime) {
     Preconditions.checkNotNull(options, "options");
     synchronized (this) {
       if (hasBeenEnded) {
@@ -378,7 +406,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
         status = options.getStatus();
       }
       sampleToLocalSpanStore = options.getSampleToLocalSpanStore();
-      endNanoTime = clock.nowNanos();
+      this.endNanoTime = endNanoTime;
       hasBeenEnded = true;
     }
     startEndHandler.onEnd(this);

@@ -16,6 +16,7 @@
 
 package io.opencensus.trace;
 
+import io.opencensus.common.Timestamp;
 import io.opencensus.internal.Utils;
 import io.opencensus.trace.internal.BaseMessageEventUtils;
 import java.util.Collections;
@@ -222,6 +223,18 @@ public abstract class Span {
   }
 
   /**
+   * Explicitly sets the start time of the span.
+   *
+   * <p>If this method is not called then the start time of the span is set equal to the clock time
+   * at the time when the span is created. The default implementation does nothing. Implementations
+   * that keep track of start time are expected to override this method.
+   *
+   * @param startTimestamp the {@link Timestamp} to set.
+   * @since 0.23
+   */
+  public void setStartTime(Timestamp startTimestamp) {}
+
+  /**
    * Marks the end of {@code Span} execution with the given options.
    *
    * <p>Only the timing of the first end call for a given {@code Span} will be recorded, and
@@ -242,6 +255,22 @@ public abstract class Span {
    */
   public final void end() {
     end(EndSpanOptions.DEFAULT);
+  }
+
+  /**
+   * Marks the end of {@code Span} execution with the given options and end time.
+   *
+   * <p>Only the timing of the first end call for a given {@code Span} will be recorded, and
+   * implementations are free to ignore all further calls. The default implementation ignores
+   * endTimestamp parameter and calls {@link end} method. Implementations that keep track of end
+   * time are expected to override this method.
+   *
+   * @param options the options to be used for the end of the {@code Span}.
+   * @param endTimestamp the {@link Timestamp} to set end time of the span to.
+   * @since 0.23
+   */
+  public void end(EndSpanOptions options, Timestamp endTimestamp) {
+    end(options);
   }
 
   /**
