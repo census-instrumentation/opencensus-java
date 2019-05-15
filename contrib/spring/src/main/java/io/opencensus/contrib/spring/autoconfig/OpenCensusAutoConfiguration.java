@@ -31,7 +31,7 @@ import org.springframework.core.Ordered;
  */
 @Configuration
 @ComponentScan(basePackages = "io.opencensus")
-@ConditionalOnProperty(value = "spring.opencensus.enabled", matchIfMissing = true)
+@ConditionalOnProperty(value = "opencensus.spring.enabled", matchIfMissing = true)
 @EnableConfigurationProperties(OpenCensusProperties.class)
 @ExperimentalApi
 public class OpenCensusAutoConfiguration {

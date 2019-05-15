@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RunWith(SpringRunner.class)
 @SpringBootTest(
     classes = HttpServletFilterIntegrationTests.Config.class,
-    properties = "spring.opencensus.enabled=true")
+    properties = "opencensus.spring.enabled=true")
 @ContextConfiguration(
     locations = {"file:src/test/resources/beans/HttpServletFilterIntegrationTest-context.xml"})
 public class HttpServletFilterIntegrationTests extends AbstractMvcIntegrationTest {

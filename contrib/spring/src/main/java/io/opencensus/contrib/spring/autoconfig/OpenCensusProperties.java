@@ -23,7 +23,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * @since 0.19.0
  */
-@ConfigurationProperties("spring.opencensus")
+@ConfigurationProperties("opencensus.spring")
 public class OpenCensusProperties {
 
   private boolean enabled = true;
