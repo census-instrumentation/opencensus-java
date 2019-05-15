@@ -19,9 +19,9 @@ package io.opencensus.contrib.spring.autoconfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Opencensus Tracing settings.
+ * Opencensus settings.
  *
- * @since 0.19.0
+ * @since 0.23.0
  */
 @ConfigurationProperties("opencensus.spring")
 public class OpenCensusProperties {

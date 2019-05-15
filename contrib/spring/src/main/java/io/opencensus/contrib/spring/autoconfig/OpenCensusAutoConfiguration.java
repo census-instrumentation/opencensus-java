@@ -27,7 +27,7 @@ import org.springframework.core.Ordered;
  * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration Auto-configuration} to
  * enable tracing using OpenCensus.
  *
- * @since 0.19.0
+ * @since 0.23.0
  */
 @Configuration
 @ComponentScan(basePackages = "io.opencensus")
