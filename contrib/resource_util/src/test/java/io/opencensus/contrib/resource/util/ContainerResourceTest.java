@@ -27,7 +27,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ContainerResourceTest {
   private static final String NAME = "container";
-  private static final String IMAGE_NAME = "iamge_name";
+  private static final String IMAGE_NAME = "image_name";
   private static final String IMAGE_TAG = "image_tag";
 
   @Test
