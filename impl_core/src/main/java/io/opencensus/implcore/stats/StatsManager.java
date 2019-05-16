@@ -66,7 +66,8 @@ final class StatsManager {
   void record(TagContext tags, MeasureMapInternal measurementValues) {
     // TODO(songya): consider exposing No-op MeasureMap and use it when stats state is DISABLED, so
     // that we don't need to create actual MeasureMapImpl.
-    if (state.getInternal() == State.ENABLED) {
+    if (state.getInternal() == State.ENABLED
+        && measureToViewMap.isAnyMeasureRegistered(measurementValues)) {
       queue.enqueue(new StatsEvent(this, tags, measurementValues));
     }
   }

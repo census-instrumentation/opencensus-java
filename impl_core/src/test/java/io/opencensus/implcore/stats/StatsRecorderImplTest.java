@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import io.grpc.Context;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.stats.StatsTestUtil.SimpleTagContext;
 import io.opencensus.metrics.data.AttachmentValue;
@@ -57,6 +58,8 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 /** Tests for {@link StatsRecorderImpl}. */
 @RunWith(JUnit4.class)
@@ -85,6 +88,8 @@ public final class StatsRecorderImplTest {
   private final TestClock testClock = TestClock.create();
   private final StatsComponent statsComponent =
       new StatsComponentImplBase(new SimpleEventQueue(), testClock);
+
+  @Mock private final EventQueue mockQueue = Mockito.mock(EventQueue.class);
 
   private final ViewManager viewManager = statsComponent.getViewManager();
   private final StatsRecorder statsRecorder = statsComponent.getStatsRecorder();
@@ -158,6 +163,19 @@ public final class StatsRecorderImplTest {
             Arrays.asList(VALUE),
             StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 2.0)),
         1e-6);
+  }
+
+  @Test
+  public void record_AllMeasuresUnregistered() {
+    StatsComponent fakeStatsComponent = new StatsComponentImplBase(mockQueue, testClock);
+    StatsRecorder fakeStatsRecorder = fakeStatsComponent.getStatsRecorder();
+    fakeStatsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE_NO_VIEW_1, 1.0)
+        .put(MEASURE_DOUBLE, 2.0)
+        .put(MEASURE_DOUBLE_NO_VIEW_2, 3.0)
+        .record();
+    Mockito.verifyZeroInteractions(mockQueue);
   }
 
   @Test

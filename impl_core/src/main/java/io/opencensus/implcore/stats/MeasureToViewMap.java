@@ -175,6 +175,15 @@ final class MeasureToViewMap {
     return metrics;
   }
 
+  synchronized boolean isAnyMeasureRegistered(MeasureMapInternal measurementValues) {
+    for (Iterator<Measurement> iterator = measurementValues.iterator(); iterator.hasNext(); ) {
+      if (registeredMeasures.containsKey(iterator.next().getMeasure().getName())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // Clear stats for all the current MutableViewData
   synchronized void clearStats() {
     for (Entry<String, Collection<MutableViewData>> entry : mutableMap.asMap().entrySet()) {
