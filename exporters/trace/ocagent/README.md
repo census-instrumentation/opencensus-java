@@ -53,3 +53,11 @@ public class MyMainClass {
   }
 }
 ```
+
+## FAQ
+
+### Why is `netty-tcnative-boringssl-static` needed? Which version should I use?
+
+It's because this artifact depends on `grpc-netty` which requires a runtime dependency on `netty-tcnative-boringssl-static`
+for it to work. For more details and a table of known working version combinations, see
+https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty.

@@ -37,6 +37,7 @@ def opencensusVersion = "0.22.0" // LATEST_OPENCENSUS_RELEASE_VERSION
 def grpcVersion = "1.19.0" // CURRENT_GRPC_VERSION
 def prometheusVersion = "0.6.0"
 def jettyVersion = "9.4.17.v20190418"
+def tcnativeVersion = "2.0.20.Final"
 
 tasks.withType(JavaCompile) {
     sourceCompatibility = '1.8'
@@ -69,7 +70,7 @@ dependencies {
             "org.slf4j:slf4j-log4j12:1.7.25"
 
     runtime "io.opencensus:opencensus-impl:${opencensusVersion}",
-            "io.netty:netty-tcnative-boringssl-static:2.0.8.Final"
+            "io.netty:netty-tcnative-boringssl-static:${tcnativeVersion}"
 }
 
 googleJavaFormat {
