@@ -1,4 +1,6 @@
 ## Unreleased
+- Remove `CONTEXT_SPAN_KEY` and `TAG_CONTEXT_KEY` from API. This will be a breaking change to those who
+depend on these two keys, but anyone except gRPC shouldn't use it directly anyway.
 
 ## 0.23.0 - 2019-06-12
 - Make `StackdriverStatsExporter.unregister()` a public API.
