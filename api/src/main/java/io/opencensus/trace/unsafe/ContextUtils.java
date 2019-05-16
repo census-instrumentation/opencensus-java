@@ -37,16 +37,8 @@ public final class ContextUtils {
   // No instance of this class.
   private ContextUtils() {}
 
-  /**
-   * The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}.
-   *
-   * @since 0.5
-   * @deprecated from API since 0.21. Use {@link #withValue(Context, Span)} and {@link
-   *     #getValue(Context)} instead.
-   */
-  // TODO(songy23): make this private once gRPC migrates to use the alternative APIs.
-  @Deprecated
-  public static final Context.Key</*@Nullable*/ Span> CONTEXT_SPAN_KEY =
+  /** The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}. */
+  private static final Context.Key</*@Nullable*/ Span> CONTEXT_SPAN_KEY =
       Context.<Span>key("opencensus-trace-span-key");
 
   /**

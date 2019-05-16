@@ -1,4 +1,6 @@
 ## Unreleased
+- Remove `CONTEXT_SPAN_KEY` and `TAG_CONTEXT_KEY` from API. This will be a breaking change to those who
+depend on these two keys, but anyone except gRPC shouldn't use it directly anyway.
 
 ## 0.22.0 - 2019-05-14
 - Disable RunningSpanStore by default unless the z-pages contrib is linked and initialized. This may

@@ -44,14 +44,8 @@ public final class ContextUtils {
   /**
    * The {@link io.grpc.Context.Key} used to interact with the {@code TagContext} contained in the
    * {@link io.grpc.Context}.
-   *
-   * @since 0.8
-   * @deprecated from API since 0.21. Use {@link #withValue(Context, TagContext)} and {@link
-   *     #getValue(Context)} instead.
    */
-  // TODO(songy23): make this private once gRPC migrates to use the alternative APIs.
-  @Deprecated
-  public static final Context.Key</*@Nullable*/ TagContext> TAG_CONTEXT_KEY =
+  private static final Context.Key</*@Nullable*/ TagContext> TAG_CONTEXT_KEY =
       Context.keyWithDefault("opencensus-tag-context-key", EMPTY_TAG_CONTEXT);
 
   /**
