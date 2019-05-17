@@ -16,12 +16,16 @@ dependencies {
             libraries.spring_boot_starter_web,
             libraries.spring_cloud_build,
             libraries.findbugs_annotations
+    compile("org.apache.httpcomponents:httpclient:4.5.8")
 
     testCompile project(':opencensus-impl'),
             project(':opencensus-testing'),
             libraries.aspectj,
             libraries.spring_test,
             libraries.spring_boot_test
+
+    testCompile("org.springframework.boot:spring-boot-starter-tomcat",
+                "javax.servlet:javax.servlet-api:3.1.0")
 
     signature "org.codehaus.mojo.signature:java17:1.0@signature"
 }
