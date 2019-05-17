@@ -13,6 +13,14 @@ matrix:
     env: TASK=BUILD
     os: linux
 
+  - jdk: openjdk10
+    env: TASK=BUILD
+    os: linux
+
+  - jdk: openjdk11
+    env: TASK=BUILD
+    os: linux
+
   - jdk: oraclejdk8
     env: TASK=CHECKER_FRAMEWORK
     os: linux
