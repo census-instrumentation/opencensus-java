@@ -19,6 +19,12 @@ case "$TASK" in
           "oraclejdk9")
             ./gradlew clean assemble check --stacktrace
             ;;
+          "openjdk10")
+            ./gradlew clean assemble check --stacktrace
+            ;;
+          "openjdk11")
+            ./gradlew clean assemble check --stacktrace
+            ;;
           "oraclejdk8")
             export JAVA_HOMES="$(jdk_switcher home oraclejdk8)/jre:$(jdk_switcher home oraclejdk9)"
             ./gradlew clean assemble --stacktrace
