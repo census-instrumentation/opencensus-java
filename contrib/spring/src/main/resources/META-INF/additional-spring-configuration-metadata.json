@@ -1,0 +1,8 @@
+{"properties": [
+  {
+    "name": "opencensus.spring.enabled",
+    "type": "java.lang.Boolean",
+    "description": "Enable Spring Integration Opencensus Instrumentation.",
+    "defaultValue": true
+  }
+]}
