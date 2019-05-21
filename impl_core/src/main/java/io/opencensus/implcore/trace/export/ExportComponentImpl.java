@@ -24,7 +24,7 @@ import io.opencensus.trace.export.SampledSpanStore;
 
 /** Implementation of the {@link ExportComponent}. */
 public final class ExportComponentImpl extends ExportComponent {
-  private static final int EXPORTER_BUFFER_SIZE = 512;
+  private static final int EXPORTER_BUFFER_SIZE = 2500;
   // Enforces that trace export exports data at least once every 5 seconds.
   private static final Duration EXPORTER_SCHEDULE_DELAY = Duration.create(5, 0);
 
