@@ -15,20 +15,20 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.22.0</version>
+    <version>0.22.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-http-jetty-client</artifactId>
-    <version>0.22.0</version>
+    <version>0.22.1</version>
   </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.22.0'
-compile 'io.opencensus:opencensus-contrib-http-jetty-client:0.22.0'
+compile 'io.opencensus:opencensus-api:0.22.1'
+compile 'io.opencensus:opencensus-contrib-http-jetty-client:0.22.1'
 ```
 
 ## Instrumenting Jetty Http Client

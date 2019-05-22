@@ -1,5 +1,8 @@
 ## Unreleased
 
+## 0.22.1 - 2019-05-21
+- Increase the buffer size for the trace export batch to 2500 (previously it was 32).
+
 ## 0.22.0 - 2019-05-14
 - Disable RunningSpanStore by default unless the z-pages contrib is linked and initialized. This may
 break behaviors for applications that rely on this to be always enabled.

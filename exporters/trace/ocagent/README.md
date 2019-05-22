@@ -13,23 +13,23 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.22.0</version>
+    <version>0.22.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-exporter-trace-ocagent</artifactId>
-    <version>0.22.0</version>
+    <version>0.22.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.22.0</version>
+    <version>0.22.1</version>
     <scope>runtime</scope>
   </dependency>
   <dependency>
     <groupId>io.netty</groupId>
     <artifactId>netty-tcnative-boringssl-static</artifactId>
-    <version>2.0.20.Final</version>
+    <version>0.22.1.Final</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -37,9 +37,9 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.22.0'
-compile 'io.opencensus:opencensus-exporter-trace-ocagent:0.22.0'
-runtime 'io.opencensus:opencensus-impl:0.22.0'
+compile 'io.opencensus:opencensus-api:0.22.1'
+compile 'io.opencensus:opencensus-exporter-trace-ocagent:0.22.1'
+runtime 'io.opencensus:opencensus-impl:0.22.1'
 runtime 'io.netty:netty-tcnative-boringssl-static:2.0.20.Final'
 ```
 

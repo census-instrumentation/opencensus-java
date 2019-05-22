@@ -18,14 +18,14 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-dropwizard5</artifactId>
-    <version>0.22.0</version>
+    <version>0.22.1</version>
   </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-contrib-dropwizard5:0.22.0'
+compile 'io.opencensus:opencensus-contrib-dropwizard5:0.22.1'
 ```
 
 ### And the following code:
