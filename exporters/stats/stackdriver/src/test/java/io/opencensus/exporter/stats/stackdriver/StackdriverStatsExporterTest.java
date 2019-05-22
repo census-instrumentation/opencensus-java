@@ -115,7 +115,20 @@ public class StackdriverStatsExporterTest {
       thrown.expectMessage("Stackdriver stats exporter is already created.");
       StackdriverStatsExporter.createAndRegister(CONFIGURATION);
     } finally {
-      StackdriverStatsExporter.unsafeResetExporter();
+      StackdriverStatsExporter.unregister();
+    }
+  }
+
+  @Test
+  public void unregister() throws IOException {
+    // unregister has no effect if exporter is not yet registered.
+    StackdriverStatsExporter.unregister();
+    try {
+      StackdriverStatsExporter.createAndRegister(CONFIGURATION);
+      StackdriverStatsExporter.unregister();
+      StackdriverStatsExporter.createAndRegister(CONFIGURATION);
+    } finally {
+      StackdriverStatsExporter.unregister();
     }
   }
 

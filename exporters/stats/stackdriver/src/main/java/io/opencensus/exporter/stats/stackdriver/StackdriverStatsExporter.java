@@ -420,9 +420,14 @@ public final class StackdriverStatsExporter {
     return MetricServiceClient.create(settingsBuilder.build());
   }
 
-  // Resets exporter to null. Used only for unit tests.
-  @VisibleForTesting
-  static void unsafeResetExporter() {
+  /**
+   * Unregisters the {@link StackdriverStatsExporter} and stops metrics exporting.
+   *
+   * <p>Unexported data will be flushed before the exporter is stopped.
+   *
+   * @since 0.23
+   */
+  public static void unregister() {
     synchronized (monitor) {
       if (instance != null) {
         instance.intervalMetricReader.stop();
