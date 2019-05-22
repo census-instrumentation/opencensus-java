@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Exporter to Stackdriver Monitoring Client API v3.
@@ -67,6 +68,7 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * @since 0.9
  */
+@ThreadSafe
 public final class StackdriverStatsExporter {
 
   @VisibleForTesting static final Object monitor = new Object();
@@ -420,9 +422,14 @@ public final class StackdriverStatsExporter {
     return MetricServiceClient.create(settingsBuilder.build());
   }
 
-  // Resets exporter to null. Used only for unit tests.
-  @VisibleForTesting
-  static void unsafeResetExporter() {
+  /**
+   * Unregisters the {@link StackdriverStatsExporter} and stops metrics exporting.
+   *
+   * <p>Unexported data will be flushed before the exporter is stopped.
+   *
+   * @since 0.23
+   */
+  public static void unregister() {
     synchronized (monitor) {
       if (instance != null) {
         instance.intervalMetricReader.stop();

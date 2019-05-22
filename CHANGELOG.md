@@ -1,4 +1,5 @@
 ## Unreleased
+- Make `StackdriverStatsExporter.unregister()` a public API.
 
 ## 0.22.1 - 2019-05-21
 - Increase the buffer size for the trace export batch to 2500 (previously it was 32).
