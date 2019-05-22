@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Exporter to Stackdriver Monitoring Client API v3.
@@ -67,6 +68,7 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * @since 0.9
  */
+@ThreadSafe
 public final class StackdriverStatsExporter {
 
   @VisibleForTesting static final Object monitor = new Object();
