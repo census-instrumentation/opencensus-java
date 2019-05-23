@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,16 +85,12 @@ public class TraceWebAsyncClientAutoConfigurationTest {
 
   @Test(timeout = 10000)
   @Order(1)
-  // Need to suppress warnings for MustBeClosed because Java-6 does not support try-with-resources.
-  @SuppressWarnings("MustBeClosedChecker")
   public void should_close_span_upon_success_callback()
       throws ExecutionException, InterruptedException {
-    this.tracer = Tracing.getTracer();
+    tracer = Tracing.getTracer();
     Span initialSpan = this.tracer.spanBuilder("initial").startSpan();
 
-    Scope ws = null;
-    try {
-      ws = this.tracer.withSpan(initialSpan);
+    try (Scope ws = this.tracer.withSpan(initialSpan)) {
       ListenableFuture<ResponseEntity<String>> future =
           this.asyncRestTemplate.getForEntity(
               "http://localhost:" + port() + "/async", String.class);
@@ -103,9 +100,6 @@ public class TraceWebAsyncClientAutoConfigurationTest {
     } catch (Exception e) {
       System.out.println(e);
     } finally {
-      if (ws != null) {
-        ws.close();
-      }
       initialSpan.end();
     }
 
@@ -145,12 +139,14 @@ public class TraceWebAsyncClientAutoConfigurationTest {
   @Test(timeout = 10000)
   @Order(2)
   public void should_close_span_upon_failure_callback() {
+    boolean exceptionOccured = false;
     final ListenableFuture<ResponseEntity<String>> future;
     try {
       future =
           this.asyncRestTemplate.getForEntity("http://localhost:" + port() + "/fail", String.class);
       new Thread(
               new Runnable() {
+                @Override
                 public void run() {
                   try {
                     Thread.sleep(100);
@@ -161,12 +157,14 @@ public class TraceWebAsyncClientAutoConfigurationTest {
                 }
               })
           .start();
-
       future.get(500, TimeUnit.MILLISECONDS);
-      assertThat(true).named("should throw an exception from the controller");
-    } catch (Exception e) {
+    } catch (CancellationException e) {
       assertThat(e).isInstanceOf(CancellationException.class);
+      exceptionOccured = true;
+    } catch (Exception e) {
+      Assert.fail("unexpected exception:" + e);
     }
+    assertThat(exceptionOccured).isTrue();
 
     List<SpanData> spans = handler.waitForExport(1);
     System.out.println("Spans " + spans.toString());

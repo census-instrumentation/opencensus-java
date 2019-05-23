@@ -66,9 +66,8 @@ public final class TracingAsyncClientHttpRequestInterceptor
   }
 
   TracingAsyncClientHttpRequestInterceptor() {
-    System.out.println("constructing interceptor");
 
-    this.tracer = Tracing.getTracer();
+    tracer = Tracing.getTracer();
     this.handler =
         new HttpClientHandler<HttpRequest, ClientHttpResponse, HttpRequest>(
             Tracing.getTracer(),
@@ -120,12 +119,10 @@ public final class TracingAsyncClientHttpRequestInterceptor
     }
 
     public void onFailure(Throwable ex) {
-      System.out.println("on failure");
       this.handler.handleEnd(context, null, null, ex);
     }
 
     public void onSuccess(@Nullable ClientHttpResponse result) {
-      System.out.println("on success");
       this.handler.handleEnd(context, null, result, (Throwable) null);
     }
   }
