@@ -16,20 +16,17 @@ dependencies {
             libraries.spring_aspects,
             libraries.spring_context,
             libraries.spring_cloud_build,
-            libraries.findbugs_annotations
-    compile("org.apache.httpcomponents:httpclient:4.5.8")
-    compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+            libraries.findbugs_annotations,
+            libraries.spring_boot_starter_web2,
+            libraries.httpcomponents
 
     testCompile project(':opencensus-impl'),
             project(':opencensus-testing'),
             libraries.aspectj,
-            libraries.spring_test
-
-    testCompile(
-            "javax.servlet:javax.servlet-api:3.1.0",
-            "org.springframework.boot:spring-boot-starter-test:${springBootVersion}",
-            "org.springframework.boot:spring-boot-starter-tomcat:${springBootVersion}",
-    )
+            libraries.spring_test,
+            libraries.sprint_boot_starter_tomcat,
+            libraries.spring_boot_test2,
+            libraries.javax_servlet
 
     signature "org.codehaus.mojo.signature:java17:1.0@signature"
 }
