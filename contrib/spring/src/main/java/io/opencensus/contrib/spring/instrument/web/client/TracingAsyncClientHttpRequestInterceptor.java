@@ -68,7 +68,7 @@ public final class TracingAsyncClientHttpRequestInterceptor
   TracingAsyncClientHttpRequestInterceptor() {
 
     tracer = Tracing.getTracer();
-    this.handler =
+    handler =
         new HttpClientHandler<HttpRequest, ClientHttpResponse, HttpRequest>(
             Tracing.getTracer(),
             new HttpClientExtractor(),
@@ -86,15 +86,14 @@ public final class TracingAsyncClientHttpRequestInterceptor
       byte[] body,
       org.springframework.http.client.AsyncClientHttpRequestExecution execution)
       throws IOException {
-    HttpRequestContext context =
-        this.handler.handleStart(tracer.getCurrentSpan(), request, request);
+    HttpRequestContext context = handler.handleStart(tracer.getCurrentSpan(), request, request);
 
-    Scope ws = this.tracer.withSpan(this.handler.getSpanFromContext(context));
+    Scope ws = tracer.withSpan(handler.getSpanFromContext(context));
     try {
       ListenableFuture<ClientHttpResponse> result = execution.executeAsync(request, body);
       result.addCallback(
           new TracingAsyncClientHttpRequestInterceptor.TraceListenableFutureCallback(
-              context, this.handler));
+              context, handler));
       return result;
     } catch (IOException e) {
       handler.handleEnd(context, null, null, e);
@@ -119,11 +118,11 @@ public final class TracingAsyncClientHttpRequestInterceptor
     }
 
     public void onFailure(Throwable ex) {
-      this.handler.handleEnd(context, null, null, ex);
+      handler.handleEnd(context, null, null, ex);
     }
 
     public void onSuccess(@Nullable ClientHttpResponse result) {
-      this.handler.handleEnd(context, null, result, (Throwable) null);
+      handler.handleEnd(context, null, result, (Throwable) null);
     }
   }
 

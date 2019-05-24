@@ -88,12 +88,11 @@ public class TraceWebAsyncClientAutoConfigurationTest {
   public void should_close_span_upon_success_callback()
       throws ExecutionException, InterruptedException {
     tracer = Tracing.getTracer();
-    Span initialSpan = this.tracer.spanBuilder("initial").startSpan();
+    Span initialSpan = tracer.spanBuilder("initial").startSpan();
 
-    try (Scope ws = this.tracer.withSpan(initialSpan)) {
+    try (Scope ws = tracer.withSpan(initialSpan)) {
       ListenableFuture<ResponseEntity<String>> future =
-          this.asyncRestTemplate.getForEntity(
-              "http://localhost:" + port() + "/async", String.class);
+          asyncRestTemplate.getForEntity("http://localhost:" + port() + "/async", String.class);
       String result = future.get().getBody();
 
       assertThat(result).isEqualTo("async");
@@ -140,8 +139,7 @@ public class TraceWebAsyncClientAutoConfigurationTest {
     boolean exceptionOccured = false;
     final ListenableFuture<ResponseEntity<String>> future;
     try {
-      future =
-          this.asyncRestTemplate.getForEntity("http://localhost:" + port() + "/fail", String.class);
+      future = asyncRestTemplate.getForEntity("http://localhost:" + port() + "/fail", String.class);
       new Thread(
               new Runnable() {
                 @Override
@@ -184,7 +182,7 @@ public class TraceWebAsyncClientAutoConfigurationTest {
   }
 
   int port() {
-    Integer port = this.environment.getProperty("local.server.port", Integer.class);
+    Integer port = environment.getProperty("local.server.port", Integer.class);
     if (port != null) {
       return port;
     }

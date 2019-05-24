@@ -71,12 +71,12 @@ public class TraceWebAsyncClientAutoConfiguration {
 
     @PostConstruct
     public void init() {
-      if (this.restTemplates != null) {
-        for (org.springframework.web.client.AsyncRestTemplate restTemplate : this.restTemplates) {
+      if (restTemplates != null) {
+        for (org.springframework.web.client.AsyncRestTemplate restTemplate : restTemplates) {
           List<org.springframework.http.client.AsyncClientHttpRequestInterceptor> interceptors =
               new ArrayList<org.springframework.http.client.AsyncClientHttpRequestInterceptor>(
                   restTemplate.getInterceptors());
-          interceptors.add(this.clientInterceptor);
+          interceptors.add(clientInterceptor);
           restTemplate.setInterceptors(interceptors);
         }
       }
