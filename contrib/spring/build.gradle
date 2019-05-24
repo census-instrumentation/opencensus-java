@@ -18,7 +18,7 @@ dependencies {
             libraries.spring_cloud_build,
             libraries.findbugs_annotations
     compile("org.apache.httpcomponents:httpclient:4.5.8")
-    compile("org.springframework.boot:spring-boot-starter-web:2.1.5.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
 
     testCompile project(':opencensus-impl'),
             project(':opencensus-testing'),

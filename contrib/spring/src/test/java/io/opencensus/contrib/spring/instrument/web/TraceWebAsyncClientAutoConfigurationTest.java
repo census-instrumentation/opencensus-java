@@ -97,8 +97,6 @@ public class TraceWebAsyncClientAutoConfigurationTest {
       String result = future.get().getBody();
 
       assertThat(result).isEqualTo("async");
-    } catch (Exception e) {
-      System.out.println(e);
     } finally {
       initialSpan.end();
     }
