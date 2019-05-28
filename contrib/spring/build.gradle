@@ -3,8 +3,8 @@ description = 'OpenCensus Spring'
 apply plugin: 'java'
 
 [compileJava, compileTestJava].each() {
-    it.sourceCompatibility = 1.6
-    it.targetCompatibility = 1.6
+    it.sourceCompatibility = 1.8
+    it.targetCompatibility = 1.8
 }
 
 dependencies {
@@ -13,15 +13,18 @@ dependencies {
             project(':opencensus-contrib-http-servlet'),
             libraries.spring_aspects,
             libraries.spring_context,
-            libraries.spring_boot_starter_web,
             libraries.spring_cloud_build,
-            libraries.findbugs_annotations
+            libraries.findbugs_annotations,
+            libraries.spring_boot_starter_web2,
+            libraries.httpcomponents
 
     testCompile project(':opencensus-impl'),
             project(':opencensus-testing'),
             libraries.aspectj,
             libraries.spring_test,
-            libraries.spring_boot_test
+            libraries.sprint_boot_starter_tomcat,
+            libraries.spring_boot_test2,
+            libraries.javax_servlet
 
     signature "org.codehaus.mojo.signature:java17:1.0@signature"
 }
