@@ -7,8 +7,6 @@ apply plugin: 'java'
     it.targetCompatibility = 1.8
 }
 
-springBootVersion = '2.1.5.RELEASE'
-
 dependencies {
     compile project(':opencensus-api'),
             project(':opencensus-contrib-http-util'),

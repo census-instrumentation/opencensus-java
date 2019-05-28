@@ -45,7 +45,6 @@ public final class TracingAsyncClientHttpRequestInterceptor
   final Tracer tracer;
   final HttpClientHandler<HttpRequest, ClientHttpResponse, HttpRequest> handler;
 
-  // final Injector<HttpHeaders> injector;
   private static final Setter<HttpRequest> setter =
       new Setter<HttpRequest>() {
         @Override
