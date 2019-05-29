@@ -22,7 +22,7 @@ import static io.opencensus.contrib.http.servlet.OcHttpServletFilter.OC_EXTRACTO
 import static io.opencensus.contrib.http.servlet.OcHttpServletFilter.OC_PUBLIC_ENDPOINT;
 import static io.opencensus.contrib.http.servlet.OcHttpServletFilter.OC_TRACE_PROPAGATOR;
 import static io.opencensus.contrib.http.servlet.OcHttpServletUtil.CONTENT_LENGTH;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;

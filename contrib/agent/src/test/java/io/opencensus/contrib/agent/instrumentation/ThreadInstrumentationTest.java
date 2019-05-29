@@ -23,7 +23,7 @@ import io.opencensus.contrib.agent.Settings;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /** Unit tests for {@link ThreadInstrumentation}. */
 @RunWith(MockitoJUnitRunner.class)

@@ -17,7 +17,7 @@
 package io.opencensus.exporter.trace.ocagent;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
