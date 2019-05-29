@@ -45,8 +45,7 @@ public class OcAgentTraceExporterTest {
     OcAgentTraceExporter.register(spanExporter, handler);
     verify(spanExporter)
         .registerHandler(
-            eq("io.opencensus.exporter.trace.ocagent.OcAgentTraceExporter"),
-            any(OcAgentTraceExporterHandler.class));
+            eq("io.opencensus.exporter.trace.ocagent.OcAgentTraceExporter"), any(Handler.class));
     OcAgentTraceExporter.unregister(spanExporter);
     verify(spanExporter)
         .unregisterHandler(eq("io.opencensus.exporter.trace.ocagent.OcAgentTraceExporter"));
