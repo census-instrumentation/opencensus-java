@@ -227,7 +227,7 @@ subprojects {
                 // Test dependencies.
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
                 junit: 'junit:junit:4.12',
-                mockito: 'org.mockito:mockito-core:1.9.5',
+                mockito: 'org.mockito:mockito-core:2.28.1',
                 spring_test: "org.springframework:spring-test:${springVersion}",
                 truth: 'com.google.truth:truth:0.44',
                 spring_boot_test: "org.springframework.boot:spring-boot-starter-test:${springBootTestVersion}",

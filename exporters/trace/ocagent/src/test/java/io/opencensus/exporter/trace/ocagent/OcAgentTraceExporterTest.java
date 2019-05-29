@@ -16,8 +16,8 @@
 
 package io.opencensus.exporter.trace.ocagent;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import io.opencensus.trace.export.SpanExporter;
@@ -45,8 +45,7 @@ public class OcAgentTraceExporterTest {
     OcAgentTraceExporter.register(spanExporter, handler);
     verify(spanExporter)
         .registerHandler(
-            eq("io.opencensus.exporter.trace.ocagent.OcAgentTraceExporter"),
-            any(OcAgentTraceExporterHandler.class));
+            eq("io.opencensus.exporter.trace.ocagent.OcAgentTraceExporter"), any(Handler.class));
     OcAgentTraceExporter.unregister(spanExporter);
     verify(spanExporter)
         .unregisterHandler(eq("io.opencensus.exporter.trace.ocagent.OcAgentTraceExporter"));

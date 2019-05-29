@@ -17,7 +17,6 @@
 package io.opencensus.implcore.trace.export;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.doThrow;
 
 import io.opencensus.common.Duration;
@@ -44,6 +43,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -247,7 +247,7 @@ public class SpanExporterImplTest {
   public void serviceHandlerThrowsException() {
     doThrow(new IllegalArgumentException("No export for you."))
         .when(mockServiceHandler)
-        .export(anyListOf(SpanData.class));
+        .export(ArgumentMatchers.<SpanData>anyList());
 
     SpanExporterImpl spanExporter = SpanExporterImpl.create(4, Duration.create(1, 0));
     StartEndHandler startEndHandler =
