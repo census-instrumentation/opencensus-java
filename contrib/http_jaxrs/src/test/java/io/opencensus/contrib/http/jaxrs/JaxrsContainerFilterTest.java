@@ -33,6 +33,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.UriInfo;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -45,6 +47,13 @@ public class JaxrsContainerFilterTest {
   @Mock ResourceInfo info;
 
   @InjectMocks JaxrsContainerFilter filter = new JaxrsContainerFilter();
+
+  @Before
+  public void setUp() {
+    // Mockito in this test depends on some class that's only available on JDK 1.8:
+    // TypeDescription$Generic$AnnotationReader$Dispatcher$ForJava8CapableVm
+    Assume.assumeTrue(System.getProperty("java.version").startsWith("1.8"));
+  }
 
   @Test
   public void testRequestFilter() throws Exception {

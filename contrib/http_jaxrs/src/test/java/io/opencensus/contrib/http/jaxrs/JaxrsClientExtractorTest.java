@@ -24,12 +24,21 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientResponseContext;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class JaxrsClientExtractorTest {
+
+  @Before
+  public void setUp() {
+    // Mockito in this test depends on some class that's only available on JDK 1.8:
+    // TypeDescription$Generic$AnnotationReader$Dispatcher$ForJava8CapableVm
+    Assume.assumeTrue(System.getProperty("java.version").startsWith("1.8"));
+  }
 
   @Test
   public void testExtraction() {
