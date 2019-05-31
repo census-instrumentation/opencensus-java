@@ -27,6 +27,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class OpenCensusProperties {
 
   private boolean enabled = true;
+  private Trace trace = new Trace();
 
   public boolean isEnabled() {
     return this.enabled;
@@ -34,5 +35,48 @@ public class OpenCensusProperties {
 
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
+  }
+
+  public Trace getTrace() {
+    return this.trace;
+  }
+
+  public void setTrace(Trace trace) {
+    this.trace = trace;
+  }
+
+  /** Trace properties. */
+  public static class Trace {
+
+    public static final String TRACE_PROPAGATION_TRACE_CONTEXT = "tracecontext";
+    public static final String TRACE_PROPAGATION_B3 = "b3";
+
+    private boolean enabled = true;
+    private String propagation = TRACE_PROPAGATION_TRACE_CONTEXT;
+    private boolean publicEndpoint = false;
+
+    public boolean isEnabled() {
+      return this.enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+    public String getPropagation() {
+      return propagation;
+    }
+
+    public void setPropagation(String propagation) {
+      this.propagation = propagation;
+    }
+
+    public boolean isPublicEndpoint() {
+      return publicEndpoint;
+    }
+
+    public void setPublicEndpoint(boolean publicEndpoint) {
+      this.publicEndpoint = publicEndpoint;
+    }
   }
 }
