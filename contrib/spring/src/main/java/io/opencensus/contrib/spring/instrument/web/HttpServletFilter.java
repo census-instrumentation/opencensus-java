@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(OpenCensusAutoConfiguration.TRACE_FILTER_ORDER)
 @SuppressFBWarnings("RI_REDUNDANT_INTERFACES")
+@SuppressWarnings("initialization.fields.uninitialized")
 public class HttpServletFilter extends OcHttpServletFilter implements Filter {
 
   @Value("${opencensus.spring.trace.propagation:" + Trace.TRACE_PROPAGATION_TRACE_CONTEXT + "}")

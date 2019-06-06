@@ -72,7 +72,8 @@ public final class TracingAsyncClientHttpRequestInterceptor
   }
 
   TracingAsyncClientHttpRequestInterceptor(
-      /* @Nullable */ TextFormat propagator, /* @Nullable */ HttpExtractor extractor) {
+      /* @Nullable */ TextFormat propagator,
+      /* @Nullable */ HttpExtractor<HttpRequest, ClientHttpResponse> extractor) {
 
     tracer = Tracing.getTracer();
 

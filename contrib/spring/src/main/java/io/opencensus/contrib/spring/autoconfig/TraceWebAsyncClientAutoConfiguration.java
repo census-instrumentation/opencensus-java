@@ -56,6 +56,7 @@ import org.springframework.http.client.ClientHttpResponse;
 public class TraceWebAsyncClientAutoConfiguration {
   @Configuration
   @ConditionalOnBean(org.springframework.web.client.AsyncRestTemplate.class)
+  @SuppressWarnings("initialization.fields.uninitialized")
   static class AsyncRestTemplateCfg {
 
     @Value("${opencensus.spring.trace.propagation:" + Trace.TRACE_PROPAGATION_TRACE_CONTEXT + "}")
