@@ -19,6 +19,7 @@ package io.opencensus.implcore.trace.export;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.common.ToLongFunction;
+import io.opencensus.implcore.internal.CheckerFrameworkUtils;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.trace.RecordEventsSpanImpl;
 import io.opencensus.metrics.DerivedLongCumulative;
@@ -318,13 +319,17 @@ public final class SpanExporterImpl extends SpanExporter {
       }
     }
 
-    @SuppressWarnings("argument.type.incompatible")
-    private void exportBatches(ArrayList<RecordEventsSpanImpl> spanList) {
+    private void exportBatches(ArrayList<RecordEventsSpanImpl> spansCopy) {
       ArrayList<SpanData> spanDataList = new ArrayList<>(bufferSize);
-      for (int i = 0; i < spanList.size(); i++) {
-        spanDataList.add(spanList.get(i).toSpanData());
+      for (int i = 0; i < spansCopy.size(); i++) {
+        spanDataList.add(spansCopy.get(i).toSpanData());
+
         // Remove the reference to the RecordEventsSpanImpl to allow GC to free the memory.
-        spanList.set(i, null);
+        // TODO: Refactor the handling of the spans list to remove this call to castNonNull. Setting
+        // the elements to null after they are read is safe because 'exportBatches' is only ever
+        // called on a copy of 'spans', and the copy is not reused.
+        spansCopy.set(i, (RecordEventsSpanImpl) CheckerFrameworkUtils.castNonNull(null));
+
         if (spanDataList.size() == bufferSize) {
           // One full batch, export it now. Wrap the list with unmodifiableList to ensure exporter
           // does not change the list.
