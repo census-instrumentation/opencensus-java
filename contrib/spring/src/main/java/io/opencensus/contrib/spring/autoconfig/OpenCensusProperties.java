@@ -16,6 +16,8 @@
 
 package io.opencensus.contrib.spring.autoconfig;
 
+import static io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace.Propagation.TRACE_PROPAGATION_TRACE_CONTEXT;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -45,29 +47,37 @@ public class OpenCensusProperties {
     this.trace = trace;
   }
 
-  /** Trace properties. */
-  public static class Trace {
+  /**
+   * Trace properties.
+   *
+   * @since 0.23
+   */
+  public static final class Trace {
 
-    public static final String TRACE_PROPAGATION_TRACE_CONTEXT = "tracecontext";
-    public static final String TRACE_PROPAGATION_B3 = "b3";
+    public enum Propagation {
+      /**
+       * Specifies Trace Context format for span context propagation.
+       *
+       * @since 0.23
+       */
+      TRACE_PROPAGATION_TRACE_CONTEXT,
 
-    private boolean enabled = true;
-    private String propagation = TRACE_PROPAGATION_TRACE_CONTEXT;
+      /**
+       * Specifies B3 format for span context propagation.
+       *
+       * @since 0.23
+       */
+      TRACE_PROPAGATION_B3,
+    }
+
+    private Propagation propagation = TRACE_PROPAGATION_TRACE_CONTEXT;
     private boolean publicEndpoint = false;
 
-    public boolean isEnabled() {
-      return this.enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-      this.enabled = enabled;
-    }
-
-    public String getPropagation() {
+    public Propagation getPropagation() {
       return propagation;
     }
 
-    public void setPropagation(String propagation) {
+    public void setPropagation(Propagation propagation) {
       this.propagation = propagation;
     }
 

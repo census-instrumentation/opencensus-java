@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opencensus.contrib.http.servlet.OcHttpServletFilter;
 import io.opencensus.contrib.spring.autoconfig.OpenCensusAutoConfiguration;
 import io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace;
+import io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace.Propagation;
 import io.opencensus.trace.Tracing;
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
@@ -35,8 +36,8 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings("initialization.fields.uninitialized")
 public class HttpServletFilter extends OcHttpServletFilter implements Filter {
 
-  @Value("${opencensus.spring.trace.propagation:" + Trace.TRACE_PROPAGATION_TRACE_CONTEXT + "}")
-  private String propagation;
+  @Value("${opencensus.spring.trace.propagation:TRACE_PROPAGATION_TRACE_CONTEXT}")
+  private Trace.Propagation propagation;
 
   @Value("${opencensus.spring.trace.publicEndpoint:false}")
   private Boolean publicEndpoint;
@@ -44,7 +45,7 @@ public class HttpServletFilter extends OcHttpServletFilter implements Filter {
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     ServletContext context = filterConfig.getServletContext();
-    if (propagation.equals(Trace.TRACE_PROPAGATION_B3)) {
+    if (propagation != null && propagation == Propagation.TRACE_PROPAGATION_B3) {
       context.setAttribute(OC_TRACE_PROPAGATOR, Tracing.getPropagationComponent().getB3Format());
     }
     if (publicEndpoint) {

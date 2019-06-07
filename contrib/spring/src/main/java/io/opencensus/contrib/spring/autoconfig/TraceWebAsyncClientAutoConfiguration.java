@@ -19,6 +19,7 @@ package io.opencensus.contrib.spring.autoconfig;
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.contrib.http.HttpExtractor;
 import io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace;
+import io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace.Propagation;
 import io.opencensus.contrib.spring.instrument.web.client.TracingAsyncClientHttpRequestInterceptor;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.propagation.TextFormat;
@@ -59,8 +60,8 @@ public class TraceWebAsyncClientAutoConfiguration {
   @SuppressWarnings("initialization.fields.uninitialized")
   static class AsyncRestTemplateCfg {
 
-    @Value("${opencensus.spring.trace.propagation:" + Trace.TRACE_PROPAGATION_TRACE_CONTEXT + "}")
-    private String propagation;
+    @Value("${opencensus.spring.trace.propagation:TRACE_PROPAGATION_TRACE_CONTEXT}")
+    private Trace.Propagation propagation;
 
     @Autowired(required = false)
     HttpExtractor<HttpRequest, ClientHttpResponse> extractor;
@@ -69,7 +70,7 @@ public class TraceWebAsyncClientAutoConfiguration {
     public TracingAsyncClientHttpRequestInterceptor asyncTracingClientHttpRequestInterceptor() {
       TextFormat propagator;
 
-      if (propagation != null && propagation.equals(Trace.TRACE_PROPAGATION_B3)) {
+      if (propagation != null && propagation == Propagation.TRACE_PROPAGATION_B3) {
         propagator = Tracing.getPropagationComponent().getB3Format();
       } else {
         propagator = Tracing.getPropagationComponent().getTraceContextFormat();
