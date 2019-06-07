@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.http.util;
 
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_HOST;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_METHOD;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY;
@@ -94,7 +95,7 @@ public final class HttpViewConstants {
           "Count of client-side HTTP requests completed",
           HTTP_CLIENT_ROUNDTRIP_LATENCY,
           COUNT,
-          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
+          Arrays.asList(HTTP_CLIENT_HOST, HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
 
   /**
    * {@link View} for size distribution of client-side HTTP request body.
@@ -107,7 +108,7 @@ public final class HttpViewConstants {
           "Size distribution of client-side HTTP request body",
           HTTP_CLIENT_SENT_BYTES,
           SIZE_DISTRIBUTION,
-          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
+          Arrays.asList(HTTP_CLIENT_HOST, HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
 
   /**
    * {@link View} for size distribution of client-side HTTP response body.
@@ -120,7 +121,7 @@ public final class HttpViewConstants {
           "Size distribution of client-side HTTP response body",
           HTTP_CLIENT_RECEIVED_BYTES,
           SIZE_DISTRIBUTION,
-          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
+          Arrays.asList(HTTP_CLIENT_HOST, HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
 
   /**
    * {@link View} for roundtrip latency distribution of client-side HTTP requests.
@@ -133,7 +134,7 @@ public final class HttpViewConstants {
           "Roundtrip latency distribution of client-side HTTP requests",
           HTTP_CLIENT_ROUNDTRIP_LATENCY,
           LATENCY_DISTRIBUTION,
-          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
+          Arrays.asList(HTTP_CLIENT_HOST, HTTP_CLIENT_METHOD, HTTP_CLIENT_STATUS));
 
   /**
    * {@link View} for count of server-side HTTP requests serving completed.

@@ -18,6 +18,7 @@ package io.opencensus.contrib.http;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.opencensus.contrib.http.HttpRequestContext.METADATA_NO_PROPAGATION;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_HOST;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_METHOD;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY;
@@ -26,9 +27,11 @@ import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_S
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.contrib.http.util.HttpClientMetricGranularity;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
@@ -63,6 +66,7 @@ public class HttpClientHandler<
   private final Tracer tracer;
   private final StatsRecorder statsRecorder;
   private final Tagger tagger;
+  private final HttpClientMetricGranularity metricGranularity;
 
   /**
    * Creates a {@link HttpClientHandler} with given parameters.
@@ -79,6 +83,26 @@ public class HttpClientHandler<
       HttpExtractor<Q, P> extractor,
       TextFormat textFormat,
       TextFormat.Setter<C> setter) {
+    this(tracer, extractor, textFormat, setter, HttpClientMetricGranularity.METHOD);
+  }
+
+  /**
+   * Creates a {@link HttpClientHandler} with given parameters.
+   *
+   * @param tracer the Open Census tracing component.
+   * @param extractor the {@code HttpExtractor} used to extract information from the
+   *     request/response.
+   * @param textFormat the {@code TextFormat} used in HTTP propagation.
+   * @param setter the setter used when injecting information to the {@code carrier}.
+   * @param httpClientMetricGranularity the granularity at which the http metrics should be
+   *     collected.
+   */
+  public HttpClientHandler(
+      Tracer tracer,
+      HttpExtractor<Q, P> extractor,
+      TextFormat textFormat,
+      TextFormat.Setter<C> setter,
+      HttpClientMetricGranularity httpClientMetricGranularity) {
     super(extractor);
     checkNotNull(setter, "setter");
     checkNotNull(textFormat, "textFormat");
@@ -86,6 +110,7 @@ public class HttpClientHandler<
     this.setter = setter;
     this.textFormat = textFormat;
     this.tracer = tracer;
+    this.metricGranularity = httpClientMetricGranularity;
     this.statsRecorder = Stats.getStatsRecorder();
     this.tagger = Tags.getTagger();
   }
@@ -156,7 +181,9 @@ public class HttpClientHandler<
     double requestLatency = NANOSECONDS.toMillis(System.nanoTime() - context.requestStartTime);
 
     String methodStr = request == null ? "" : extractor.getMethod(request);
-    TagContext startCtx =
+    String host = request == null ? "null_request" : extractor.getHost(request);
+
+    TagContextBuilder startCtxBuilder =
         tagger
             .toBuilder(context.tagContext)
             .put(
@@ -166,9 +193,16 @@ public class HttpClientHandler<
             .put(
                 HTTP_CLIENT_STATUS,
                 TagValue.create(httpCode == 0 ? "error" : Integer.toString(httpCode)),
-                METADATA_NO_PROPAGATION)
-            .build();
+                METADATA_NO_PROPAGATION);
 
+    if (metricGranularity == HttpClientMetricGranularity.HOST) {
+      startCtxBuilder.put(
+          HTTP_CLIENT_HOST,
+          TagValue.create(host == null ? "null_host" : host),
+          METADATA_NO_PROPAGATION);
+    }
+
+    TagContext startCtx = startCtxBuilder.build();
     statsRecorder
         .newMeasureMap()
         .put(HTTP_CLIENT_ROUNDTRIP_LATENCY, requestLatency)
