@@ -21,6 +21,7 @@ import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
@@ -58,7 +59,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 final class JaegerExporterHandler extends TimeLimitedHandler {
   private static final String EXPORT_SPAN_NAME = "ExportJaegerTraces";
-  private static final String SPAN_KIND = "span.kind";
+  @VisibleForTesting static final String SPAN_KIND = "span.kind";
   private static final Tag SERVER_KIND_TAG = new Tag(SPAN_KIND, TagType.STRING).setVStr("server");
   private static final Tag CLIENT_KIND_TAG = new Tag(SPAN_KIND, TagType.STRING).setVStr("client");
   private static final String DESCRIPTION = "message";
@@ -69,9 +70,9 @@ final class JaegerExporterHandler extends TimeLimitedHandler {
   private static final String MESSAGE_EVENT_ID = "id";
   private static final String MESSAGE_EVENT_COMPRESSED_SIZE = "compressed_size";
   private static final String MESSAGE_EVENT_UNCOMPRESSED_SIZE = "uncompressed_size";
-  private static final String STATUS_CODE = "status.code";
-  private static final String STATUS_MESSAGE = "status.message";
-  private static final String STATUS_ERROR = "error";
+  @VisibleForTesting static final String STATUS_CODE = "status.code";
+  @VisibleForTesting static final String STATUS_MESSAGE = "status.message";
+  @VisibleForTesting static final String STATUS_ERROR = "error";
 
   private static final Function<? super String, Tag> stringAttributeConverter =
       new Function<String, Tag>() {

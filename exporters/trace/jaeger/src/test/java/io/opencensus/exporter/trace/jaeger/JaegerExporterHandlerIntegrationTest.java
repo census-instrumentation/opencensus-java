@@ -179,7 +179,7 @@ public class JaegerExporterHandlerIntegrationTest {
     assertThat(tag.get("type").getAsString()).isEqualTo("string");
     assertThat(tag.get("value").getAsString()).isEqualTo("bar");
     JsonObject statusTag = tags.get(1).getAsJsonObject();
-    assertThat(statusTag.get("key").getAsString()).isEqualTo("status.code");
+    assertThat(statusTag.get("key").getAsString()).isEqualTo(JaegerExporterHandler.STATUS_CODE);
     assertThat(statusTag.get("type").getAsString()).isEqualTo("int64");
     assertThat(statusTag.get("value").getAsLong()).isEqualTo(0);
 

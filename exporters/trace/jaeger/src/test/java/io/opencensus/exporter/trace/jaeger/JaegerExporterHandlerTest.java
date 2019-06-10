@@ -110,10 +110,10 @@ public class JaegerExporterHandlerTest {
         .containsExactly(
             new Tag("BOOL", TagType.BOOL).setVBool(false),
             new Tag("LONG", TagType.LONG).setVLong(Long.MAX_VALUE),
-            new Tag("span.kind", TagType.STRING).setVStr("server"),
+            new Tag(JaegerExporterHandler.SPAN_KIND, TagType.STRING).setVStr("server"),
             new Tag("STRING", TagType.STRING)
                 .setVStr("Judge of a man by his questions rather than by his answers. -- Voltaire"),
-            new Tag("status.code", TagType.LONG).setVLong(0));
+            new Tag(JaegerExporterHandler.STATUS_CODE, TagType.LONG).setVLong(0));
 
     assertThat(span.logs.size()).isEqualTo(2);
     Log log = span.logs.get(0);
@@ -176,10 +176,10 @@ public class JaegerExporterHandlerTest {
     assertThat(span.tags.size()).isEqualTo(4);
     assertThat(span.tags)
         .containsExactly(
-            new Tag("span.kind", TagType.STRING).setVStr("server"),
-            new Tag("status.code", TagType.LONG).setVLong(4),
-            new Tag("status.message", TagType.STRING).setVStr(statusMessage),
-            new Tag("error", TagType.BOOL).setVBool(true));
+            new Tag(JaegerExporterHandler.SPAN_KIND, TagType.STRING).setVStr("server"),
+            new Tag(JaegerExporterHandler.STATUS_CODE, TagType.LONG).setVLong(4),
+            new Tag(JaegerExporterHandler.STATUS_MESSAGE, TagType.STRING).setVStr(statusMessage),
+            new Tag(JaegerExporterHandler.STATUS_ERROR, TagType.BOOL).setVBool(true));
   }
 
   private static SpanContext sampleSpanContext() {
