@@ -48,6 +48,8 @@ import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.export.SpanData;
+import io.opencensus.trace.export.SpanData.TimedEvent;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -103,15 +105,15 @@ public class JaegerExporterHandlerTest {
     assertThat(span.startTime).isEqualTo(MILLISECONDS.toMicros(startTime));
     assertThat(span.duration).isEqualTo(MILLISECONDS.toMicros(endTime - startTime));
 
-    assertThat(span.tags.size()).isEqualTo(4);
+    assertThat(span.tags.size()).isEqualTo(5);
     assertThat(span.tags)
         .containsExactly(
             new Tag("BOOL", TagType.BOOL).setVBool(false),
             new Tag("LONG", TagType.LONG).setVLong(Long.MAX_VALUE),
             new Tag("span.kind", TagType.STRING).setVStr("server"),
             new Tag("STRING", TagType.STRING)
-                .setVStr(
-                    "Judge of a man by his questions rather than by his answers. -- Voltaire"));
+                .setVStr("Judge of a man by his questions rather than by his answers. -- Voltaire"),
+            new Tag("status.code", TagType.LONG).setVLong(0));
 
     assertThat(span.logs.size()).isEqualTo(2);
     Log log = span.logs.get(0);
@@ -140,6 +142,44 @@ public class JaegerExporterHandlerTest {
     assertThat(reference.traceIdLow).isEqualTo(-256L);
     assertThat(reference.spanId).isEqualTo(512L);
     assertThat(reference.refType).isEqualTo(SpanRefType.CHILD_OF);
+  }
+
+  @Test
+  public void convertErrorSpanDataToJaegerThriftSpan() throws SenderException {
+    long startTime = 1519629870001L;
+    long endTime = 1519630148002L;
+    String statusMessage = "timeout";
+    SpanData spanData =
+        SpanData.create(
+            sampleSpanContext(),
+            SpanId.fromBytes(new byte[] {(byte) 0x7F, FF, FF, FF, FF, FF, FF, FF}),
+            true,
+            "test",
+            Kind.SERVER,
+            Timestamp.fromMillis(startTime),
+            SpanData.Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
+            SpanData.TimedEvents.create(Collections.<TimedEvent<Annotation>>emptyList(), 0),
+            SpanData.TimedEvents.create(Collections.<TimedEvent<MessageEvent>>emptyList(), 0),
+            SpanData.Links.create(Collections.<Link>emptyList(), 0),
+            0,
+            Status.DEADLINE_EXCEEDED.withDescription(statusMessage),
+            Timestamp.fromMillis(endTime));
+
+    handler.export(singletonList(spanData));
+
+    verify(mockSender).send(eq(process), captor.capture());
+    List<Span> spans = captor.getValue();
+
+    assertThat(spans.size()).isEqualTo(1);
+    Span span = spans.get(0);
+
+    assertThat(span.tags.size()).isEqualTo(4);
+    assertThat(span.tags)
+        .containsExactly(
+            new Tag("span.kind", TagType.STRING).setVStr("server"),
+            new Tag("status.code", TagType.LONG).setVLong(4),
+            new Tag("status.message", TagType.STRING).setVStr(statusMessage),
+            new Tag("error", TagType.BOOL).setVBool(true));
   }
 
   private static SpanContext sampleSpanContext() {

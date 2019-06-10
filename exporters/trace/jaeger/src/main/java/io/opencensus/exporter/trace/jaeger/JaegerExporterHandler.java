@@ -44,6 +44,7 @@ import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
+import io.opencensus.trace.Status;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.export.SpanData;
@@ -68,6 +69,9 @@ final class JaegerExporterHandler extends TimeLimitedHandler {
   private static final String MESSAGE_EVENT_ID = "id";
   private static final String MESSAGE_EVENT_COMPRESSED_SIZE = "compressed_size";
   private static final String MESSAGE_EVENT_UNCOMPRESSED_SIZE = "uncompressed_size";
+  private static final String STATUS_CODE = "status.code";
+  private static final String STATUS_MESSAGE = "status.message";
+  private static final String STATUS_ERROR = "error";
 
   private static final Function<? super String, Tag> stringAttributeConverter =
       new Function<String, Tag>() {
@@ -161,6 +165,11 @@ final class JaegerExporterHandler extends TimeLimitedHandler {
     final SpanContext context = spanData.getContext();
     copyToBuffer(context.getTraceId());
 
+    List<Tag> tags =
+        attributesToTags(
+            spanData.getAttributes().getAttributeMap(), spanKindToTag(spanData.getKind()));
+    addStatusTags(tags, spanData.getStatus());
+
     return new io.jaegertracing.thriftjava.Span(
             traceIdLow(),
             traceIdHigh(),
@@ -171,9 +180,7 @@ final class JaegerExporterHandler extends TimeLimitedHandler {
             startTimeInMicros,
             endTimeInMicros - startTimeInMicros)
         .setReferences(linksToReferences(spanData.getLinks().getLinks()))
-        .setTags(
-            attributesToTags(
-                spanData.getAttributes().getAttributeMap(), spanKindToTag(spanData.getKind())))
+        .setTags(tags)
         .setLogs(
             timedEventsToLogs(
                 spanData.getAnnotations().getEvents(), spanData.getMessageEvents().getEvents()));
@@ -334,5 +341,20 @@ final class JaegerExporterHandler extends TimeLimitedHandler {
         return SERVER_KIND_TAG;
     }
     return null;
+  }
+
+  private static void addStatusTags(List<Tag> tags, @Nullable Status status) {
+    if (status == null) {
+      return;
+    }
+    Tag statusTag = new Tag(STATUS_CODE, TagType.LONG).setVLong(status.getCanonicalCode().value());
+    tags.add(statusTag);
+    if (!status.isOk()) {
+      // Ensure that if Status.Code is not OK, that we set the "error" tag on the Jaeger span.
+      tags.add(new Tag(STATUS_ERROR, TagType.BOOL).setVBool(true));
+    }
+    if (status.getDescription() != null) {
+      tags.add(new Tag(STATUS_MESSAGE, TagType.STRING).setVStr(status.getDescription()));
+    }
   }
 }

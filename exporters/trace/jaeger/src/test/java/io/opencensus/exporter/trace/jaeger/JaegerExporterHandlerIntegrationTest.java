@@ -173,11 +173,15 @@ public class JaegerExporterHandlerIntegrationTest {
     assertThat(span.get("duration").getAsLong()).isAtMost(durationInMicros);
 
     JsonArray tags = span.get("tags").getAsJsonArray();
-    assertThat(tags.size()).isEqualTo(1);
+    assertThat(tags.size()).isEqualTo(2);
     JsonObject tag = tags.get(0).getAsJsonObject();
     assertThat(tag.get("key").getAsString()).isEqualTo("foo");
     assertThat(tag.get("type").getAsString()).isEqualTo("string");
     assertThat(tag.get("value").getAsString()).isEqualTo("bar");
+    JsonObject statusTag = tags.get(1).getAsJsonObject();
+    assertThat(statusTag.get("key").getAsString()).isEqualTo("status.code");
+    assertThat(statusTag.get("type").getAsString()).isEqualTo("int64");
+    assertThat(statusTag.get("value").getAsLong()).isEqualTo(0);
 
     JsonArray logs = span.get("logs").getAsJsonArray();
     assertThat(logs.size()).isEqualTo(2);
