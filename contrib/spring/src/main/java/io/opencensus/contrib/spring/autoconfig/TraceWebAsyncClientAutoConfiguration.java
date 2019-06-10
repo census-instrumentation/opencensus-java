@@ -17,12 +17,18 @@
 package io.opencensus.contrib.spring.autoconfig;
 
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.contrib.http.HttpExtractor;
+import io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace;
+import io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace.Propagation;
 import io.opencensus.contrib.spring.instrument.web.client.TracingAsyncClientHttpRequestInterceptor;
+import io.opencensus.trace.Tracing;
+import io.opencensus.trace.propagation.TextFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -31,6 +37,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
 
 /**
  * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration Auto-configuration} enables
@@ -49,12 +57,26 @@ import org.springframework.context.annotation.Configuration;
 public class TraceWebAsyncClientAutoConfiguration {
   @Configuration
   @ConditionalOnBean(org.springframework.web.client.AsyncRestTemplate.class)
+  @SuppressWarnings("initialization.fields.uninitialized")
   static class AsyncRestTemplateCfg {
+
+    @Value("${opencensus.spring.trace.propagation:TRACE_PROPAGATION_TRACE_CONTEXT}")
+    private Trace.Propagation propagation;
+
+    @Autowired(required = false)
+    HttpExtractor<HttpRequest, ClientHttpResponse> extractor;
 
     @Bean
     public TracingAsyncClientHttpRequestInterceptor asyncTracingClientHttpRequestInterceptor() {
+      TextFormat propagator;
+
+      if (propagation != null && propagation == Propagation.TRACE_PROPAGATION_B3) {
+        propagator = Tracing.getPropagationComponent().getB3Format();
+      } else {
+        propagator = Tracing.getPropagationComponent().getTraceContextFormat();
+      }
       return (TracingAsyncClientHttpRequestInterceptor)
-          TracingAsyncClientHttpRequestInterceptor.create();
+          TracingAsyncClientHttpRequestInterceptor.create(propagator, extractor);
     }
   }
 

@@ -23,6 +23,7 @@ import io.opencensus.contrib.http.HttpExtractor;
 import io.opencensus.contrib.http.HttpRequestContext;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.propagation.TextFormat;
 import io.opencensus.trace.propagation.TextFormat.Setter;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -57,22 +58,36 @@ public final class TracingAsyncClientHttpRequestInterceptor
   /**
    * Create an instance of {@code TracingAsyncClientHttpRequestInterceptor}.
    *
+   * @param extractor {@link HttpExtractor} to extract request and response specific attributes. If
+   *     it is null then default extractor is used.
+   * @param propagator {@link TextFormat} to propagate trace context to remote peer. If it is null
+   *     then default propagator (TraceContextFormat) is used.
    * @return {@code TracingAsyncClientHttpRequestInterceptor}
    * @since 0.23.0
    */
-  public static TracingAsyncClientHttpRequestInterceptor create() {
-    return new TracingAsyncClientHttpRequestInterceptor();
+  public static TracingAsyncClientHttpRequestInterceptor create(
+      @Nullable TextFormat propagator,
+      @Nullable HttpExtractor<HttpRequest, ClientHttpResponse> extractor) {
+    return new TracingAsyncClientHttpRequestInterceptor(propagator, extractor);
   }
 
-  TracingAsyncClientHttpRequestInterceptor() {
+  TracingAsyncClientHttpRequestInterceptor(
+      @Nullable TextFormat propagator,
+      @Nullable HttpExtractor<HttpRequest, ClientHttpResponse> extractor) {
 
     tracer = Tracing.getTracer();
+
+    if (propagator == null) {
+      propagator = Tracing.getPropagationComponent().getTraceContextFormat();
+    }
+
+    if (extractor == null) {
+      extractor = (HttpExtractor<HttpRequest, ClientHttpResponse>) new HttpClientExtractor();
+    }
+
     handler =
         new HttpClientHandler<HttpRequest, ClientHttpResponse, HttpRequest>(
-            Tracing.getTracer(),
-            new HttpClientExtractor(),
-            Tracing.getPropagationComponent().getTraceContextFormat(),
-            setter);
+            Tracing.getTracer(), extractor, propagator, setter);
   }
 
   /**
