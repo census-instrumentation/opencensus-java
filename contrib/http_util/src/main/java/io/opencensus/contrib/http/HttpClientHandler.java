@@ -18,6 +18,7 @@ package io.opencensus.contrib.http;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.opencensus.contrib.http.HttpRequestContext.METADATA_NO_PROPAGATION;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_HOST;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_METHOD;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY;
@@ -156,9 +157,15 @@ public class HttpClientHandler<
     double requestLatency = NANOSECONDS.toMillis(System.nanoTime() - context.requestStartTime);
 
     String methodStr = request == null ? "" : extractor.getMethod(request);
+    String host = request == null ? "null_request" : extractor.getHost(request);
+
     TagContext startCtx =
         tagger
             .toBuilder(context.tagContext)
+            .put(
+                HTTP_CLIENT_HOST,
+                TagValue.create(host == null ? "null_host" : host),
+                METADATA_NO_PROPAGATION)
             .put(
                 HTTP_CLIENT_METHOD,
                 TagValue.create(methodStr == null ? "" : methodStr),

@@ -44,7 +44,13 @@ public class JaxrsClientExtractor
   @Nullable
   @Override
   public String getHost(ClientRequestContext request) {
-    return request.getUri().getHost();
+    if (request == null) {
+      return "null_request";
+    } else if (request.getUri() == null) {
+      return "null_uri";
+    } else {
+      return request.getUri().getHost();
+    }
   }
 
   @Nullable
