@@ -66,14 +66,14 @@ public final class TracingAsyncClientHttpRequestInterceptor
    * @since 0.23.0
    */
   public static TracingAsyncClientHttpRequestInterceptor create(
-      /* @Nullable */ TextFormat propagator,
-      /* @Nullable */ HttpExtractor<HttpRequest, ClientHttpResponse> extractor) {
+      @Nullable TextFormat propagator,
+      @Nullable HttpExtractor<HttpRequest, ClientHttpResponse> extractor) {
     return new TracingAsyncClientHttpRequestInterceptor(propagator, extractor);
   }
 
   TracingAsyncClientHttpRequestInterceptor(
-      /* @Nullable */ TextFormat propagator,
-      /* @Nullable */ HttpExtractor<HttpRequest, ClientHttpResponse> extractor) {
+      @Nullable TextFormat propagator,
+      @Nullable HttpExtractor<HttpRequest, ClientHttpResponse> extractor) {
 
     tracer = Tracing.getTracer();
 
