@@ -173,13 +173,12 @@ public class JaegerExporterHandlerTest {
     assertThat(spans.size()).isEqualTo(1);
     Span span = spans.get(0);
 
-    assertThat(span.tags.size()).isEqualTo(4);
+    assertThat(span.tags.size()).isEqualTo(3);
     assertThat(span.tags)
         .containsExactly(
             new Tag(JaegerExporterHandler.SPAN_KIND, TagType.STRING).setVStr("server"),
             new Tag(JaegerExporterHandler.STATUS_CODE, TagType.LONG).setVLong(4),
-            new Tag(JaegerExporterHandler.STATUS_MESSAGE, TagType.STRING).setVStr(statusMessage),
-            new Tag(JaegerExporterHandler.STATUS_ERROR, TagType.BOOL).setVBool(true));
+            new Tag(JaegerExporterHandler.STATUS_MESSAGE, TagType.STRING).setVStr(statusMessage));
   }
 
   private static SpanContext sampleSpanContext() {

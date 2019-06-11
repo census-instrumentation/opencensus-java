@@ -72,7 +72,6 @@ final class JaegerExporterHandler extends TimeLimitedHandler {
   private static final String MESSAGE_EVENT_UNCOMPRESSED_SIZE = "uncompressed_size";
   @VisibleForTesting static final String STATUS_CODE = "status.code";
   @VisibleForTesting static final String STATUS_MESSAGE = "status.message";
-  @VisibleForTesting static final String STATUS_ERROR = "error";
 
   private static final Function<? super String, Tag> stringAttributeConverter =
       new Function<String, Tag>() {
@@ -350,10 +349,6 @@ final class JaegerExporterHandler extends TimeLimitedHandler {
     }
     Tag statusTag = new Tag(STATUS_CODE, TagType.LONG).setVLong(status.getCanonicalCode().value());
     tags.add(statusTag);
-    if (!status.isOk()) {
-      // Ensure that if Status.Code is not OK, that we set the "error" tag on the Jaeger span.
-      tags.add(new Tag(STATUS_ERROR, TagType.BOOL).setVBool(true));
-    }
     if (status.getDescription() != null) {
       tags.add(new Tag(STATUS_MESSAGE, TagType.STRING).setVStr(status.getDescription()));
     }
