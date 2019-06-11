@@ -214,7 +214,7 @@ subprojects {
                 spring_aspects: "org.springframework:spring-aspects:${springVersion}",
                 spring_boot_starter_web: "org.springframework.boot:spring-boot-starter-web:${springBootVersion}",
                 spring_boot_starter_web2: "org.springframework.boot:spring-boot-starter-web:${springBoot2Version}",
-                spring_cloud_build: "org.springframework.cloud:spring-cloud-build:${springCloudVersion}@pom",
+                spring_cloud_build: "org.springframework.cloud:spring-cloud-build:${springCloudVersion}",
                 spring_cloud_starter_sleuth: "org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudVersion}",
                 spring_context: "org.springframework:spring-context:${springVersion}",
                 spring_context_support: "org.springframework:spring-context-support:${springVersion}",
