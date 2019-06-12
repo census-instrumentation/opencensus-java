@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+description = 'OpenCensus Spring Cloud Starter'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.6
+    it.targetCompatibility = 1.6
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            project(':opencensus-contrib-spring'),
+            project(':opencensus-impl')
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}
