@@ -9,13 +9,10 @@ description = 'OpenCensus Spring Cloud Starter'
     it.targetCompatibility = 1.6
 }
 
-def opencensusVersion = "0.23.0-SNAPSHOT"
-
 dependencies {
-    compile "io.opencensus:opencensus-api:${opencensusVersion}",
-            "io.opencensus:opencensus-contrib-spring:${opencensusVersion}"
-
-    runtime "io.opencensus:opencensus-impl:${opencensusVersion}"
+    compile project(':opencensus-api'),
+            project(':opencensus-contrib-spring'),
+            project(':opencensus-impl')
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }
