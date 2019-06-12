@@ -59,6 +59,7 @@ final class ZipkinExporterHandler extends TimeLimitedHandler {
   // https://github.com/apache/incubator-zipkin-brave/blob/643b7245c462dc14d47afcdb076b2603fd421497/instrumentation/grpc/src/main/java/brave/grpc/GrpcParser.java#L67-L73
   @VisibleForTesting static final String STATUS_CODE = "census.status_code";
   @VisibleForTesting static final String STATUS_DESCRIPTION = "census.status_description";
+  @VisibleForTesting static final String STATUS_ERROR = "error";
 
   private final SpanBytesEncoder encoder;
   private final Sender sender;
@@ -134,6 +135,9 @@ final class ZipkinExporterHandler extends TimeLimitedHandler {
       spanBuilder.putTag(STATUS_CODE, status.getCanonicalCode().toString());
       if (status.getDescription() != null) {
         spanBuilder.putTag(STATUS_DESCRIPTION, status.getDescription());
+      }
+      if (!status.isOk()) {
+        spanBuilder.putTag(STATUS_ERROR, status.getCanonicalCode().toString());
       }
     }
 

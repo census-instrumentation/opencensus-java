@@ -235,4 +235,47 @@ public class ZipkinExporterHandlerTest {
                 .putTag("long", "9999")
                 .build());
   }
+
+  @Test
+  public void generateSpan_WithErrorStatus() {
+    String errorMessage = "timeout";
+    SpanData data =
+        SpanData.create(
+            SpanContext.create(
+                TraceId.fromLowerBase16(TRACE_ID),
+                SpanId.fromLowerBase16(SPAN_ID),
+                TraceOptions.builder().setIsSampled(true).build()),
+            SpanId.fromLowerBase16(PARENT_SPAN_ID),
+            true, /* hasRemoteParent */
+            "Recv.helloworld.Greeter.SayHello", /* name */
+            Kind.SERVER, /* kind */
+            Timestamp.create(1505855794, 194009601) /* startTimestamp */,
+            Attributes.create(attributes, 0 /* droppedAttributesCount */),
+            TimedEvents.create(annotations, 0 /* droppedEventsCount */),
+            TimedEvents.create(messageEvents, 0 /* droppedEventsCount */),
+            Links.create(Collections.<Link>emptyList(), 0 /* droppedLinksCount */),
+            null, /* childSpanCount */
+            Status.DEADLINE_EXCEEDED.withDescription(errorMessage),
+            Timestamp.create(1505855799, 465726528) /* endTimestamp */);
+
+    assertThat(ZipkinExporterHandler.generateSpan(data, localEndpoint))
+        .isEqualTo(
+            Span.newBuilder()
+                .traceId(TRACE_ID)
+                .parentId(PARENT_SPAN_ID)
+                .id(SPAN_ID)
+                .kind(Span.Kind.SERVER)
+                .name(data.getName())
+                .timestamp(1505855794000000L + 194009601L / 1000)
+                .duration(
+                    (1505855799000000L + 465726528L / 1000)
+                        - (1505855794000000L + 194009601L / 1000))
+                .localEndpoint(localEndpoint)
+                .addAnnotation(1505855799000000L + 433901068L / 1000, "RECEIVED")
+                .addAnnotation(1505855799000000L + 459486280L / 1000, "SENT")
+                .putTag(ZipkinExporterHandler.STATUS_CODE, "DEADLINE_EXCEEDED")
+                .putTag(ZipkinExporterHandler.STATUS_DESCRIPTION, errorMessage)
+                .putTag(ZipkinExporterHandler.STATUS_ERROR, "DEADLINE_EXCEEDED")
+                .build());
+  }
 }
