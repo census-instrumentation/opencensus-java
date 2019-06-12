@@ -102,7 +102,7 @@ public class ZipkinExporterHandlerTest {
                 .localEndpoint(localEndpoint)
                 .addAnnotation(1505855799000000L + 433901068L / 1000, "RECEIVED")
                 .addAnnotation(1505855799000000L + 459486280L / 1000, "SENT")
-                .putTag("census.status_code", "OK")
+                .putTag(ZipkinExporterHandler.STATUS_CODE, "OK")
                 .build());
   }
 
@@ -143,7 +143,7 @@ public class ZipkinExporterHandlerTest {
                 .localEndpoint(localEndpoint)
                 .addAnnotation(1505855799000000L + 433901068L / 1000, "RECEIVED")
                 .addAnnotation(1505855799000000L + 459486280L / 1000, "SENT")
-                .putTag("census.status_code", "OK")
+                .putTag(ZipkinExporterHandler.STATUS_CODE, "OK")
                 .build());
   }
 
@@ -184,7 +184,7 @@ public class ZipkinExporterHandlerTest {
                 .localEndpoint(localEndpoint)
                 .addAnnotation(1505855799000000L + 433901068L / 1000, "RECEIVED")
                 .addAnnotation(1505855799000000L + 459486280L / 1000, "SENT")
-                .putTag("census.status_code", "OK")
+                .putTag(ZipkinExporterHandler.STATUS_CODE, "OK")
                 .build());
   }
 
@@ -229,7 +229,7 @@ public class ZipkinExporterHandlerTest {
                 .localEndpoint(localEndpoint)
                 .addAnnotation(1505855799000000L + 433901068L / 1000, "RECEIVED")
                 .addAnnotation(1505855799000000L + 459486280L / 1000, "SENT")
-                .putTag("census.status_code", "OK")
+                .putTag(ZipkinExporterHandler.STATUS_CODE, "OK")
                 .putTag("string", "string value")
                 .putTag("boolean", "false")
                 .putTag("long", "9999")
