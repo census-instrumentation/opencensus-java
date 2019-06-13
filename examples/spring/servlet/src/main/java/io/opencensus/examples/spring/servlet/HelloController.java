@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -42,9 +43,9 @@ public class HelloController {
   @RequestMapping("/")
   public String index() {
     String str = "Hello from servlet instrumented with opencensus-spring";
-    String resp = restTemplate.getForObject("http://localhost:8080/loopback", String.class);
+    String resp = restTemplate.getForObject(baseUrl() + "loopback", String.class);
 
-    String asyncUrl = "http://localhost:8080/asyncloopback";
+    String asyncUrl = baseUrl() + "asyncloopback";
     ListenableFuture<ResponseEntity<String>> future1 =
         asyncRestTemplate.getForEntity(asyncUrl, String.class);
     ListenableFuture<ResponseEntity<String>> future2 =
@@ -76,6 +77,13 @@ public class HelloController {
   public String asyncLoopback() {
     return "Async Loopback. Hello from servlet!";
   }
+
+  private String baseUrl() {
+    Integer port = environment.getProperty("local.server.port", Integer.class);
+    return String.format("http://localhost:%d/", (port != null ? port : 0));
+  }
+
+  @Autowired Environment environment;
 
   @Autowired AsyncRestTemplate asyncRestTemplate;
 
