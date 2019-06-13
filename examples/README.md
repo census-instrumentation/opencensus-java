@@ -12,6 +12,13 @@
 mvn package appassembler:assemble
 ```
 
+To build Spring Servlet example
+```bash
+cd spring/servlet
+mvn package appassembler:assemble
+```
+
+
 ## To run "TagContextExample" use
 
 ### Gradle
@@ -162,3 +169,32 @@ Stats are available from Prometheus server running at
 
 You also need to install and start OpenCensus-Agent in order to receive the traces and metrics.
 For more information on setting up Agent, see [tutorial](https://opencensus.io/agent/).
+
+## To run Spring HTTP Server and Client
+
+`SpringServletApplication` is a web service application using Spring framework. The application
+is instrumented with opencensus simply by incuding opencensus-contrib-spring-starter package.
+The instrumentation enables tracing on incoming and outgoing http requests. On receiving GET 
+request, the server originates multiple GET requests to itself using AsyncRestTemplate on different
+endpoint.
+
+Send a http GET request using curl to see the traces on console.
+```
+curl http://localhost:8080
+```
+
+Stats are available from Prometheus server running at
+- http://localhost:9090/metrics - for server and client stats
+  
+### Gradle
+```bash
+cd spring/servlet
+./gradlew bootRun
+```
+
+### Maven
+```bash
+cd spring/servlet
+./target/appassembler/bin/SpringServletApplication
+```
+
