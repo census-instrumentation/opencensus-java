@@ -41,7 +41,7 @@ public class Application {
     HTTPServer prometheusServer = new HTTPServer(9090, true);
   }
 
-  private static void initTracing() {
+  private static void initTracingAndLoggingExporter() {
     TraceConfig traceConfig = Tracing.getTraceConfig();
     traceConfig.updateActiveTraceParams(
         traceConfig.getActiveTraceParams().toBuilder().setSampler(Samplers.alwaysSample()).build());
@@ -53,7 +53,7 @@ public class Application {
   public static void main(String[] args) throws IOException {
     ApplicationContext ctx = SpringApplication.run(Application.class, args);
 
-    initTracing();
+    initTracingAndLoggingExporter();
     initStatsExporter();
   }
 }
