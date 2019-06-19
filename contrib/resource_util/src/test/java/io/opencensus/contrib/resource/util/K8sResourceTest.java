@@ -28,10 +28,11 @@ import org.junit.runners.JUnit4;
 public class K8sResourceTest {
   private static final String K8S_CLUSTER_NAME = "cluster";
   private static final String K8S_NAMESPACE_NAME = "namespace";
-  private static final String K8S_POD_NAME = "pod-id";
+  private static final String K8S_POD_NAME = "deployment-replica-pod";
+  private static final String K8S_DEPLOYMENT_NAME = "deployment";
 
   @Test
-  public void create_K8sContainerResourceTest() {
+  public void create_K8sContainerResourceTest_Deprecated() {
     Resource resource = K8sResource.create(K8S_CLUSTER_NAME, K8S_NAMESPACE_NAME, K8S_POD_NAME);
     assertThat(resource.getType()).isEqualTo(K8sResource.TYPE);
     assertThat(resource.getLabels())
@@ -41,6 +42,25 @@ public class K8sResourceTest {
             K8sResource.NAMESPACE_NAME_KEY,
             K8S_NAMESPACE_NAME,
             K8sResource.POD_NAME_KEY,
-            K8S_POD_NAME);
+            K8S_POD_NAME,
+            K8sResource.DEPLOYMENT_NAME_KEY,
+            "");
+  }
+
+  @Test
+  public void create_K8sContainerResourceTest() {
+    Resource resource =
+        K8sResource.create(K8S_CLUSTER_NAME, K8S_NAMESPACE_NAME, K8S_POD_NAME, K8S_DEPLOYMENT_NAME);
+    assertThat(resource.getType()).isEqualTo(K8sResource.TYPE);
+    assertThat(resource.getLabels())
+        .containsExactly(
+            K8sResource.CLUSTER_NAME_KEY,
+            K8S_CLUSTER_NAME,
+            K8sResource.NAMESPACE_NAME_KEY,
+            K8S_NAMESPACE_NAME,
+            K8sResource.POD_NAME_KEY,
+            K8S_POD_NAME,
+            K8sResource.DEPLOYMENT_NAME_KEY,
+            K8S_DEPLOYMENT_NAME);
   }
 }
