@@ -19,6 +19,7 @@ package io.opencensus.contrib.resource.util;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import io.opencensus.resource.Resource;
 import java.util.LinkedHashMap;
@@ -105,18 +106,31 @@ public class K8sResource {
 
   static Resource detect() {
     String podName = firstNonNull(System.getenv("HOSTNAME"), "");
-    String deploymentName = "";
-    // Extract deployment name from the pod name. Pod name is created using
-    // format: [deployment-name]-[Random-String-For-ReplicaSet]-[Random-String-For-Pod]
-    List<String> parts = splitter.splitToList(podName);
-    if (parts.size() == 3) {
-      deploymentName = parts.get(0);
-    }
+    String deploymentName = getDeploymentNameFromPodName(podName);
     return create(
         GcpMetadataConfig.getClusterName(),
         firstNonNull(System.getenv("NAMESPACE"), ""),
         podName,
         deploymentName);
+  }
+
+  @VisibleForTesting
+  static String getDeploymentNameFromPodName(String podName) {
+    StringBuilder deploymentName = new StringBuilder();
+    // Extract deployment name from the pod name. Pod name is created using
+    // format: [deployment-name]-[Random-String-For-ReplicaSet]-[Random-String-For-Pod]
+    List<String> parts = splitter.splitToList(podName);
+    if (parts.size() == 3) {
+      deploymentName.append(parts.get(0));
+    } else if (parts.size() > 3) { // Deployment name could also contain '-'
+      for (int i = 0; i < parts.size() - 2; i++) {
+        if (deploymentName.length() > 0) {
+          deploymentName.append('-');
+        }
+        deploymentName.append(parts.get(i));
+      }
+    }
+    return deploymentName.toString();
   }
 
   private K8sResource() {}

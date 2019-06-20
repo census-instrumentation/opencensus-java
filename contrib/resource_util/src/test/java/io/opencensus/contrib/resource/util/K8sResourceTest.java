@@ -63,4 +63,14 @@ public class K8sResourceTest {
             K8sResource.DEPLOYMENT_NAME_KEY,
             K8S_DEPLOYMENT_NAME);
   }
+
+  @Test
+  public void getDeploymentNameFromPodName() {
+    assertThat(K8sResource.getDeploymentNameFromPodName(K8S_POD_NAME))
+        .isEqualTo(K8S_DEPLOYMENT_NAME);
+    assertThat(K8sResource.getDeploymentNameFromPodName("")).isEqualTo("");
+    assertThat(K8sResource.getDeploymentNameFromPodName("simple-name")).isEqualTo("");
+    assertThat(K8sResource.getDeploymentNameFromPodName("deployment-name-replica-pod"))
+        .isEqualTo("deployment-name");
+  }
 }
