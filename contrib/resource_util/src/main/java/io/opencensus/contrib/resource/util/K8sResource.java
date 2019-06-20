@@ -78,6 +78,7 @@ public class K8sResource {
    * @since 0.20
    * @deprecated in favor of {@link #create(String, String, String, String)}.
    */
+  @Deprecated
   public static Resource create(String clusterName, String namespace, String podName) {
     return create(clusterName, namespace, podName, "");
   }
