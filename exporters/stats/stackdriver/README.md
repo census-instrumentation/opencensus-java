@@ -122,7 +122,7 @@ StackdriverStatsExporter.createAndRegister(
     StackdriverStatsConfiguration.builder()
         .setCredentials(new GoogleCredentials(new AccessToken(accessToken, expirationTime)))
         .setProjectId("MyStackdriverProjectId")
-        .setExportInterval(Duration.create(10, 0))
+        .setExportInterval(Duration.create(60, 0))
         .build());
 ```
 

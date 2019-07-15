@@ -39,8 +39,8 @@ import org.junit.runners.JUnit4;
 public class StackdriverStatsExporterTest {
 
   private static final String PROJECT_ID = "projectId";
-  private static final Duration ONE_SECOND = Duration.create(1, 0);
-  private static final Duration NEG_ONE_SECOND = Duration.create(-1, 0);
+  private static final Duration ONE_MINUTE = Duration.create(60, 0);
+  private static final Duration NEG_ONE_MINUTE = Duration.create(-60, 0);
   private static final Credentials FAKE_CREDENTIALS =
       GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
   private static final StackdriverStatsConfiguration CONFIGURATION =
@@ -64,7 +64,7 @@ public class StackdriverStatsExporterTest {
         StackdriverStatsConfiguration.builder()
             .setCredentials(FAKE_CREDENTIALS)
             .setProjectId(PROJECT_ID)
-            .setExportInterval(NEG_ONE_SECOND)
+            .setExportInterval(NEG_ONE_MINUTE)
             .build();
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Export interval must be positive");
@@ -77,7 +77,7 @@ public class StackdriverStatsExporterTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("credentials");
     StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
-        null, PROJECT_ID, ONE_SECOND);
+        null, PROJECT_ID, ONE_MINUTE);
   }
 
   @Test
@@ -86,7 +86,7 @@ public class StackdriverStatsExporterTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("projectId");
     StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
-        GoogleCredentials.newBuilder().build(), null, ONE_SECOND);
+        GoogleCredentials.newBuilder().build(), null, ONE_MINUTE);
   }
 
   @Test
@@ -104,7 +104,7 @@ public class StackdriverStatsExporterTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Export interval must be positive");
     StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
-        GoogleCredentials.newBuilder().build(), PROJECT_ID, NEG_ONE_SECOND);
+        GoogleCredentials.newBuilder().build(), PROJECT_ID, NEG_ONE_MINUTE);
   }
 
   @Test
@@ -137,7 +137,7 @@ public class StackdriverStatsExporterTest {
   public void createWithNullMonitoredResource() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("monitoredResource");
-    StackdriverStatsExporter.createAndRegisterWithMonitoredResource(ONE_SECOND, null);
+    StackdriverStatsExporter.createAndRegisterWithMonitoredResource(ONE_MINUTE, null);
   }
 
   @Test
