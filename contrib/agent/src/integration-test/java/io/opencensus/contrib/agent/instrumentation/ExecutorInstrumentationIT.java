@@ -69,8 +69,8 @@ public class ExecutorInstrumentationIT {
         new Runnable() {
           @Override
           public void run() {
-            assertThat(Thread.currentThread()).isNotSameAs(callerThread);
-            assertThat(Context.current()).isSameAs(context);
+            assertThat(Thread.currentThread()).isNotSameInstanceAs(callerThread);
+            assertThat(Context.current()).isSameInstanceAs(context);
             assertThat(KEY.get()).isEqualTo("myvalue");
             tested.release();
           }
@@ -92,8 +92,8 @@ public class ExecutorInstrumentationIT {
             new Callable<Void>() {
               @Override
               public Void call() throws Exception {
-                assertThat(Thread.currentThread()).isNotSameAs(callerThread);
-                assertThat(Context.current()).isSameAs(context);
+                assertThat(Thread.currentThread()).isNotSameInstanceAs(callerThread);
+                assertThat(Context.current()).isSameInstanceAs(context);
                 assertThat(KEY.get()).isEqualTo("myvalue");
                 tested.set(true);
 
@@ -118,8 +118,8 @@ public class ExecutorInstrumentationIT {
             new Runnable() {
               @Override
               public void run() {
-                assertThat(Thread.currentThread()).isNotSameAs(callerThread);
-                assertThat(Context.current()).isSameAs(context);
+                assertThat(Thread.currentThread()).isNotSameInstanceAs(callerThread);
+                assertThat(Context.current()).isSameInstanceAs(context);
                 assertThat(KEY.get()).isEqualTo("myvalue");
                 tested.set(true);
               }
@@ -143,16 +143,16 @@ public class ExecutorInstrumentationIT {
             new Runnable() {
               @Override
               public void run() {
-                assertThat(Thread.currentThread()).isNotSameAs(callerThread);
-                assertThat(Context.current()).isNotSameAs(Context.ROOT);
-                assertThat(Context.current()).isSameAs(context);
+                assertThat(Thread.currentThread()).isNotSameInstanceAs(callerThread);
+                assertThat(Context.current()).isNotSameInstanceAs(Context.ROOT);
+                assertThat(Context.current()).isSameInstanceAs(context);
                 assertThat(KEY.get()).isEqualTo("myvalue");
                 tested.set(true);
               }
             },
             result);
 
-    assertThat(future.get()).isSameAs(result);
+    assertThat(future.get()).isSameInstanceAs(result);
     assertThat(tested.get()).isTrue();
   }
 
@@ -182,8 +182,8 @@ public class ExecutorInstrumentationIT {
                 assertThat(ste[2].getClassName()).startsWith("io.grpc.Context$");
                 assertThat(ste[3].getClassName()).doesNotContain("Context");
 
-                assertThat(Thread.currentThread()).isNotSameAs(callerThread);
-                assertThat(Context.current()).isSameAs(context);
+                assertThat(Thread.currentThread()).isNotSameInstanceAs(callerThread);
+                assertThat(Context.current()).isSameInstanceAs(context);
                 assertThat(KEY.get()).isEqualTo("myvalue");
 
                 tested.release();

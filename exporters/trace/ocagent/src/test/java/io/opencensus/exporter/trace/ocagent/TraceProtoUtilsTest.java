@@ -261,7 +261,7 @@ public class TraceProtoUtilsTest {
     assertThat(span.getTimeEvents().getDroppedAnnotationsCount())
         .isEqualTo(DROPPED_ANNOTATIONS_COUNT);
     assertThat(span.getTimeEvents().getTimeEventList())
-        .containsAllOf(annotationTimeEvent1, annotationTimeEvent2, sentTimeEvent, recvTimeEvent);
+        .containsExactly(annotationTimeEvent1, annotationTimeEvent2, sentTimeEvent, recvTimeEvent);
     assertThat(span.getLinks()).isEqualTo(spanLinks);
     assertThat(span.getStatus()).isEqualTo(spanStatus);
     assertThat(span.getSameProcessAsParentSpan()).isEqualTo(BoolValue.of(true));

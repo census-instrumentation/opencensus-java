@@ -263,7 +263,7 @@ public class OcAgentMetricsExporterIntegrationTest {
     for (Metric metricProto : metricProtos) {
       actualMetrics.add(metricProto.getMetricDescriptor().getName());
     }
-    assertThat(actualMetrics).containsAllIn(expectedMetrics);
+    assertThat(actualMetrics).containsAtLeastElementsIn(expectedMetrics);
   }
 
   private static void registerAllViews() {

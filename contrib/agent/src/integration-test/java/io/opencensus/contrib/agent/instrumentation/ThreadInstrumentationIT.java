@@ -57,7 +57,7 @@ public class ThreadInstrumentationIT {
         new Runnable() {
           @Override
           public void run() {
-            assertThat(Context.current()).isSameAs(context);
+            assertThat(Context.current()).isSameInstanceAs(context);
             assertThat(KEY.get()).isEqualTo("myvalue");
             tested.set(true);
           }
@@ -81,7 +81,7 @@ public class ThreadInstrumentationIT {
 
       @Override
       public void run() {
-        assertThat(Context.current()).isSameAs(context);
+        assertThat(Context.current()).isSameInstanceAs(context);
         assertThat(KEY.get()).isEqualTo("myvalue");
         tested.set(true);
       }
@@ -139,6 +139,6 @@ public class ThreadInstrumentationIT {
 
     // Assert that the automatic context propagation added by ThreadInstrumentation did not
     // interfere with the automatically propagated context from Executor#execute.
-    assertThat(newThreadCtx.get()).isSameAs(context);
+    assertThat(newThreadCtx.get()).isSameInstanceAs(context);
   }
 }

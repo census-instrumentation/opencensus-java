@@ -285,7 +285,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
     assertThat(span.getTimeEvents().getDroppedAnnotationsCount())
         .isEqualTo(DROPPED_ANNOTATIONS_COUNT);
     assertThat(span.getTimeEvents().getTimeEventList())
-        .containsAllOf(annotationTimeEvent1, annotationTimeEvent2, sentTimeEvent, recvTimeEvent);
+        .containsExactly(annotationTimeEvent1, annotationTimeEvent2, sentTimeEvent, recvTimeEvent);
     assertThat(span.getLinks()).isEqualTo(spanLinks);
     assertThat(span.getStatus()).isEqualTo(spanStatus);
     assertThat(span.getSameProcessAsParentSpan())
@@ -322,7 +322,8 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         handler.generateSpan(
             spanData, EXPECTED_RESOURCE_ATTRIBUTES, Collections.<String, AttributeValue>emptyMap());
     Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMapMap();
-    assertThat(attributeMap.entrySet()).containsAllIn(EXPECTED_RESOURCE_ATTRIBUTES.entrySet());
+    assertThat(attributeMap.entrySet())
+        .containsAtLeastElementsIn(EXPECTED_RESOURCE_ATTRIBUTES.entrySet());
   }
 
   @Test
@@ -532,6 +533,6 @@ public final class StackdriverV2ExporterHandlerProtoTest {
 
     Span span = handler.generateSpan(spanData, EMPTY_RESOURCE_LABELS, fixedAttributes);
     Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMapMap();
-    assertThat(attributeMap.entrySet()).containsAllIn(fixedAttributes.entrySet());
+    assertThat(attributeMap.entrySet()).containsAtLeastElementsIn(fixedAttributes.entrySet());
   }
 }
