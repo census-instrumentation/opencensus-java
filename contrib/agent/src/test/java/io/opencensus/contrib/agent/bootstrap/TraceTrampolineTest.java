@@ -55,6 +55,6 @@ public class TraceTrampolineTest {
     Closeable closeable = TraceTrampoline.startScopedSpan("test");
 
     Mockito.verify(mockTraceStrategy).startScopedSpan("test");
-    assertThat(closeable).isSameAs(mockCloseable);
+    assertThat(closeable).isSameInstanceAs(mockCloseable);
   }
 }

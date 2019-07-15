@@ -41,7 +41,7 @@ public class ThreadInstrumentationTest {
 
     AgentBuilder agentBuilder2 = instrumentation.instrument(agentBuilder, settings);
 
-    assertThat(agentBuilder2).isSameAs(agentBuilder);
+    assertThat(agentBuilder2).isSameInstanceAs(agentBuilder);
   }
 
   @Test
@@ -50,6 +50,6 @@ public class ThreadInstrumentationTest {
 
     AgentBuilder agentBuilder2 = instrumentation.instrument(agentBuilder, settings);
 
-    assertThat(agentBuilder2).isNotSameAs(agentBuilder);
+    assertThat(agentBuilder2).isNotSameInstanceAs(agentBuilder);
   }
 }
