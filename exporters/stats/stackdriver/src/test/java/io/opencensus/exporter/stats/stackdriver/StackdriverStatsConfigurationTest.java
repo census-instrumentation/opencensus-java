@@ -48,8 +48,8 @@ public class StackdriverStatsConfigurationTest {
   private static final Credentials FAKE_CREDENTIALS =
       GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
   private static final String PROJECT_ID = "project";
-  private static final Duration DURATION = Duration.create(10, 0);
-  private static final Duration NEG_ONE_SECOND = Duration.create(-1, 0);
+  private static final Duration DURATION = Duration.create(60, 0);
+  private static final Duration NEG_ONE_MINUTE = Duration.create(-60, 0);
   private static final MonitoredResource RESOURCE =
       MonitoredResource.newBuilder()
           .setType("gce-instance")
@@ -210,7 +210,7 @@ public class StackdriverStatsConfigurationTest {
   public void disallowNegativeDuration() {
     StackdriverStatsConfiguration.Builder builder =
         StackdriverStatsConfiguration.builder().setProjectId("test");
-    builder.setDeadline(NEG_ONE_SECOND);
+    builder.setDeadline(NEG_ONE_MINUTE);
     thrown.expect(IllegalArgumentException.class);
     builder.build();
   }

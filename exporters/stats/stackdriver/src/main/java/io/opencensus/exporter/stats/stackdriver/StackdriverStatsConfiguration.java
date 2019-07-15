@@ -48,7 +48,7 @@ public abstract class StackdriverStatsConfiguration {
   static final MonitoredResource DEFAULT_RESOURCE = StackdriverExportUtils.getDefaultResource();
   static final String DEFAULT_PROJECT_ID =
       Strings.nullToEmpty(ServiceOptions.getDefaultProjectId());
-  static final Duration DEFAULT_DEADLINE = Duration.create(10, 0);
+  static final Duration DEFAULT_DEADLINE = Duration.create(60, 0);
 
   StackdriverStatsConfiguration() {}
 
