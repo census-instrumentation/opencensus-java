@@ -39,7 +39,9 @@ public final class IntervalMetricReader {
 
   private IntervalMetricReader(Worker worker) {
     this.worker = worker;
-    this.workerThread = new DaemonThreadFactory().newThread(worker);
+    this.workerThread = new Thread(worker);
+    this.workerThread.setName("ExportWorkerThread");
+    this.workerThread.setDaemon(true);
     workerThread.start();
   }
 
