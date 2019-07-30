@@ -40,8 +40,12 @@ public final class IntervalMetricReader {
   private IntervalMetricReader(Worker worker) {
     this.worker = worker;
     this.workerThread = new Thread(worker);
-    this.workerThread.setName("ExportWorkerThread");
-    this.workerThread.setDaemon(true);
+    try {
+      this.workerThread.setName("ExportWorkerThread");
+      this.workerThread.setDaemon(true);
+    } catch (SecurityException e) {
+      // OK if we can't set the name or daemon in this environment.
+    }
     workerThread.start();
   }
 

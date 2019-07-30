@@ -37,8 +37,12 @@ public final class DaemonThreadFactory implements ThreadFactory {
   @Override
   public Thread newThread(Runnable r) {
     Thread thread = new Thread(r);
-    thread.setName(threadPrefix + threadIdGen.getAndIncrement());
-    thread.setDaemon(true);
+    try {
+      thread.setName(threadPrefix + threadIdGen.getAndIncrement());
+      thread.setDaemon(true);
+    } catch (SecurityException e) {
+      // OK if we can't set the name or daemon in this environment.
+    }
     return thread;
   }
 }
