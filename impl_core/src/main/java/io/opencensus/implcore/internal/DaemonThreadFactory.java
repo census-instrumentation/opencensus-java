@@ -16,14 +16,12 @@
 
 package io.opencensus.implcore.internal;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** A {@link ThreadFactory} implementation that starts all {@link Thread} as daemons. */
 public final class DaemonThreadFactory implements ThreadFactory {
   private static final String DELIMITER = "-";
-  private static final ThreadFactory threadFactory = MoreExecutors.platformThreadFactory();
   private final AtomicInteger threadIdGen = new AtomicInteger();
   private final String threadPrefix;
 
@@ -38,8 +36,7 @@ public final class DaemonThreadFactory implements ThreadFactory {
 
   @Override
   public Thread newThread(Runnable r) {
-    Thread thread = threadFactory.newThread(r);
-    // AppEngine runtimes have constraints on thread renaming.
+    Thread thread = new Thread(r);
     try {
       thread.setName(threadPrefix + threadIdGen.getAndIncrement());
       thread.setDaemon(true);
