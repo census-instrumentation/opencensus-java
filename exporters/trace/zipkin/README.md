@@ -4,7 +4,7 @@
 [![Maven Central][maven-image]][maven-url]
 
 The *OpenCensus Zipkin Trace Exporter* is a trace exporter that exports
-data to Zipkin. [Zipkin](http://zipkin.io/) Zipkin is a distributed
+data to Zipkin. [Zipkin](https://zipkin.io/) Zipkin is a distributed
 tracing system. It helps gather timing data needed to troubleshoot
 latency problems in microservice architectures. It manages both the
 collection and lookup of this data.
@@ -13,7 +13,7 @@ collection and lookup of this data.
 
 ### Prerequisites
 
-[Zipkin](http://zipkin.io/) stores and queries traces exported by
+[Zipkin](https://zipkin.io/) stores and queries traces exported by
 applications instrumented with Census. The easiest way to start a zipkin
 server is to paste the below:
 
