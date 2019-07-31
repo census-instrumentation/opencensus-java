@@ -126,6 +126,14 @@ public class MeasureMapInternalTest {
         MeasureMapInternal.builder().put(M3, 100L).put(M3, 200L).put(M3, 300L).build(),
         MeasurementLong.create(M3, 300L));
     assertContains(
+        MeasureMapInternal.builder()
+            .put(M3, 100L)
+            .put(M3, 200L)
+            .put(M3, 250L)
+            .put(M3, 300L)
+            .build(),
+        MeasurementLong.create(M3, 300L));
+    assertContains(
         MeasureMapInternal.builder().put(M3, 100L).put(M4, 200L).put(M3, 300L).build(),
         MeasurementLong.create(M3, 300L),
         MeasurementLong.create(M4, 200L));

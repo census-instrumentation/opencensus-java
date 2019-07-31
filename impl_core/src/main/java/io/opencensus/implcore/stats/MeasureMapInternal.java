@@ -98,11 +98,11 @@ final class MeasureMapInternal {
       // Note: this makes adding measurements quadratic but is fastest for the sizes of
       // MeasureMapInternals that we should see. We may want to go to a strategy of sort/eliminate
       // for larger MeasureMapInternals.
-      for (int i = measurements.size() - 1; i >= 0; i--) {
+      for (int i = measurements.size() - 1; i > 0; i--) {
         for (int j = i - 1; j >= 0; j--) {
           if (measurements.get(i).getMeasure() == measurements.get(j).getMeasure()) {
             measurements.remove(j);
-            j--;
+            i--;
           }
         }
       }
