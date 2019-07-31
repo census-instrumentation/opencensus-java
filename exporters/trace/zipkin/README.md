@@ -18,7 +18,7 @@ applications instrumented with Census. The easiest way to start a zipkin
 server is to paste the below:
 
 ```bash
-wget -O zipkin.jar 'https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec'
+curl -sSL https://zipkin.io/quickstart.sh | bash -s
 java -jar zipkin.jar
 ```
 
