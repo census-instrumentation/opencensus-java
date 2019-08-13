@@ -125,7 +125,7 @@ final class NoopStats {
     @Override
     public MeasureMap put(MeasureDouble measure, double value) {
       if (value < 0) {
-        if(measure == null) {
+        if (measure == null) {
           throw new NullPointerException("Null measure");
         }
         // Put only the latest unsupported value per measure.
@@ -137,7 +137,7 @@ final class NoopStats {
     @Override
     public MeasureMap put(MeasureLong measure, long value) {
       if (value < 0) {
-        if(measure == null) {
+        if (measure == null) {
           throw new NullPointerException("Null measure");
         }
         // Put only the latest unsupported value per measure.
@@ -156,10 +156,12 @@ final class NoopStats {
       if (!unsupportedValuesMap.isEmpty()) {
         // drop all the recorded values
         final StringBuffer allUnsupported = new StringBuffer();
-        for(Map.Entry<String, String> unsupportedEntry : unsupportedValuesMap.entrySet()) {
-          allUnsupported.append(unsupportedEntry.getKey()).append(":").append(unsupportedEntry.getValue());
+        for (Map.Entry<String, String> unsupportedEntry : unsupportedValuesMap.entrySet()) {
+          allUnsupported.append(unsupportedEntry.getKey()).append(":")
+                  .append(unsupportedEntry.getValue());
         }
-        logger.log(Level.WARNING, "Dropping values, value to record must be non-negative. Unsupported: " + allUnsupported.toString());
+        logger.log(Level.WARNING, "Dropping values, value to record must be non-negative. "
+                + "Unsupported: " + allUnsupported.toString());
       }
     }
   }
