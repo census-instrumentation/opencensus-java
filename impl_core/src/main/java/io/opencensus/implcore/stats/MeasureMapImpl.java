@@ -23,6 +23,9 @@ import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.unsafe.ContextUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +35,7 @@ final class MeasureMapImpl extends MeasureMap {
 
   private final StatsManager statsManager;
   private final MeasureMapInternal.Builder builder = MeasureMapInternal.builder();
-  private volatile boolean hasUnsupportedValues;
+  private volatile Map<String, String> unsupportedValuesMap = new HashMap<>();
 
   static MeasureMapImpl create(StatsManager statsManager) {
     return new MeasureMapImpl(statsManager);
@@ -45,7 +48,11 @@ final class MeasureMapImpl extends MeasureMap {
   @Override
   public MeasureMapImpl put(MeasureDouble measure, double value) {
     if (value < 0) {
-      hasUnsupportedValues = true;
+      if(measure == null) {
+        throw new NullPointerException("Null measure");
+      }
+      // Put only the latest unsupported value per measure.
+      unsupportedValuesMap.put(measure.getName(), Double.toString(value));
     }
     builder.put(measure, value);
     return this;
@@ -54,7 +61,11 @@ final class MeasureMapImpl extends MeasureMap {
   @Override
   public MeasureMapImpl put(MeasureLong measure, long value) {
     if (value < 0) {
-      hasUnsupportedValues = true;
+      if(measure == null) {
+        throw new NullPointerException("Null measure");
+      }
+      // Put only the latest unsupported value per measure.
+      unsupportedValuesMap.put(measure.getName(), Long.toString(value));
     }
     builder.put(measure, value);
     return this;
@@ -74,9 +85,13 @@ final class MeasureMapImpl extends MeasureMap {
 
   @Override
   public void record(TagContext tags) {
-    if (hasUnsupportedValues) {
+    if (!unsupportedValuesMap.isEmpty()) {
       // drop all the recorded values
-      logger.log(Level.WARNING, "Dropping values, value to record must be non-negative.");
+      final StringBuffer allUnsupported = new StringBuffer();
+      for(Map.Entry<String, String> unsupportedEntry : unsupportedValuesMap.entrySet()) {
+        allUnsupported.append(unsupportedEntry.getKey()).append(":").append(unsupportedEntry.getValue());
+      }
+      logger.log(Level.WARNING, "Dropping values, value to record must be non-negative. Unsupported: " + allUnsupported.toString());
       return;
     }
     statsManager.record(tags, builder.build());

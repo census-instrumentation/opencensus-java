@@ -36,10 +36,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
-/*>>>
-import org.checkerframework.checker.nullness.qual.Nullable;
-*/
-
 /** No-op implementations of stats classes. */
 final class NoopStats {
 
@@ -124,12 +120,16 @@ final class NoopStats {
 
   private static final class NoopMeasureMap extends MeasureMap {
     private static final Logger logger = Logger.getLogger(NoopMeasureMap.class.getName());
-    private boolean hasUnsupportedValues;
+    private volatile Map<String, String> unsupportedValuesMap = new HashMap<>();
 
     @Override
     public MeasureMap put(MeasureDouble measure, double value) {
       if (value < 0) {
-        hasUnsupportedValues = true;
+        if(measure == null) {
+          throw new NullPointerException("Null measure");
+        }
+        // Put only the latest unsupported value per measure.
+        unsupportedValuesMap.put(measure.getName(), Double.toString(value));
       }
       return this;
     }
@@ -137,7 +137,11 @@ final class NoopStats {
     @Override
     public MeasureMap put(MeasureLong measure, long value) {
       if (value < 0) {
-        hasUnsupportedValues = true;
+        if(measure == null) {
+          throw new NullPointerException("Null measure");
+        }
+        // Put only the latest unsupported value per measure.
+        unsupportedValuesMap.put(measure.getName(), Double.toString(value));
       }
       return this;
     }
@@ -149,9 +153,13 @@ final class NoopStats {
     public void record(TagContext tags) {
       Utils.checkNotNull(tags, "tags");
 
-      if (hasUnsupportedValues) {
+      if (!unsupportedValuesMap.isEmpty()) {
         // drop all the recorded values
-        logger.log(Level.WARNING, "Dropping values, value to record must be non-negative.");
+        final StringBuffer allUnsupported = new StringBuffer();
+        for(Map.Entry<String, String> unsupportedEntry : unsupportedValuesMap.entrySet()) {
+          allUnsupported.append(unsupportedEntry.getKey()).append(":").append(unsupportedEntry.getValue());
+        }
+        logger.log(Level.WARNING, "Dropping values, value to record must be non-negative. Unsupported: " + allUnsupported.toString());
       }
     }
   }
