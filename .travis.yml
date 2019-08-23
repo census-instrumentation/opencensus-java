@@ -5,49 +5,49 @@ language: java
 matrix:
   fast_finish: true
   include:
-    - jdk: openjdk8
-      env: TASK=BUILD
-      os: linux
+  - jdk: openjdk8
+    env: TASK=BUILD
+    os: linux
 
-    - jdk: oraclejdk9
-      env: TASK=BUILD
-      os: linux
+  - jdk: oraclejdk9
+    env: TASK=BUILD
+    os: linux
 
-    - jdk: openjdk10
-      env: TASK=BUILD
-      os: linux
+  - jdk: openjdk10
+    env: TASK=BUILD
+    os: linux
 
-    # TODO(songy23): fix JDK 11 build
-    #  - jdk: openjdk11
-    #    env: TASK=BUILD
-    #    os: linux
+# TODO(songy23): fix JDK 11 build
+#  - jdk: openjdk11
+#  env: TASK=BUILD
+#  os: linux
 
-    - jdk: openjdk8
-      env: TASK=CHECKER_FRAMEWORK
-      os: linux
+  - jdk: openjdk8
+    env: TASK=CHECKER_FRAMEWORK
+    os: linux
 
-    - env: TASK=CHECK_GIT_HISTORY
-      os: linux
+  - env: TASK=CHECK_GIT_HISTORY
+    os: linux
 
-    # Build example projects last, since they are affected by fewer pull requests.
-    - jdk: openjdk8
-      env: TASK=BUILD_EXAMPLES_GRADLE
-      os: linux
+  # Build example projects last, since they are affected by fewer pull requests.
+  - jdk: openjdk8
+    env: TASK=BUILD_EXAMPLES_GRADLE
+    os: linux
 
-    - jdk: openjdk8
-      env: TASK=BUILD_EXAMPLES_MAVEN
-      os: linux
+  - jdk: openjdk8
+    env: TASK=BUILD_EXAMPLES_MAVEN
+    os: linux
 
-    # Work around https://github.com/travis-ci/travis-ci/issues/2317
-    - env: TASK=BUILD
-      # Set the java version to 1.8 until we fix the build for java10.
-      osx_image: xcode9.3
-      os: osx
+  # Work around https://github.com/travis-ci/travis-ci/issues/2317
+  - env: TASK=BUILD
+    # Set the java version to 1.8 until we fix the build for java10.
+    osx_image: xcode9.3
+    os: osx
 
   allow_failures:
-    # Allowing failures because osx builds are very slow.
-    - env: TASK=BUILD
-      os: osx
+  # Allowing failures because osx builds are very slow.
+  - env: TASK=BUILD
+    os: osx
 
 before_install:
   - git log --oneline --decorate --graph -30
