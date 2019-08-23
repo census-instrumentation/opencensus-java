@@ -15,15 +15,18 @@ case "$TASK" in
       "linux")
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk9")
-            ./gradlew clean assemble --stacktrace
-            ./gradlew check :opencensus-all:jacocoTestReport
-            ./gradlew verGJF
+            ./gradlew clean assemble check --stacktrace
             ;;
           "openjdk10")
             ./gradlew clean assemble check --stacktrace
             ;;
           "openjdk11")
             ./gradlew clean assemble check --stacktrace
+            ;;
+          "openjdk8")
+            ./gradlew clean assemble --stacktrace
+            ./gradlew check :opencensus-all:jacocoTestReport
+            ./gradlew verGJF
             ;;
           *)
             echo "Unknown JDK version $TRAVIS_JDK_VERSION"

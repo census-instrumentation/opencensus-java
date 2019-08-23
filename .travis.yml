@@ -5,45 +5,49 @@ language: java
 matrix:
   fast_finish: true
   include:
-  - jdk: oraclejdk9
-    env: TASK=BUILD
-    os: linux
+    - jdk: openjdk8
+      env: TASK=BUILD
+      os: linux
 
-  - jdk: openjdk10
-    env: TASK=BUILD
-    os: linux
+    - jdk: oraclejdk9
+      env: TASK=BUILD
+      os: linux
 
-# TODO(songy23): fix JDK 11 build
-#  - jdk: openjdk11
-#    env: TASK=BUILD
-#    os: linux
+    - jdk: openjdk10
+      env: TASK=BUILD
+      os: linux
 
-  - jdk: oraclejdk8
-    env: TASK=CHECKER_FRAMEWORK
-    os: linux
+    # TODO(songy23): fix JDK 11 build
+    #  - jdk: openjdk11
+    #    env: TASK=BUILD
+    #    os: linux
 
-  - env: TASK=CHECK_GIT_HISTORY
-    os: linux
+    - jdk: openjdk8
+      env: TASK=CHECKER_FRAMEWORK
+      os: linux
 
-  # Build example projects last, since they are affected by fewer pull requests.
-  - jdk: oraclejdk8
-    env: TASK=BUILD_EXAMPLES_GRADLE
-    os: linux
+    - env: TASK=CHECK_GIT_HISTORY
+      os: linux
 
-  - jdk: oraclejdk8
-    env: TASK=BUILD_EXAMPLES_MAVEN
-    os: linux
+    # Build example projects last, since they are affected by fewer pull requests.
+    - jdk: openjdk8
+      env: TASK=BUILD_EXAMPLES_GRADLE
+      os: linux
 
-  # Work around https://github.com/travis-ci/travis-ci/issues/2317
-  - env: TASK=BUILD
-    # Set the java version to 1.8 until we fix the build for java10.
-    osx_image: xcode9.3
-    os: osx
+    - jdk: openjdk8
+      env: TASK=BUILD_EXAMPLES_MAVEN
+      os: linux
+
+    # Work around https://github.com/travis-ci/travis-ci/issues/2317
+    - env: TASK=BUILD
+      # Set the java version to 1.8 until we fix the build for java10.
+      osx_image: xcode9.3
+      os: osx
 
   allow_failures:
-  # Allowing failures because osx builds are very slow.
-  - env: TASK=BUILD
-    os: osx
+    # Allowing failures because osx builds are very slow.
+    - env: TASK=BUILD
+      os: osx
 
 before_install:
   - git log --oneline --decorate --graph -30
@@ -55,8 +59,8 @@ script:
   - buildscripts/travis_script
 
 after_success:
-  - if \[ "$TASK" == "BUILD" \] && \[ "$TRAVIS_JDK_VERSION" == "oraclejdk9" \] && \[ "$TRAVIS_OS_NAME" = linux \]; then
-      bash <(curl -s https://codecov.io/bash) ;
+  - if \[ "$TASK" == "BUILD" \] && \[ "$TRAVIS_JDK_VERSION" == "openjdk8" \] && \[ "$TRAVIS_OS_NAME" = linux \]; then
+    bash <(curl -s https://codecov.io/bash) ;
     fi
 
 before_cache:
