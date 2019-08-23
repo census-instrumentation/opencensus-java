@@ -19,8 +19,8 @@ matrix:
 
 # TODO(songy23): fix JDK 11 build
 #  - jdk: openjdk11
-#  env: TASK=BUILD
-#  os: linux
+#    env: TASK=BUILD
+#    os: linux
 
   - jdk: openjdk8
     env: TASK=CHECKER_FRAMEWORK
