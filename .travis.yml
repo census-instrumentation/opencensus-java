@@ -18,7 +18,7 @@ matrix:
 #    env: TASK=BUILD
 #    os: linux
 
-  - jdk: oraclejdk9
+  - jdk: oraclejdk8
     env: TASK=CHECKER_FRAMEWORK
     os: linux
 
@@ -26,11 +26,11 @@ matrix:
     os: linux
 
   # Build example projects last, since they are affected by fewer pull requests.
-  - jdk: oraclejdk9
+  - jdk: oraclejdk8
     env: TASK=BUILD_EXAMPLES_GRADLE
     os: linux
 
-  - jdk: oraclejdk9
+  - jdk: oraclejdk8
     env: TASK=BUILD_EXAMPLES_MAVEN
     os: linux
 
