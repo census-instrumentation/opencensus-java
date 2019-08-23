@@ -108,7 +108,10 @@ public final class OcAgentTraceExporter {
    * @since 0.20
    */
   public static void unregister() {
-    unregister(Tracing.getExportComponent().getSpanExporter());
+    synchronized (monitor) {
+      unregister(Tracing.getExportComponent().getSpanExporter());
+      handler = null;
+    }
   }
 
   /**
