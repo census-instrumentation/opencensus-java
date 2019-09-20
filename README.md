@@ -16,6 +16,8 @@ library is expected to move to [GA](#versioning) stage after v1.0.0 major releas
 Please join [gitter](https://gitter.im/census-instrumentation/Lobby) for help or feedback on this
 project.
 
+**OpenCensus and OpenTracing have merged to form OpenTelemetry, which serves as the next major version of OpenCensus and OpenTracing. OpenTelemetry will offer backwards compatibility with existing OpenCensus integrations, and we will continue to make security patches to existing OpenCensus libraries for two years. Read more about the merger [here](https://medium.com/opentracing/a-roadmap-to-convergence-b074e5815289).**
+
 ## OpenCensus Quickstart for Libraries
 
 Integrating OpenCensus with a new library means recording stats or traces and propagating context.
