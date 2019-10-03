@@ -37,26 +37,35 @@ public class WriteListenerWrapperTest {
     Key<String> key = Context.<String>key("test-key");
     Context curr = Context.current();
     assertThat(curr).isNotNull();
-    assertThat(curr.withValue(key, "parent").attach()).isNotNull();
-
-    final Context parentContext = Context.current();
+    final Context parentContext = curr.withValue(key, "parent");
     assertThat(parentContext).isNotNull();
 
-    WriteListenerWrapper writeListener =
-        new WriteListenerWrapper(
-            new WriteListener() {
-              @Override
-              public void onWritePossible() throws IOException {
-                Context curr = Context.current();
-                assertThat(curr).isNotNull();
-                assertThat(curr).isEqualTo(parentContext);
-              }
+    Context prev = parentContext.attach();
+    try {
+      WriteListenerWrapper writeListener =
+          new WriteListenerWrapper(
+              new WriteListener() {
+                @Override
+                public void onWritePossible() throws IOException {
+                  Context curr = Context.current();
+                  assertThat(curr).isNotNull();
+                  assertThat(curr).isEqualTo(parentContext);
+                }
 
-              @Override
-              public void onError(Throwable t) {}
-            });
+                @Override
+                public void onError(Throwable t) {}
+              });
 
-    assertThat(parentContext.withValue(key, "child").attach()).isNotNull();
-    writeListener.onWritePossible();
+      Context childContext = parentContext.withValue(key, "child");
+      assertThat(childContext).isNotNull();
+      assertThat(childContext.attach()).isNotNull();
+      try {
+        writeListener.onWritePossible();
+      } finally {
+        childContext.detach(parentContext);
+      }
+    } finally {
+      parentContext.detach(prev);
+    }
   }
 }
