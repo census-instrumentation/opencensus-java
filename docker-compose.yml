@@ -1,0 +1,16 @@
+version: '2'
+services:
+  local:
+    container_name: api
+    build: .
+    stdin_open: true
+    volumes:
+      - .:/app
+      - gradle_cache:/root/.gradle
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    working_dir: /app
+    command: bash -c "bash"
+volumes:
+  gradle_cache:
