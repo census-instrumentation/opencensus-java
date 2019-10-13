@@ -50,6 +50,17 @@ public abstract class PropagationComponent {
   public abstract TextFormat getB3Format();
 
   /**
+   * Returns the B3 (Single) {@link TextFormat} with the provided implementations. See <a
+   * href="https://github.com/openzipkin/b3-propagation">b3-propagation</a> for more information. If
+   * no implementation is provided then no-op implementation will be used.
+   *
+   * @since 0.25.0
+   * @return the B3 (Single) {@code TextFormat} implementation.
+   */
+  @ExperimentalApi
+  public abstract TextFormat getB3SingleFormat();
+
+  /**
    * Returns the TraceContext {@link TextFormat} with the provided implementations. See <a
    * href="https://github.com/w3c/distributed-tracing">w3c/distributed-tracing</a> for more
    * information. If no implementation is provided then no-op implementation will be used.
@@ -83,6 +94,11 @@ public abstract class PropagationComponent {
 
     @Override
     public TextFormat getTraceContextFormat() {
+      return TextFormat.getNoopTextFormat();
+    }
+
+    @Override
+    public TextFormat getB3SingleFormat() {
       return TextFormat.getNoopTextFormat();
     }
   }
