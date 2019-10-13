@@ -45,6 +45,8 @@ final class B3Format extends TextFormat {
   @VisibleForTesting static final String X_B3_PARENT_SPAN_ID = "X-B3-ParentSpanId";
   @VisibleForTesting static final String X_B3_SAMPLED = "X-B3-Sampled";
   @VisibleForTesting static final String X_B3_FLAGS = "X-B3-Flags";
+  @VisibleForTesting static final String B3 = "b3";
+  @VisibleForTesting static final String TRACESTATE = "tracestate";
   private static final List<String> FIELDS =
       Collections.unmodifiableList(
           Arrays.asList(
@@ -81,15 +83,27 @@ final class B3Format extends TextFormat {
       throws SpanContextParseException {
     checkNotNull(carrier, "carrier");
     checkNotNull(getter, "getter");
+
     try {
+      // check for single header format
+      final String b3Header = getter.get(carrier, B3);
+      if (b3Header != null) {
+        return parseB3Value(b3Header);
+      }
+      final String traceStateHeader = getter.get(carrier, TRACESTATE);
+      if (traceStateHeader != null) {
+        final String[] components = traceStateHeader.split("=", 2);
+        if (components.length < 2 || !B3.equalsIgnoreCase(components[0])) {
+          throw new SpanContextParseException("Invalid tracestate header: " + traceStateHeader);
+        }
+        return parseB3Value(components[1]);
+      }
+
+      // assume multi-header format
       TraceId traceId;
       String traceIdStr = getter.get(carrier, X_B3_TRACE_ID);
       if (traceIdStr != null) {
-        if (traceIdStr.length() == TraceId.SIZE) {
-          // This is an 8-byte traceID.
-          traceIdStr = UPPER_TRACE_ID + traceIdStr;
-        }
-        traceId = TraceId.fromLowerBase16(traceIdStr);
+        traceId = parseTraceId(traceIdStr);
       } else {
         throw new SpanContextParseException("Missing X_B3_TRACE_ID.");
       }
@@ -109,5 +123,45 @@ final class B3Format extends TextFormat {
     } catch (IllegalArgumentException e) {
       throw new SpanContextParseException("Invalid input.", e);
     }
+  }
+
+  protected TraceId parseTraceId(String traceIdStr) {
+    if (traceIdStr.length() == TraceId.SIZE) {
+      // This is an 8-byte traceID.
+      traceIdStr = UPPER_TRACE_ID + traceIdStr;
+    }
+    return TraceId.fromLowerBase16(traceIdStr);
+  }
+
+  /**
+   * Parses trace information from the "B3 single" header format.
+   *
+   * @param b3Header A b3 single header string in the form [traceid]-[spanid]-[if flags 'd' else
+   *     sampled]-[parentspanid]
+   */
+  protected SpanContext parseB3Value(final String b3Header) throws SpanContextParseException {
+    final String[] components = b3Header.split("-", 4);
+    if (components.length < 2) {
+      throw new SpanContextParseException("Invalid b3 (single) header: " + b3Header);
+    }
+    final String traceIdString = components[0];
+    final String spanIdString = components[1];
+    final String flag = components.length > 2 ? components[2] : null;
+    if (flag != null && flag.length() != 1) {
+      throw new SpanContextParseException("Invalid b3 flag: " + flag);
+    }
+    // parent trace ID (optional components[3]) is ignored
+
+    final TraceId traceId = parseTraceId(traceIdString);
+    final SpanId spanId = SpanId.fromLowerBase16(spanIdString);
+    final TraceOptions traceOptions =
+        flag != null
+            ? TraceOptions.builder()
+                .setIsSampled("1".contentEquals(flag) || "d".equalsIgnoreCase(flag))
+                .build()
+            : TraceOptions.DEFAULT;
+    final Tracestate tracestate = Tracestate.builder().build();
+
+    return SpanContext.create(traceId, spanId, traceOptions, tracestate);
   }
 }
