@@ -57,8 +57,8 @@ final class ZipkinExporterHandler extends TimeLimitedHandler {
 
   // The naming follows Zipkin convention. As an example see:
   // https://github.com/apache/incubator-zipkin-brave/blob/643b7245c462dc14d47afcdb076b2603fd421497/instrumentation/grpc/src/main/java/brave/grpc/GrpcParser.java#L67-L73
-  @VisibleForTesting static final String STATUS_CODE = "census.status_code";
-  @VisibleForTesting static final String STATUS_DESCRIPTION = "census.status_description";
+  @VisibleForTesting static final String STATUS_CODE = "opencensus.status_code";
+  @VisibleForTesting static final String STATUS_DESCRIPTION = "opencensus.status_description";
   @VisibleForTesting static final String STATUS_ERROR = "error";
 
   private final SpanBytesEncoder encoder;
