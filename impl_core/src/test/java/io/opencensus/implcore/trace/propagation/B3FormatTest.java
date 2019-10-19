@@ -18,7 +18,6 @@ package io.opencensus.implcore.trace.propagation;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.implcore.trace.propagation.B3Format.B3;
-import static io.opencensus.implcore.trace.propagation.B3Format.TRACESTATE;
 import static io.opencensus.implcore.trace.propagation.B3Format.X_B3_FLAGS;
 import static io.opencensus.implcore.trace.propagation.B3Format.X_B3_PARENT_SPAN_ID;
 import static io.opencensus.implcore.trace.propagation.B3Format.X_B3_SAMPLED;
@@ -33,9 +32,11 @@ import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat.Getter;
 import io.opencensus.trace.propagation.TextFormat.Setter;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -70,8 +71,13 @@ public class B3FormatTest {
           return carrier.get(key);
         }
       };
-  private final B3Format b3Format = new B3Format();
+  private B3Format b3Format;
   @Rule public ExpectedException thrown = ExpectedException.none();
+
+  @Before
+  public void setUp() {
+    b3Format = new B3Format();
+  }
 
   @Test
   public void serialize_SampledContext() {
@@ -153,9 +159,6 @@ public class B3FormatTest {
   public void parseEightBytesTraceIdFromSingle() throws SpanContextParseException {
     // given
     final Map<String, String> headersEightBytes = new HashMap<String, String>();
-    headersEightBytes.put(X_B3_TRACE_ID, TRACE_ID_BASE16_EIGHT_BYTES);
-    headersEightBytes.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
-    headersEightBytes.put(X_B3_SAMPLED, "1");
     headersEightBytes.put(B3, TRACE_ID_BASE16_EIGHT_BYTES + "-" + SPAN_ID_BASE16 + "-" + "1");
 
     // when
@@ -176,11 +179,11 @@ public class B3FormatTest {
   }
 
   @Test
-  public void parseEightBytesTraceId_NotSampledSpanContextFromTracestate()
+  public void parseEightBytesTraceId_NotSampledSpanContextFromSingle()
       throws SpanContextParseException {
     // given
     final Map<String, String> headersEightBytes = new HashMap<String, String>();
-    headersEightBytes.put(TRACESTATE, "b3=" + TRACE_ID_BASE16_EIGHT_BYTES + "-" + SPAN_ID_BASE16);
+    headersEightBytes.put(B3, TRACE_ID_BASE16_EIGHT_BYTES + "-" + SPAN_ID_BASE16);
 
     // when
     final SpanContext result = b3Format.extract(headersEightBytes, getter);
@@ -257,6 +260,19 @@ public class B3FormatTest {
   }
 
   @Test
+  public final void fields_listSingleFormat() {
+    // given
+    final boolean singleOutput = true;
+    b3Format = new B3Format(singleOutput);
+
+    // when
+    final Collection<? extends String> result = b3Format.fields();
+
+    // then
+    assertThat(result).containsExactly(B3);
+  }
+
+  @Test
   public final void prioritiseSingleHeaderOverMulti() throws SpanContextParseException {
     // given
     final Map<String, String> headersSampled = new HashMap<String, String>();
@@ -273,40 +289,12 @@ public class B3FormatTest {
   }
 
   @Test
-  public final void prioritiseTraceStateOverMultiB3() throws SpanContextParseException {
-    // given
-    final Map<String, String> headersSampled = new HashMap<String, String>();
-    headersSampled.put(X_B3_TRACE_ID, "invalidTraceId");
-    headersSampled.put(X_B3_SPAN_ID, "invalidSpanId");
-    headersSampled.put(X_B3_SAMPLED, "é");
-    headersSampled.put(TRACESTATE, "b3=" + TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16 + "-" + "1");
-
-    // when
-    final SpanContext result = b3Format.extract(headersSampled, getter);
-
-    // then
-    assertThat(result).isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS, TRACE_STATE));
-  }
-
-  @Test
-  public final void failOnInvalidTracestate() throws SpanContextParseException {
-    // given
-    final Map<String, String> headersSampled = new HashMap<String, String>();
-    headersSampled.put(
-        TRACESTATE, "80f198ee56343ba864fe8b2a57d3eff7-05e3ac9a4f6e3b90-1-e457b5a2e4d86bd1");
-
-    // when / then
-    thrown.expect(SpanContextParseException.class);
-    b3Format.extract(headersSampled, getter);
-  }
-
-  @Test
   public final void failOnInsufficientB3SingleComponents() throws SpanContextParseException {
     // given
     final Map<String, String> headersSampled = new HashMap<String, String>();
     headersSampled.put(B3, "80f198ee56343ba864fe8b2a57d3eff7");
 
-    // when / then
+    // when / then (expect parse exception because there are not enough hyphen-delimited components)
     thrown.expect(SpanContextParseException.class);
     b3Format.extract(headersSampled, getter);
   }
@@ -317,23 +305,6 @@ public class B3FormatTest {
     final Map<String, String> headersSampled = new HashMap<String, String>();
     headersSampled.put(
         B3, TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16 + "-" + "1" + "-" + "e457b5a2e4d86bd1");
-
-    // when
-    final SpanContext result = b3Format.extract(headersSampled, getter);
-
-    // then
-    assertThat(result.getTraceId()).isEqualTo(TRACE_ID);
-    assertThat(result.getSpanId()).isEqualTo(SPAN_ID);
-    assertThat(result.getTraceOptions().isSampled()).isTrue();
-  }
-
-  @Test
-  public final void extractSampledSpanWithParentFromTracestate() throws SpanContextParseException {
-    // given
-    final Map<String, String> headersSampled = new HashMap<String, String>();
-    headersSampled.put(
-        TRACESTATE,
-        "b3=" + TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16 + "-" + "1" + "-" + "e457b5a2e4d86bd1");
 
     // when
     final SpanContext result = b3Format.extract(headersSampled, getter);
@@ -360,40 +331,10 @@ public class B3FormatTest {
   }
 
   @Test
-  public final void extractSampledRootSpanFromTracestate() throws SpanContextParseException {
-    // given
-    final Map<String, String> headersSampled = new HashMap<String, String>();
-    headersSampled.put(TRACESTATE, "b3=" + TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16 + "-" + "1");
-
-    // when
-    final SpanContext result = b3Format.extract(headersSampled, getter);
-
-    // then
-    assertThat(result.getTraceId()).isEqualTo(TRACE_ID);
-    assertThat(result.getSpanId()).isEqualTo(SPAN_ID);
-    assertThat(result.getTraceOptions().isSampled()).isTrue();
-  }
-
-  @Test
   public final void extractNotYetSampledRootSpanFromSingle() throws SpanContextParseException {
     // given
     final Map<String, String> headersSampled = new HashMap<String, String>();
     headersSampled.put(B3, TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16);
-
-    // when
-    final SpanContext result = b3Format.extract(headersSampled, getter);
-
-    // then
-    assertThat(result.getTraceId()).isEqualTo(TRACE_ID);
-    assertThat(result.getSpanId()).isEqualTo(SPAN_ID);
-    assertThat(result.getTraceOptions().isSampled()).isFalse();
-  }
-
-  @Test
-  public final void extractNotYetSampledRootSpanFromTracestate() throws SpanContextParseException {
-    // given
-    final Map<String, String> headersSampled = new HashMap<String, String>();
-    headersSampled.put(TRACESTATE, "b3=" + TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16);
 
     // when
     final SpanContext result = b3Format.extract(headersSampled, getter);
@@ -421,19 +362,34 @@ public class B3FormatTest {
   }
 
   @Test
-  public final void extractDebugSpanFromTracestate() throws SpanContextParseException {
+  public final void injectNonSampledTrace() {
     // given
-    final Map<String, String> headersSampled = new HashMap<String, String>();
-    headersSampled.put(
-        TRACESTATE,
-        "b3=" + TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16 + "-" + "d" + "-" + "e457b5a2e4d86bd1");
+    b3Format = new B3Format(true);
+    final TraceOptions traceOptions = TraceOptions.builder().setIsSampled(false).build();
+    final Tracestate tracestate = Tracestate.builder().build();
+    final SpanContext context = SpanContext.create(TRACE_ID, SPAN_ID, traceOptions, tracestate);
+    final Map<String, String> carrier = new HashMap<String, String>(1, 1.0f);
 
     // when
-    final SpanContext result = b3Format.extract(headersSampled, getter);
+    b3Format.inject(context, carrier, setter);
 
     // then
-    assertThat(result.getTraceId()).isEqualTo(TRACE_ID);
-    assertThat(result.getSpanId()).isEqualTo(SPAN_ID);
-    assertThat(result.getTraceOptions().isSampled()).isTrue();
+    assertThat(carrier).containsExactly("b3", "0");
+  }
+
+  @Test
+  public final void injectSampledTrace() {
+    // given
+    b3Format = new B3Format(true);
+    final TraceOptions traceOptions = TraceOptions.builder().setIsSampled(true).build();
+    final Tracestate tracestate = Tracestate.builder().build();
+    final SpanContext context = SpanContext.create(TRACE_ID, SPAN_ID, traceOptions, tracestate);
+    final Map<String, String> carrier = new HashMap<String, String>(1, 1.0f);
+
+    // when
+    b3Format.inject(context, carrier, setter);
+
+    // then
+    assertThat(carrier).containsExactly("b3", TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16 + "-" + "1");
   }
 }

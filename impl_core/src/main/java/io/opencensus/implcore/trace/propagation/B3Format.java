@@ -46,11 +46,6 @@ final class B3Format extends TextFormat {
   @VisibleForTesting static final String X_B3_SAMPLED = "X-B3-Sampled";
   @VisibleForTesting static final String X_B3_FLAGS = "X-B3-Flags";
   @VisibleForTesting static final String B3 = "b3";
-  @VisibleForTesting static final String TRACESTATE = "tracestate";
-  private static final List<String> FIELDS =
-      Collections.unmodifiableList(
-          Arrays.asList(
-              X_B3_TRACE_ID, X_B3_SPAN_ID, X_B3_PARENT_SPAN_ID, X_B3_SAMPLED, X_B3_FLAGS));
 
   // Used as the upper TraceId.SIZE hex characters of the traceID. B3-propagation used to send
   // TraceId.SIZE hex characters (8-bytes traceId) in the past.
@@ -60,9 +55,26 @@ final class B3Format extends TextFormat {
   // "Debug" sampled value.
   private static final String FLAGS_VALUE = "1";
 
+  private final boolean singleOutput;
+  private final List<String> fields;
+
+  public B3Format(final boolean singleOutput) {
+    this.singleOutput = singleOutput;
+    fields =
+        singleOutput
+            ? Collections.singletonList(B3)
+            : Collections.unmodifiableList(
+                Arrays.asList(
+                    X_B3_TRACE_ID, X_B3_SPAN_ID, X_B3_PARENT_SPAN_ID, X_B3_SAMPLED, X_B3_FLAGS));
+  }
+
+  public B3Format() {
+    this(false);
+  }
+
   @Override
   public List<String> fields() {
-    return FIELDS;
+    return fields;
   }
 
   @Override
@@ -71,10 +83,21 @@ final class B3Format extends TextFormat {
     checkNotNull(spanContext, "spanContext");
     checkNotNull(setter, "setter");
     checkNotNull(carrier, "carrier");
-    setter.put(carrier, X_B3_TRACE_ID, spanContext.getTraceId().toLowerBase16());
-    setter.put(carrier, X_B3_SPAN_ID, spanContext.getSpanId().toLowerBase16());
-    if (spanContext.getTraceOptions().isSampled()) {
-      setter.put(carrier, X_B3_SAMPLED, SAMPLED_VALUE);
+    if (isSingleOutput()) {
+      final String value =
+          spanContext.getTraceOptions().isSampled()
+              ? spanContext.getTraceId().toLowerBase16()
+                  + "-"
+                  + spanContext.getSpanId().toLowerBase16()
+                  + "-1"
+              : "0";
+      setter.put(carrier, B3, value);
+    } else {
+      setter.put(carrier, X_B3_TRACE_ID, spanContext.getTraceId().toLowerBase16());
+      setter.put(carrier, X_B3_SPAN_ID, spanContext.getSpanId().toLowerBase16());
+      if (spanContext.getTraceOptions().isSampled()) {
+        setter.put(carrier, X_B3_SAMPLED, SAMPLED_VALUE);
+      }
     }
   }
 
@@ -89,14 +112,6 @@ final class B3Format extends TextFormat {
       final String b3Header = getter.get(carrier, B3);
       if (b3Header != null) {
         return parseB3Value(b3Header);
-      }
-      final String traceStateHeader = getter.get(carrier, TRACESTATE);
-      if (traceStateHeader != null) {
-        final String[] components = traceStateHeader.split("=", 2);
-        if (components.length < 2 || !B3.equalsIgnoreCase(components[0])) {
-          throw new SpanContextParseException("Invalid tracestate header: " + traceStateHeader);
-        }
-        return parseB3Value(components[1]);
       }
 
       // assume multi-header format
@@ -163,5 +178,9 @@ final class B3Format extends TextFormat {
     final Tracestate tracestate = Tracestate.builder().build();
 
     return SpanContext.create(traceId, spanId, traceOptions, tracestate);
+  }
+
+  protected boolean isSingleOutput() {
+    return singleOutput;
   }
 }
