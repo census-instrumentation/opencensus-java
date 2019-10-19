@@ -23,7 +23,8 @@ import io.opencensus.trace.propagation.TextFormat;
 /** Implementation of the {@link PropagationComponent}. */
 public class PropagationComponentImpl extends PropagationComponent {
   private final BinaryFormat binaryFormat = new BinaryFormatImpl();
-  private final TextFormat b3Format = new B3Format();
+  private final TextFormat b3Format = new B3Format(/* singleOutput= */ false);
+  private final TextFormat b3SingleFormat = new B3Format(/* singleOutput= */ true);
   private final TextFormat traceContextFormat = new TraceContextFormat();
 
   @Override
@@ -34,6 +35,11 @@ public class PropagationComponentImpl extends PropagationComponent {
   @Override
   public TextFormat getB3Format() {
     return b3Format;
+  }
+
+  @Override
+  public TextFormat getB3SingleFormat() {
+    return b3SingleFormat;
   }
 
   @Override
