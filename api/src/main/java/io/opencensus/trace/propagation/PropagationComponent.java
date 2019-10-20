@@ -50,17 +50,17 @@ public abstract class PropagationComponent {
   public abstract TextFormat getB3Format();
 
   /**
-   * Returns the B3 {@link TextFormat} with the provided implementations. See <a href=
-   * "https://github.com/openzipkin/b3-propagation">b3-propagation</a> for more information. If no
-   * implementation is provided then no-op implementation will be used. Extraction is equivalent to
-   * {@link #getB3Format()}, however when injecting fields, the compact B3 single format is used
-   * instead.
+   * Returns the B3 {@link TextFormat} with the provided implementations. See <a
+   * href="https://github.com/openzipkin/b3-propagation">b3-propagation</a> for more information. If
+   * no implementation is provided then no-op implementation will be used.
    *
    * @since 0.25.0
+   * @param singleOutput true if and only if the compact "b3 single" should be used when emitting
+   *     trace data, otherwise the multiple header format will be used
    * @return the B3 {@code TextFormat} implementation.
    */
   @ExperimentalApi
-  public abstract TextFormat getB3SingleFormat();
+  public abstract TextFormat getB3Format(boolean singleOutput);
 
   /**
    * Returns the TraceContext {@link TextFormat} with the provided implementations. See <a
@@ -95,7 +95,7 @@ public abstract class PropagationComponent {
     }
 
     @Override
-    public TextFormat getB3SingleFormat() {
+    public TextFormat getB3Format(final boolean singleOutput) {
       return TextFormat.getNoopTextFormat();
     }
 

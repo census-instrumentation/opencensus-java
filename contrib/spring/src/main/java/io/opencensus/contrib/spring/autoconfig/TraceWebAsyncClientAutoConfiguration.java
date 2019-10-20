@@ -63,6 +63,9 @@ public class TraceWebAsyncClientAutoConfiguration {
     @Value("${opencensus.spring.trace.propagation:TRACE_PROPAGATION_TRACE_CONTEXT}")
     private Trace.Propagation propagation;
 
+    @Value("${opencensus.spring.trace.b3.singleOutput:false}")
+    private boolean b3SingleFormat;
+
     @Autowired(required = false)
     HttpExtractor<HttpRequest, ClientHttpResponse> extractor;
 
@@ -71,7 +74,7 @@ public class TraceWebAsyncClientAutoConfiguration {
       TextFormat propagator;
 
       if (propagation != null && propagation == Propagation.TRACE_PROPAGATION_B3) {
-        propagator = Tracing.getPropagationComponent().getB3Format();
+        propagator = Tracing.getPropagationComponent().getB3Format(b3SingleFormat);
       } else {
         propagator = Tracing.getPropagationComponent().getTraceContextFormat();
       }

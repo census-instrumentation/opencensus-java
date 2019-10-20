@@ -38,8 +38,8 @@ public class PropagationComponentImpl extends PropagationComponent {
   }
 
   @Override
-  public TextFormat getB3SingleFormat() {
-    return b3SingleFormat;
+  public TextFormat getB3Format(final boolean singleOutput) {
+    return singleOutput ? b3SingleFormat : b3Format;
   }
 
   @Override

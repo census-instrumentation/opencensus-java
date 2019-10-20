@@ -63,15 +63,37 @@ public class OpenCensusProperties {
       TRACE_PROPAGATION_TRACE_CONTEXT,
 
       /**
-       * Specifies B3 format for span context propagation.
+       * Specifies B3 format for span context propagation. For more granular configuration of the B3
+       * format, see {@link B3Properties}.
        *
        * @since 0.23
+       * @see B3Properties
        */
       TRACE_PROPAGATION_B3,
     }
 
+    /**
+     * B3 properties. This only applies if {@link Trace#getPropagation() propagation} is set to
+     * {@link Propagation#TRACE_PROPAGATION_B3}. Otherwise, these parameters are ignored.
+     *
+     * @since 0.25
+     * @see Propagation#TRACE_PROPAGATION_B3
+     */
+    public static final class B3Properties {
+      private boolean singleOutput = false;
+
+      public boolean isSingleOutput() {
+        return singleOutput;
+      }
+
+      public void setSingleOutput(final boolean singleOutput) {
+        this.singleOutput = singleOutput;
+      }
+    }
+
     private Propagation propagation = TRACE_PROPAGATION_TRACE_CONTEXT;
     private boolean publicEndpoint = false;
+    private B3Properties b3 = new B3Properties();
 
     public Propagation getPropagation() {
       return propagation;
@@ -87,6 +109,14 @@ public class OpenCensusProperties {
 
     public void setPublicEndpoint(boolean publicEndpoint) {
       this.publicEndpoint = publicEndpoint;
+    }
+
+    public B3Properties getB3() {
+      return b3;
+    }
+
+    public void setB3(final B3Properties b3) {
+      this.b3 = b3;
     }
   }
 }

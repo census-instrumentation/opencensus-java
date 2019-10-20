@@ -39,6 +39,9 @@ public class HttpServletFilter extends OcHttpServletFilter implements Filter {
   @Value("${opencensus.spring.trace.propagation:TRACE_PROPAGATION_TRACE_CONTEXT}")
   private Trace.Propagation propagation;
 
+  @Value("${opencensus.spring.trace.b3.singleOutput:false}")
+  private boolean b3SingleOutput;
+
   @Value("${opencensus.spring.trace.publicEndpoint:false}")
   private Boolean publicEndpoint;
 
@@ -46,7 +49,8 @@ public class HttpServletFilter extends OcHttpServletFilter implements Filter {
   public void init(FilterConfig filterConfig) throws ServletException {
     ServletContext context = filterConfig.getServletContext();
     if (propagation != null && propagation == Propagation.TRACE_PROPAGATION_B3) {
-      context.setAttribute(OC_TRACE_PROPAGATOR, Tracing.getPropagationComponent().getB3Format());
+      context.setAttribute(
+          OC_TRACE_PROPAGATOR, Tracing.getPropagationComponent().getB3Format(b3SingleOutput));
     }
     if (publicEndpoint) {
       context.setInitParameter(OC_PUBLIC_ENDPOINT, publicEndpoint.toString());
