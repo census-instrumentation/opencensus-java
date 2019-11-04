@@ -16,6 +16,7 @@
 
 package io.opencensus.implcore.trace.propagation;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -24,10 +25,14 @@ import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracestate;
+import io.opencensus.trace.propagation.B3InjectionFormat;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 /*>>>
@@ -55,21 +60,28 @@ final class B3Format extends TextFormat {
   // "Debug" sampled value.
   private static final String FLAGS_VALUE = "1";
 
-  private final boolean singleOutput;
+  private final Collection<? extends B3InjectionFormat> injectionFormats;
   private final List<String> fields;
 
-  public B3Format(final boolean singleOutput) {
-    this.singleOutput = singleOutput;
-    fields =
-        singleOutput
-            ? Collections.singletonList(B3)
-            : Collections.unmodifiableList(
-                Arrays.asList(
-                    X_B3_TRACE_ID, X_B3_SPAN_ID, X_B3_PARENT_SPAN_ID, X_B3_SAMPLED, X_B3_FLAGS));
+  public B3Format() {
+    this(B3InjectionFormat.MULTI);
   }
 
-  public B3Format() {
-    this(false);
+  public B3Format(final B3InjectionFormat... formats) {
+    checkNotNull(formats, "formats cannot be null");
+    checkArgument(formats.length > 0, "At least one injection format must be specified");
+
+    this.injectionFormats = Collections.unmodifiableSet(EnumSet.copyOf(Arrays.asList(formats)));
+    final List<String> fields = new ArrayList<>(6);
+    if (injectionFormats.contains(B3InjectionFormat.MULTI)) {
+      fields.addAll(
+          Arrays.asList(
+              X_B3_TRACE_ID, X_B3_SPAN_ID, X_B3_PARENT_SPAN_ID, X_B3_SAMPLED, X_B3_FLAGS));
+    }
+    if (injectionFormats.contains(B3InjectionFormat.SINGLE)) {
+      fields.add(B3);
+    }
+    this.fields = Collections.unmodifiableList(fields);
   }
 
   @Override
@@ -83,16 +95,16 @@ final class B3Format extends TextFormat {
     checkNotNull(spanContext, "spanContext");
     checkNotNull(setter, "setter");
     checkNotNull(carrier, "carrier");
-    if (isSingleOutput()) {
+    if (getInjectionFormats().contains(B3InjectionFormat.SINGLE)) {
       final String value =
-          spanContext.getTraceOptions().isSampled()
-              ? spanContext.getTraceId().toLowerBase16()
-                  + "-"
-                  + spanContext.getSpanId().toLowerBase16()
-                  + "-1"
-              : "0";
+          spanContext.getTraceId().toLowerBase16()
+              + "-"
+              + spanContext.getSpanId().toLowerBase16()
+              + "-"
+              + (spanContext.getTraceOptions().isSampled() ? "1" : "0");
       setter.put(carrier, B3, value);
-    } else {
+    }
+    if (getInjectionFormats().contains(B3InjectionFormat.MULTI)) {
       setter.put(carrier, X_B3_TRACE_ID, spanContext.getTraceId().toLowerBase16());
       setter.put(carrier, X_B3_SPAN_ID, spanContext.getSpanId().toLowerBase16());
       if (spanContext.getTraceOptions().isSampled()) {
@@ -180,7 +192,7 @@ final class B3Format extends TextFormat {
     return SpanContext.create(traceId, spanId, traceOptions, tracestate);
   }
 
-  protected boolean isSingleOutput() {
-    return singleOutput;
+  protected Collection<? extends B3InjectionFormat> getInjectionFormats() {
+    return injectionFormats;
   }
 }

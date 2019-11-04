@@ -18,6 +18,9 @@ package io.opencensus.contrib.spring.autoconfig;
 
 import static io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace.Propagation.TRACE_PROPAGATION_TRACE_CONTEXT;
 
+import io.opencensus.trace.propagation.B3InjectionFormat;
+import java.util.Arrays;
+import java.util.Objects;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -64,7 +67,7 @@ public class OpenCensusProperties {
 
       /**
        * Specifies B3 format for span context propagation. For more granular configuration of the B3
-       * format, see {@link B3Properties}.
+       * format, see {@link B3Properties} and https://github.com/openzipkin/b3-propagation.
        *
        * @since 0.23
        * @see B3Properties
@@ -80,14 +83,17 @@ public class OpenCensusProperties {
      * @see Propagation#TRACE_PROPAGATION_B3
      */
     public static final class B3Properties {
-      private boolean singleOutput = false;
 
-      public boolean isSingleOutput() {
-        return singleOutput;
+      private B3InjectionFormat[] injectionFormats =
+          new B3InjectionFormat[] {B3InjectionFormat.MULTI};
+
+      public B3InjectionFormat[] getInjectionFormats() {
+        return Arrays.copyOf(injectionFormats, injectionFormats.length);
       }
 
-      public void setSingleOutput(final boolean singleOutput) {
-        this.singleOutput = singleOutput;
+      public void setInjectionFormats(final B3InjectionFormat[] injectionFormats) {
+        Objects.requireNonNull(injectionFormats, "injectionFormats cannot be null");
+        this.injectionFormats = Arrays.copyOf(injectionFormats, injectionFormats.length);
       }
     }
 

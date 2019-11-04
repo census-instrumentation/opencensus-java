@@ -22,6 +22,7 @@ import io.opencensus.contrib.spring.autoconfig.OpenCensusAutoConfiguration;
 import io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace;
 import io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace.Propagation;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.propagation.B3InjectionFormat;
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -39,8 +40,8 @@ public class HttpServletFilter extends OcHttpServletFilter implements Filter {
   @Value("${opencensus.spring.trace.propagation:TRACE_PROPAGATION_TRACE_CONTEXT}")
   private Trace.Propagation propagation;
 
-  @Value("${opencensus.spring.trace.b3.singleOutput:false}")
-  private boolean b3SingleOutput;
+  @Value("${opencensus.spring.trace.b3.injectionFormats:MULTI}")
+  private B3InjectionFormat[] b3InjectionFormats;
 
   @Value("${opencensus.spring.trace.publicEndpoint:false}")
   private Boolean publicEndpoint;
@@ -50,7 +51,7 @@ public class HttpServletFilter extends OcHttpServletFilter implements Filter {
     ServletContext context = filterConfig.getServletContext();
     if (propagation != null && propagation == Propagation.TRACE_PROPAGATION_B3) {
       context.setAttribute(
-          OC_TRACE_PROPAGATOR, Tracing.getPropagationComponent().getB3Format(b3SingleOutput));
+          OC_TRACE_PROPAGATOR, Tracing.getPropagationComponent().getB3Format(b3InjectionFormats));
     }
     if (publicEndpoint) {
       context.setInitParameter(OC_PUBLIC_ENDPOINT, publicEndpoint.toString());

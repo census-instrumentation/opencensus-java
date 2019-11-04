@@ -29,6 +29,7 @@ import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracestate;
+import io.opencensus.trace.propagation.B3InjectionFormat;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat.Getter;
 import io.opencensus.trace.propagation.TextFormat.Setter;
@@ -262,14 +263,27 @@ public class B3FormatTest {
   @Test
   public final void fields_listSingleFormat() {
     // given
-    final boolean singleOutput = true;
-    b3Format = new B3Format(singleOutput);
+    b3Format = new B3Format(B3InjectionFormat.SINGLE);
 
     // when
     final Collection<? extends String> result = b3Format.fields();
 
     // then
     assertThat(result).containsExactly(B3);
+  }
+
+  @Test
+  public final void fields_listMultiAndSingleFormat() {
+    // given
+    b3Format = new B3Format(B3InjectionFormat.MULTI, B3InjectionFormat.SINGLE);
+
+    // when
+    final Collection<? extends String> result = b3Format.fields();
+
+    // then
+    assertThat(result)
+        .containsExactly(
+            B3, X_B3_TRACE_ID, X_B3_SPAN_ID, X_B3_PARENT_SPAN_ID, X_B3_SAMPLED, X_B3_FLAGS);
   }
 
   @Test
@@ -364,7 +378,7 @@ public class B3FormatTest {
   @Test
   public final void injectNonSampledTrace() {
     // given
-    b3Format = new B3Format(true);
+    b3Format = new B3Format(B3InjectionFormat.SINGLE);
     final TraceOptions traceOptions = TraceOptions.builder().setIsSampled(false).build();
     final Tracestate tracestate = Tracestate.builder().build();
     final SpanContext context = SpanContext.create(TRACE_ID, SPAN_ID, traceOptions, tracestate);
@@ -374,13 +388,13 @@ public class B3FormatTest {
     b3Format.inject(context, carrier, setter);
 
     // then
-    assertThat(carrier).containsExactly("b3", "0");
+    assertThat(carrier).containsExactly("b3", TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16 + "-" + "0");
   }
 
   @Test
   public final void injectSampledTrace() {
     // given
-    b3Format = new B3Format(true);
+    b3Format = new B3Format(B3InjectionFormat.SINGLE);
     final TraceOptions traceOptions = TraceOptions.builder().setIsSampled(true).build();
     final Tracestate tracestate = Tracestate.builder().build();
     final SpanContext context = SpanContext.create(TRACE_ID, SPAN_ID, traceOptions, tracestate);
@@ -391,5 +405,30 @@ public class B3FormatTest {
 
     // then
     assertThat(carrier).containsExactly("b3", TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16 + "-" + "1");
+  }
+
+  @Test
+  public final void injectSingleAndMultiFormats() {
+    // given
+    b3Format = new B3Format(B3InjectionFormat.SINGLE, B3InjectionFormat.MULTI);
+    final TraceOptions traceOptions = TraceOptions.builder().setIsSampled(true).build();
+    final Tracestate tracestate = Tracestate.builder().build();
+    final SpanContext context = SpanContext.create(TRACE_ID, SPAN_ID, traceOptions, tracestate);
+    final Map<String, String> carrier = new HashMap<String, String>(1, 1.0f);
+
+    // when
+    b3Format.inject(context, carrier, setter);
+
+    // then
+    assertThat(carrier)
+        .containsExactly(
+            B3,
+            TRACE_ID_BASE16 + "-" + SPAN_ID_BASE16 + "-" + "1",
+            X_B3_TRACE_ID,
+            TRACE_ID_BASE16,
+            X_B3_SPAN_ID,
+            SPAN_ID_BASE16,
+            X_B3_SAMPLED,
+            "1");
   }
 }
