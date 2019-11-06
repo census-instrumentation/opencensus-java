@@ -19,7 +19,6 @@ package io.opencensus.contrib.spring.autoconfig;
 import static io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace.Propagation.TRACE_PROPAGATION_TRACE_CONTEXT;
 
 import io.opencensus.trace.propagation.B3InjectionFormat;
-import java.util.Arrays;
 import java.util.Objects;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -88,12 +87,16 @@ public class OpenCensusProperties {
           new B3InjectionFormat[] {B3InjectionFormat.MULTI};
 
       public B3InjectionFormat[] getInjectionFormats() {
-        return Arrays.copyOf(injectionFormats, injectionFormats.length);
+        final B3InjectionFormat[] retval = new B3InjectionFormat[injectionFormats.length];
+        System.arraycopy(injectionFormats, 0, retval, 0, injectionFormats.length);
+        return retval;
       }
 
       public void setInjectionFormats(final B3InjectionFormat[] injectionFormats) {
         Objects.requireNonNull(injectionFormats, "injectionFormats cannot be null");
-        this.injectionFormats = Arrays.copyOf(injectionFormats, injectionFormats.length);
+        final B3InjectionFormat[] copy = new B3InjectionFormat[injectionFormats.length];
+        System.arraycopy(injectionFormats, 0, copy, 0, injectionFormats.length);
+        this.injectionFormats = copy;
       }
     }
 
