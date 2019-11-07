@@ -86,12 +86,22 @@ public class OpenCensusProperties {
       private B3InjectionFormat[] injectionFormats =
           new B3InjectionFormat[] {B3InjectionFormat.MULTI};
 
+      /**
+       * Retrieve the propagation formats.
+       *
+       * @return the propagation formats that will be sent downstream
+       */
       public B3InjectionFormat[] getInjectionFormats() {
         final B3InjectionFormat[] retval = new B3InjectionFormat[injectionFormats.length];
         System.arraycopy(injectionFormats, 0, retval, 0, injectionFormats.length);
         return retval;
       }
 
+      /**
+       * Specify the propagation formats.
+       *
+       * @param injectionFormats the propagation formats to send downstream
+       */
       public void setInjectionFormats(final B3InjectionFormat[] injectionFormats) {
         Objects.requireNonNull(injectionFormats, "injectionFormats cannot be null");
         final B3InjectionFormat[] copy = new B3InjectionFormat[injectionFormats.length];
