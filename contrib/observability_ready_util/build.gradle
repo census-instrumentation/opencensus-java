@@ -1,0 +1,15 @@
+description = 'OpenCensus observability ready util'
+
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.8
+    it.targetCompatibility = 1.8
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            project(':opencensus-impl-core')
+
+    signature "org.codehaus.mojo.signature:java18:+@signature"
+}
