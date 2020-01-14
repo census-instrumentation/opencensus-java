@@ -1,5 +1,8 @@
 ## Unreleased
 
+- Add an experimental artifact `opencensus-contrib-observability-ready-util`, that allows users to
+use OpenCensus easily.
+
 ## 0.24.0 - 2019-08-27
 - Remove `CONTEXT_SPAN_KEY` and `TAG_CONTEXT_KEY` from API. This will be a breaking change to those who
 depend on these two keys, but anyone except gRPC shouldn't use it directly anyway.
