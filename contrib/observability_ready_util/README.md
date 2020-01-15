@@ -7,7 +7,7 @@ The *OpenCensus Observability Ready Util for Java* that allows users to use Open
 
 By default:
 * All [basic RPC views](https://github.com/census-instrumentation/opencensus-java/blob/2a17c8482ffb04540ea4ac0a5f746ad8d536c996/contrib/grpc_metrics/src/main/java/io/opencensus/contrib/grpc/metrics/RpcViews.java#L219) are enabled.
-* Set probabilistic sampling rate to `1 in 10,000`.
+* Probabilistic sampling rate set to `0.0001`.
 * Create and register OpenCensus Trace agent exporter.
 * Create and register OpenCensus Metrics agent exporter.
 
