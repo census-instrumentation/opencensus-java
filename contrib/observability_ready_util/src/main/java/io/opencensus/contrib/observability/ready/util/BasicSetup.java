@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.observability.ready.util;
 
+import io.opencensus.common.ExperimentalApi;
 import io.opencensus.contrib.grpc.metrics.RpcViews;
 import io.opencensus.exporter.metrics.ocagent.OcAgentMetricsExporter;
 import io.opencensus.exporter.metrics.ocagent.OcAgentMetricsExporterConfiguration;
@@ -31,8 +32,9 @@ import io.opencensus.trace.samplers.Samplers;
  *
  * @since 0.25
  */
-public class BasicSetup {
-  private static final int DEAFULT_SAMPLING_RATE = 1 / 10000;
+@ExperimentalApi
+public final class BasicSetup {
+  private static final double DEAFULT_SAMPLING_RATE = 0.0001;
   private static final String DEAFULT_ENDPOINT = "localhost:55678";
 
   private BasicSetup() {}
@@ -41,13 +43,13 @@ public class BasicSetup {
    * Enables OpenCensus metric and traces.
    *
    * <p>This will register all basic {@link io.opencensus.stats.View}s. When coupled with an agent,
-   * it allows users to monitor client behavior.
+   * it allows users to monitor application behavior.
    *
    * <p>Please note that in addition to calling this method, the application must:
    *
    * <ul>
    *   <li>Include opencensus-contrib-observability-ready-util dependency on the classpath
-   *   <li>Configure the OpenCensus agent
+   *   <li>Deploy the OpenCensus agent
    * </ul>
    *
    * <p>Example usage for maven:
@@ -66,9 +68,12 @@ public class BasicSetup {
    * BasicSetup.enableOpenCensus("with-service-name");
    * }</pre>
    *
+   * @param serviceName the service name.
+   * @param endPoint the end point of OC-Agent.
+   * @param probability the desired probability of sampling. Must be within [0.0, 1.0].
    * @since 0.25
    */
-  public static void enableOpenCensus(String serviceName, String endpoint, double probability) {
+  public static void enableOpenCensus(String serviceName, String endPoint, double probability) {
     // register basic rpc views
     RpcViews.registerAllGrpcBasicViews();
 
@@ -81,7 +86,7 @@ public class BasicSetup {
     // create and register Trace Agent Exporter
     OcAgentTraceExporter.createAndRegister(
         OcAgentTraceExporterConfiguration.builder()
-            .setEndPoint(endpoint)
+            .setEndPoint(endPoint)
             .setServiceName(serviceName)
             .setUseInsecure(true)
             .setEnableConfig(false)
@@ -90,12 +95,18 @@ public class BasicSetup {
     // create and register Trace Metrics Exporter
     OcAgentMetricsExporter.createAndRegister(
         OcAgentMetricsExporterConfiguration.builder()
-            .setEndPoint(endpoint)
+            .setEndPoint(endPoint)
             .setServiceName(serviceName)
             .setUseInsecure(true)
             .build());
   }
 
+  /**
+   * Enables OpenCensus metric and traces with default endPoint and Sampling rate.
+   *
+   * @param serviceName the service name.
+   * @since 0.25
+   */
   public static void enableOpenCensus(String serviceName) {
     enableOpenCensus(serviceName, DEAFULT_ENDPOINT, DEAFULT_SAMPLING_RATE);
   }
