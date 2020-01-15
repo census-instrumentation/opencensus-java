@@ -42,6 +42,8 @@ public class YourClass {
 }
 ```
 
+> If Agent is not yet up and running, Exporter will just retry connection.
+
 ### And deploy OpenCensus Agent:
 
 It will require you to deploy the [OpenCensus-Agent](https://github.com/census-instrumentation/opencensus-service#opencensus-agent) in order to export and examine the stats and traces.
