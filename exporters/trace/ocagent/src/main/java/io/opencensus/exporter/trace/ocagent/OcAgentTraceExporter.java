@@ -20,8 +20,11 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
+import io.opencensus.trace.samplers.Samplers;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -45,6 +48,7 @@ public final class OcAgentTraceExporter {
 
   private static final Object monitor = new Object();
   private static final String REGISTER_NAME = OcAgentTraceExporter.class.getName();
+  private static final double DEAFULT_SAMPLING_RATE = 0.0001;
 
   @GuardedBy("monitor")
   @Nullable
@@ -83,6 +87,73 @@ public final class OcAgentTraceExporter {
               configuration.getDeadline());
       registerInternal(newHandler);
     }
+  }
+
+  /**
+   * Enables OpenCensus traces.
+   *
+   * <p>This will set sampling rate and register Ocagent Trace Exporter. When coupled with an agent,
+   * it allows users to monitor application behavior.
+   *
+   * <p>Example usage for maven:
+   *
+   * <pre>{@code
+   * <dependency>
+   *   <groupId>io.opencensus</groupId>
+   *   <artifactId>opencensus-exporter-trace-ocagent</artifactId>
+   *   <version>${opencensus.version}</version>
+   * </dependency>
+   * }</pre>
+   *
+   * <p>It is recommended to call this method before doing any RPC call to avoid missing traces.
+   *
+   * <pre>{@code
+   * OcAgentTraceExporter.basicSetup(OcAgentTraceExporterConfiguration.builder().build(), 1);
+   * }</pre>
+   *
+   * @param configuration the {@code OcAgentTraceExporterConfiguration}.
+   * @param probability the desired probability of sampling. Must be within [0.0, 1.0].
+   * @since 0.25
+   */
+  public static void basicSetup(
+      OcAgentTraceExporterConfiguration configuration, double probability) {
+    // set sampling rate
+    TraceConfig traceConfig = Tracing.getTraceConfig();
+    TraceParams activeTraceParams = traceConfig.getActiveTraceParams();
+    traceConfig.updateActiveTraceParams(
+        activeTraceParams.toBuilder().setSampler(Samplers.probabilitySampler(probability)).build());
+
+    // create and register Trace Agent Exporter
+    createAndRegister(configuration);
+  }
+
+  /**
+   * Enables OpenCensus traces with default sampling rate {@code DEAFULT_SAMPLING_RATE}.
+   *
+   * <p>This will set sampling rate and register Ocagent Trace Exporter. When coupled with an agent,
+   * it allows users to monitor application behavior.
+   *
+   * <p>Example usage for maven:
+   *
+   * <pre>{@code
+   * <dependency>
+   *   <groupId>io.opencensus</groupId>
+   *   <artifactId>opencensus-exporter-trace-ocagent</artifactId>
+   *   <version>${opencensus.version}</version>
+   * </dependency>
+   * }</pre>
+   *
+   * <p>It is recommended to call this method before doing any RPC call to avoid missing traces.
+   *
+   * <pre>{@code
+   * OcAgentTraceExporter.basicSetup(OcAgentTraceExporterConfiguration.builder().build());
+   * }</pre>
+   *
+   * @param configuration the {@code OcAgentTraceExporterConfiguration}.
+   * @since 0.25
+   */
+  public static void basicSetup(OcAgentTraceExporterConfiguration configuration) {
+    basicSetup(configuration, DEAFULT_SAMPLING_RATE);
   }
 
   /**

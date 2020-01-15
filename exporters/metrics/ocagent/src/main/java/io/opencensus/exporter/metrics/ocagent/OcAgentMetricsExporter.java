@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
+import io.opencensus.contrib.grpc.metrics.RpcViews;
 import io.opencensus.metrics.Metrics;
 import io.opencensus.metrics.export.MetricProducerManager;
 import javax.annotation.Nullable;
@@ -70,6 +71,37 @@ public final class OcAgentMetricsExporter {
         configuration.getServiceName(),
         configuration.getExportInterval(),
         configuration.getRetryInterval());
+  }
+
+  /**
+   * Enables OpenCensus metric.
+   *
+   * <p>This will register all basic {@link io.opencensus.stats.View}s. When coupled with an agent,
+   * it allows users to monitor application behavior.
+   *
+   * <p>Example usage for maven:
+   *
+   * <pre>{@code
+   * <dependency>
+   *   <groupId>io.opencensus</groupId>
+   *   <artifactId>opencensus-exporter-metrics-ocagent</artifactId>
+   *   <version>${opencensus.version}</version>
+   * </dependency>
+   * }</pre>
+   *
+   * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
+   *
+   * <pre>{@code
+   * OcAgentMetricsExporter.basicSetup(OcAgentMetricsExporterConfiguration.builder().build());
+   * }</pre>
+   *
+   * @param configuration the {@code OcAgentMetricsExporterConfiguration}.
+   * @since 0.25
+   */
+  public static void basicSetup(OcAgentMetricsExporterConfiguration configuration) {
+    // register basic rpc views
+    RpcViews.registerAllGrpcBasicViews();
+    createAndRegister(configuration);
   }
 
   private static void createInternal(

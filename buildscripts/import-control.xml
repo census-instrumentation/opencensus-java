@@ -201,6 +201,7 @@ General guidelines on imports:
         <allow pkg="com.google.protobuf"/>
         <allow pkg="io.grpc"/>
         <allow pkg="io.netty.handler.ssl"/>
+        <allow pkg="io.opencensus.contrib.grpc.metrics"/>
         <allow pkg="io.opencensus.contrib.opencensus.proto.util"/>
         <allow pkg="io.opencensus.contrib.resource.util"/>
         <allow pkg="io.opencensus.exporter.metrics.ocagent"/>
