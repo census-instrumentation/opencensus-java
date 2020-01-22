@@ -3,13 +3,12 @@
 [![Build Status][travis-image]][travis-url]
 [![Windows Build Status][appveyor-image]][appveyor-url]
 
-The *OpenCensus Observability Ready Util for Java* that allows users to use OpenCensus easily.
+The *OpenCensus Observability Ready Util for Java* allows users to use OpenCensus easily.
 
-By default:
-* All [basic RPC views](https://github.com/census-instrumentation/opencensus-java/blob/2a17c8482ffb04540ea4ac0a5f746ad8d536c996/contrib/grpc_metrics/src/main/java/io/opencensus/contrib/grpc/metrics/RpcViews.java#L219) are enabled.
-* Probabilistic sampling rate set to `0.0001`.
-* Create and register OpenCensus Trace agent exporter.
-* Create and register OpenCensus Metrics agent exporter.
+It provides a wrapper that
+* Enables [Basic RPC views](https://github.com/census-instrumentation/opencensus-java/blob/2a17c8482ffb04540ea4ac0a5f746ad8d536c996/contrib/grpc_metrics/src/main/java/io/opencensus/contrib/grpc/metrics/RpcViews.java#L219)
+* Sets Probabilistic sampling rate to `0.0001`
+* Creates and Registers OCAgent Exporter to collect traces and metrics
 
 ## Quickstart
 
@@ -31,9 +30,11 @@ For Gradle add to your dependencies:
 compile 'io.opencensus:opencensus-contrib-observability-ready-util:0.25.0'
 ```
 
-### The following code:
+### Enable OpenCensus:
 
 ```java
+import io.opencensus.contrib.observability.ready.util.BasicSetup;
+
 public class YourClass {
   public static void main(String[] args) {
     // It is recommended to call this method before doing any RPC call to avoid missing stats.

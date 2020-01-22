@@ -45,13 +45,6 @@ public final class BasicSetup {
    * <p>This will register all basic {@link io.opencensus.stats.View}s. When coupled with an agent,
    * it allows users to monitor application behavior.
    *
-   * <p>Please note that in addition to calling this method, the application must:
-   *
-   * <ul>
-   *   <li>Include opencensus-contrib-observability-ready-util dependency on the classpath
-   *   <li>Deploy the OpenCensus agent
-   * </ul>
-   *
    * <p>Example usage for maven:
    *
    * <pre>{@code
@@ -92,7 +85,7 @@ public final class BasicSetup {
             .setEnableConfig(false)
             .build());
 
-    // create and register Trace Metrics Exporter
+    // create and register Metrics Agent Exporter
     OcAgentMetricsExporter.createAndRegister(
         OcAgentMetricsExporterConfiguration.builder()
             .setEndPoint(endPoint)
