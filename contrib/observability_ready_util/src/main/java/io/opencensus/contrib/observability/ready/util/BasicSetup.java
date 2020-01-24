@@ -16,6 +16,8 @@
 
 package io.opencensus.contrib.observability.ready.util;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.contrib.grpc.metrics.RpcViews;
 import io.opencensus.exporter.metrics.ocagent.OcAgentMetricsExporter;
@@ -36,6 +38,7 @@ import io.opencensus.trace.samplers.Samplers;
 public final class BasicSetup {
   private static final double DEAFULT_SAMPLING_RATE = 0.0001;
   private static final String DEAFULT_ENDPOINT = "localhost:55678";
+  private static final String DEAFULT_SERVICE_NAME = "OpenCensus";
 
   private BasicSetup() {}
 
@@ -58,15 +61,14 @@ public final class BasicSetup {
    * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
    *
    * <pre>{@code
-   * BasicSetup.enableOpenCensus("with-service-name");
+   * BasicSetup.enableOpenCensus();
    * }</pre>
    *
-   * @param serviceName the service name.
    * @param endPoint the end point of OC-Agent.
    * @param probability the desired probability of sampling. Must be within [0.0, 1.0].
    * @since 0.25
    */
-  public static void enableOpenCensus(String serviceName, String endPoint, double probability) {
+  public static void enableOpenCensus(String endPoint, double probability) {
     // register basic rpc views
     RpcViews.registerAllGrpcBasicViews();
 
@@ -76,6 +78,7 @@ public final class BasicSetup {
     traceConfig.updateActiveTraceParams(
         activeTraceParams.toBuilder().setSampler(Samplers.probabilitySampler(probability)).build());
 
+    String serviceName = firstNonNull(System.getenv("SERVICE_NAME"), DEAFULT_SERVICE_NAME);
     // create and register Trace Agent Exporter
     OcAgentTraceExporter.createAndRegister(
         OcAgentTraceExporterConfiguration.builder()
@@ -97,10 +100,9 @@ public final class BasicSetup {
   /**
    * Enables OpenCensus metric and traces with default endPoint and Sampling rate.
    *
-   * @param serviceName the service name.
    * @since 0.25
    */
-  public static void enableOpenCensus(String serviceName) {
-    enableOpenCensus(serviceName, DEAFULT_ENDPOINT, DEAFULT_SAMPLING_RATE);
+  public static void enableOpenCensus() {
+    enableOpenCensus(DEAFULT_ENDPOINT, DEAFULT_SAMPLING_RATE);
   }
 }
