@@ -6,7 +6,7 @@
 
   <groupId>io.opencensus</groupId>
   <artifactId>opencensus-examples-spring-servlet</artifactId>
-  <version>0.25.0</version><!-- CURRENT_OPENCENSUS_VERSION -->
+  <version>0.25.1-SNAPSHOT</version><!-- CURRENT_OPENCENSUS_VERSION -->
   <packaging>jar</packaging>
 
   <properties>
