@@ -17,6 +17,31 @@ One or two sentences describing it
 Project had build instructions in `CONTRIBUTING.md`. Following them with Java 13 gave an error. The file mentioned that the project uses Java 6, which isn't supported anymore. `openjdk-8-jdk` seemed to work, though. The local build then took 20 minutes on a laptop, but gave no errors.
 
 ## Complexity
+Running
+
+```
+lizard --CCN 8 --languages java --sort cyclomatic_complexity --exclude "*/contrib/*" opencensus-java/
+```
+
+in a clean repo gives
+
+```
+  NLOC    CCN   token  PARAM  length  location  
+------------------------------------------------
+      20     14    124      1      20 Tracestate::validateKey@231-250@opencensus-java/api/src/main/java/io/opencensus/trace/Tracestate.java
+      37     13    277      2      42 StackdriverExportUtils::setResourceForBuilder@510-551@opencensus-java/exporters/stats/stackdriver/src/main/java/io/opencensus/exporter/stats/stackdriver/StackdriverExportUtils.java
+      47     12    383      2      53 TraceContextFormat::extract@111-163@opencensus-java/impl_core/src/main/java/io/opencensus/implcore/trace/propagation/TraceContextFormat.java
+      31     11    176      2      32 Metric::checkTypeMatch@105-136@opencensus-java/api/src/main/java/io/opencensus/metrics/export/Metric.java
+      49     10    351      1      49 VarInt::getVarLong@216-264@opencensus-java/impl_core/src/main/java/io/opencensus/implcore/internal/VarInt.java
+      39     10    232      1      44 ServerStatsEncoding::parseBytes@81-124@opencensus-java/api/src/main/java/io/opencensus/common/ServerStatsEncoding.java
+     104     10    742      4     113 PrometheusExportUtils::getSamples@148-260@opencensus-java/exporters/stats/prometheus/src/main/java/io/opencensus/exporter/stats/prometheus/PrometheusExportUtils.java
+      56     10    542      2      56 JsonConversionUtils::convertToJson@111-166@opencensus-java/exporters/trace/elasticsearch/src/main/java/io/opencensus/exporter/trace/elasticsearch/JsonConversionUtils.java
+      51     10    466      1      52 InstanaExporterHandler::convertToJson@125-176@opencensus-java/exporters/trace/instana/src/main/java/io/opencensus/exporter/trace/instana/InstanaExporterHandler.java
+      32      9    227      1      39 BinaryFormatImpl::fromByteArray@109-147@opencensus-java/impl_core/src/main/java/io/opencensus/implcore/trace/propagation/BinaryFormatImpl.java
+      30      9    217      1      30 TagContext::equals@63-92@opencensus-java/api/src/main/java/io/opencensus/tags/TagContext.java
+      23      9    144      2      23 Duration::create@53-75@opencensus-java/api/src/main/java/io/opencensus/common/Duration.java
+      43      9    408      2      52 ZipkinExporterHandler::generateSpan@105-156@opencensus-java/exporters/trace/zipkin/src/main/java/io/opencensus/exporter/trace/zipkin/ZipkinExporterHandler.java
+```
 
 1. What are your results for ten complex functions?
    * Did all tools/methods get the same result?
