@@ -1,5 +1,6 @@
 ## Unreleased
 
+## 0.25.0 - 2020-02-12
 - Add an experimental artifact `opencensus-contrib-observability-ready-util`, that allows users to
 use OpenCensus easily.
 

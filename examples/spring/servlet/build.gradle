@@ -32,7 +32,7 @@ repositories {
 group = "io.opencensus"
 version = "0.24.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
-def opencensusVersion = "0.23.0" // LATEST_OPENCENSUS_RELEASE_VERSION
+def opencensusVersion = "0.25.0" // LATEST_OPENCENSUS_RELEASE_VERSION
 def prometheusVersion = "0.6.0"
 def httpasyncclientVersion = "4.1.4"
 
