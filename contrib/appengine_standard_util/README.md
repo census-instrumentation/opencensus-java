@@ -16,14 +16,14 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-appengine-standard-util</artifactId>
-    <version>0.24.0</version>
+    <version>0.25.0</version>
   </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-contrib-appengine-standard-util:0.24.0'
+compile 'io.opencensus:opencensus-contrib-appengine-standard-util:0.25.0'
 ```
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
