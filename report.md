@@ -43,9 +43,15 @@ in a clean repo gives
       43      9    408      2      52 ZipkinExporterHandler::generateSpan@105-156@opencensus-java/exporters/trace/zipkin/src/main/java/io/opencensus/exporter/trace/zipkin/ZipkinExporterHandler.java
 ```
 
-1. What are your results for ten complex functions?
-   * Did all tools/methods get the same result?
-   * Are the results clear?
+We had three group members count the cyclomatic complexity of 4 methods. Our results varied, both among ourselves and compared to Lizard. We are not sure how that happened. It looks like Lizard might ignore `throw`, where some of us counted it as an exit point and deducted 1.
+
+|                 | L | 1 | 2 | 3 |
+|-----------------|---|---|---|---|
+| generateSpan()  | 9 | 9 | 6 | 9 |
+| create()        | 9 | 4 | 2 | 4 |
+| equals()        | 9 | 9 | 7 | 7 |
+| fromByteArray() | 9 | 4 | 4 | 4 |
+
 2. Are the functions just complex, or also long?
 3. What is the purpose of the functions?
 4. Are exceptions taken into account in the given measurements?
