@@ -50,7 +50,14 @@ We had three group members count the cyclomatic complexity of 4 methods. Our res
 
 None of the methods are outrageously long, but all of them except for `create()` could feasibly be shortened.
 
-3. What is the purpose of the functions?
+OpenCensus can upload data to various backends. `ZipkinExporterHandler` contains static methods to aid in doing so for [Zipkin](https://github.com/openzipkin/zipkin). `generateSpan()` is one of them. It generates a [span](https://opencensus.io/tracing/span/), something like a single query, for the Zipkin library using the appropriate data.
+
+`Duration` represents a span of time (not to be confused with the other span). Its static method `create()` instantiates one. This is done with a static method instead of a constructor because the AutoValue code generator is used.
+
+`TagContext` is used to contain metadata about operations. `equals()` is a standard override comparing contained keys and values.
+
+`BinaryFormatImpl` is a helper class for `SpanContext`. `SpanContext` represents the associated state for a `Span`. `fromByteArray()` generates one from a byte array.
+
 4. Are exceptions taken into account in the given measurements?
 5. Is the documentation clear w.r.t. all the possible outcomes?
 
