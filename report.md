@@ -48,7 +48,8 @@ We had three group members count the cyclomatic complexity of 4 methods. Our res
 | equals()        | 9 | 9 | 7 | 7 |
 | fromByteArray() | 9 | 4 | 4 | 4 |
 
-2. Are the functions just complex, or also long?
+None of the methods are outrageously long, but all of them except for `create()` could feasibly be shortened.
+
 3. What is the purpose of the functions?
 4. Are exceptions taken into account in the given measurements?
 5. Is the documentation clear w.r.t. all the possible outcomes?
