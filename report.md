@@ -6,11 +6,7 @@ has to be delivered in a standard, cross-platform format.
 
 ## Project
 
-Name:
-
-URL:
-
-One or two sentences describing it
+[OpenCensus](https://github.com/census-instrumentation/opencensus-java) is a telemetry framework. This is the Java library. Its main use is collecting metrics about the use of a program and exporting them.
 
 ## Onboarding experience
 
