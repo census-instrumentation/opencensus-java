@@ -70,23 +70,24 @@ Instana is a APM that can be used for automatic visualization and performance an
 
 ### Tools
 
-Document your experience in using a "new"/different coverage tool.
-
-How well was the tool documented? Was it possible/easy/difficult to
-integrate it with your build environment?
+Adding the logging for DIY coverage was easy. However, the settings to show the logs were mistakenly added to the wrong `build.gradle`, which required some debugging. Because August had some experience using Unix tools, the processing of the logs went quickly.
 
 ### DYI
+Running
 
-Show a patch (or link to a branch) that shows the instrumented code to
-gather coverage measurements.
+```
+./gradlew cleanTest test > logs
+```
 
-The patch is probably too long to be copied here, so please add
-the git command that is used to obtain the patch instead:
+followed by 
 
-git diff ...
+```
+grep -E -- 'validateKey|setResourceForBuilder|extract|checkTypeMatch|getVarLong|parseBytes|getSamples|convertToJson|convertToJson|fromByteArray|equals|create|generateSpan' logs | sort -u > results
+```
 
-What kinds of constructs does your tool support, and how accurate is
-its output?
+followed by some minor processing results in `results`, which can be manually inspected to see what branches are missing.
+
+Logging was added to `if`, `while`, `catch` and `for` branches. No attempt was made to log logical branches (`||` and `&&`). There were no ternary operations in the covered methods.
 
 ### Evaluation
 
