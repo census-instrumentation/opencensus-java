@@ -111,29 +111,29 @@ final class JsonConversionUtils {
   static List<String> convertToJson(String appName, Collection<SpanData> spanDataList) {
     List<String> spanJson = new ArrayList<String>();
     if (spanDataList == null) {
-      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
+      System.out.println("Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       return spanJson;
     }
     StringBuilder sb = new StringBuilder();
     for (final SpanData span : spanDataList) {
-      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
+      System.out.println("Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
       final SpanContext spanContext = span.getContext();
       final SpanId parentSpanId = span.getParentSpanId();
       final Timestamp startTimestamp = span.getStartTimestamp();
       final Timestamp endTimestamp = span.getEndTimestamp();
       final Status status = span.getStatus();
       if (endTimestamp == null) {
-        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
+        System.out.println("Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
         continue;
       } else {
-        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
+        System.out.println("Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
       }
       sb.append('{');
       sb.append("\"appName\":\"").append(appName).append("\",");
       sb.append("\"spanId\":\"").append(encodeSpanId(spanContext.getSpanId())).append("\",");
       sb.append("\"traceId\":\"").append(encodeTraceId(spanContext.getTraceId())).append("\",");
       if (parentSpanId != null) {
-        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
+        System.out.println("Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
         sb.append("\"parentId\":\"").append(encodeSpanId(parentSpanId)).append("\",");
       }
       sb.append("\"timestamp\":").append(toMillis(startTimestamp)).append(',');
@@ -143,23 +143,25 @@ final class JsonConversionUtils {
       sb.append("\"dateStarted\":\"").append(formatDate(startTimestamp)).append("\",");
       sb.append("\"dateEnded\":\"").append(formatDate(endTimestamp)).append('"');
       if (status == null) {
-        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
+        System.out.println("Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
         sb.append(",\"status\":").append("\"ok\"");
       } else if (!status.isOk()) {
-        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
+        System.out.println("Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
         sb.append(",\"error\":").append("true");
       } else {
-        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
+        System.out.println("Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
       }
       Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMap();
       if (attributeMap.size() > 0) {
-        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 9);
+        System.out.println("Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 9);
         StringBuilder builder = new StringBuilder();
         builder.append('{');
         for (Entry<String, AttributeValue> entry : attributeMap.entrySet()) {
-          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 10);
+          System.out.println(
+              "Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 10);
           if (builder.length() > 1) {
-            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 11);
+            System.out.println(
+                "Json" + Thread.currentThread().getStackTrace()[1].getMethodName() + 11);
             builder.append(',');
           }
           builder
