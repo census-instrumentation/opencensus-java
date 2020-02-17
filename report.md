@@ -73,6 +73,8 @@ Instana is a APM that can be used for automatic visualization and performance an
 Adding the logging for DIY coverage was easy. However, the settings to show the logs were mistakenly added to the wrong `build.gradle`, which required some debugging. Because August had some experience using Unix tools, the processing of the logs went quickly.
 
 ### DYI
+The lines added are shown in commits [`fe6eaa8`](https://github.com/augustjanse/opencensus-java/commit/fe6eaa84ddcaf5571836f17317e1bb6ab4422e4a) and [`30393ab`](https://github.com/augustjanse/opencensus-java/commit/30393ab48c4aea18ba9de9d10a814f450eb5aebe).
+
 Running
 
 ```
@@ -87,13 +89,11 @@ grep -E -- 'validateKey|setResourceForBuilder|extract|checkTypeMatch|getVarLong|
 
 followed by some minor processing results in `results`, which can be manually inspected to see what branches are missing.
 
-Logging was added to `if`, `while`, `catch` and `for` branches. No attempt was made to log logical branches (`||` and `&&`). There were no ternary operations in the covered methods.
-
 ### Evaluation
 
-1. How detailed is your coverage measurement?
+Logging was added to `if`, `while`, `catch` and `for` branches. Empty `else` blocks were added where needed. No attempt was made to log logical branches (`||` and `&&`). There were no ternary operations in the covered methods.
 
-2. What are the limitations of your own tool?
+The two limitations to the tool is that it doesn't cover all kinds of branches and (mainly) that it is not really automatic.
 
 3. Are the results of your tool consistent with existing coverage tools?
 
