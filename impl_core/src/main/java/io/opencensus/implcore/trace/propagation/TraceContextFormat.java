@@ -117,6 +117,7 @@ public class TraceContextFormat extends TextFormat {
     TraceOptions traceOptions;
     String traceparent = getter.get(carrier, TRACEPARENT);
     if (traceparent == null) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       throw new SpanContextParseException("Traceparent not present");
     }
     try {
@@ -135,13 +136,17 @@ public class TraceContextFormat extends TextFormat {
       spanId = SpanId.fromLowerBase16(traceparent, SPAN_ID_OFFSET);
       traceOptions = TraceOptions.fromLowerBase16(traceparent, TRACE_OPTION_OFFSET);
     } catch (IllegalArgumentException e) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
       throw new SpanContextParseException("Invalid traceparent: " + traceparent, e);
     }
 
     String tracestate = getter.get(carrier, TRACESTATE);
     try {
       if (tracestate == null || tracestate.isEmpty()) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
         return SpanContext.create(traceId, spanId, traceOptions, TRACESTATE_DEFAULT);
+      } else {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
       }
       Tracestate.Builder tracestateBuilder = Tracestate.builder();
       List<String> listMembers = TRACESTATE_ENTRY_DELIMITER_SPLITTER.splitToList(tracestate);
@@ -150,6 +155,7 @@ public class TraceContextFormat extends TextFormat {
       // Iterate in reverse order because when call builder set the elements is added in the
       // front of the list.
       for (int i = listMembers.size() - 1; i >= 0; i--) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
         String listMember = listMembers.get(i);
         int index = listMember.indexOf(TRACESTATE_KEY_VALUE_DELIMITER);
         checkArgument(index != -1, "Invalid tracestate list-member format.");
@@ -158,6 +164,7 @@ public class TraceContextFormat extends TextFormat {
       }
       return SpanContext.create(traceId, spanId, traceOptions, tracestateBuilder.build());
     } catch (IllegalArgumentException e) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
       throw new SpanContextParseException("Invalid tracestate: " + tracestate, e);
     }
   }

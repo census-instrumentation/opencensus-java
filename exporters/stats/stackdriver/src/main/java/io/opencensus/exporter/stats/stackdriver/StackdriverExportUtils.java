@@ -511,41 +511,66 @@ final class StackdriverExportUtils {
       MonitoredResource.Builder builder, Resource autoDetectedResource) {
     String type = autoDetectedResource.getType();
     if (type == null) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       return;
+    } else {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
     }
     String sdType = GLOBAL;
 
     Map<String, String> mappings = null;
     if (HostResource.TYPE.equals(type)) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
       String provider = autoDetectedResource.getLabels().get(CloudResource.PROVIDER_KEY);
       if (CloudResource.PROVIDER_GCP.equals(provider)) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
         sdType = GCP_GCE_INSTANCE;
         mappings = GCP_RESOURCE_MAPPING;
       } else if (CloudResource.PROVIDER_AWS.equals(provider)) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
         sdType = AWS_EC2_INSTANCE;
         mappings = AWS_RESOURCE_MAPPING;
+      } else {
+
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
       }
     } else if (ContainerResource.TYPE.equals(type)) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
       sdType = K8S_CONTAINER;
       mappings = K8S_RESOURCE_MAPPING;
+    } else {
+
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
     }
 
     builder.setType(sdType);
 
     if (GLOBAL.equals(sdType) || mappings == null) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 9);
       return;
+    } else {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 10);
     }
 
     Map<String, String> resLabels = autoDetectedResource.getLabels();
     for (Map.Entry<String, String> entry : mappings.entrySet()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 11);
       if (entry.getValue() != null && resLabels.containsKey(entry.getValue())) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 12);
         String resourceLabelKey = entry.getKey();
         String resourceLabelValue = resLabels.get(entry.getValue());
         if (AWS_EC2_INSTANCE.equals(sdType) && "region".equals(resourceLabelKey)) {
+          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 13);
           // Add "aws:" prefix to AWS EC2 region label. This is Stackdriver specific requirement.
           resourceLabelValue = AWS_REGION_VALUE_PREFIX + resourceLabelValue;
+        } else {
+
+          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 14);
         }
         builder.putLabels(resourceLabelKey, resourceLabelValue);
+      } else {
+
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 15);
       }
     }
   }

@@ -216,40 +216,63 @@ public class VarInt {
   public static long getVarLong(ByteBuffer src) {
     long tmp;
     if ((tmp = src.get()) >= 0) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       return tmp;
+    } else {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
     }
     long result = tmp & 0x7f;
     if ((tmp = src.get()) >= 0) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
       result |= tmp << 7;
     } else {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
       result |= (tmp & 0x7f) << 7;
       if ((tmp = src.get()) >= 0) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
         result |= tmp << 14;
       } else {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
         result |= (tmp & 0x7f) << 14;
         if ((tmp = src.get()) >= 0) {
+          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
           result |= tmp << 21;
         } else {
+          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
           result |= (tmp & 0x7f) << 21;
           if ((tmp = src.get()) >= 0) {
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 9);
             result |= tmp << 28;
           } else {
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 10);
             result |= (tmp & 0x7f) << 28;
             if ((tmp = src.get()) >= 0) {
+              System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 11);
               result |= tmp << 35;
             } else {
+              System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 12);
               result |= (tmp & 0x7f) << 35;
               if ((tmp = src.get()) >= 0) {
+                System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 13);
                 result |= tmp << 42;
               } else {
+                System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 14);
                 result |= (tmp & 0x7f) << 42;
                 if ((tmp = src.get()) >= 0) {
+                  System.out.println(
+                      Thread.currentThread().getStackTrace()[1].getMethodName() + 15);
                   result |= tmp << 49;
                 } else {
+                  System.out.println(
+                      Thread.currentThread().getStackTrace()[1].getMethodName() + 16);
                   result |= (tmp & 0x7f) << 49;
                   if ((tmp = src.get()) >= 0) {
+                    System.out.println(
+                        Thread.currentThread().getStackTrace()[1].getMethodName() + 17);
                     result |= tmp << 56;
                   } else {
+                    System.out.println(
+                        Thread.currentThread().getStackTrace()[1].getMethodName() + 18);
                     result |= (tmp & 0x7f) << 56;
                     result |= ((long) src.get()) << 63;
                   }

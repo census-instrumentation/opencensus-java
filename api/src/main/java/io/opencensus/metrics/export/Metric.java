@@ -104,30 +104,37 @@ public abstract class Metric {
 
   private static void checkTypeMatch(MetricDescriptor.Type type, List<TimeSeries> timeSeriesList) {
     for (TimeSeries timeSeries : timeSeriesList) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       for (Point point : timeSeries.getPoints()) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
         Value value = point.getValue();
         String valueClassName = "";
         if (value.getClass().getSuperclass() != null) { // work around nullness check
+          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
           // AutoValue classes should always have a super class.
           valueClassName = value.getClass().getSuperclass().getSimpleName();
         }
         switch (type) {
           case GAUGE_INT64:
           case CUMULATIVE_INT64:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
             Utils.checkArgument(
                 value instanceof ValueLong, "Type mismatch: %s, %s.", type, valueClassName);
             break;
           case CUMULATIVE_DOUBLE:
           case GAUGE_DOUBLE:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
             Utils.checkArgument(
                 value instanceof ValueDouble, "Type mismatch: %s, %s.", type, valueClassName);
             break;
           case GAUGE_DISTRIBUTION:
           case CUMULATIVE_DISTRIBUTION:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
             Utils.checkArgument(
                 value instanceof ValueDistribution, "Type mismatch: %s, %s.", type, valueClassName);
             break;
           case SUMMARY:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
             Utils.checkArgument(
                 value instanceof ValueSummary, "Type mismatch: %s, %s.", type, valueClassName);
         }

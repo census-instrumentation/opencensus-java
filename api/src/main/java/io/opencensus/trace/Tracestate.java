@@ -233,9 +233,13 @@ public abstract class Tracestate {
         || key.isEmpty()
         || key.charAt(0) < 'a'
         || key.charAt(0) > 'z') {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       return false;
+    } else {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
     }
     for (int i = 1; i < key.length(); i++) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
       char c = key.charAt(i);
       if (!(c >= 'a' && c <= 'z')
           && !(c >= '0' && c <= '9')
@@ -243,7 +247,10 @@ public abstract class Tracestate {
           && c != '-'
           && c != '*'
           && c != '/') {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
         return false;
+      } else {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
       }
     }
     return true;
