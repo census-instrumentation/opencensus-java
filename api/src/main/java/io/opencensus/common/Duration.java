@@ -52,22 +52,27 @@ public abstract class Duration implements Comparable<Duration> {
    */
   public static Duration create(long seconds, int nanos) {
     if (seconds < -MAX_SECONDS) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       throw new IllegalArgumentException(
           "'seconds' is less than minimum (" + -MAX_SECONDS + "): " + seconds);
     }
     if (seconds > MAX_SECONDS) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
       throw new IllegalArgumentException(
           "'seconds' is greater than maximum (" + MAX_SECONDS + "): " + seconds);
     }
     if (nanos < -MAX_NANOS) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
       throw new IllegalArgumentException(
           "'nanos' is less than minimum (" + -MAX_NANOS + "): " + nanos);
     }
     if (nanos > MAX_NANOS) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
       throw new IllegalArgumentException(
           "'nanos' is greater than maximum (" + MAX_NANOS + "): " + nanos);
     }
     if ((seconds < 0 && nanos > 0) || (seconds > 0 && nanos < 0)) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
       throw new IllegalArgumentException(
           "'seconds' and 'nanos' have inconsistent sign: seconds=" + seconds + ", nanos=" + nanos);
     }

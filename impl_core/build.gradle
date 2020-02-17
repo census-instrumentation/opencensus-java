@@ -14,3 +14,9 @@ dependencies {
 
 javadoc.exclude 'io/opencensus/internal/**'
 javadoc.exclude 'io/opencensus/trace/internal/**'
+
+test {
+    testLogging {
+        showStandardStreams = true
+    }
+}

@@ -88,36 +88,46 @@ public final class ServerStatsEncoding {
 
     // Check the version first.
     if (!bb.hasRemaining()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       throw new ServerStatsDeserializationException("Serialized ServerStats buffer is empty");
     }
     byte version = bb.get();
 
     if (version > CURRENT_VERSION || version < 0) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
       throw new ServerStatsDeserializationException("Invalid ServerStats version: " + version);
     }
 
     while (bb.hasRemaining()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
       ServerStatsFieldEnums.Id id = ServerStatsFieldEnums.Id.valueOf((int) bb.get() & 0xFF);
       if (id == null) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
         // Skip remaining;
         bb.position(bb.limit());
       } else {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
         switch (id) {
           case SERVER_STATS_LB_LATENCY_ID:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
             lbLatencyNs = bb.getLong();
             break;
           case SERVER_STATS_SERVICE_LATENCY_ID:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
             serviceLatencyNs = bb.getLong();
             break;
           case SERVER_STATS_TRACE_OPTION_ID:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
             traceOption = bb.get();
             break;
         }
       }
     }
     try {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 9);
       return ServerStats.create(lbLatencyNs, serviceLatencyNs, traceOption);
     } catch (IllegalArgumentException e) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 10);
       throw new ServerStatsDeserializationException(
           "Serialized ServiceStats contains invalid values: " + e.getMessage());
     }

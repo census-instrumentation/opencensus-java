@@ -126,21 +126,25 @@ final class InstanaExporterHandler extends TimeLimitedHandler {
     StringBuilder sb = new StringBuilder();
     sb.append('[');
     for (final SpanData span : spanDataList) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       final SpanContext spanContext = span.getContext();
       final SpanId parentSpanId = span.getParentSpanId();
       final Timestamp startTimestamp = span.getStartTimestamp();
       final Timestamp endTimestamp = span.getEndTimestamp();
       final Status status = span.getStatus();
       if (status == null || endTimestamp == null) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
         continue;
       }
       if (sb.length() > 1) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
         sb.append(',');
       }
       sb.append('{');
       sb.append("\"spanId\":\"").append(encodeSpanId(spanContext.getSpanId())).append("\",");
       sb.append("\"traceId\":\"").append(encodeTraceId(spanContext.getTraceId())).append("\",");
       if (parentSpanId != null) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
         sb.append("\"parentId\":\"").append(encodeSpanId(parentSpanId)).append("\",");
       }
       sb.append("\"timestamp\":").append(toMillis(startTimestamp)).append(',');
@@ -148,15 +152,21 @@ final class InstanaExporterHandler extends TimeLimitedHandler {
       sb.append("\"name\":\"").append(toSpanName(span)).append("\",");
       sb.append("\"type\":\"").append(toSpanType(span)).append('"');
       if (!status.isOk()) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
         sb.append(",\"error\":").append("true");
       }
       Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMap();
       if (attributeMap.size() > 0) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
         StringBuilder dataSb = new StringBuilder();
         dataSb.append('{');
         for (Entry<String, AttributeValue> entry : attributeMap.entrySet()) {
+          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
           if (dataSb.length() > 1) {
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
             dataSb.append(',');
+          } else {
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 9);
           }
           dataSb
               .append("\"")

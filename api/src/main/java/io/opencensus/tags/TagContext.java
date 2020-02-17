@@ -62,6 +62,7 @@ public abstract class TagContext {
   @Override
   public boolean equals(@Nullable Object other) {
     if (!(other instanceof TagContext)) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       return false;
     }
     TagContext otherTags = (TagContext) other;
@@ -69,22 +70,29 @@ public abstract class TagContext {
     Iterator<Tag> iter2 = otherTags.getIterator();
     HashMap<Tag, Integer> tags = new HashMap<Tag, Integer>();
     while (iter1 != null && iter1.hasNext()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
       Tag tag = iter1.next();
       if (tags.containsKey(tag)) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
         tags.put(tag, tags.get(tag) + 1);
       } else {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
         tags.put(tag, 1);
       }
     }
     while (iter2 != null && iter2.hasNext()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
       Tag tag = iter2.next();
       if (!tags.containsKey(tag)) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
         return false;
       }
       int count = tags.get(tag);
       if (count > 1) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
         tags.put(tag, count - 1);
       } else {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
         tags.remove(tag);
       }
     }

@@ -156,6 +156,7 @@ final class PrometheusExportUtils {
 
     final List<String> labelValues = new ArrayList<String>(labelValuesList.size());
     for (LabelValue labelValue : labelValuesList) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       String val = labelValue == null ? "" : labelValue.getValue();
       labelValues.add(val == null ? "" : val);
     }
@@ -182,6 +183,7 @@ final class PrometheusExportUtils {
             List<Double> boundaries = new ArrayList<>();
 
             if (bucketOptions != null) {
+              System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
               boundaries =
                   bucketOptions.match(
                       new Function<ExplicitOptions, List<Double>>() {
@@ -198,6 +200,7 @@ final class PrometheusExportUtils {
             long cumulativeCount = 0;
 
             for (int i = 0; i < arg.getBuckets().size(); i++) {
+              System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
               List<String> labelValuesWithLe = new ArrayList<String>(labelValues);
               // The label value of "le" is the upper inclusive bound.
               // For the last bucket, it should be "+Inf".
@@ -228,12 +231,14 @@ final class PrometheusExportUtils {
           public List<Sample> apply(Summary arg) {
             Long count = arg.getCount();
             if (count != null) {
+              System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
               samples.add(
                   new MetricFamilySamples.Sample(
                       name + SAMPLE_SUFFIX_COUNT, labelNames, labelValues, count));
             }
             Double sum = arg.getSum();
             if (sum != null) {
+              System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
               samples.add(
                   new MetricFamilySamples.Sample(
                       name + SAMPLE_SUFFIX_SUM, labelNames, labelValues, sum));
@@ -243,6 +248,7 @@ final class PrometheusExportUtils {
             List<String> labelNamesWithQuantile = new ArrayList<String>(labelNames);
             labelNamesWithQuantile.add(LABEL_NAME_QUANTILE);
             for (ValueAtPercentile valueAtPercentile : valueAtPercentiles) {
+              System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
               List<String> labelValuesWithQuantile = new ArrayList<String>(labelValues);
               labelValuesWithQuantile.add(
                   doubleToGoString(valueAtPercentile.getPercentile() / 100));

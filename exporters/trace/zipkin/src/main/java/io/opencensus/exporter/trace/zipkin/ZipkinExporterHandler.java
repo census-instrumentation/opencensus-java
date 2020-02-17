@@ -103,6 +103,7 @@ final class ZipkinExporterHandler extends TimeLimitedHandler {
 
   @SuppressWarnings("deprecation")
   static Span generateSpan(SpanData spanData, Endpoint localEndpoint) {
+    System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
     SpanContext context = spanData.getContext();
     long startTimestamp = toEpochMicros(spanData.getStartTimestamp());
 
@@ -123,31 +124,38 @@ final class ZipkinExporterHandler extends TimeLimitedHandler {
             .localEndpoint(localEndpoint);
 
     if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
       spanBuilder.parentId(spanData.getParentSpanId().toLowerBase16());
     }
 
     for (Map.Entry<String, AttributeValue> label :
         spanData.getAttributes().getAttributeMap().entrySet()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
       spanBuilder.putTag(label.getKey(), attributeValueToString(label.getValue()));
     }
     Status status = spanData.getStatus();
     if (status != null) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
       spanBuilder.putTag(STATUS_CODE, status.getCanonicalCode().toString());
       if (status.getDescription() != null) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
         spanBuilder.putTag(STATUS_DESCRIPTION, status.getDescription());
       }
       if (!status.isOk()) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
         spanBuilder.putTag(STATUS_ERROR, status.getCanonicalCode().toString());
       }
     }
 
     for (TimedEvent<Annotation> annotation : spanData.getAnnotations().getEvents()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
       spanBuilder.addAnnotation(
           toEpochMicros(annotation.getTimestamp()), annotation.getEvent().getDescription());
     }
 
     for (TimedEvent<io.opencensus.trace.MessageEvent> messageEvent :
         spanData.getMessageEvents().getEvents()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
       spanBuilder.addAnnotation(
           toEpochMicros(messageEvent.getTimestamp()), messageEvent.getEvent().getType().name());
     }

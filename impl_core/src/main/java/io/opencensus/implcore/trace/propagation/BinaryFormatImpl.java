@@ -109,9 +109,11 @@ final class BinaryFormatImpl extends BinaryFormat {
   public SpanContext fromByteArray(byte[] bytes) throws SpanContextParseException {
     checkNotNull(bytes, "bytes");
     if (bytes.length == 0 || bytes[0] != VERSION_ID) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       throw new SpanContextParseException("Unsupported version.");
     }
     if (bytes.length < REQUIRED_FORMAT_LENGTH) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
       throw new SpanContextParseException("Invalid input: truncated");
     }
     // TODO: the following logic assumes that fields are written in ID order. The spec does not say
@@ -121,16 +123,20 @@ final class BinaryFormatImpl extends BinaryFormat {
     TraceOptions traceOptions = TraceOptions.DEFAULT;
     int pos = 1;
     if (bytes[pos] == TRACE_ID_FIELD_ID) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
       traceId = TraceId.fromBytes(bytes, pos + ID_SIZE);
       pos += ID_SIZE + TraceId.SIZE;
     } else {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
       // TODO: update the spec to suggest that the trace ID is not actually optional
       throw new SpanContextParseException("Invalid input: expected trace ID at offset " + pos);
     }
     if (bytes[pos] == SPAN_ID_FIELD_ID) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
       spanId = SpanId.fromBytes(bytes, pos + ID_SIZE);
       pos += ID_SIZE + SpanId.SIZE;
     } else {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
       // TODO: update the spec to suggest that the span ID is not actually optional.
       throw new SpanContextParseException("Invalid input: expected span ID at offset " + pos);
     }
@@ -138,7 +144,9 @@ final class BinaryFormatImpl extends BinaryFormat {
     // is an options field. Per spec we simply stop parsing at first unknown field instead of
     // failing.
     if (bytes.length > pos && bytes[pos] == TRACE_OPTION_FIELD_ID) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
       if (bytes.length < ALL_FORMAT_LENGTH) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
         throw new SpanContextParseException("Invalid input: truncated");
       }
       traceOptions = TraceOptions.fromByte(bytes[pos + ID_SIZE]);
