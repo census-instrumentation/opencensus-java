@@ -89,6 +89,23 @@ grep -E -- 'validateKey|setResourceForBuilder|extract|checkTypeMatch|getVarLong|
 
 followed by some minor processing results in `results`, which can be manually inspected to see what branches are missing.
 
+The uncovered branches found are as following:
+
+| Method                                     | Uncovered      | %     |
+|--------------------------------------------|----------------|-------|
+| `checkTypeMatch`                           | None           | 100%  |
+| `convertToJson` (`InstanaExporterHandler`) | 2, 3, 5, 8     | 5/9   |
+| `create`                                   | None           | 100%  |
+| `equals`                                   | None           | 100%  |
+| `extract`                                  | None           | 100%  |
+| `fromByteArray`                            | None           | 100%  |
+| `generateSpan`                             | 7              | 7/8   |
+| `getSamples`                               | 2--6           | 1/6   |
+| `convertToJson` (`JsonConversionUtils`)    | 1, 3, 6, 7, 11 | 6/11  |
+| `parseBytes`                               | None           | 100%  |
+| `setResourceForBuilder`                    | 1, 6, 8, 9     | 12/16 |
+| `validateKey`                              | None           | 100%  |
+
 ### Evaluation
 
 Logging was added to `if`, `while`, `catch` and `for` branches. Empty `else` blocks were added where needed. No attempt was made to log logical branches (`||` and `&&`). There were no ternary operations in the covered methods.
