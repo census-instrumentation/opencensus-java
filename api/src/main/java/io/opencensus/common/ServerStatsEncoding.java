@@ -153,7 +153,7 @@ public final class ServerStatsEncoding {
       // successfully returns values
       return ServerStats.create(lbLatencyNs, serviceLatencyNs, traceOption);
     
-    // catch exception if notpossible to return values
+    // catch exception if not possible to return values
     } catch (IllegalArgumentException e) {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 10);
       

@@ -238,7 +238,7 @@ public abstract class Tracestate {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       return false;
     
-      // else statement without purpose
+      // else statement added by us for coverage measurement
     } else {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
     }
@@ -258,7 +258,7 @@ public abstract class Tracestate {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
         return false;
 
-      // else statement without purpose
+      // else statement added by us for coverage measurement
       } else {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
       }

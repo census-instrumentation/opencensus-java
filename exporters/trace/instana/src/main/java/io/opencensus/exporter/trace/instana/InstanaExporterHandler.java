@@ -141,7 +141,7 @@ final class InstanaExporterHandler extends TimeLimitedHandler {
         continue;
       }
       
-      // enter branch if the lenght of of the stringbuilde is greather than one, append
+      // enter branch if the lenght of of the stringbuilder is greather than one, append
       if (sb.length() > 1) {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
         sb.append(',');
@@ -151,7 +151,7 @@ final class InstanaExporterHandler extends TimeLimitedHandler {
       sb.append("\"spanId\":\"").append(encodeSpanId(spanContext.getSpanId())).append("\",");
       sb.append("\"traceId\":\"").append(encodeTraceId(spanContext.getTraceId())).append("\",");
       
-      // enter branch it the span has a parent process
+      // enter branch if the span has a parent process
       if (parentSpanId != null) {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
         sb.append("\"parentId\":\"").append(encodeSpanId(parentSpanId)).append("\",");
@@ -185,7 +185,7 @@ final class InstanaExporterHandler extends TimeLimitedHandler {
             System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
             dataSb.append(',');
 
-            // else-statement without a purpose
+            // else statement added by us for coverage measurement
           } else {
             System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 9);
           }
