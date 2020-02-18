@@ -101,6 +101,27 @@ final class ZipkinExporterHandler extends TimeLimitedHandler {
     return builder.build();
   }
 
+  /** Refactor to increase CCN */
+  static void checkParentSpanId(SpanData spanData, Span.Builder sBuilder) {
+    if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
+      sBuilder.parentId(spanData.getParentSpanId().toLowerBase16());
+    }
+    Status status = spanData.getStatus();
+    if (status != null) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
+      sBuilder.putTag(STATUS_CODE, status.getCanonicalCode().toString());
+      if (status.getDescription() != null) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
+        sBuilder.putTag(STATUS_DESCRIPTION, status.getDescription());
+      }
+      if (!status.isOk()) {
+        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
+        sBuilder.putTag(STATUS_ERROR, status.getCanonicalCode().toString());
+      }
+    }
+  }
+
   @SuppressWarnings("deprecation")
   static Span generateSpan(SpanData spanData, Endpoint localEndpoint) {
     System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
@@ -123,28 +144,12 @@ final class ZipkinExporterHandler extends TimeLimitedHandler {
             .duration(endTimestamp - startTimestamp)
             .localEndpoint(localEndpoint);
 
-    if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
-      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
-      spanBuilder.parentId(spanData.getParentSpanId().toLowerBase16());
-    }
+    checkParentSpanId(spanData, spanBuilder);
 
     for (Map.Entry<String, AttributeValue> label :
         spanData.getAttributes().getAttributeMap().entrySet()) {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
       spanBuilder.putTag(label.getKey(), attributeValueToString(label.getValue()));
-    }
-    Status status = spanData.getStatus();
-    if (status != null) {
-      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
-      spanBuilder.putTag(STATUS_CODE, status.getCanonicalCode().toString());
-      if (status.getDescription() != null) {
-        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
-        spanBuilder.putTag(STATUS_DESCRIPTION, status.getDescription());
-      }
-      if (!status.isOk()) {
-        System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
-        spanBuilder.putTag(STATUS_ERROR, status.getCanonicalCode().toString());
-      }
     }
 
     for (TimedEvent<Annotation> annotation : spanData.getAnnotations().getEvents()) {
