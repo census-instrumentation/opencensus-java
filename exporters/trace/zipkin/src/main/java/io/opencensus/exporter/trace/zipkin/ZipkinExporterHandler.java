@@ -101,15 +101,13 @@ final class ZipkinExporterHandler extends TimeLimitedHandler {
     return builder.build();
   }
 
-  /**
-   * Refactor to increase CCN
-   */
-  static void checkParentSpanId(SpanData spanData, Span.Builder sBuilder){
-	if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
-		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
-		sBuilder.parentId(spanData.getParentSpanId().toLowerBase16());
-	}
-	Status status = spanData.getStatus();
+  /** Refactor to increase CCN */
+  static void checkParentSpanId(SpanData spanData, Span.Builder sBuilder) {
+    if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
+      System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
+      sBuilder.parentId(spanData.getParentSpanId().toLowerBase16());
+    }
+    Status status = spanData.getStatus();
     if (status != null) {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
       sBuilder.putTag(STATUS_CODE, status.getCanonicalCode().toString());
@@ -146,8 +144,7 @@ final class ZipkinExporterHandler extends TimeLimitedHandler {
             .duration(endTimestamp - startTimestamp)
             .localEndpoint(localEndpoint);
 
-
-	checkParentSpanId(spanData, spanBuilder);
+    checkParentSpanId(spanData, spanBuilder);
 
     for (Map.Entry<String, AttributeValue> label :
         spanData.getAttributes().getAttributeMap().entrySet()) {
