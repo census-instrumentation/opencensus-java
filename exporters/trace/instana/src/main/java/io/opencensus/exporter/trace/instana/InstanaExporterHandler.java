@@ -134,52 +134,52 @@ final class InstanaExporterHandler extends TimeLimitedHandler {
       final Timestamp startTimestamp = span.getStartTimestamp();
       final Timestamp endTimestamp = span.getEndTimestamp();
       final Status status = span.getStatus();
-      
+
       // enter branch if the status of the span, or its end timestamp equals null, continue
       if (status == null || endTimestamp == null) {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
         continue;
       }
-      
+
       // enter branch if the lenght of of the stringbuilder is greather than one, append
       if (sb.length() > 1) {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
         sb.append(',');
       }
-      
+
       sb.append('{');
       sb.append("\"spanId\":\"").append(encodeSpanId(spanContext.getSpanId())).append("\",");
       sb.append("\"traceId\":\"").append(encodeTraceId(spanContext.getTraceId())).append("\",");
-      
+
       // enter branch if the span has a parent process
       if (parentSpanId != null) {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
         sb.append("\"parentId\":\"").append(encodeSpanId(parentSpanId)).append("\",");
       }
-      
+
       sb.append("\"timestamp\":").append(toMillis(startTimestamp)).append(',');
       sb.append("\"duration\":").append(toMillis(startTimestamp, endTimestamp)).append(',');
       sb.append("\"name\":\"").append(toSpanName(span)).append("\",");
       sb.append("\"type\":\"").append(toSpanType(span)).append('"');
-      
+
       // enter branch if the status of the span is invalid
       if (!status.isOk()) {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
         sb.append(",\"error\":").append("true");
       }
-      
+
       Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMap();
-      
+
       // enter branch if the map attributeMap contains more than one element
       if (attributeMap.size() > 0) {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
         StringBuilder dataSb = new StringBuilder();
         dataSb.append('{');
-        
+
         // enter for-loop if the attributeMap contains a entrySet
         for (Entry<String, AttributeValue> entry : attributeMap.entrySet()) {
           System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
-          
+
           // enter branch if the lenght of the stringbuilder data.Sb i greater than one.
           if (dataSb.length() > 1) {
             System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);

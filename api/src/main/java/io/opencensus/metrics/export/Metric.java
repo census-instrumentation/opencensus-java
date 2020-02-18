@@ -38,43 +38,47 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue
 public abstract class Metric {
 
-  Metric() {
-  }
+  Metric() {}
 
   /**
    * Creates a {@link Metric}.
    *
    * @param metricDescriptor the {@link MetricDescriptor}.
-   * @param timeSeriesList   the {@link TimeSeries} list for this metric.
+   * @param timeSeriesList the {@link TimeSeries} list for this metric.
    * @return a {@code Metric}.
    * @since 0.17
    */
   public static Metric create(MetricDescriptor metricDescriptor, List<TimeSeries> timeSeriesList) {
-    Utils.checkListElementNotNull(Utils.checkNotNull(timeSeriesList, "timeSeriesList"), "timeSeries");
-    return createInternal(metricDescriptor, Collections.unmodifiableList(new ArrayList<TimeSeries>(timeSeriesList)));
+    Utils.checkListElementNotNull(
+        Utils.checkNotNull(timeSeriesList, "timeSeriesList"), "timeSeries");
+    return createInternal(
+        metricDescriptor, Collections.unmodifiableList(new ArrayList<TimeSeries>(timeSeriesList)));
   }
 
   /**
    * Creates a {@link Metric}.
    *
    * @param metricDescriptor the {@link MetricDescriptor}.
-   * @param timeSeries       the single {@link TimeSeries} for this metric.
+   * @param timeSeries the single {@link TimeSeries} for this metric.
    * @return a {@code Metric}.
    * @since 0.17
    */
-  public static Metric createWithOneTimeSeries(MetricDescriptor metricDescriptor, TimeSeries timeSeries) {
-    return createInternal(metricDescriptor, Collections.singletonList(Utils.checkNotNull(timeSeries, "timeSeries")));
+  public static Metric createWithOneTimeSeries(
+      MetricDescriptor metricDescriptor, TimeSeries timeSeries) {
+    return createInternal(
+        metricDescriptor, Collections.singletonList(Utils.checkNotNull(timeSeries, "timeSeries")));
   }
 
   /**
    * Creates a {@link Metric}.
    *
    * @param metricDescriptor the {@link MetricDescriptor}.
-   * @param timeSeriesList   the {@link TimeSeries} list for this metric.
+   * @param timeSeriesList the {@link TimeSeries} list for this metric.
    * @return a {@code Metric}.
    * @since 0.17
    */
-  private static Metric createInternal(MetricDescriptor metricDescriptor, List<TimeSeries> timeSeriesList) {
+  private static Metric createInternal(
+      MetricDescriptor metricDescriptor, List<TimeSeries> timeSeriesList) {
     Utils.checkNotNull(metricDescriptor, "metricDescriptor");
     checkTypeMatch(metricDescriptor.getType(), timeSeriesList);
     return new AutoValue_Metric(metricDescriptor, timeSeriesList);
@@ -91,9 +95,7 @@ public abstract class Metric {
   /**
    * Returns the {@link TimeSeries} list for this metric.
    *
-   * <p>
-   * The type of the {@link TimeSeries#getPoints()} must match
-   * {@link MetricDescriptor.Type}.
+   * <p>The type of the {@link TimeSeries#getPoints()} must match {@link MetricDescriptor.Type}.
    *
    * @return the {@code TimeSeriesList} for this metric.
    * @since 0.17
@@ -122,38 +124,42 @@ public abstract class Metric {
         // enter switch block
         switch (type) {
 
-        // fallthrough case, keeps going until it hits break statement
-        case GAUGE_INT64:
+            // fallthrough case, keeps going until it hits break statement
+          case GAUGE_INT64:
 
-          // enter branch if type is of value CUMULATIVE_INT64
-        case CUMULATIVE_INT64:
-          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
-          Utils.checkArgument(value instanceof ValueLong, "Type mismatch: %s, %s.", type, valueClassName);
-          break;
+            // enter branch if type is of value CUMULATIVE_INT64
+          case CUMULATIVE_INT64:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
+            Utils.checkArgument(
+                value instanceof ValueLong, "Type mismatch: %s, %s.", type, valueClassName);
+            break;
 
-        // fallthrough case, keeps going until it hits break statement
-        case CUMULATIVE_DOUBLE:
+            // fallthrough case, keeps going until it hits break statement
+          case CUMULATIVE_DOUBLE:
 
-          // enter branch if type is of value GAUGE_DOUBLE and break from switch block
-        case GAUGE_DOUBLE:
-          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
-          Utils.checkArgument(value instanceof ValueDouble, "Type mismatch: %s, %s.", type, valueClassName);
-          break;
+            // enter branch if type is of value GAUGE_DOUBLE and break from switch block
+          case GAUGE_DOUBLE:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
+            Utils.checkArgument(
+                value instanceof ValueDouble, "Type mismatch: %s, %s.", type, valueClassName);
+            break;
 
-        // fallthrough case, keeps going until it hits break statement
-        case GAUGE_DISTRIBUTION:
+            // fallthrough case, keeps going until it hits break statement
+          case GAUGE_DISTRIBUTION:
 
-          // enter branch if type is of value CUMULATIVE_DISTRIBUTION and break from
-          // switch block
-        case CUMULATIVE_DISTRIBUTION:
-          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
-          Utils.checkArgument(value instanceof ValueDistribution, "Type mismatch: %s, %s.", type, valueClassName);
-          break;
+            // enter branch if type is of value CUMULATIVE_DISTRIBUTION and break from
+            // switch block
+          case CUMULATIVE_DISTRIBUTION:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
+            Utils.checkArgument(
+                value instanceof ValueDistribution, "Type mismatch: %s, %s.", type, valueClassName);
+            break;
 
-        // enter branch if type is of value SUMMARY
-        case SUMMARY:
-          System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
-          Utils.checkArgument(value instanceof ValueSummary, "Type mismatch: %s, %s.", type, valueClassName);
+            // enter branch if type is of value SUMMARY
+          case SUMMARY:
+            System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
+            Utils.checkArgument(
+                value instanceof ValueSummary, "Type mismatch: %s, %s.", type, valueClassName);
         }
       }
     }

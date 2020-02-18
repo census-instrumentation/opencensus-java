@@ -94,7 +94,7 @@ public final class ServerStatsEncoding {
     }
     byte version = bb.get();
 
-    // check if the version is invalid 
+    // check if the version is invalid
     if (version > CURRENT_VERSION || version < 0) {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
       // throw exepction since the version is invalid
@@ -105,21 +105,21 @@ public final class ServerStatsEncoding {
     while (bb.hasRemaining()) {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
       ServerStatsFieldEnums.Id id = ServerStatsFieldEnums.Id.valueOf((int) bb.get() & 0xFF);
-      
+
       // set the buffer position to the buffers limit if id is null
       if (id == null) {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
         // Skip remaining;
         bb.position(bb.limit());
-        
+
         // if id != null
       } else {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
-        
+
         // enter switch block
         switch (id) {
 
-          // if id is of value SERVER_STATS_LB_LATENCY_ID
+            // if id is of value SERVER_STATS_LB_LATENCY_ID
           case SERVER_STATS_LB_LATENCY_ID:
             System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
             lbLatencyNs = bb.getLong();
@@ -127,7 +127,7 @@ public final class ServerStatsEncoding {
             // break from switch block
             break;
 
-          // if id is of value SERVER_STATS_SERVICE_LATENCY_ID
+            // if id is of value SERVER_STATS_SERVICE_LATENCY_ID
           case SERVER_STATS_SERVICE_LATENCY_ID:
             System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
             serviceLatencyNs = bb.getLong();
@@ -135,7 +135,7 @@ public final class ServerStatsEncoding {
             // break from switch block
             break;
 
-          // if id is of value SERVER_STATS_TRACE_OPTION_ID,   
+            // if id is of value SERVER_STATS_TRACE_OPTION_ID,
           case SERVER_STATS_TRACE_OPTION_ID:
             System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 8);
             traceOption = bb.get();
@@ -152,11 +152,11 @@ public final class ServerStatsEncoding {
 
       // successfully returns values
       return ServerStats.create(lbLatencyNs, serviceLatencyNs, traceOption);
-    
-    // catch exception if not possible to return values
+
+      // catch exception if not possible to return values
     } catch (IllegalArgumentException e) {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 10);
-      
+
       // throw exception if serialized Service-stats contains invalid values
       throw new ServerStatsDeserializationException(
           "Serialized ServiceStats contains invalid values: " + e.getMessage());
