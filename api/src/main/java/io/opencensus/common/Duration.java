@@ -35,7 +35,6 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @AutoValue
 public abstract class Duration implements Comparable<Duration> {
-
   /**
    * Creates a new time duration from given seconds and nanoseconds.
    *
@@ -71,11 +70,13 @@ public abstract class Duration implements Comparable<Duration> {
       throw new IllegalArgumentException(
           "'nanos' is greater than maximum (" + MAX_NANOS + "): " + nanos);
     }
-    if ((seconds < 0 && nanos > 0) || (seconds > 0 && nanos < 0)) {
+    //Improved from pi=4 to pi=2 on this if statement
+    if(Integer.signum(nanos) != Long.signum(seconds) && (seconds * nanos) != 0){
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
       throw new IllegalArgumentException(
-          "'seconds' and 'nanos' have inconsistent sign: seconds=" + seconds + ", nanos=" + nanos);
+        "'seconds' and 'nanos' have inconsistent sign: seconds=" + seconds + ", nanos=" + nanos);
     }
+
     return new AutoValue_Duration(seconds, nanos);
   }
 
