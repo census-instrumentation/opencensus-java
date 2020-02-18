@@ -16,6 +16,9 @@
 
 package io.opencensus.exporter.trace.elasticsearch;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Timestamp;
@@ -101,5 +104,12 @@ public class JsonConversionUtilsTest {
     Assert.assertEquals(json.size(), spanDataList.size());
     Assert.assertTrue(json.get(0).contains("\"appName\":\"" + SAMPLE_APP_NAME + "\""));
     Assert.assertTrue(json.get(0).contains("\"spanId\":\"" + SAMPLE_SPAN_ID + "\""));
+  }
+
+  @Test
+  public void testConvertToJson_SpanDataListNull() {
+    List<String> retList = JsonConversionUtils.convertToJson(null, null);
+    assertEquals(0, retList.size());
+    assertTrue(retList.isEmpty());
   }
 }
