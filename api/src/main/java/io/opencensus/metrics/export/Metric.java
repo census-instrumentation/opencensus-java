@@ -103,37 +103,59 @@ public abstract class Metric {
   public abstract List<TimeSeries> getTimeSeriesList();
 
   private static void checkTypeMatch(MetricDescriptor.Type type, List<TimeSeries> timeSeriesList) {
+    
+    // Iterate though the object timeSeriesList aslong as its != null
     for (TimeSeries timeSeries : timeSeriesList) {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
+      
+      // Iterate through timeSeries.getPoints aslong as its != null
       for (Point point : timeSeries.getPoints()) {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
         Value value = point.getValue();
         String valueClassName = "";
+        
+        // enter branch if the superclass for value != null
         if (value.getClass().getSuperclass() != null) { // work around nullness check
           System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
           // AutoValue classes should always have a super class.
           valueClassName = value.getClass().getSuperclass().getSimpleName();
         }
+        
+        // enter switch block
         switch (type) {
+
+          // case without purpose
           case GAUGE_INT64:
+          
+          // enter branch if type is of value CUMULATIVE_INT64
           case CUMULATIVE_INT64:
             System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
             Utils.checkArgument(
                 value instanceof ValueLong, "Type mismatch: %s, %s.", type, valueClassName);
             break;
-          case CUMULATIVE_DOUBLE:
-          case GAUGE_DOUBLE:
+
+            // case without purpose
+            case CUMULATIVE_DOUBLE:
+          
+            // enter branch if type is of value GAUGE_DOUBLE
+            case GAUGE_DOUBLE:
             System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
             Utils.checkArgument(
                 value instanceof ValueDouble, "Type mismatch: %s, %s.", type, valueClassName);
             break;
-          case GAUGE_DISTRIBUTION:
-          case CUMULATIVE_DISTRIBUTION:
+          
+            // case without purpose
+            case GAUGE_DISTRIBUTION:
+          
+            // enter branch if type is of value CUMULATIVE_DISTRIBUTION
+            case CUMULATIVE_DISTRIBUTION:
             System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 6);
             Utils.checkArgument(
                 value instanceof ValueDistribution, "Type mismatch: %s, %s.", type, valueClassName);
             break;
-          case SUMMARY:
+          
+            // enter branch if tyoe is of value SUMMARY
+            case SUMMARY:
             System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 7);
             Utils.checkArgument(
                 value instanceof ValueSummary, "Type mismatch: %s, %s.", type, valueClassName);
