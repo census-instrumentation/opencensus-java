@@ -229,18 +229,26 @@ public abstract class Tracestate {
   // can only contain lowercase letters a-z, digits 0-9, underscores _, dashes -, asterisks *, and
   // forward slashes /.
   private static boolean validateKey(String key) {
+
+    // enter branch if the lenght of the key exceeds maximum size, return false
     if (key.length() > KEY_MAX_SIZE
         || key.isEmpty()
         || key.charAt(0) < 'a'
         || key.charAt(0) > 'z') {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 1);
       return false;
+
+      // else statement added by us for coverage measurement
     } else {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 2);
     }
+
+    // iterate through chars in key aslong as key != null
     for (int i = 1; i < key.length(); i++) {
       System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 3);
       char c = key.charAt(i);
+
+      // check that key follows pre-defined rules, return false if not
       if (!(c >= 'a' && c <= 'z')
           && !(c >= '0' && c <= '9')
           && c != '_'
@@ -249,10 +257,13 @@ public abstract class Tracestate {
           && c != '/') {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 4);
         return false;
+
+        // else statement added by us for coverage measurement
       } else {
         System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + 5);
       }
     }
+    // return true since the key is valid
     return true;
   }
 
