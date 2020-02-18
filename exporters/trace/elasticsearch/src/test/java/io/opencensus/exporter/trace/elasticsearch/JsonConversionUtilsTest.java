@@ -112,4 +112,66 @@ public class JsonConversionUtilsTest {
     assertEquals(0, retList.size());
     assertTrue(retList.isEmpty());
   }
+
+  @Test
+  public void testConvertToJson_endTimestampIsNull() {
+    SpanData spanData =
+        SpanData.create(
+            SpanContext.create(
+                TraceId.fromLowerBase16(SAMPLE_TRACE_ID),
+                SpanId.fromLowerBase16(SAMPLE_SPAN_ID),
+                SAMPLE_TRACE_OPTION,
+                SAMPLE_TRACE_STATE),
+            SpanId.fromLowerBase16(SAMPLE_PARENT_SPAN_ID),
+            true,
+            "SpanName",
+            null,
+            Timestamp.create(155196336, 194009601),
+            Attributes.create(attributes, 0),
+            TimedEvents.create(annotations, 0),
+            TimedEvents.create(messageEvents, 0),
+            Links.create(Collections.<Link>emptyList(), 0),
+            null,
+            Status.OK,
+            null);
+
+    spanDataList = new ArrayList<SpanData>();
+    spanDataList.add(spanData);
+
+    List<String> json = JsonConversionUtils.convertToJson(null, spanDataList);
+    /*
+        Nothing to assert. The function continues and throws exception
+    */
+  }
+
+  @Test
+  public void testConvertToJson_StatusIsNull() {
+    SpanData spanData =
+        SpanData.create(
+            SpanContext.create(
+                TraceId.fromLowerBase16(SAMPLE_TRACE_ID),
+                SpanId.fromLowerBase16(SAMPLE_SPAN_ID),
+                SAMPLE_TRACE_OPTION,
+                SAMPLE_TRACE_STATE),
+            SpanId.fromLowerBase16(SAMPLE_PARENT_SPAN_ID),
+            true,
+            "SpanName",
+            null,
+            Timestamp.create(155196336, 194009601),
+            Attributes.create(attributes, 0),
+            TimedEvents.create(annotations, 0),
+            TimedEvents.create(messageEvents, 0),
+            Links.create(Collections.<Link>emptyList(), 0),
+            null,
+            null,
+            Timestamp.create(155296336, 465726528));
+
+    spanDataList = new ArrayList<SpanData>();
+    spanDataList.add(spanData);
+
+    List<String> json = JsonConversionUtils.convertToJson(null, spanDataList);
+    /*
+        Nothing to assert. The function continues and throws exception
+    */
+  }
 }
