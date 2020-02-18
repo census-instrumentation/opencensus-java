@@ -175,4 +175,163 @@ public class InstanaExporterHandlerTest {
                 + "}"
                 + "]");
   }
+
+  @Test
+  public void generateSpan_NullStatus() {
+    SpanData data =
+        SpanData.create(
+            SpanContext.create(
+                TraceId.fromLowerBase16(TRACE_ID),
+                SpanId.fromLowerBase16(SPAN_ID),
+                TraceOptions.builder().setIsSampled(true).build()),
+            SpanId.fromLowerBase16(PARENT_SPAN_ID),
+            true, /* hasRemoteParent */
+            "SpanName", /* name */
+            null, /* kind */
+            Timestamp.create(1505855794, 194009601) /* startTimestamp */,
+            Attributes.create(attributes, 0 /* droppedAttributesCount */),
+            TimedEvents.create(annotations, 0 /* droppedEventsCount */),
+            TimedEvents.create(messageEvents, 0 /* droppedEventsCount */),
+            Links.create(Collections.<Link>emptyList(), 0 /* droppedLinksCount */),
+            null, /* childSpanCount */
+            null, /* status */
+            Timestamp.create(1505855799, 465726528) /* endTimestamp */);
+
+    assertThat(InstanaExporterHandler.convertToJson(Collections.singletonList(data)))
+        .isEqualTo("[]");
+  }
+
+  @Test
+  public void generateSpan_ErrorStatus() {
+    SpanData data =
+        SpanData.create(
+            SpanContext.create(
+                TraceId.fromLowerBase16(TRACE_ID),
+                SpanId.fromLowerBase16(SPAN_ID),
+                TraceOptions.builder().setIsSampled(true).build()),
+            SpanId.fromLowerBase16(PARENT_SPAN_ID),
+            true, /* hasRemoteParent */
+            "SpanName", /* name */
+            Kind.CLIENT, /* kind */
+            Timestamp.create(1505855794, 194009601) /* startTimestamp */,
+            Attributes.create(attributes, 0 /* droppedAttributesCount */),
+            TimedEvents.create(annotations, 0 /* droppedEventsCount */),
+            TimedEvents.create(messageEvents, 0 /* droppedEventsCount */),
+            Links.create(Collections.<Link>emptyList(), 0 /* droppedLinksCount */),
+            null, /* childSpanCount */
+            Status.OUT_OF_RANGE, /* status, any but OK */
+            Timestamp.create(1505855799, 465726528) /* endTimestamp */);
+
+    assertThat(InstanaExporterHandler.convertToJson(Collections.singletonList(data)))
+        .isEqualTo(
+            "["
+                + "{"
+                + "\"spanId\":\"9cc1e3049173be09\","
+                + "\"traceId\":\"d239036e7d5cec11\","
+                + "\"parentId\":\"8b03ab423da481c5\","
+                + "\"timestamp\":1505855794194,"
+                + "\"duration\":5271,"
+                + "\"name\":\"SpanName\","
+                + "\"type\":\"EXIT\","
+                + "\"error\":true,"
+                + "\"data\":"
+                + "{\"http.url\":\"http://localhost/foo\"}"
+                + "}"
+                + "]");
+  }
+
+  @Test
+  public void generateSpan_MultipleSpans() {
+    SpanData data =
+        SpanData.create(
+            SpanContext.create(
+                TraceId.fromLowerBase16(TRACE_ID),
+                SpanId.fromLowerBase16(SPAN_ID),
+                TraceOptions.builder().setIsSampled(true).build()),
+            SpanId.fromLowerBase16(PARENT_SPAN_ID),
+            true, /* hasRemoteParent */
+            "SpanName", /* name */
+            Kind.CLIENT, /* kind */
+            Timestamp.create(1505855794, 194009601) /* startTimestamp */,
+            Attributes.create(attributes, 0 /* droppedAttributesCount */),
+            TimedEvents.create(annotations, 0 /* droppedEventsCount */),
+            TimedEvents.create(messageEvents, 0 /* droppedEventsCount */),
+            Links.create(Collections.<Link>emptyList(), 0 /* droppedLinksCount */),
+            null, /* childSpanCount */
+            Status.OK,
+            Timestamp.create(1505855799, 465726528) /* endTimestamp */);
+
+    assertThat(InstanaExporterHandler.convertToJson(Collections.nCopies(2, data)))
+        .isEqualTo(
+            "["
+                + "{"
+                + "\"spanId\":\"9cc1e3049173be09\","
+                + "\"traceId\":\"d239036e7d5cec11\","
+                + "\"parentId\":\"8b03ab423da481c5\","
+                + "\"timestamp\":1505855794194,"
+                + "\"duration\":5271,"
+                + "\"name\":\"SpanName\","
+                + "\"type\":\"EXIT\","
+                + "\"data\":"
+                + "{\"http.url\":\"http://localhost/foo\"}"
+                + "},"
+                + "{"
+                + "\"spanId\":\"9cc1e3049173be09\","
+                + "\"traceId\":\"d239036e7d5cec11\","
+                + "\"parentId\":\"8b03ab423da481c5\","
+                + "\"timestamp\":1505855794194,"
+                + "\"duration\":5271,"
+                + "\"name\":\"SpanName\","
+                + "\"type\":\"EXIT\","
+                + "\"data\":"
+                + "{\"http.url\":\"http://localhost/foo\"}"
+                + "}"
+                + "]");
+  }
+
+  @Test
+  public void generateSpan_MultipleAttributes() {
+    Map<String, AttributeValue> multipleAttributes =
+        ImmutableMap.of(
+            "http.url", AttributeValue.stringAttributeValue("http://localhost/foo"),
+            "http.method", AttributeValue.stringAttributeValue("GET"));
+
+    SpanData data =
+        SpanData.create(
+            SpanContext.create(
+                TraceId.fromLowerBase16(TRACE_ID),
+                SpanId.fromLowerBase16(SPAN_ID),
+                TraceOptions.builder().setIsSampled(true).build()),
+            SpanId.fromLowerBase16(PARENT_SPAN_ID),
+            true, /* hasRemoteParent */
+            "SpanName", /* name */
+            Kind.CLIENT, /* kind */
+            Timestamp.create(1505855794, 194009601) /* startTimestamp */,
+            Attributes.create(multipleAttributes, 0 /* droppedAttributesCount */),
+            TimedEvents.create(annotations, 0 /* droppedEventsCount */),
+            TimedEvents.create(messageEvents, 0 /* droppedEventsCount */),
+            Links.create(Collections.<Link>emptyList(), 0 /* droppedLinksCount */),
+            null, /* childSpanCount */
+            Status.OK,
+            Timestamp.create(1505855799, 465726528) /* endTimestamp */);
+
+    assertThat(InstanaExporterHandler.convertToJson(Collections.singletonList(data)))
+        .isEqualTo(
+            "["
+                + "{"
+                + "\"spanId\":\"9cc1e3049173be09\","
+                + "\"traceId\":\"d239036e7d5cec11\","
+                + "\"parentId\":\"8b03ab423da481c5\","
+                + "\"timestamp\":1505855794194,"
+                + "\"duration\":5271,"
+                + "\"name\":\"SpanName\","
+                + "\"type\":\"EXIT\","
+                + "\"data\":"
+                + "{"
+                + "\"http.url\":\"http://localhost/foo\","
+                + "\"http.method\":\"GET\""
+                + "}"
+                + "}"
+                + "]");
+  }
 }
