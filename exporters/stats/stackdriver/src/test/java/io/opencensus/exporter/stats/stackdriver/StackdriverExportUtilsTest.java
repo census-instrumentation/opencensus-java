@@ -805,17 +805,17 @@ public class StackdriverExportUtilsTest {
     assertThat(metrics.get(1).getTimeSeriesList()).containsExactlyElementsIn(expectedTimeSeries2);
   }
 
-  @Test 
-  public void setResourceForBuilder_ResourceTypeNull(){
-	Map<String, String> map = new HashMap<>();
-	Resource resource = Resource.create(null, map);
-	MonitoredResource.Builder builder = null;
-	StackdriverExportUtils.setResourceForBuilder(builder, resource);
-	/*	Nothing to asser, function just returns
-		We know that it is fine though because if it 
-		Does not return, we will get NullPointerException
-		because we use the type to compare in the function
-	*/
+  @Test
+  public void setResourceForBuilder_ResourceTypeNull() {
+    Map<String, String> map = new HashMap<>();
+    Resource resource = Resource.create(null, map);
+    MonitoredResource.Builder builder = null;
+    StackdriverExportUtils.setResourceForBuilder(builder, resource);
+    /*	Nothing to asser, function just returns
+    	We know that it is fine though because if it
+    	Does not return, we will get NullPointerException
+    	because we use the type to compare in the function
+    */
   }
 
   @Test
