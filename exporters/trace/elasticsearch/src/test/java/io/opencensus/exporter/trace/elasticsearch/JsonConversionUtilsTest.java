@@ -17,6 +17,8 @@
 package io.opencensus.exporter.trace.elasticsearch;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
@@ -139,10 +141,8 @@ public class JsonConversionUtilsTest {
     spanDataList.add(spanData);
 
     List<String> json = JsonConversionUtils.convertToJson(null, spanDataList);
-    /*
-        Nothing to assert. The function continues and throws exception
-    */
-  }
+    assertTrue(json.isEmpty());
+}
 
   @Test
   public void testConvertToJson_StatusIsNull() {
@@ -170,8 +170,7 @@ public class JsonConversionUtilsTest {
     spanDataList.add(spanData);
 
     List<String> json = JsonConversionUtils.convertToJson(null, spanDataList);
-    /*
-        Nothing to assert. The function continues and throws exception
-    */
-  }
+
+    Assert.assertTrue(json.get(0).contains("\"status\":\"ok\""));
+    } 
 }
