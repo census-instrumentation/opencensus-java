@@ -18,6 +18,7 @@ package io.opencensus.implcore.metrics;
 
 import io.opencensus.common.Clock;
 import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricDescriptor;
 import javax.annotation.Nullable;
 
 interface Meter {
@@ -31,4 +32,11 @@ interface Meter {
    */
   @Nullable
   Metric getMetric(Clock clock);
+
+  /**
+   * Provides a {@link io.opencensus.metrics.export.MetricDescriptor}.
+   *
+   * @return a {@code MetricDescriptor}.
+   */
+  MetricDescriptor getMetricDescriptor();
 }

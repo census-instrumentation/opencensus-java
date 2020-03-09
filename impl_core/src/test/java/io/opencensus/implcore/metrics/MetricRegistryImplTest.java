@@ -244,10 +244,26 @@ public class MetricRegistryImplTest {
   }
 
   @Test
-  public void registerDifferentMetricSameName() {
+  public void shouldNotThrowWhenRegisterSameMetric() {
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
+  }
+
+  @Test
+  public void shouldThrowWhenRegisterExistingMetricWithDiffType() {
     metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("A different metric with the same name already registered.");
     metricRegistry.addDoubleGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
+  }
+
+  @Test
+  public void shouldThrowWhenRegisterExistingMetricWithDiffDesc() {
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("A different metric with the same name already registered.");
+    metricRegistry.addLongGauge(NAME, "duplicate", UNIT, LABEL_KEYS);
   }
 }
