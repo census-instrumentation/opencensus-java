@@ -247,8 +247,35 @@ public class MetricRegistryImplTest {
   public void shouldNotThrowWhenRegisterSameMetric() {
     metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
     metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
-    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
-    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
+  }
+
+  @Test
+  public void shouldReturnSameObjectOnMultipleRegisterCall() {
+    LongGauge longGauge = metricRegistry.addLongGauge(NAME, METRIC_OPTIONS);
+    LongPoint longPoint = longGauge.getOrCreateTimeSeries(LABEL_VALUES);
+    longPoint.set(200);
+
+    LongGauge longGauge1 = metricRegistry.addLongGauge(NAME, METRIC_OPTIONS);
+    LongPoint longPoint1 =
+        longGauge1.getOrCreateTimeSeries(Collections.singletonList(LABEL_VALUE_2));
+    longPoint1.set(300);
+
+    assertThat(longGauge).isEqualTo(longGauge1);
+    Collection<Metric> metricCollections = metricRegistry.getMetricProducer().getMetrics();
+    assertThat(metricCollections.size()).isEqualTo(1);
+    assertThat(metricCollections)
+        .containsExactly(
+            Metric.create(
+                LONG_METRIC_DESCRIPTOR,
+                Arrays.asList(
+                    TimeSeries.createWithOnePoint(
+                        Arrays.asList(LABEL_VALUE, LABEL_VALUE_2),
+                        Point.create(Value.longValue(200), TEST_TIME),
+                        null),
+                    TimeSeries.createWithOnePoint(
+                        Arrays.asList(LABEL_VALUE_2, LABEL_VALUE_2),
+                        Point.create(Value.longValue(300), TEST_TIME),
+                        null))));
   }
 
   @Test

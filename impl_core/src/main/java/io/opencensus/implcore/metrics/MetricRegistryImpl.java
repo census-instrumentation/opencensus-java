@@ -59,8 +59,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
             options.getUnit(),
             options.getLabelKeys(),
             options.getConstantLabels());
-    registeredMeters.registerMeter(name, longGaugeMetric);
-    return longGaugeMetric;
+    return (LongGauge) registeredMeters.registerMeter(name, longGaugeMetric);
   }
 
   @Override
@@ -72,8 +71,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
             options.getUnit(),
             options.getLabelKeys(),
             options.getConstantLabels());
-    registeredMeters.registerMeter(name, doubleGaugeMetric);
-    return doubleGaugeMetric;
+    return (DoubleGauge) registeredMeters.registerMeter(name, doubleGaugeMetric);
   }
 
   @Override
@@ -85,8 +83,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
             options.getUnit(),
             options.getLabelKeys(),
             options.getConstantLabels());
-    registeredMeters.registerMeter(name, derivedLongGauge);
-    return derivedLongGauge;
+    return (DerivedLongGauge) registeredMeters.registerMeter(name, derivedLongGauge);
   }
 
   @Override
@@ -98,8 +95,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
             options.getUnit(),
             options.getLabelKeys(),
             options.getConstantLabels());
-    registeredMeters.registerMeter(name, derivedDoubleGauge);
-    return derivedDoubleGauge;
+    return (DerivedDoubleGauge) registeredMeters.registerMeter(name, derivedDoubleGauge);
   }
 
   @Override
@@ -112,8 +108,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
             options.getLabelKeys(),
             options.getConstantLabels(),
             clock.now());
-    registeredMeters.registerMeter(name, longCumulativeMetric);
-    return longCumulativeMetric;
+    return (LongCumulative) registeredMeters.registerMeter(name, longCumulativeMetric);
   }
 
   @Override
@@ -126,8 +121,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
             options.getLabelKeys(),
             options.getConstantLabels(),
             clock.now());
-    registeredMeters.registerMeter(name, longCumulativeMetric);
-    return longCumulativeMetric;
+    return (DoubleCumulative) registeredMeters.registerMeter(name, longCumulativeMetric);
   }
 
   @Override
@@ -140,8 +134,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
             options.getLabelKeys(),
             options.getConstantLabels(),
             clock.now());
-    registeredMeters.registerMeter(name, derivedLongCumulative);
-    return derivedLongCumulative;
+    return (DerivedLongCumulative) registeredMeters.registerMeter(name, derivedLongCumulative);
   }
 
   @Override
@@ -154,8 +147,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
             options.getLabelKeys(),
             options.getConstantLabels(),
             clock.now());
-    registeredMeters.registerMeter(name, derivedDoubleCumulative);
-    return derivedDoubleCumulative;
+    return (DerivedDoubleCumulative) registeredMeters.registerMeter(name, derivedDoubleCumulative);
   }
 
   private static final class RegisteredMeters {
@@ -165,17 +157,21 @@ public final class MetricRegistryImpl extends MetricRegistry {
       return registeredMeters;
     }
 
-    private synchronized void registerMeter(String meterName, Meter meter) {
+    private synchronized Meter registerMeter(String meterName, Meter meter) {
       Meter existingMeter = registeredMeters.get(meterName);
-      if (existingMeter != null
-          && !existingMeter.getMetricDescriptor().equals(meter.getMetricDescriptor())) {
-        throw new IllegalArgumentException(
-            "A different metric with the same name already registered.");
+      if (existingMeter != null) {
+        if (!existingMeter.getMetricDescriptor().equals(meter.getMetricDescriptor())) {
+          throw new IllegalArgumentException(
+              "A different metric with the same name already registered.");
+        } else {
+          return existingMeter;
+        }
       }
 
       Map<String, Meter> registeredMetersCopy = new LinkedHashMap<String, Meter>(registeredMeters);
       registeredMetersCopy.put(meterName, meter);
       registeredMeters = Collections.unmodifiableMap(registeredMetersCopy);
+      return meter;
     }
   }
 
