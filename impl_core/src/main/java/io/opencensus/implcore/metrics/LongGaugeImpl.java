@@ -121,6 +121,11 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     registeredPoints = Collections.<List<LabelValue>, PointImpl>emptyMap();
   }
 
+  @Override
+  public MetricDescriptor getMetricDescriptor() {
+    return metricDescriptor;
+  }
+
   private synchronized LongPoint registerTimeSeries(List<LabelValue> labelValues) {
     PointImpl existingPoint = registeredPoints.get(labelValues);
     if (existingPoint != null) {

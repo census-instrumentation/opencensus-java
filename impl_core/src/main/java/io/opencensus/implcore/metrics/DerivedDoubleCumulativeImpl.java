@@ -127,6 +127,11 @@ public final class DerivedDoubleCumulativeImpl extends DerivedDoubleCumulative i
     registeredPoints = Collections.<List<LabelValue>, PointWithFunction<?>>emptyMap();
   }
 
+  @Override
+  public MetricDescriptor getMetricDescriptor() {
+    return metricDescriptor;
+  }
+
   @javax.annotation.Nullable
   @Override
   public Metric getMetric(Clock clock) {
