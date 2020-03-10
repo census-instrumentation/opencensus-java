@@ -244,12 +244,6 @@ public class MetricRegistryImplTest {
   }
 
   @Test
-  public void shouldNotThrowWhenRegisterSameMetric() {
-    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
-    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEYS);
-  }
-
-  @Test
   public void shouldReturnSameObjectOnMultipleRegisterCall() {
     LongGauge longGauge = metricRegistry.addLongGauge(NAME, METRIC_OPTIONS);
     LongPoint longPoint = longGauge.getOrCreateTimeSeries(LABEL_VALUES);
