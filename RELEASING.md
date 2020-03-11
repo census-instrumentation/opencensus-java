@@ -67,6 +67,8 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
       api/src/main/java/io/opencensus/common/OpenCensusLibraryInformation.java
       exporters/metrics/ocagent/src/main/java/io/opencensus/exporter/metrics/ocagent/OcAgentNodeUtils.java
       exporters/trace/ocagent/src/main/java/io/opencensus/exporter/trace/ocagent/OcAgentNodeUtils.java
+      examples/spring/servlet/build.gradle
+      examples/spring/servlet/pom.xml
       )
     $ git checkout -b v$MAJOR.$MINOR.x master
     $ git push upstream v$MAJOR.$MINOR.x
