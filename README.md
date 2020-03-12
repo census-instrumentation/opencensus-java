@@ -23,7 +23,7 @@ project.
 Integrating OpenCensus with a new library means recording stats or traces and propagating context.
 For application integration please see [Quickstart for Applications](https://github.com/census-instrumentation/opencensus-java#quickstart-for-applications).
 
-The full quick start example can also be found on the [OpenCensus website](https://opencensus.io/java/index.html).
+The full quick start example can also be found on the [OpenCensus website](https://opencensus.io/quickstart/java/).
 
 ### Add the dependencies to your project
 
@@ -33,14 +33,14 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.24.0</version>
+    <version>0.25.0</version>
   </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.24.0'
+compile 'io.opencensus:opencensus-api:0.25.0'
 ```
 
 ### Hello "OpenCensus" trace events
@@ -183,12 +183,12 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.24.0</version>
+    <version>0.25.0</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.24.0</version>
+    <version>0.25.0</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -196,8 +196,8 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.24.0'
-runtime 'io.opencensus:opencensus-impl:0.24.0'
+compile 'io.opencensus:opencensus-api:0.25.0'
+runtime 'io.opencensus:opencensus-impl:0.25.0'
 ```
 
 ### How to setup exporters?

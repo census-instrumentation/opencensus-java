@@ -121,6 +121,11 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
     registeredPoints = Collections.<List<LabelValue>, PointImpl>emptyMap();
   }
 
+  @Override
+  public MetricDescriptor getMetricDescriptor() {
+    return metricDescriptor;
+  }
+
   private synchronized DoublePoint registerTimeSeries(List<LabelValue> labelValues) {
     PointImpl existingPoint = registeredPoints.get(labelValues);
     if (existingPoint != null) {

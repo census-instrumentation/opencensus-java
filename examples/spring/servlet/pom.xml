@@ -13,7 +13,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- change to the version you want to use. -->
     <apachehttp.version>4.1.4</apachehttp.version>
-    <opencensus.version>0.23.0</opencensus.version><!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
+    <opencensus.version>0.25.0</opencensus.version><!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
     <prometheus.version>0.6.0</prometheus.version>
     <springboot.version>2.0.5.RELEASE</springboot.version>
     <java.version>1.8</java.version>
