@@ -10,8 +10,7 @@
 OpenCensus is a toolkit for collecting application performance and behavior data. It currently
 includes 3 apis: stats, tracing and tags.
 
-The library is in [Beta](#versioning) stage and APIs are expected to be mostly stable. The 
-library is expected to move to [GA](#versioning) stage after v1.0.0 major release.
+The library is in [Beta](#versioning) stage and APIs are expected to be mostly stable.
 
 Please join [gitter](https://gitter.im/census-instrumentation/Lobby) for help or feedback on this
 project.
