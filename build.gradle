@@ -163,7 +163,7 @@ subprojects {
         errorProneVersion = '2.3.2'
         grpcVersion = '1.25.0'
         guavaVersion = '28.2-android'
-        googleAuthVersion = '0.16.2'
+        googleAuthVersion = '0.20.0'
         googleCloudBetaVersion = '0.100.0-beta'
         googleCloudGaVersion = '1.82.0'
         log4j2Version = '2.11.1'
