@@ -1,5 +1,11 @@
 ## Unreleased
 
+
+## 0.26.0 - 2020-04
+- gRPC metrics collection now requires the 
+  [`io.grpc:grpc-census`](https://github.com/grpc/grpc-java/releases/tag/v1.27.0)
+  artifact in addition to this module. 
+
 ## 0.25.0 - 2020-02-12
 - Add an experimental artifact `opencensus-contrib-observability-ready-util`, that allows users to
 use OpenCensus easily.
