@@ -178,7 +178,7 @@ subprojects {
         zipkinReporterVersion = '2.7.14'
         jaegerReporterVersion = '0.33.1'
         opencensusProtoVersion = '0.2.0'
-        gsonVersion = '2.8.5'
+        gsonVersion = '2.8.6'
         dropwizardVersion = '3.1.2'
         dropwizard5Version = '5.0.0'
         javaxServletVersion = "3.1.0"
