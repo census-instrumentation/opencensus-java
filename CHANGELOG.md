@@ -1,10 +1,15 @@
 ## Unreleased
 
 
-## 0.26.0 - 2020-04
-- gRPC metrics collection now requires the 
-  [`io.grpc:grpc-census`](https://github.com/grpc/grpc-java/releases/tag/v1.27.0)
-  artifact in addition to this module. 
+## 0.26.0 - 2020-03-19
+- feat: Allow users to register the same Meter multiple times without exception (#2017)
+- update gRPC (#2024): Since gRPC v1.27.0, census dependency is removed from grpc-core. A grpc-census
+artifact now exists to provide interceptor/stream tracer factory that applies census stats/tracing features.
+For users not using gRPC’s integration of census, nothing should be affected. Users who want census integration
+need to add grpc-census artifact to runtime classpath.
+- deps: update GSON (#2025)
+- deps: update auth libraries (#2023)
+- update guava (#2018)
 
 ## 0.25.0 - 2020-02-12
 - Add an experimental artifact `opencensus-contrib-observability-ready-util`, that allows users to
