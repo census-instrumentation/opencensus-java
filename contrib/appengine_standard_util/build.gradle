@@ -3,7 +3,7 @@ description = 'OpenCensus AppEngine Standard Util'
 apply plugin: 'java'
 apply plugin: 'com.google.protobuf'
 
-def protocVersion = '3.6.1'
+def protocVersion = '3.11.4'
 
 buildscript {
     repositories {
