@@ -100,7 +100,7 @@ public class JaxrsContainerFilter implements ContainerRequestFilter, ContainerRe
   @SuppressWarnings("MustBeClosedChecker") // Close will happen in response filter method
   public void filter(ContainerRequestContext requestContext) throws IOException {
     ExtendedContainerRequest extendedRequest = new ExtendedContainerRequest(requestContext, info);
-    HttpRequestContext context = handler.handleStart(requestContext, extendedRequest);
+    HttpRequestContext context = handler.handleStart(requestContext, extendedRequest, null);
     requestContext.setProperty(CONTEXT_PROPERTY, context);
     if (requestContext.getLength() > 0) {
       handler.handleMessageReceived(context, requestContext.getLength());

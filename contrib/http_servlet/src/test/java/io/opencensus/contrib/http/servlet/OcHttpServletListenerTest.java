@@ -119,11 +119,11 @@ public class OcHttpServletListenerTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    context = handler.handleStart(request, response);
+    context = handler.handleStart(request, response, null);
 
     listener = new OcHttpServletListener(mockHandler, context);
 
-    when(mockHandler.handleStart(mockRequest, mockRequest)).thenReturn(context);
+    when(mockHandler.handleStart(mockRequest, mockRequest, null)).thenReturn(context);
     when(mockAsyncEvent.getThrowable()).thenReturn(mockThrowable);
     when(mockAsyncEvent.getSuppliedResponse()).thenReturn(mockResponse);
     when(mockAsyncEvent.getSuppliedRequest()).thenReturn(mockRequest);

@@ -162,7 +162,7 @@ public class OcHttpServletFilter implements Filter {
       HttpServletRequest httpReq = (HttpServletRequest) request;
       HttpServletResponse httpResp = (HttpServletResponse) response;
 
-      HttpRequestContext context = handler.handleStart(httpReq, httpReq);
+      HttpRequestContext context = handler.handleStart(httpReq, httpReq, null);
       OcHttpServletListener listener = new OcHttpServletListener(handler, context);
       httpReq.setAttribute(OcHttpServletUtil.OPENCENSUS_SERVLET_LISTENER, listener);
 

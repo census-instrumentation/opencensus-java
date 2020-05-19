@@ -111,11 +111,12 @@ public class HttpServerHandler<
    *
    * @param carrier the entity that holds the HTTP information.
    * @param request the request entity.
+   * @param startOptions the options to use for the created span.
    * @return the {@link HttpRequestContext} that contains stats and trace data associated with the
    *     request.
    * @since 0.19
    */
-  public HttpRequestContext handleStart(C carrier, Q request) {
+  public HttpRequestContext handleStart(C carrier, Q request, @Nullable StartOptions startOptions) {
     checkNotNull(carrier, "carrier");
     checkNotNull(request, "request");
     SpanBuilder spanBuilder = null;
@@ -132,6 +133,10 @@ public class HttpServerHandler<
       spanBuilder = tracer.spanBuilder(spanName);
     } else {
       spanBuilder = tracer.spanBuilderWithRemoteParent(spanName, spanContext);
+    }
+
+    if (startOptions != null && startOptions.sampler != null) {
+      spanBuilder = spanBuilder.setSampler(startOptions.sampler);
     }
 
     Span span = spanBuilder.setSpanKind(Kind.SERVER).startSpan();
@@ -153,7 +158,7 @@ public class HttpServerHandler<
    * events for the span and record measurements associated with the request.
    *
    * @param context the {@link HttpRequestContext} used with {@link
-   *     HttpServerHandler#handleStart(Object, Object)}
+   *     HttpServerHandler#handleStart(Object, Object, StartOptions)}
    * @param request the HTTP request entity.
    * @param response the HTTP response entity. {@code null} means invalid response.
    * @param error the error occurs when processing the response.
