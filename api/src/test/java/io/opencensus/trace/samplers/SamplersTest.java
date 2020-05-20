@@ -278,4 +278,30 @@ public class SamplersTest {
   public void probabilitySampler_ToString() {
     assertThat(Samplers.probabilitySampler(0.5).toString()).contains("0.5");
   }
+
+  @Test
+  public void blacklistingSamplerWithAlwaysSampleSampler_ReturnsFalse() {
+    // Non-blacklisted span.
+    assertThat(
+            Samplers.blacklistingSampler(Samplers.alwaysSample(), Arrays.asList(".*Yet another.*"))
+                .shouldSample(
+                    sampledSpanContext,
+                    false,
+                    traceId,
+                    spanId,
+                    "Another name",
+                    Collections.<Span>emptyList()))
+        .isTrue();
+    // Blacklisted span.
+    assertThat(
+            Samplers.blacklistingSampler(Samplers.alwaysSample(), Arrays.asList(".*Yet another.*"))
+                .shouldSample(
+                    notSampledSpanContext,
+                    false,
+                    traceId,
+                    spanId,
+                    "Yet another name",
+                    Collections.<Span>emptyList()))
+        .isFalse();
+  }
 }

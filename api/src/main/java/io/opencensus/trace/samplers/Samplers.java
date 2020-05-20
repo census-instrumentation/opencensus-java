@@ -18,6 +18,8 @@ package io.opencensus.trace.samplers;
 
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
+import java.util.Collection;
+import javax.annotation.Nullable;
 
 /**
  * Static class to access a set of pre-defined {@link Sampler Samplers}.
@@ -61,5 +63,20 @@ public final class Samplers {
    */
   public static Sampler probabilitySampler(double probability) {
     return ProbabilitySampler.create(probability);
+  }
+
+  /**
+   * Returns a {@link Sampler} that blacklists certain {@link Span}s by name patterns and delegates
+   * the sampling decision if the span is not blacklisted.
+   *
+   * @param delegate The {@link Sampler} to delegate sampling decision if the span is not
+   *     blacklisted.
+   * @param spanNamePatternBlacklist The set of patterns to match against span names.
+   * @return a new {@link BlacklistingSampler}.
+   * @throws IllegalArgumentException if {@code delegate} is *null*.
+   */
+  public static Sampler blacklistingSampler(
+      Sampler delegate, @Nullable Collection<String> spanNamePatternBlacklist) {
+    return BlacklistingSampler.create(delegate, spanNamePatternBlacklist);
   }
 }
