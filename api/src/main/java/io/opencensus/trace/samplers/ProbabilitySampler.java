@@ -17,7 +17,6 @@
 package io.opencensus.trace.samplers;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.internal.Utils;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
@@ -53,20 +52,7 @@ abstract class ProbabilitySampler extends Sampler {
    * @throws IllegalArgumentException if {@code probability} is out of range
    */
   static ProbabilitySampler create(double probability) {
-    Utils.checkArgument(
-        probability >= 0.0 && probability <= 1.0, "probability must be in range [0.0, 1.0]");
-    long idUpperBound;
-    // Special case the limits, to avoid any possible issues with lack of precision across
-    // double/long boundaries. For probability == 0.0, we use Long.MIN_VALUE as this guarantees
-    // that we will never sample a trace, even in the case where the id == Long.MIN_VALUE, since
-    // Math.Abs(Long.MIN_VALUE) == Long.MIN_VALUE.
-    if (probability == 0.0) {
-      idUpperBound = Long.MIN_VALUE;
-    } else if (probability == 1.0) {
-      idUpperBound = Long.MAX_VALUE;
-    } else {
-      idUpperBound = (long) (probability * Long.MAX_VALUE);
-    }
+    long idUpperBound = SamplingProbabilityUtils.computeTraceIdUpperBound(probability);
     return new AutoValue_ProbabilitySampler(probability, idUpperBound);
   }
 
@@ -97,7 +83,7 @@ abstract class ProbabilitySampler extends Sampler {
     // while allowing for a (very) small chance of *not* sampling if the id == Long.MAX_VALUE.
     // This is considered a reasonable tradeoff for the simplicity/performance requirements (this
     // code is executed in-line for every Span creation).
-    return Math.abs(traceId.getLowerLong()) < getIdUpperBound();
+    return SamplingProbabilityUtils.shouldSampleTrace(getIdUpperBound(), traceId);
   }
 
   @Override
