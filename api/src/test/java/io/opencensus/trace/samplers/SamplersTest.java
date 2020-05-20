@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -277,5 +278,90 @@ public class SamplersTest {
   @Test
   public void probabilitySampler_ToString() {
     assertThat(Samplers.probabilitySampler(0.5).toString()).contains("0.5");
+  }
+
+  @Test
+  public void rateLimitingSampler_SampleBasedOnTimePassed() {
+    final AtomicLong currentNanos = new AtomicLong(0);
+    // Need to use the abstract class in order to override "current nanos".
+    final RateLimitingSampler sampler =
+        new RateLimitingSampler() {
+          @Override
+          double getSamplesPerSecond() {
+            return 1;
+          }
+
+          @Override
+          long getCurrentNanos() {
+            return currentNanos.get();
+          }
+        };
+
+    // This traceId will not be sampled by the RateLimitingSampler because of very first sampling.
+    TraceId traceId =
+        TraceId.fromBytes(
+            new byte[] {
+              (byte) 0x8F,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            });
+    assertThat(
+            sampler.shouldSample(
+                null,
+                false,
+                traceId,
+                SpanId.generateRandomId(random),
+                SPAN_NAME,
+                Collections.<Span>emptyList()))
+        .isFalse();
+    // This traceId will not be sampled by the RateLimitingSampler because 0 seconds passed and
+    // probability=0.
+    assertThat(
+            sampler.shouldSample(
+                null,
+                false,
+                traceId,
+                SpanId.generateRandomId(random),
+                SPAN_NAME,
+                Collections.<Span>emptyList()))
+        .isFalse();
+    currentNanos.addAndGet((long) (1 * RateLimitingSampler.NANOS_PER_SECOND));
+    // This traceId will be sampled by the RateLimitingSampler because 1 second passed and
+    // probability=1.
+    assertThat(
+            sampler.shouldSample(
+                null,
+                false,
+                traceId,
+                SpanId.generateRandomId(random),
+                SPAN_NAME,
+                Collections.<Span>emptyList()))
+        .isTrue();
+    currentNanos.addAndGet((long) (0.0001 * RateLimitingSampler.NANOS_PER_SECOND));
+    // This traceId will not be sampled by the RateLimitingSampler because 0.0001 seconds passed,
+    // probability=0.0001
+    // and the first 8 bytes as long is not less than probability * Long.MAX_VALUE.
+    assertThat(
+            sampler.shouldSample(
+                null,
+                false,
+                traceId,
+                SpanId.generateRandomId(random),
+                SPAN_NAME,
+                Collections.<Span>emptyList()))
+        .isFalse();
   }
 }
