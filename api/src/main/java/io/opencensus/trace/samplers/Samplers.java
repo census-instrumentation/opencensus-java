@@ -62,4 +62,15 @@ public final class Samplers {
   public static Sampler probabilitySampler(double probability) {
     return ProbabilitySampler.create(probability);
   }
+
+  /**
+   * Returns a new {@link RateLimitingSampler} with desired sample QPS.
+   *
+   * @param samplesPerSecond The desired number of samples per second.
+   * @return a new {@link RateLimitingSampler}.
+   * @throws IllegalArgumentException if {@code samplesPerSecond} is less than 0.
+   */
+  public static Sampler rateLimitingSampler(double samplesPerSecond) {
+    return RateLimitingSampler.create(samplesPerSecond);
+  }
 }
