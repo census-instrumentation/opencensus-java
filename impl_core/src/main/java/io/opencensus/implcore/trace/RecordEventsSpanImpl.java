@@ -55,6 +55,8 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class RecordEventsSpanImpl extends Span implements Element<RecordEventsSpanImpl> {
   private static final Logger logger = Logger.getLogger(Tracer.class.getName());
 
+  private static final AtomicInteger OPEN_SPANS = new AtomicInteger(0);
+
   private static final EnumSet<Span.Options> RECORD_EVENTS_SPAN_OPTIONS =
       EnumSet.of(Span.Options.RECORD_EVENTS);
 
@@ -380,6 +382,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
       sampleToLocalSpanStore = options.getSampleToLocalSpanStore();
       endNanoTime = clock.nowNanos();
       hasBeenEnded = true;
+      OPEN_SPANS.decrementAndGet();
     }
     startEndHandler.onEnd(this);
   }
@@ -580,6 +583,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
     this.startEndHandler = startEndHandler;
     this.clock = clock;
     this.hasBeenEnded = false;
+    OPEN_SPANS.incrementAndGet();
     this.sampleToLocalSpanStore = false;
     this.numberOfChildren = 0;
     this.timestampConverter =
