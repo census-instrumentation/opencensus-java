@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, OpenCensus Authors
+ * Copyright 2017-20, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -52,11 +53,14 @@ import javax.annotation.concurrent.ThreadSafe;
 // TODO(hailongwen): remove the usage of `NetworkEvent` in the future.
 /** Implementation for the {@link Span} class that records trace events. */
 @ThreadSafe
-public final class RecordEventsSpanImpl extends Span implements Element<RecordEventsSpanImpl> {
-  private static final Logger logger = Logger.getLogger(Tracer.class.getName());
+public class RecordEventsSpanImpl extends Span implements Element<RecordEventsSpanImpl> {
+  protected static final Logger logger = Logger.getLogger(Tracer.class.getName());
 
   private static final EnumSet<Span.Options> RECORD_EVENTS_SPAN_OPTIONS =
       EnumSet.of(Span.Options.RECORD_EVENTS);
+
+  private static final AtomicInteger CURRENT_OPEN_SPANS = new AtomicInteger(0);
+  private static final AtomicInteger MAX_SEEN_OPEN_SPANS = new AtomicInteger(0);
 
   // The parent SpanId of this span. Null if this is a root span.
   @Nullable private final SpanId parentSpanId;
@@ -67,7 +71,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
   // Handler called when the span starts and ends.
   private final StartEndHandler startEndHandler;
   // The displayed name of the span.
-  private final String name;
+  protected final String name;
   // The kind of the span.
   @Nullable private final Kind kind;
   // The clock used to get the time.
@@ -105,7 +109,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
   private long endNanoTime;
   // True if the span is ended.
   @GuardedBy("this")
-  private boolean hasBeenEnded;
+  protected boolean hasBeenEnded;
 
   @GuardedBy("this")
   private boolean sampleToLocalSpanStore;
@@ -141,21 +145,50 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
-    RecordEventsSpanImpl span =
-        new RecordEventsSpanImpl(
-            context,
-            name,
-            kind,
-            parentSpanId,
-            hasRemoteParent,
-            traceParams,
-            startEndHandler,
-            timestampConverter,
-            clock);
+    RecordEventsSpanImpl span;
+
+    if (isLeakingSpans()) {
+      span =
+          new RecordEventsSpanImplWithFinalizer(
+              context,
+              name,
+              kind,
+              parentSpanId,
+              hasRemoteParent,
+              traceParams,
+              startEndHandler,
+              timestampConverter,
+              clock);
+    } else {
+      span =
+          new RecordEventsSpanImpl(
+              context,
+              name,
+              kind,
+              parentSpanId,
+              hasRemoteParent,
+              traceParams,
+              startEndHandler,
+              timestampConverter,
+              clock);
+    }
     // Call onStart here instead of calling in the constructor to make sure the span is completely
     // initialized.
     startEndHandler.onStart(span);
     return span;
+  }
+
+  private static boolean isLeakingSpans() {
+    final int current = CURRENT_OPEN_SPANS.get();
+    while (true) {
+      final int max = MAX_SEEN_OPEN_SPANS.get();
+      if (current < max) {
+        return false;
+      }
+      if (MAX_SEEN_OPEN_SPANS.compareAndSet(max, current)) {
+        return true;
+      }
+    }
   }
 
   /**
@@ -379,6 +412,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
       }
       sampleToLocalSpanStore = options.getSampleToLocalSpanStore();
       endNanoTime = clock.nowNanos();
+      CURRENT_OPEN_SPANS.decrementAndGet();
       hasBeenEnded = true;
     }
     startEndHandler.onEnd(this);
@@ -561,7 +595,7 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
     }
   }
 
-  private RecordEventsSpanImpl(
+  protected RecordEventsSpanImpl(
       SpanContext context,
       String name,
       @Nullable Kind kind,
@@ -580,21 +614,11 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
     this.startEndHandler = startEndHandler;
     this.clock = clock;
     this.hasBeenEnded = false;
+    CURRENT_OPEN_SPANS.incrementAndGet();
     this.sampleToLocalSpanStore = false;
     this.numberOfChildren = 0;
     this.timestampConverter =
         timestampConverter != null ? timestampConverter : TimestampConverter.now(clock);
     startNanoTime = clock.nowNanos();
-  }
-
-  @SuppressWarnings("NoFinalizer")
-  @Override
-  protected void finalize() throws Throwable {
-    synchronized (this) {
-      if (!hasBeenEnded) {
-        logger.log(Level.SEVERE, "Span " + name + " is GC'ed without being ended.");
-      }
-    }
-    super.finalize();
   }
 }
