@@ -111,7 +111,7 @@ abstract class AbstractHttpHandler<Q, P> {
     span.end();
   }
 
-  final String getSpanName(Q request, HttpExtractor<Q, P> extractor) {
+  String getSpanName(Q request, HttpExtractor<Q, P> extractor) {
     // default span name
     String path = extractor.getPath(request);
     if (path == null) {
