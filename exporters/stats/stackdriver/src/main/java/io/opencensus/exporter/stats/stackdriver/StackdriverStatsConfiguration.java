@@ -95,6 +95,15 @@ public abstract class StackdriverStatsConfiguration {
   public abstract String getMetricNamePrefix();
 
   /**
+   * Returns the display name prefix for Stackdriver metrics.
+   *
+   * @return the metric display name prefix.
+   * @since 0.27
+   */
+  @Nullable
+  public abstract String getDisplayNamePrefix();
+
+  /**
    * Returns the constant labels that will be applied to every Stackdriver metric.
    *
    * @return the constant labels.
@@ -197,6 +206,15 @@ public abstract class StackdriverStatsConfiguration {
      * @since 0.16
      */
     public abstract Builder setMetricNamePrefix(String prefix);
+
+    /**
+     * Sets the the display name prefix for Stackdriver metrics.
+     *
+     * @param prefix the metric display name prefix.
+     * @return this.
+     * @since 0.27
+     */
+    public abstract Builder setDisplayNamePrefix(String prefix);
 
     /**
      * Sets the constant labels that will be applied to every Stackdriver metric. This default

@@ -94,6 +94,7 @@ public final class StackdriverStatsExporter {
       Duration exportInterval,
       MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix,
+      @Nullable String displayNamePrefix,
       Map<LabelKey, LabelValue> constantLabels) {
     IntervalMetricReader.Options.Builder intervalMetricReaderOptionsBuilder =
         IntervalMetricReader.Options.builder();
@@ -104,6 +105,7 @@ public final class StackdriverStatsExporter {
                 projectId,
                 metricServiceClient,
                 metricNamePrefix,
+                displayNamePrefix,
                 constantLabels,
                 new CreateTimeSeriesExporter(
                     projectId,
@@ -145,6 +147,7 @@ public final class StackdriverStatsExporter {
         exportInterval,
         DEFAULT_RESOURCE,
         null,
+        null,
         DEFAULT_CONSTANT_LABELS,
         DEFAULT_DEADLINE,
         null);
@@ -182,6 +185,7 @@ public final class StackdriverStatsExporter {
         projectId,
         exportInterval,
         DEFAULT_RESOURCE,
+        null,
         null,
         DEFAULT_CONSTANT_LABELS,
         DEFAULT_DEADLINE,
@@ -224,6 +228,7 @@ public final class StackdriverStatsExporter {
         configuration.getExportInterval(),
         configuration.getMonitoredResource(),
         configuration.getMetricNamePrefix(),
+        configuration.getDisplayNamePrefix(),
         configuration.getConstantLabels(),
         configuration.getDeadline(),
         configuration.getMetricServiceStub());
@@ -291,6 +296,7 @@ public final class StackdriverStatsExporter {
         exportInterval,
         DEFAULT_RESOURCE,
         null,
+        null,
         DEFAULT_CONSTANT_LABELS,
         DEFAULT_DEADLINE,
         null);
@@ -327,6 +333,7 @@ public final class StackdriverStatsExporter {
         projectId,
         exportInterval,
         monitoredResource,
+        null,
         null,
         DEFAULT_CONSTANT_LABELS,
         DEFAULT_DEADLINE,
@@ -365,6 +372,7 @@ public final class StackdriverStatsExporter {
         exportInterval,
         monitoredResource,
         null,
+        null,
         DEFAULT_CONSTANT_LABELS,
         DEFAULT_DEADLINE,
         null);
@@ -377,6 +385,7 @@ public final class StackdriverStatsExporter {
       Duration exportInterval,
       MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix,
+      @Nullable String displayNamePrefix,
       Map<LabelKey, LabelValue> constantLabels,
       Duration deadline,
       @Nullable MetricServiceStub stub)
@@ -394,6 +403,7 @@ public final class StackdriverStatsExporter {
               exportInterval,
               monitoredResource,
               metricNamePrefix,
+              displayNamePrefix,
               constantLabels);
     }
   }

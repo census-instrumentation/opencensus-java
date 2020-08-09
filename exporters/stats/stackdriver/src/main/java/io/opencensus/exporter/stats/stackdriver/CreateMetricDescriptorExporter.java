@@ -61,13 +61,16 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
       String projectId,
       MetricServiceClient metricServiceClient,
       @javax.annotation.Nullable String metricNamePrefix,
+      @javax.annotation.Nullable String displayNamePrefix,
       Map<LabelKey, LabelValue> constantLabels,
       MetricExporter nextExporter) {
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.domain = StackdriverExportUtils.getDomain(metricNamePrefix);
-    this.displayNamePrefix = StackdriverExportUtils.getDisplayNamePrefix(metricNamePrefix);
+    this.displayNamePrefix =
+        StackdriverExportUtils.getDisplayNamePrefix(
+            displayNamePrefix == null ? metricNamePrefix : displayNamePrefix);
     this.constantLabels = constantLabels;
     this.nextExporter = nextExporter;
   }

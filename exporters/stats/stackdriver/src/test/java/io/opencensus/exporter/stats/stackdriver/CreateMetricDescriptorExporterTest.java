@@ -139,6 +139,7 @@ public class CreateMetricDescriptorExporterTest {
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             null,
+            null,
             DEFAULT_CONSTANT_LABELS,
             fakeMetricExporter);
     exporter.export(Arrays.asList(METRIC, METRIC_2));
@@ -185,6 +186,7 @@ public class CreateMetricDescriptorExporterTest {
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             null,
+            null,
             DEFAULT_CONSTANT_LABELS,
             fakeMetricExporter);
     exporter.export(Arrays.asList(METRIC_5));
@@ -215,6 +217,7 @@ public class CreateMetricDescriptorExporterTest {
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             null,
+            null,
             DEFAULT_CONSTANT_LABELS,
             fakeMetricExporter);
     exporter.export(Collections.<Metric>emptyList());
@@ -231,6 +234,7 @@ public class CreateMetricDescriptorExporterTest {
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             null,
+            null,
             DEFAULT_CONSTANT_LABELS,
             fakeMetricExporter);
 
@@ -246,6 +250,7 @@ public class CreateMetricDescriptorExporterTest {
         new CreateMetricDescriptorExporter(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
+            null,
             null,
             DEFAULT_CONSTANT_LABELS,
             fakeMetricExporter);
@@ -266,6 +271,7 @@ public class CreateMetricDescriptorExporterTest {
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             null,
+            null,
             DEFAULT_CONSTANT_LABELS,
             fakeMetricExporter);
     exporter.export(Collections.singletonList(METRIC));
@@ -284,6 +290,7 @@ public class CreateMetricDescriptorExporterTest {
         new CreateMetricDescriptorExporter(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
+            null,
             null,
             DEFAULT_CONSTANT_LABELS,
             fakeMetricExporter);

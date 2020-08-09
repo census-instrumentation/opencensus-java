@@ -56,6 +56,7 @@ public class StackdriverStatsConfigurationTest {
           .putLabels("instance-id", "instance")
           .build();
   private static final String CUSTOM_PREFIX = "myorg";
+  private static final String CUSTOM_DISPLAY_PREFIX = "display-prefix";
 
   @Mock private final MetricServiceStub mockStub = Mockito.mock(MetricServiceStub.class);
 
@@ -75,6 +76,7 @@ public class StackdriverStatsConfigurationTest {
             .setExportInterval(DURATION)
             .setMonitoredResource(RESOURCE)
             .setMetricNamePrefix(CUSTOM_PREFIX)
+            .setDisplayNamePrefix(CUSTOM_DISPLAY_PREFIX)
             .setConstantLabels(Collections.<LabelKey, LabelValue>emptyMap())
             .setDeadline(DURATION)
             .setMetricServiceStub(mockStub)
@@ -84,6 +86,7 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getExportInterval()).isEqualTo(DURATION);
     assertThat(configuration.getMonitoredResource()).isEqualTo(RESOURCE);
     assertThat(configuration.getMetricNamePrefix()).isEqualTo(CUSTOM_PREFIX);
+    assertThat(configuration.getDisplayNamePrefix()).isEqualTo(CUSTOM_DISPLAY_PREFIX);
     assertThat(configuration.getConstantLabels()).isEmpty();
     assertThat(configuration.getDeadline()).isEqualTo(DURATION);
     assertThat(configuration.getMetricServiceStub()).isEqualTo(mockStub);
@@ -193,6 +196,16 @@ public class StackdriverStatsConfigurationTest {
         StackdriverStatsConfiguration.builder()
             .setProjectId(PROJECT_ID)
             .setMetricNamePrefix(null)
+            .build();
+    assertThat(configuration.getMetricNamePrefix()).isNull();
+  }
+
+  @Test
+  public void allowNullDisplayPrefix() {
+    StackdriverStatsConfiguration configuration =
+        StackdriverStatsConfiguration.builder()
+            .setProjectId(PROJECT_ID)
+            .setDisplayNamePrefix(null)
             .build();
     assertThat(configuration.getMetricNamePrefix()).isNull();
   }
