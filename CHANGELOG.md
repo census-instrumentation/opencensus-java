@@ -1,5 +1,5 @@
 ## Unreleased
-
+- feat: Allow users to specify a metric display name prefix, separately from the metric name prefix
 
 ## 0.26.0 - 2020-03-19
 - feat: Allow users to register the same Meter multiple times without exception (#2017)
