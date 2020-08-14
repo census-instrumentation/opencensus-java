@@ -1,5 +1,11 @@
 ## Unreleased
-- feat: Allow users to specify a metric display name prefix, separately from the metric name prefix
+
+## 0.27.0 - 2020-08-14
+- deps: update protobuf (#2029)
+- Update release versions for all readme and build files. (#2028)
+- deps: update Guava to 29.0 (#2032)
+- Add more InstanaExporterHandler tests (#2014)
+- feat: Allow users to specify a metric display name prefix, separately from the metric name prefix (#2050)
 
 ## 0.26.0 - 2020-03-19
 - feat: Allow users to register the same Meter multiple times without exception (#2017)
