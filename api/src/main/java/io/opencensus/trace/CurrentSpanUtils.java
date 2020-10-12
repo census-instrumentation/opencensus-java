@@ -16,9 +16,8 @@
 
 package io.opencensus.trace;
 
-import io.grpc.Context;
 import io.opencensus.common.Scope;
-import io.opencensus.trace.unsafe.ContextUtils;
+import io.opencensus.trace.unsafe.CtxUtils;
 import java.util.concurrent.Callable;
 import javax.annotation.Nullable;
 
@@ -34,7 +33,7 @@ final class CurrentSpanUtils {
    */
   @Nullable
   static Span getCurrentSpan() {
-    return ContextUtils.getValue(Context.current());
+    return CtxUtils.getValue(CtxUtils.currentContext());
   }
 
   /**
@@ -78,7 +77,7 @@ final class CurrentSpanUtils {
 
   // Defines an arbitrary scope of code as a traceable operation. Supports try-with-resources idiom.
   private static final class ScopeInSpan implements Scope {
-    private final Context origContext;
+    private final Ctx origContext;
     private final Span span;
     private final boolean endSpan;
 
@@ -90,12 +89,12 @@ final class CurrentSpanUtils {
     private ScopeInSpan(Span span, boolean endSpan) {
       this.span = span;
       this.endSpan = endSpan;
-      origContext = ContextUtils.withValue(Context.current(), span).attach();
+      origContext = CtxUtils.withValue(CtxUtils.currentContext(), span).attach();
     }
 
     @Override
     public void close() {
-      Context.current().detach(origContext);
+      CtxUtils.currentContext().detach(origContext);
       if (endSpan) {
         span.end();
       }
@@ -116,7 +115,7 @@ final class CurrentSpanUtils {
 
     @Override
     public void run() {
-      Context origContext = ContextUtils.withValue(Context.current(), span).attach();
+      Ctx origContext = CtxUtils.withValue(CtxUtils.currentContext(), span).attach();
       try {
         runnable.run();
       } catch (Throwable t) {
@@ -128,7 +127,7 @@ final class CurrentSpanUtils {
         }
         throw new RuntimeException("unexpected", t);
       } finally {
-        Context.current().detach(origContext);
+        CtxUtils.currentContext().detach(origContext);
         if (endSpan) {
           span.end();
         }
@@ -149,7 +148,7 @@ final class CurrentSpanUtils {
 
     @Override
     public V call() throws Exception {
-      Context origContext = ContextUtils.withValue(Context.current(), span).attach();
+      Ctx origContext = CtxUtils.withValue(CtxUtils.currentContext(), span).attach();
       try {
         return callable.call();
       } catch (Exception e) {
@@ -162,7 +161,7 @@ final class CurrentSpanUtils {
         }
         throw new RuntimeException("unexpected", t);
       } finally {
-        Context.current().detach(origContext);
+        CtxUtils.currentContext().detach(origContext);
         if (endSpan) {
           span.end();
         }
