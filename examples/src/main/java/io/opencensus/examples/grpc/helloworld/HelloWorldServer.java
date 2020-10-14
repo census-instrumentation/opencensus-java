@@ -61,9 +61,7 @@ public class HelloWorldServer {
   // A helper function that performs some work in its own Span.
   private static void performWork(Span parent) {
     SpanBuilder spanBuilder =
-        tracer
-            .spanBuilderWithExplicitParent("internal_work", parent)
-            .setRecordEvents(true);
+        tracer.spanBuilderWithExplicitParent("internal_work", parent).setRecordEvents(true);
     try (Scope scope = spanBuilder.startScopedSpan()) {
       Span span = tracer.getCurrentSpan();
       span.putAttribute("my_attribute", AttributeValue.stringAttributeValue("blue"));
