@@ -25,6 +25,7 @@ import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Scope;
+import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.contrib.grpc.metrics.RpcViews;
 import io.opencensus.contrib.zpages.ZPageHandlers;
 import io.opencensus.exporter.stats.prometheus.PrometheusStatsCollector;
@@ -62,8 +63,7 @@ public class HelloWorldServer {
     SpanBuilder spanBuilder =
         tracer
             .spanBuilderWithExplicitParent("internal_work", parent)
-            .setRecordEvents(true)
-            .setSampler(Samplers.alwaysSample());
+            .setRecordEvents(true);
     try (Scope scope = spanBuilder.startScopedSpan()) {
       Span span = tracer.getCurrentSpan();
       span.putAttribute("my_attribute", AttributeValue.stringAttributeValue("blue"));
@@ -120,6 +120,11 @@ public class HelloWorldServer {
     final int zPagePort = getPortOrDefaultFromArgs(args, 2, 3000);
     final int prometheusPort = getPortOrDefaultFromArgs(args, 3, 9090);
 
+    // For demo purposes, always sample
+    TraceConfig traceConfig = Tracing.getTraceConfig();
+    traceConfig.updateActiveTraceParams(
+        traceConfig.getActiveTraceParams().toBuilder().setSampler(Samplers.alwaysSample()).build());
+
     // Registers all RPC views. For demonstration all views are registered. You may want to
     // start with registering basic views and register other views as needed for your application.
     RpcViews.registerAllViews();
@@ -138,7 +143,7 @@ public class HelloWorldServer {
       StackdriverStatsExporter.createAndRegister(
           StackdriverStatsConfiguration.builder()
               .setProjectId(cloudProjectId)
-              .setExportInterval(Duration.create(60, 0))
+              .setExportInterval(Duration.create(5, 0))
               .build());
     }
 
