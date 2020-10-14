@@ -7,7 +7,7 @@ import io.opencensus.trace.Span;
 import javax.annotation.Nullable;
 
 /**
- * Default {@code ContextManager} implementation using {@see io.grpc.Context}
+ * Default {@code ContextManager} implementation using io.grpc.Context
  */
 public class ContextManagerImpl implements ContextManager {
 
@@ -31,7 +31,7 @@ public class ContextManagerImpl implements ContextManager {
   }
 
   private static Context unwrapContext(Ctx ctx) {
-    return ((CtxImpl)ctx).getContext();
+    return ((CtxImpl) ctx).getContext();
   }
 
   protected ContextManagerImpl() {

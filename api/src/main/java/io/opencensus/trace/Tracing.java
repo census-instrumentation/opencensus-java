@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
  * @since 0.5
  */
 public final class Tracing {
+
   private static final Logger logger = Logger.getLogger(Tracing.class.getName());
   private static final TraceComponent traceComponent =
       loadTraceComponent(TraceComponent.class.getClassLoader());
@@ -93,6 +94,19 @@ public final class Tracing {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
           Class.forName(
+              "migration.OpenTelemetryTraceComponentImpl", /*initialize=*/ true, classLoader),
+          TraceComponent.class);
+    } catch (ClassNotFoundException e) {
+      logger.log(
+          Level.FINE,
+          "Couldn't load full implementation for OpenTelemetry TraceComponent, now trying to load original"
+              + "implementation.",
+          e);
+    }
+    try {
+      // Call Class.forName with literal string name of the class to help shading tools.
+      return Provider.createInstance(
+          Class.forName(
               "io.opencensus.impl.trace.TraceComponentImpl", /*initialize=*/ true, classLoader),
           TraceComponent.class);
     } catch (ClassNotFoundException e) {
@@ -121,5 +135,6 @@ public final class Tracing {
   }
 
   // No instance of this class.
-  private Tracing() {}
+  private Tracing() {
+  }
 }
