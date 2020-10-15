@@ -116,6 +116,6 @@ public abstract class TimeLimitedHandler extends SpanExporter.Handler {
         .setStatus(
             status.withDescription(
                 e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
-    logger.log(Level.WARNING, logMessage);
+    logger.log(Level.WARNING, logMessage, e);
   }
 }
