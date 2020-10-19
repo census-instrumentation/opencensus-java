@@ -16,11 +16,9 @@
 
 package io.opencensus.trace;
 
-public interface ContextManager {
+public interface ContextHandle {
 
-  ContextHandle currentContext();
+  ContextHandle attach();
 
-  ContextHandle withValue(ContextHandle contextHandle, @javax.annotation.Nullable Span span);
-
-  Span getValue(ContextHandle contextHandle);
+  void detach(ContextHandle contextHandle);
 }

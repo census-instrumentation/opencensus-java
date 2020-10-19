@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import io.opencensus.common.Scope;
-import io.opencensus.trace.unsafe.CtxUtils;
+import io.opencensus.trace.unsafe.ContextHandleUtils;
 import java.util.concurrent.Callable;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,12 +73,12 @@ public class CurrentSpanUtilsTest {
   @Test
   public void getCurrentSpan() {
     assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
-    Ctx origContext = CtxUtils.withValue(CtxUtils.currentContext(), span).attach();
+    ContextHandle origContext = ContextHandleUtils.withValue(ContextHandleUtils.currentContext(), span).attach();
     // Make sure context is detached even if test fails.
     try {
       assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);
     } finally {
-      CtxUtils.currentContext().detach(origContext);
+      ContextHandleUtils.currentContext().detach(origContext);
     }
     assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
   }

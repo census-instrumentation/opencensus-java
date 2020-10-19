@@ -18,7 +18,7 @@ package io.opencensus.contrib.logcorrelation.log4j2;
 
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.unsafe.CtxUtils;
+import io.opencensus.trace.unsafe.ContextHandleUtils;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -80,7 +80,7 @@ final class ContextDataUtils {
   }
 
   private static SpanContext getCurrentSpanContext() {
-    Span span = CtxUtils.getValue(CtxUtils.currentContext());
+    Span span = ContextHandleUtils.getValue(ContextHandleUtils.currentContext());
     return span == null ? SpanContext.INVALID : span.getContext();
   }
 }

@@ -19,7 +19,7 @@ package io.opencensus.trace.unsafe;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.trace.BlankSpan;
-import io.opencensus.trace.Ctx;
+import io.opencensus.trace.ContextHandle;
 import io.opencensus.trace.Span;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,19 +31,19 @@ public class ContextUtilsTest {
 
   @Test
   public void testGetCurrentSpan_DefaultContext() {
-    Span span = CtxUtils.getValue(CtxUtils.currentContext());
+    Span span = ContextHandleUtils.getValue(ContextHandleUtils.currentContext());
     assertThat(span).isEqualTo(BlankSpan.INSTANCE);
   }
 
   @Test
   public void testGetCurrentSpan_ContextSetToNull() {
-    Ctx orig = CtxUtils.withValue(CtxUtils.currentContext(), null).attach();
+    ContextHandle orig = ContextHandleUtils.withValue(ContextHandleUtils.currentContext(), null).attach();
     try {
-      Span span = CtxUtils.getValue(CtxUtils.currentContext());
+      Span span = ContextHandleUtils.getValue(ContextHandleUtils.currentContext());
       // ContextUtils.getValue always returns non-null.
       assertThat(span).isEqualTo(BlankSpan.INSTANCE);
     } finally {
-      CtxUtils.currentContext().detach(orig);
+      ContextHandleUtils.currentContext().detach(orig);
     }
   }
 }

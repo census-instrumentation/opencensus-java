@@ -22,7 +22,7 @@ import com.google.cloud.logging.LoggingEnhancer;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.TraceId;
-import io.opencensus.trace.unsafe.CtxUtils;
+import io.opencensus.trace.unsafe.ContextHandleUtils;
 import java.util.logging.LogManager;
 import javax.annotation.Nullable;
 
@@ -98,7 +98,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   }
 
   private static SpanContext getCurrentSpanContext() {
-    Span span = CtxUtils.getValue(CtxUtils.currentContext());
+    Span span = ContextHandleUtils.getValue(ContextHandleUtils.currentContext());
     return span == null ? SpanContext.INVALID : span.getContext();
   }
 
