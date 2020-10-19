@@ -73,7 +73,8 @@ public class CurrentSpanUtilsTest {
   @Test
   public void getCurrentSpan() {
     assertThat(CurrentSpanUtils.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
-    ContextHandle origContext = ContextHandleUtils.withValue(ContextHandleUtils.currentContext(), span).attach();
+    ContextHandle origContext =
+        ContextHandleUtils.withValue(ContextHandleUtils.currentContext(), span).attach();
     // Make sure context is detached even if test fails.
     try {
       assertThat(CurrentSpanUtils.getCurrentSpan()).isSameInstanceAs(span);

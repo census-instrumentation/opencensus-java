@@ -37,7 +37,8 @@ public class ContextUtilsTest {
 
   @Test
   public void testGetCurrentSpan_ContextSetToNull() {
-    ContextHandle orig = ContextHandleUtils.withValue(ContextHandleUtils.currentContext(), null).attach();
+    ContextHandle orig =
+        ContextHandleUtils.withValue(ContextHandleUtils.currentContext(), null).attach();
     try {
       Span span = ContextHandleUtils.getValue(ContextHandleUtils.currentContext());
       // ContextUtils.getValue always returns non-null.
