@@ -33,7 +33,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  * @since 0.5
  */
-public final class ContextUtils {
+final class ContextUtils {
   // No instance of this class.
   private ContextUtils() {}
 

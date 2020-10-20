@@ -55,7 +55,7 @@ context:
 
 These values can be accessed from layouts with
 [Context Map Lookup](http://logging.apache.org/log4j/2.x/manual/lookups.html#ContextMapLookup).  For
-example, the trace ID can be accessed with `$${ctx:traceId}`.  The values can also be accessed with
+example, the trace ID can be accessed with `$${contextHandle:traceId}`.  The values can also be accessed with
 the `X` conversion character in
 [`PatternLayout`](http://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout), for
 example, `%X{traceId}`.
