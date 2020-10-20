@@ -56,9 +56,9 @@ public class ContextHandleUtils {
   }
 
   /**
-   * Creates a new {@code Ctx} with the given value set.
+   * Creates a new {@code ContextHandle} with the given value set.
    *
-   * @param context the parent {@code Ctx}.
+   * @param context the parent {@code ContextHandle}.
    * @param span the value to be set.
    * @return a new context with the given value set.
    */
@@ -68,10 +68,10 @@ public class ContextHandleUtils {
   }
 
   /**
-   * Returns the value from the specified {@code Ctx}.
+   * Returns the value from the specified {@code ContextHandle}.
    *
-   * @param context the specified {@code Ctx}.
-   * @return the value from the specified {@code Ctx}.
+   * @param context the specified {@code ContextHandle}.
+   * @return the value from the specified {@code ContextHandle}.
    */
   public static Span getValue(ContextHandle context) {
     return CONTEXT_MANAGER.getValue(context);

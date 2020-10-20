@@ -19,7 +19,7 @@ package io.opencensus.trace.unsafe;
 import io.grpc.Context;
 import io.opencensus.trace.ContextHandle;
 
-/** {@code Ctx} implementation using {@see io.grpc.Context}. */
+/** {@code ContextHandle} implementation using {@see io.grpc.Context}. */
 class ContextHandleImpl implements ContextHandle {
 
   private final Context context;
