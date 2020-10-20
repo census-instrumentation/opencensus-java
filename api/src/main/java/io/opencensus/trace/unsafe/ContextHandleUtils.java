@@ -16,29 +16,43 @@
 
 package io.opencensus.trace.unsafe;
 
+import io.opencensus.internal.Provider;
 import io.opencensus.trace.ContextHandle;
 import io.opencensus.trace.ContextManager;
 import io.opencensus.trace.Span;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Nullable;
 
 public class ContextHandleUtils {
 
   // No instance of this class.
   private ContextHandleUtils() {}
 
-  private static final ContextManager DEFAULT_CONTEXT_MANAGER = new ContextManagerImpl();
-  private static ContextManager contextManager = DEFAULT_CONTEXT_MANAGER;
+  private static final Logger LOGGER = Logger.getLogger(ContextHandleUtils.class.getName());
+  private static final ContextManager CONTEXT_MANAGER =
+      loadContextManager(ContextManager.class.getClassLoader());
 
-  /**
-   * Overrides context manager with a custom implementation.
-   *
-   * @param cm custom {@code ContextManager} to be used instead of a default one.
-   */
-  public static void setContextManager(ContextManager cm) {
-    contextManager = cm;
+  private static ContextManager loadContextManager(@Nullable ClassLoader classLoader) {
+    try {
+      return Provider.createInstance(
+          Class.forName(
+              "io.opentelemetry.opencensusshim.OpenTelemetryContextManager",
+              /*initialize=*/ true,
+              classLoader),
+          ContextManager.class);
+    } catch (ClassNotFoundException e) {
+      LOGGER.log(
+          Level.FINE,
+          "Couldn't load full implementation for OpenTelemetry context manager, now loading "
+              + "original implementation.",
+          e);
+    }
+    return new ContextManagerImpl();
   }
 
   public static ContextHandle currentContext() {
-    return contextManager.currentContext();
+    return CONTEXT_MANAGER.currentContext();
   }
 
   /**
@@ -50,7 +64,7 @@ public class ContextHandleUtils {
    */
   public static ContextHandle withValue(
       ContextHandle context, @javax.annotation.Nullable Span span) {
-    return contextManager.withValue(context, span);
+    return CONTEXT_MANAGER.withValue(context, span);
   }
 
   /**
@@ -60,6 +74,6 @@ public class ContextHandleUtils {
    * @return the value from the specified {@code Ctx}.
    */
   public static Span getValue(ContextHandle context) {
-    return contextManager.getValue(context);
+    return CONTEXT_MANAGER.getValue(context);
   }
 }
