@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.common;
+package io.opencensus.trace;
 
-/**
- * Class holder for all common constants (such as the version) for the OpenCensus Java library.
- *
- * @since 0.8
- */
-@ExperimentalApi
-public final class OpenCensusLibraryInformation {
+public interface ContextManager {
 
-  /**
-   * The current version of the OpenCensus Java library.
-   *
-   * @since 0.8
-   */
-  public static final String VERSION = "0.28.1-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
+  ContextHandle currentContext();
 
-  private OpenCensusLibraryInformation() {}
+  ContextHandle withValue(ContextHandle contextHandle, @javax.annotation.Nullable Span span);
+
+  Span getValue(ContextHandle contextHandle);
 }

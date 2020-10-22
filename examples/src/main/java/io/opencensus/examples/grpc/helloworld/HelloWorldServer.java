@@ -39,6 +39,7 @@ import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.samplers.Samplers;
 import io.prometheus.client.exporter.HTTPServer;
 import java.io.IOException;
@@ -60,10 +61,7 @@ public class HelloWorldServer {
   // A helper function that performs some work in its own Span.
   private static void performWork(Span parent) {
     SpanBuilder spanBuilder =
-        tracer
-            .spanBuilderWithExplicitParent("internal_work", parent)
-            .setRecordEvents(true)
-            .setSampler(Samplers.alwaysSample());
+        tracer.spanBuilderWithExplicitParent("internal_work", parent).setRecordEvents(true);
     try (Scope scope = spanBuilder.startScopedSpan()) {
       Span span = tracer.getCurrentSpan();
       span.putAttribute("my_attribute", AttributeValue.stringAttributeValue("blue"));
@@ -120,6 +118,11 @@ public class HelloWorldServer {
     final int zPagePort = getPortOrDefaultFromArgs(args, 2, 3000);
     final int prometheusPort = getPortOrDefaultFromArgs(args, 3, 9090);
 
+    // For demo purposes, always sample
+    TraceConfig traceConfig = Tracing.getTraceConfig();
+    traceConfig.updateActiveTraceParams(
+        traceConfig.getActiveTraceParams().toBuilder().setSampler(Samplers.alwaysSample()).build());
+
     // Registers all RPC views. For demonstration all views are registered. You may want to
     // start with registering basic views and register other views as needed for your application.
     RpcViews.registerAllViews();
@@ -138,7 +141,7 @@ public class HelloWorldServer {
       StackdriverStatsExporter.createAndRegister(
           StackdriverStatsConfiguration.builder()
               .setProjectId(cloudProjectId)
-              .setExportInterval(Duration.create(60, 0))
+              .setExportInterval(Duration.create(5, 0))
               .build());
     }
 
