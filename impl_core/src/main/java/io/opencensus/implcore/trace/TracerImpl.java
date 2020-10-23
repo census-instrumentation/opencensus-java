@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 public final class TracerImpl extends Tracer {
   private final SpanBuilderImpl.Options spanBuilderOptions;
 
-  TracerImpl(
+  public TracerImpl(
       RandomHandler randomHandler,
       RecordEventsSpanImpl.StartEndHandler startEndHandler,
       Clock clock,
