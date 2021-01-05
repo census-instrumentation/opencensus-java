@@ -304,10 +304,17 @@ abstract class MutableViewData {
       }
       Timestamp startOfLastBucket =
           CheckerFrameworkUtils.castNonNull(buckets.peekLast()).getStart();
-      // TODO(songya): decide what to do when time goes backwards
-      checkArgument(
-          now.compareTo(startOfLastBucket) >= 0,
-          "Current time must be within or after the last bucket.");
+      // Time went backwards!  Physics has failed us!  drop everything we know and relearn.
+      // Prioritize:  Report data we're confident is correct.
+      if (now.compareTo(startOfLastBucket) < 0) {
+        // TODO: configurable time-skew handling with options:
+        // - Drop events in the future, keep others within a duration.
+        // - Drop all events on skew
+        // - Guess at time-skew and "fix" events
+        buckets.clear();
+        shiftBucketList(N + 1, now);
+        return;
+      }
       long elapsedTimeMillis = now.subtractTimestamp(startOfLastBucket).toMillis();
       long numOfPadBuckets = elapsedTimeMillis / bucketDuration.toMillis();
 
