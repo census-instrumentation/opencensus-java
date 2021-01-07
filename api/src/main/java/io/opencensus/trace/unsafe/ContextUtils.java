@@ -26,6 +26,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /**
+ * @deprecated Please use {@link io.opencensus.trace.unsafe.ContextHandleUtils}
+ * 
  * Util methods/functionality to interact with the {@link io.grpc.Context}.
  *
  * <p>Users must interact with the current Context via the public APIs in {@link
@@ -33,7 +35,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  * @since 0.5
  */
-final class ContextUtils {
+public final class ContextUtils {
   // No instance of this class.
   private ContextUtils() {}
 
