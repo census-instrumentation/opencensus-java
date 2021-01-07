@@ -19,6 +19,19 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.internal.CurrentState;
+import io.opencensus.implcore.tags.TagMapImpl;
+import io.opencensus.metrics.data.AttachmentValue;
+import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.Aggregation.Count;
+import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.BucketBoundaries;
+import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.View;
+import io.opencensus.stats.ViewData;
+import io.opencensus.tags.TagKey;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -30,5 +43,54 @@ public class MutableViewDataTest {
   @Test
   public void testConstants() {
     assertThat(MutableViewData.ZERO_TIMESTAMP).isEqualTo(Timestamp.create(0, 0));
+  }
+
+  @Test
+  public void testTimeRewindsOnCountViewNoThrow() {
+    // First we set up some buckets THEN we rewind time for giggles.
+    View tester =
+        View.create(
+            View.Name.create("view"),
+            "Description",
+            MeasureDouble.create("name", "desc", "us"),
+            Count.create(),
+            Collections.singletonList(TagKey.create("KEY")));
+    Timestamp start = Timestamp.create(10000000, 0);
+    Timestamp validPointTime = Timestamp.create(10000010, 0);
+    CurrentState.State state = CurrentState.State.ENABLED;
+    MutableViewData viewData = MutableViewData.create(tester, start);
+    // Create a data points to get thrown away.
+    viewData.record(
+        TagMapImpl.EMPTY, 1.0, validPointTime, Collections.<String, AttachmentValue>emptyMap());
+    // Rewind time and look for explosions.
+    Timestamp thePast = Timestamp.create(0, 0);
+    ViewData result = viewData.toViewData(thePast, state);
+    assertThat(result.getAggregationMap()).isEmpty();
+  }
+
+  @Test
+  public void testTimeRewindsOnDistributionViewNoThrow() {
+    // First we set up some buckets THEN we rewind time for giggles.
+    Aggregation latencyDistribution =
+        Distribution.create(
+            BucketBoundaries.create(Arrays.asList(0.0, 25.0, 100.0, 200.0, 400.0, 800.0, 10000.0)));
+    View tester =
+        View.create(
+            View.Name.create("view"),
+            "Description",
+            MeasureDouble.create("name", "desc", "us"),
+            latencyDistribution,
+            Collections.singletonList(TagKey.create("KEY")));
+    Timestamp start = Timestamp.create(10000000, 0);
+    Timestamp validPointTime = Timestamp.create(10000010, 0);
+    CurrentState.State state = CurrentState.State.ENABLED;
+    MutableViewData viewData = MutableViewData.create(tester, start);
+    // Create a data points to get thrown away.
+    viewData.record(
+        TagMapImpl.EMPTY, 1.0, validPointTime, Collections.<String, AttachmentValue>emptyMap());
+    // Rewind time and look for explosions.
+    Timestamp thePast = Timestamp.create(0, 0);
+    ViewData result = viewData.toViewData(thePast, state);
+    assertThat(result.getAggregationMap()).isEmpty();
   }
 }
