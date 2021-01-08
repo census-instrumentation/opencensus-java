@@ -27,14 +27,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * @deprecated Please use {@link io.opencensus.trace.unsafe.ContextHandleUtils}
- * 
- * Util methods/functionality to interact with the {@link io.grpc.Context}.
- *
- * <p>Users must interact with the current Context via the public APIs in {@link
- * io.opencensus.trace.Tracer} and avoid usages of the {@link #CONTEXT_SPAN_KEY} directly.
- *
+ *     <p>Util methods/functionality to interact with the {@link io.grpc.Context}.
+ *     <p>Users must interact with the current Context via the public APIs in {@link
+ *     io.opencensus.trace.Tracer} and avoid usages of the {@link #CONTEXT_SPAN_KEY} directly.
  * @since 0.5
  */
+@Deprecated()
 public final class ContextUtils {
   // No instance of this class.
   private ContextUtils() {}
