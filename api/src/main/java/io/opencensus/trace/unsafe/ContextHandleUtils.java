@@ -79,7 +79,7 @@ public class ContextHandleUtils {
   }
 
   /**
-   * Attempts to pull the {@see io.grpc.Context} out of an OpenCensus {@code ContextHandle}.
+   * Attempts to pull the {@link io.grpc.Context} out of an OpenCensus {@code ContextHandle}.
    *
    * @return The context, or null if not a GRPC backed context handle.
    */
