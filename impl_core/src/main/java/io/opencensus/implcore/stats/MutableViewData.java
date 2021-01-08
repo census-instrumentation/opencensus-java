@@ -189,7 +189,7 @@ abstract class MutableViewData {
     private void handleTimeRewinds(Timestamp now) {
       if (now.compareTo(start) < 0) {
         // Time went backwards, physics is broken, forget what we know.
-        tagValueAggregationMap.clear();
+        clearStats();
         start = now;
       }
     }
