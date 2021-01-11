@@ -132,6 +132,7 @@ abstract class MutableViewData {
     @javax.annotation.Nullable
     @Override
     Metric toMetric(Timestamp now, State state) {
+      handleTimeRewinds(now);
       if (state == State.DISABLED) {
         return null;
       }
@@ -166,6 +167,7 @@ abstract class MutableViewData {
 
     @Override
     ViewData toViewData(Timestamp now, State state) {
+      handleTimeRewinds(now);
       if (state == State.ENABLED) {
         return ViewData.create(
             super.view,
@@ -177,6 +179,18 @@ abstract class MutableViewData {
             super.view,
             Collections.<List</*@Nullable*/ TagValue>, AggregationData>emptyMap(),
             ViewData.AggregationWindowData.CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP));
+      }
+    }
+
+    /**
+     * This method attemps to migrate this view into a reasonable state in the event of time going
+     * backwards.
+     */
+    private void handleTimeRewinds(Timestamp now) {
+      if (now.compareTo(start) < 0) {
+        // Time went backwards, physics is broken, forget what we know.
+        clearStats();
+        start = now;
       }
     }
 
@@ -304,10 +318,18 @@ abstract class MutableViewData {
       }
       Timestamp startOfLastBucket =
           CheckerFrameworkUtils.castNonNull(buckets.peekLast()).getStart();
-      // TODO(songya): decide what to do when time goes backwards
-      checkArgument(
-          now.compareTo(startOfLastBucket) >= 0,
-          "Current time must be within or after the last bucket.");
+      // Time went backwards!  Physics has failed us!  drop everything we know and relearn.
+      // Prioritize:  Report data we're confident is correct.
+      if (now.compareTo(startOfLastBucket) < 0) {
+        // TODO: configurable time-skew handling with options:
+        // - Drop events in the future, keep others within a duration.
+        // - Drop all events on skew
+        // - Guess at time-skew and "fix" events
+        // - Reset our "start" time to now if necessary.
+        buckets.clear();
+        shiftBucketList(N + 1, now);
+        return;
+      }
       long elapsedTimeMillis = now.subtractTimestamp(startOfLastBucket).toMillis();
       long numOfPadBuckets = elapsedTimeMillis / bucketDuration.toMillis();
 
