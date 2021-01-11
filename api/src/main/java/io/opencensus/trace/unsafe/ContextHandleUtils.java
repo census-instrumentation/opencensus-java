@@ -16,6 +16,7 @@
 
 package io.opencensus.trace.unsafe;
 
+import io.grpc.Context;
 import io.opencensus.internal.Provider;
 import io.opencensus.trace.ContextHandle;
 import io.opencensus.trace.ContextManager;
@@ -75,5 +76,19 @@ public class ContextHandleUtils {
    */
   public static Span getValue(ContextHandle context) {
     return CONTEXT_MANAGER.getValue(context);
+  }
+
+  /**
+   * Attempts to pull the {@link io.grpc.Context} out of an OpenCensus {@code ContextHandle}.
+   *
+   * @return The context, or null if not a GRPC backed context handle.
+   */
+  @Nullable
+  public static Context tryExtractGrpcContext(ContextHandle handle) {
+    if (handle instanceof ContextHandleImpl) {
+      return ((ContextHandleImpl) handle).getContext();
+    }
+    // TODO: see if we can do something for the OpenTelemetry shim.
+    return null;
   }
 }

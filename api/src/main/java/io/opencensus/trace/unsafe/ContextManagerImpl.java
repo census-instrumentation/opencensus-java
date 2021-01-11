@@ -31,11 +31,13 @@ public class ContextManagerImpl implements ContextManager {
   }
 
   @Override
+  @SuppressWarnings({"deprecation"})
   public ContextHandle withValue(ContextHandle contextHandle, @Nullable Span span) {
     return wrapContext(ContextUtils.withValue(unwrapContext(contextHandle), span));
   }
 
   @Override
+  @SuppressWarnings({"deprecation"})
   public Span getValue(ContextHandle contextHandle) {
     return ContextUtils.getValue(unwrapContext(contextHandle));
   }
