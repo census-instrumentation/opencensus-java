@@ -83,6 +83,7 @@ public class ContextHandleUtils {
    *
    * @return The context, or null if not a GRPC backed context handle.
    */
+  @Nullable
   public static Context tryExtractGrpcContext(ContextHandle handle) {
     if (handle instanceof ContextHandleImpl) {
       return ((ContextHandleImpl) handle).getContext();
