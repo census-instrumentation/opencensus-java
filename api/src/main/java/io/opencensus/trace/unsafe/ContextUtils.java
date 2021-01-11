@@ -26,14 +26,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /**
- * Util methods/functionality to interact with the {@link io.grpc.Context}.
+ * Utilities for grabbing manipulating current context and grabbing current span.
  *
- * <p>Users must interact with the current Context via the public APIs in {@link
- * io.opencensus.trace.Tracer} and avoid usages of the {@link #CONTEXT_SPAN_KEY} directly.
- *
+ * @deprecated Please use {@link io.opencensus.trace.unsafe.ContextHandleUtils} Util
+ *     methods/functionality to interact with the {@link io.grpc.Context}. Users must interact with
+ *     the current Context via the public APIs in {@link io.opencensus.trace.Tracer} and avoid
+ *     usages of the {@link #CONTEXT_SPAN_KEY} directly.
  * @since 0.5
  */
-final class ContextUtils {
+@Deprecated()
+public final class ContextUtils {
   // No instance of this class.
   private ContextUtils() {}
 

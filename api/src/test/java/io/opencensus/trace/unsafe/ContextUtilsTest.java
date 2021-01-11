@@ -47,4 +47,10 @@ public class ContextUtilsTest {
       ContextHandleUtils.currentContext().detach(orig);
     }
   }
+
+  @Test
+  public void testTryExtractGrpcContext_WillNotThrow() {
+    assertThat(ContextHandleUtils.tryExtractGrpcContext(ContextHandleUtils.currentContext()))
+        .isNotNull();
+  }
 }
