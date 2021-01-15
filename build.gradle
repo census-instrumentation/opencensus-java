@@ -339,6 +339,9 @@ subprojects {
 
     signing {
         required false
+        if (rootProject.hasProperty('signingUseGpgCmd')) {
+          useGpgCmd()
+        }
         sign configurations.archives
     }
 

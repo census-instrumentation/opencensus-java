@@ -1,5 +1,26 @@
 ## Unreleased
 
+## 0.28.3 - 2021-01-12
+
+- fix: Return public access to unsafe `ContextUtils` api.  Remove bincompat issue from 0.27.1. (#2072)
+- fix: When time rewinds, avoid throwing exceptions and crashing the disruptor thread. (#2071)
+
+## 0.28.2 - 2020-10-22
+
+- feat: Make TracerImpl public for OpenTelemetry migration. (#2064) 
+
+Note: no binary available for 0.28.2
+
+## 0.28.1 - 2020-10-21
+
+- feat: Add Support for Opencensus to OpenTelemetry migration (#2059)
+
+Breaking change: ContextUtils is no longer public
+
+## 0.28.0 - 2020-10-21
+
+- Remove finalize from RecordEventsSpanImpl (#2043)
+
 ## 0.27.0 - 2020-08-14
 - deps: update protobuf (#2029)
 - Update release versions for all readme and build files. (#2028)
