@@ -16,8 +16,7 @@ jobs:
           - ubuntu-18.04
         java-version:
           - 8
-          - 9
-          - 10
+          - 11
         include:
           - os: ubuntu-18.04
             test-java-version: 8
