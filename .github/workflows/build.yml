@@ -1,0 +1,40 @@
+name: Build
+
+on: 
+  pull_request:
+      branches:
+      - master
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-18.04
+        java-version:
+          - 8
+          - 9
+          - 10
+        include:
+          - os: ubuntu-18.04
+            test-java-version: 8
+            coverage: true
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - id: setup-java
+        name: Setup Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v2
+        with:
+          distribution: adopt
+          java-version: ${{ matrix.java-version }}
+      - uses: burrunan/gradle-cache-action@v1.10
+        with:
+          remote-build-cache-proxy-enabled: false
+          arguments: clean assemble check --stacktrace
+      # TODO: Run jacocoTestReport
+      # TODO: Run verGJF
