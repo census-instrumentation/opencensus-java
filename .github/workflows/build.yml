@@ -16,7 +16,7 @@ jobs:
           - ubuntu-18.04
         java:
           - 8
-          - 11
+          # TODO: Java 11 build doesn't work due to Java7 target.
         include:
           - os: ubuntu-18.04
             java: 8
