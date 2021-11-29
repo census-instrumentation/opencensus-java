@@ -102,11 +102,18 @@ public class LinkTest {
     assertThat(link.toString()).contains(spanContext.getTraceId().toString());
     assertThat(link.toString()).contains(spanContext.getSpanId().toString());
     assertThat(link.toString()).contains("CHILD_LINKED_SPAN");
-    assertThat(link.toString()).contains(attributesMap.toString());
+    for (Map.Entry<String, AttributeValue> entry : attributesMap.entrySet()) {
+      // This depends on HashMap#toString(), via AbstractMap#toString(), having a specified format.
+      // In particular, each entry is formatted as `key=value`, with no spaces around the `=`.
+      // If Link is changed to use something other than a HashMap, this may no longer pass.
+      assertThat(link.toString()).contains(entry.getKey() + "=" + entry.getValue());
+    }
     link = Link.fromSpanContext(spanContext, Type.PARENT_LINKED_SPAN, attributesMap);
     assertThat(link.toString()).contains(spanContext.getTraceId().toString());
     assertThat(link.toString()).contains(spanContext.getSpanId().toString());
     assertThat(link.toString()).contains("PARENT_LINKED_SPAN");
-    assertThat(link.toString()).contains(attributesMap.toString());
+    for (Map.Entry<String, AttributeValue> entry : attributesMap.entrySet()) {
+      assertThat(link.toString()).contains(entry.getKey() + "=" + entry.getValue());
+    }
   }
 }
