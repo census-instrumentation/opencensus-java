@@ -145,6 +145,15 @@ public final class RpcViews {
           RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW);
 
   @VisibleForTesting
+  static final ImmutableSet<View> GRPC_CLIENT_RETRY_VIEWS_SET =
+          ImmutableSet.of(
+                  RpcViewConstants.GRPC_CLIENT_RETRIES_PER_CALL_VIEW,
+                  RpcViewConstants.GRPC_CLIENT_RETRIES_VIEW,
+                  RpcViewConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL_VIEW,
+                  RpcViewConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_VIEW,
+                  RpcViewConstants.GRPC_CLIENT_RETRY_DELAY_PER_CALL_VIEW);
+
+  @VisibleForTesting
   static final ImmutableSet<View> GRPC_SERVER_BASIC_VIEWS_SET =
       ImmutableSet.of(
           RpcViewConstants.GRPC_SERVER_SERVER_LATENCY_VIEW,
@@ -184,6 +193,24 @@ public final class RpcViews {
   @VisibleForTesting
   static void registerClientGrpcViews(ViewManager viewManager) {
     for (View view : GRPC_CLIENT_VIEWS_SET) {
+      viewManager.registerView(view);
+    }
+  }
+
+  /**
+   * Registers client retry gRPC views.
+   *
+   * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
+   *
+   * @since 0.28
+   */
+  public static void registerClientRetryGrpcViews() {
+    registerClientRetryGrpcViews(Stats.getViewManager());
+  }
+
+  @VisibleForTesting
+  static void registerClientRetryGrpcViews(ViewManager viewManager) {
+    for (View view : GRPC_CLIENT_RETRY_VIEWS_SET) {
       viewManager.registerView(view);
     }
   }

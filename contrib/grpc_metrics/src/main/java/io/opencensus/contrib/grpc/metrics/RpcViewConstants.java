@@ -28,6 +28,9 @@ import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SENT_MESSAGES_PER_RPC;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SERVER_LATENCY;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_STARTED_RPCS;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RETRIES_PER_CALL;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RETRY_DELAY_PER_CALL;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_STATUS;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_RECEIVED_BYTES_PER_METHOD;
@@ -501,6 +504,71 @@ public final class RpcViewConstants {
           GRPC_CLIENT_STARTED_RPCS,
           COUNT,
           Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for client retries per call.
+   *
+   * @since 0.28
+   */
+  public static final View GRPC_CLIENT_RETRIES_PER_CALL_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/retries_per_call"),
+          "Number of client retries per call",
+          GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL,
+          COUNT,
+          Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for total transparent client retries across calls.
+   *
+   * @since 0.28
+   */
+  public static final View GRPC_CLIENT_TRANSPARENT_RETRIES_VIEW =
+          View.create(
+                  View.Name.create("grpc.io/client/transparent_retries"),
+                  "Total number of transparent client retries across calls",
+                  GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL,
+                  SUM,
+                  Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for total time of delay while there is no active attempt during the client call.
+   *
+   * @since 0.28
+   */
+  public static final View GRPC_CLIENT_RETRY_DELAY_PER_CALL_VIEW =
+          View.create(
+                  View.Name.create("grpc.io/client/retry_delay_per_call"),
+                  "Total time of delay while there is no active attempt during the client call",
+                  GRPC_CLIENT_RETRY_DELAY_PER_CALL,
+                  COUNT,
+                  Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for total retries across all calls, excluding transparent retries
+   *
+   * @since 0.28
+   */
+  public static final View GRPC_CLIENT_RETRIES_VIEW =
+          View.create(
+                  View.Name.create("grpc.io/client/retries"),
+                  "Total number of client retries across all calls",
+                  GRPC_CLIENT_RETRIES_PER_CALL,
+                  SUM,
+                  Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for transparent retries per call
+   *
+   * @since 0.28
+   */
+  public static final View GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL_VIEW =
+          View.create(
+                  View.Name.create("grpc.io/client/transparent_retries_per_call"),
+                  "Number of transparent client retries per call",
+                  GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL,
+                  COUNT,
+                  Arrays.asList(GRPC_CLIENT_METHOD));
 
   // Rpc server cumulative views.
 

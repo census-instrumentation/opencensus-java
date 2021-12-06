@@ -112,7 +112,11 @@ public final class RpcViewConstantsTest {
     assertThat(RpcViewConstants.GRPC_CLIENT_SENT_MESSAGES_PER_METHOD_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_METHOD_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_CLIENT_SERVER_LATENCY_VIEW).isNotNull();
-    assertThat(RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW).isNotNull();
+    assertThat(RpcViewConstants.GRPC_CLIENT_RETRIES_PER_CALL_VIEW).isNotNull();
+    assertThat(RpcViewConstants.GRPC_CLIENT_RETRIES_VIEW).isNotNull();
+    assertThat(RpcViewConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL_VIEW).isNotNull();
+    assertThat(RpcViewConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_VIEW).isNotNull();
+    assertThat(RpcViewConstants.GRPC_CLIENT_RETRY_DELAY_PER_CALL_VIEW).isNotNull();
 
     // Test server distribution view descriptors.
     assertThat(RpcViewConstants.RPC_SERVER_ERROR_COUNT_VIEW).isNotNull();
