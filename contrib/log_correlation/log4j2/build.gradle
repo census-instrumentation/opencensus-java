@@ -6,7 +6,8 @@ dependencies {
     compile project(':opencensus-api')
     compileOnly libraries.log4j2
 
-    testCompile libraries.guava
+    testCompile libraries.guava,
+                libraries.log4j2
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }
