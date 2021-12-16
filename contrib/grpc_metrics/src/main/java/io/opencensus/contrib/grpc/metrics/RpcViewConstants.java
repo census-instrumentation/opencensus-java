@@ -21,6 +21,8 @@ import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RECEIVED_BYTES_PER_RPC;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RETRIES_PER_CALL;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RETRY_DELAY_PER_CALL;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_ROUNDTRIP_LATENCY;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SENT_BYTES_PER_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SENT_BYTES_PER_RPC;
@@ -28,10 +30,8 @@ import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SENT_MESSAGES_PER_RPC;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SERVER_LATENCY;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_STARTED_RPCS;
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RETRIES_PER_CALL;
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL;
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RETRY_DELAY_PER_CALL;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_STATUS;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_RECEIVED_BYTES_PER_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_RECEIVED_BYTES_PER_RPC;
@@ -545,7 +545,7 @@ public final class RpcViewConstants {
                   Arrays.asList(GRPC_CLIENT_METHOD));
 
   /**
-   * {@link View} for total retries across all calls, excluding transparent retries
+   * {@link View} for total retries across all calls, excluding transparent retries.
    *
    * @since 0.28
    */
@@ -558,7 +558,7 @@ public final class RpcViewConstants {
                   Arrays.asList(GRPC_CLIENT_METHOD));
 
   /**
-   * {@link View} for transparent retries per call
+   * {@link View} for transparent retries per call.
    *
    * @since 0.28
    */
