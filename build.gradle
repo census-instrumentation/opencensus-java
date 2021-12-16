@@ -166,7 +166,7 @@ subprojects {
         googleAuthVersion = '0.20.0'
         googleCloudBetaVersion = '0.100.0-beta'
         googleCloudGaVersion = '1.82.0'
-        log4j2Version = '2.15.0'
+        log4j2Version = '2.16.0'
         signalfxVersion = '0.0.48'
         springBoot2Version = '2.1.5.RELEASE'
         springBootVersion = '1.5.15.RELEASE'
