@@ -6,6 +6,18 @@
 [![Windows Build Status][appveyor-image]][appveyor-url]
 [![Coverage Status][codecov-image]][codecov-url]
 
+> :exclamation: The [opencensus-contrib-log-correlation-log4j2](https://github.com/census-instrumentation/opencensus-java/tree/master/contrib/log_correlation/stackdriver)
+> Java client library  is part of the OpenCensus project.
+> [CVE-2021-44228](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228) 
+> and [CVE-2021-45046](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-45046) disclosed
+> security vulnerabilities in the Apache Log4j 2 version 2.15 or below. The recent version
+> v0.28.3 depends on Log4j 2.11.1. A number of previous versions also depend on vulnerable 
+> Log4j versions.
+> 
+> :exclamation: We merged several fixes and published a release that depends on a safe version of 
+> Log4j (2.16). **We strongly encourage customers who depend on the 
+> opencensus-contrib-log-correlation-log4j2 library to upgrade to the latest 
+> release [(v0.30.0)](https://repo1.maven.org/maven2/io/opencensus/opencensus-contrib-log-correlation-log4j2/0.30.0/).**
 
 OpenCensus is a toolkit for collecting application performance and behavior data. It currently
 includes 3 apis: stats, tracing and tags.
