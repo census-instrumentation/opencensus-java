@@ -66,6 +66,9 @@ public final class RpcViewConstantsTest {
             0.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0, 4096.0,
             8192.0, 16384.0, 32768.0, 65536.0)
         .inOrder();
+    assertThat(RpcViewConstants.RETRY_COUNT_PER_CALL_BUCKET_BOUNDARIES)
+        .containsExactly(1.0, 2.0, 3.0, 4.0, 5.0, 10.0, 100.0, 1000.0)
+        .inOrder();
 
     // Test Aggregations
     assertThat(RpcViewConstants.MEAN).isEqualTo(Mean.create());
@@ -82,7 +85,10 @@ public final class RpcViewConstantsTest {
         .isEqualTo(
             Distribution.create(
                 BucketBoundaries.create(RpcViewConstants.RPC_COUNT_BUCKET_BOUNDARIES)));
-
+    assertThat(RpcViewConstants.AGGREGATION_WITH_COUNT_RETRY_HISTOGRAM)
+        .isEqualTo(
+            Distribution.create(
+                BucketBoundaries.create(RpcViewConstants.RETRY_COUNT_PER_CALL_BUCKET_BOUNDARIES)));
     // Test Duration and Window
     assertThat(RpcViewConstants.MINUTE).isEqualTo(Duration.create(60, 0));
     assertThat(RpcViewConstants.HOUR).isEqualTo(Duration.create(60 * 60, 0));

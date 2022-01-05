@@ -88,7 +88,7 @@ public class RpcViewsTest {
     FakeViewManager fakeViewManager = new FakeViewManager();
     RpcViews.registerClientRetryGrpcViews(fakeViewManager);
     assertThat(fakeViewManager.getRegisteredViews())
-            .containsExactlyElementsIn(RpcViews.GRPC_CLIENT_RETRY_VIEWS_SET);
+        .containsExactlyElementsIn(RpcViews.GRPC_CLIENT_RETRY_VIEWS_SET);
   }
 
   @Test

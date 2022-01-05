@@ -146,12 +146,12 @@ public final class RpcViews {
 
   @VisibleForTesting
   static final ImmutableSet<View> GRPC_CLIENT_RETRY_VIEWS_SET =
-          ImmutableSet.of(
-                  RpcViewConstants.GRPC_CLIENT_RETRIES_PER_CALL_VIEW,
-                  RpcViewConstants.GRPC_CLIENT_RETRIES_VIEW,
-                  RpcViewConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL_VIEW,
-                  RpcViewConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_VIEW,
-                  RpcViewConstants.GRPC_CLIENT_RETRY_DELAY_PER_CALL_VIEW);
+      ImmutableSet.of(
+          RpcViewConstants.GRPC_CLIENT_RETRIES_PER_CALL_VIEW,
+          RpcViewConstants.GRPC_CLIENT_RETRIES_VIEW,
+          RpcViewConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL_VIEW,
+          RpcViewConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_VIEW,
+          RpcViewConstants.GRPC_CLIENT_RETRY_DELAY_PER_CALL_VIEW);
 
   @VisibleForTesting
   static final ImmutableSet<View> GRPC_SERVER_BASIC_VIEWS_SET =

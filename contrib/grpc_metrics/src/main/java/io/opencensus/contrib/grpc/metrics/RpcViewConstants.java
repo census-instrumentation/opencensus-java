@@ -134,6 +134,10 @@ public final class RpcViewConstants {
               0.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0,
               4096.0, 8192.0, 16384.0, 32768.0, 65536.0));
 
+  @VisibleForTesting
+  static final List<Double> RETRY_COUNT_PER_CALL_BUCKET_BOUNDARIES =
+      Collections.unmodifiableList(Arrays.asList(1.0, 2.0, 3.0, 4.0, 5.0, 10.0, 100.0, 1000.0));
+
   // Use Aggregation.Mean to record sum and count stats at the same time.
   @VisibleForTesting static final Aggregation MEAN = Aggregation.Mean.create();
   @VisibleForTesting static final Aggregation COUNT = Count.create();
@@ -153,6 +157,10 @@ public final class RpcViewConstants {
   @VisibleForTesting
   static final Aggregation AGGREGATION_WITH_COUNT_HISTOGRAM =
       Distribution.create(BucketBoundaries.create(RPC_COUNT_BUCKET_BOUNDARIES));
+
+  @VisibleForTesting
+  static final Aggregation AGGREGATION_WITH_COUNT_RETRY_HISTOGRAM =
+      Distribution.create(BucketBoundaries.create(RETRY_COUNT_PER_CALL_BUCKET_BOUNDARIES));
 
   @VisibleForTesting static final Duration MINUTE = Duration.create(60, 0);
   @VisibleForTesting static final Duration HOUR = Duration.create(60 * 60, 0);
@@ -515,7 +523,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/client/retries_per_call"),
           "Number of client retries per call",
           GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL,
-          AGGREGATION_WITH_COUNT_HISTOGRAM,
+          AGGREGATION_WITH_COUNT_RETRY_HISTOGRAM,
           Arrays.asList(GRPC_CLIENT_METHOD));
 
   /**
@@ -524,12 +532,12 @@ public final class RpcViewConstants {
    * @since 0.28
    */
   public static final View GRPC_CLIENT_TRANSPARENT_RETRIES_VIEW =
-          View.create(
-                  View.Name.create("grpc.io/client/transparent_retries"),
-                  "Total number of transparent client retries across calls",
-                  GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL,
-                  SUM,
-                  Arrays.asList(GRPC_CLIENT_METHOD));
+      View.create(
+          View.Name.create("grpc.io/client/transparent_retries"),
+          "Total number of transparent client retries across calls",
+          GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL,
+          SUM,
+          Arrays.asList(GRPC_CLIENT_METHOD));
 
   /**
    * {@link View} for total time of delay while there is no active attempt during the client call.
@@ -537,12 +545,12 @@ public final class RpcViewConstants {
    * @since 0.28
    */
   public static final View GRPC_CLIENT_RETRY_DELAY_PER_CALL_VIEW =
-          View.create(
-                  View.Name.create("grpc.io/client/retry_delay_per_call"),
-                  "Total time of delay while there is no active attempt during the client call",
-                  GRPC_CLIENT_RETRY_DELAY_PER_CALL,
-                  AGGREGATION_WITH_MILLIS_HISTOGRAM,
-                  Arrays.asList(GRPC_CLIENT_METHOD));
+      View.create(
+          View.Name.create("grpc.io/client/retry_delay_per_call"),
+          "Total time of delay while there is no active attempt during the client call",
+          GRPC_CLIENT_RETRY_DELAY_PER_CALL,
+          AGGREGATION_WITH_MILLIS_HISTOGRAM,
+          Arrays.asList(GRPC_CLIENT_METHOD));
 
   /**
    * {@link View} for total retries across all calls, excluding transparent retries.
@@ -550,12 +558,12 @@ public final class RpcViewConstants {
    * @since 0.28
    */
   public static final View GRPC_CLIENT_RETRIES_VIEW =
-          View.create(
-                  View.Name.create("grpc.io/client/retries"),
-                  "Total number of client retries across all calls",
-                  GRPC_CLIENT_RETRIES_PER_CALL,
-                  SUM,
-                  Arrays.asList(GRPC_CLIENT_METHOD));
+      View.create(
+          View.Name.create("grpc.io/client/retries"),
+          "Total number of client retries across all calls",
+          GRPC_CLIENT_RETRIES_PER_CALL,
+          SUM,
+          Arrays.asList(GRPC_CLIENT_METHOD));
 
   /**
    * {@link View} for transparent retries per call.
@@ -563,12 +571,12 @@ public final class RpcViewConstants {
    * @since 0.28
    */
   public static final View GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL_VIEW =
-          View.create(
-                  View.Name.create("grpc.io/client/transparent_retries_per_call"),
-                  "Number of transparent client retries per call",
-                  GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL,
-                  AGGREGATION_WITH_COUNT_HISTOGRAM,
-                  Arrays.asList(GRPC_CLIENT_METHOD));
+      View.create(
+          View.Name.create("grpc.io/client/transparent_retries_per_call"),
+          "Number of transparent client retries per call",
+          GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL,
+          AGGREGATION_WITH_COUNT_RETRY_HISTOGRAM,
+          Arrays.asList(GRPC_CLIENT_METHOD));
 
   // Rpc server cumulative views.
 
