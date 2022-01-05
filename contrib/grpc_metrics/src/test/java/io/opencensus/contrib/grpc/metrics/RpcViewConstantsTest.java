@@ -67,7 +67,7 @@ public final class RpcViewConstantsTest {
             8192.0, 16384.0, 32768.0, 65536.0)
         .inOrder();
     assertThat(RpcViewConstants.RETRY_COUNT_PER_CALL_BUCKET_BOUNDARIES)
-        .containsExactly(1.0, 2.0, 3.0, 4.0, 5.0, 10.0, 100.0, 1000.0)
+        .containsExactly(1.0, 2.0, 3.0, 4.0, 5.0)
         .inOrder();
 
     // Test Aggregations

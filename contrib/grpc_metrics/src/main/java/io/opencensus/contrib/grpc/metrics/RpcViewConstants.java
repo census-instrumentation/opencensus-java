@@ -136,7 +136,7 @@ public final class RpcViewConstants {
 
   @VisibleForTesting
   static final List<Double> RETRY_COUNT_PER_CALL_BUCKET_BOUNDARIES =
-      Collections.unmodifiableList(Arrays.asList(1.0, 2.0, 3.0, 4.0, 5.0, 10.0, 100.0, 1000.0));
+      Collections.unmodifiableList(Arrays.asList(1.0, 2.0, 3.0, 4.0, 5.0));
 
   // Use Aggregation.Mean to record sum and count stats at the same time.
   @VisibleForTesting static final Aggregation MEAN = Aggregation.Mean.create();
