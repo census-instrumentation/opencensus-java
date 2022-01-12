@@ -77,6 +77,10 @@ public final class StackdriverStatsExporter {
   @Nullable
   private static StackdriverStatsExporter instance = null;
 
+  @GuardedBy("monitor")
+  @Nullable
+  private static MetricServiceClient metricServiceClient = null;
+
   private static final String EXPORTER_SPAN_NAME = "ExportMetricsToStackdriver";
 
   // See io.grpc.internal.GrpcUtil.USER_AGENT_KEY
@@ -392,10 +396,13 @@ public final class StackdriverStatsExporter {
       throws IOException {
     synchronized (monitor) {
       checkState(instance == null, "Stackdriver stats exporter is already created.");
-      MetricServiceClient client =
-          stub == null
-              ? createMetricServiceClient(credentials, deadline)
-              : MetricServiceClient.create(stub);
+      final MetricServiceClient client;
+      if (stub == null) {
+        metricServiceClient = createMetricServiceClient(credentials, deadline);
+        client = metricServiceClient;
+      } else {
+        client = MetricServiceClient.create(stub);
+      }
       instance =
           new StackdriverStatsExporter(
               projectId,
@@ -445,6 +452,10 @@ public final class StackdriverStatsExporter {
         instance.intervalMetricReader.stop();
       }
       instance = null;
+      if (metricServiceClient != null) {
+        metricServiceClient.close();
+        metricServiceClient = null;
+      }
     }
   }
 }
