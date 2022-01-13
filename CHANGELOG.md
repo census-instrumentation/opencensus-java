@@ -1,5 +1,7 @@
 ## Unreleased
 
+- fix: Shutdown `MetricServiceClient` properly on `StackdriverStatsExporter.unregister()` (#2007)
+
 ## 0.28.3 - 2021-01-12
 
 - fix: Return public access to unsafe `ContextUtils` api.  Remove bincompat issue from 0.27.1. (#2072)
