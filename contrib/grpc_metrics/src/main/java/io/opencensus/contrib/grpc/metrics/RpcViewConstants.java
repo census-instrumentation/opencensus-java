@@ -522,7 +522,7 @@ public final class RpcViewConstants {
       View.create(
           View.Name.create("grpc.io/client/retries_per_call"),
           "Number of client retries per call",
-          GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL,
+          GRPC_CLIENT_RETRIES_PER_CALL,
           AGGREGATION_WITH_COUNT_RETRY_HISTOGRAM,
           Arrays.asList(GRPC_CLIENT_METHOD));
 
