@@ -231,7 +231,7 @@ public final class RpcMeasureConstants {
    * {@link Measure} for total number of retry or hedging attempts excluding transparent retries
    * made during the client call.
    *
-   * @since 0.28
+   * @since 0.31.0
    */
   public static final MeasureLong GRPC_CLIENT_RETRIES_PER_CALL =
       Measure.MeasureLong.create(
