@@ -66,6 +66,9 @@ public final class RpcViewConstantsTest {
             0.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0, 4096.0,
             8192.0, 16384.0, 32768.0, 65536.0)
         .inOrder();
+    assertThat(RpcViewConstants.RETRY_COUNT_PER_CALL_BUCKET_BOUNDARIES)
+        .containsExactly(1.0, 2.0, 3.0, 4.0, 5.0)
+        .inOrder();
 
     // Test Aggregations
     assertThat(RpcViewConstants.MEAN).isEqualTo(Mean.create());
@@ -82,7 +85,10 @@ public final class RpcViewConstantsTest {
         .isEqualTo(
             Distribution.create(
                 BucketBoundaries.create(RpcViewConstants.RPC_COUNT_BUCKET_BOUNDARIES)));
-
+    assertThat(RpcViewConstants.AGGREGATION_WITH_COUNT_RETRY_HISTOGRAM)
+        .isEqualTo(
+            Distribution.create(
+                BucketBoundaries.create(RpcViewConstants.RETRY_COUNT_PER_CALL_BUCKET_BOUNDARIES)));
     // Test Duration and Window
     assertThat(RpcViewConstants.MINUTE).isEqualTo(Duration.create(60, 0));
     assertThat(RpcViewConstants.HOUR).isEqualTo(Duration.create(60 * 60, 0));
@@ -112,7 +118,11 @@ public final class RpcViewConstantsTest {
     assertThat(RpcViewConstants.GRPC_CLIENT_SENT_MESSAGES_PER_METHOD_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_METHOD_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_CLIENT_SERVER_LATENCY_VIEW).isNotNull();
-    assertThat(RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW).isNotNull();
+    assertThat(RpcViewConstants.GRPC_CLIENT_RETRIES_PER_CALL_VIEW).isNotNull();
+    assertThat(RpcViewConstants.GRPC_CLIENT_RETRIES_VIEW).isNotNull();
+    assertThat(RpcViewConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL_VIEW).isNotNull();
+    assertThat(RpcViewConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_VIEW).isNotNull();
+    assertThat(RpcViewConstants.GRPC_CLIENT_RETRY_DELAY_PER_CALL_VIEW).isNotNull();
 
     // Test server distribution view descriptors.
     assertThat(RpcViewConstants.RPC_SERVER_ERROR_COUNT_VIEW).isNotNull();
