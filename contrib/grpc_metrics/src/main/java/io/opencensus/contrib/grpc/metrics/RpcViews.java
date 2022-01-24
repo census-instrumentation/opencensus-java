@@ -202,7 +202,7 @@ public final class RpcViews {
    *
    * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
    *
-   * @since 0.28
+   * @since 0.31.0
    */
   public static void registerClientRetryGrpcViews() {
     registerClientRetryGrpcViews(Stats.getViewManager());
