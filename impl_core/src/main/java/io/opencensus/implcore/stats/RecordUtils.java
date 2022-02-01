@@ -74,7 +74,7 @@ final class RecordUtils {
       ImmutableMap.<TagKey, TagKey[]>builder()
           .put(RPC_STATUS, new TagKey[] {GRPC_CLIENT_STATUS, GRPC_SERVER_STATUS})
           .put(RPC_METHOD, new TagKey[] {GRPC_CLIENT_METHOD, GRPC_SERVER_METHOD})
-          .build();
+          .buildOrThrow();
 
   static Map<TagKey, TagValueWithMetadata> getTagMap(TagContext ctx) {
     if (ctx instanceof TagMapImpl) {
