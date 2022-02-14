@@ -18,6 +18,7 @@ package io.opencensus.contrib.grpc.metrics;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.stats.Measure;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -57,9 +58,22 @@ public class RpcMeasureConstantsTest {
     assertThat(RpcMeasureConstants.GRPC_CLIENT_SERVER_LATENCY).isNotNull();
     assertThat(RpcMeasureConstants.GRPC_CLIENT_ROUNDTRIP_LATENCY).isNotNull();
     assertThat(RpcMeasureConstants.GRPC_CLIENT_STARTED_RPCS).isNotNull();
-    assertThat(RpcMeasureConstants.GRPC_CLIENT_RETRIES_PER_CALL).isNotNull();
-    assertThat(RpcMeasureConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL).isNotNull();
-    assertThat(RpcMeasureConstants.GRPC_CLIENT_RETRY_DELAY_PER_CALL).isNotNull();
+
+    // Test client retry measurement descriptors.
+    assertThat(RpcMeasureConstants.GRPC_CLIENT_RETRIES_PER_CALL)
+        .isEqualTo(
+            Measure.MeasureLong.create(
+                "grpc.io/client/retries_per_call", "Number of retries per call", "1"));
+    assertThat(RpcMeasureConstants.GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL)
+        .isEqualTo(
+            Measure.MeasureLong.create(
+                "grpc.io/client/transparent_retries_per_call",
+                "Transparent retries per call",
+                "1"));
+    assertThat(RpcMeasureConstants.GRPC_CLIENT_RETRY_DELAY_PER_CALL)
+        .isEqualTo(
+            Measure.MeasureDouble.create(
+                "grpc.io/client/retry_delay_per_call", "Retry delay per call", "ms"));
 
     // Test server measurement descriptors.
     assertThat(RpcMeasureConstants.RPC_SERVER_ERROR_COUNT).isNotNull();
