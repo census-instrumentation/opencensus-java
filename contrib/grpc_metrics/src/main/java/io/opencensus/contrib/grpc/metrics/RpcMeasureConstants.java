@@ -235,7 +235,7 @@ public final class RpcMeasureConstants {
    */
   public static final MeasureLong GRPC_CLIENT_RETRIES_PER_CALL =
       Measure.MeasureLong.create(
-          "grpc.io/client/retries_per_call", "Number of retries per call.", COUNT);
+          "grpc.io/client/retries_per_call", "Number of retries per call", COUNT);
 
   /**
    * {@link Measure} for total number of transparent retries made during the client call.
@@ -244,9 +244,7 @@ public final class RpcMeasureConstants {
    */
   public static final MeasureLong GRPC_CLIENT_TRANSPARENT_RETRIES_PER_CALL =
       Measure.MeasureLong.create(
-          "grpc.io/client/transparent_retries_per_call",
-          "Number of transparent retries per call.",
-          COUNT);
+          "grpc.io/client/transparent_retries_per_call", "Transparent retries per call", COUNT);
 
   /**
    * {@link Measure} for total time of delay while there is no active attempt during the client
@@ -254,9 +252,9 @@ public final class RpcMeasureConstants {
    *
    * @since 0.28
    */
-  public static final MeasureLong GRPC_CLIENT_RETRY_DELAY_PER_CALL =
-      Measure.MeasureLong.create(
-          "grpc.io/client/retry_delay_per_call", "Retry delay per call.", MILLISECOND);
+  public static final MeasureDouble GRPC_CLIENT_RETRY_DELAY_PER_CALL =
+      Measure.MeasureDouble.create(
+          "grpc.io/client/retry_delay_per_call", "Retry delay per call", MILLISECOND);
 
   /**
    * {@link Measure} for gRPC client error counts.
