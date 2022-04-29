@@ -16,8 +16,8 @@
 > 
 > :exclamation: We merged several fixes and published a release that depends on a safe version of 
 > Log4j (2.16). **We strongly encourage customers who depend on the 
-> opencensus-contrib-log-correlation-log4j2 library to upgrade to the latest 
-> release [(v0.30.0)](https://repo1.maven.org/maven2/io/opencensus/opencensus-contrib-log-correlation-log4j2/0.30.0/).**
+> opencensus-contrib-log-correlation-log4j2 library to upgrade to 
+> release [(v0.30.0)](https://repo1.maven.org/maven2/io/opencensus/opencensus-contrib-log-correlation-log4j2/0.30.0/) or newer.**
 
 OpenCensus is a toolkit for collecting application performance and behavior data. It currently
 includes 3 apis: stats, tracing and tags.
@@ -44,14 +44,14 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.30.0</version>
+    <version>0.31.1</version>
   </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.30.0'
+compile 'io.opencensus:opencensus-api:0.31.1'
 ```
 
 ### Hello "OpenCensus" trace events
@@ -194,12 +194,12 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.30.0</version>
+    <version>0.31.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.30.0</version>
+    <version>0.31.1</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -207,8 +207,8 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.30.0'
-runtime 'io.opencensus:opencensus-impl:0.30.0'
+compile 'io.opencensus:opencensus-api:0.31.1'
+runtime 'io.opencensus:opencensus-impl:0.31.1'
 ```
 
 ### How to setup exporters?
