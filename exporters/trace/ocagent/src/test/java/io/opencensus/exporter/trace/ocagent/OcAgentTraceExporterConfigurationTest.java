@@ -60,6 +60,7 @@ public class OcAgentTraceExporterConfigurationTest {
             .setRetryInterval(oneMinute)
             .setEnableConfig(false)
             .setDeadline(oneMinute)
+                .addHeader("foo", "bar")
             .build();
     assertThat(configuration.getEndPoint()).isEqualTo("192.168.0.1:50051");
     assertThat(configuration.getServiceName()).isEqualTo("service");
@@ -68,5 +69,6 @@ public class OcAgentTraceExporterConfigurationTest {
     assertThat(configuration.getRetryInterval()).isEqualTo(oneMinute);
     assertThat(configuration.getEnableConfig()).isFalse();
     assertThat(configuration.getDeadline()).isEqualTo(oneMinute);
+    assertThat(configuration.getHeaders()).containsExactly("foo", "bar");
   }
 }

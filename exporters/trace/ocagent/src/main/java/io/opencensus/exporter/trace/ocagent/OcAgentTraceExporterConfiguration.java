@@ -19,6 +19,7 @@ package io.opencensus.exporter.trace.ocagent;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
 import javax.annotation.Nullable;
@@ -111,6 +112,12 @@ public abstract class OcAgentTraceExporterConfiguration {
    * @since 0.22
    */
   public abstract Duration getDeadline();
+
+  /**
+   * Returns custom headers to attach as gRPC metadata.
+   * @return
+   */
+  public abstract ImmutableMap<String, String> getHeaders();
 
   /**
    * Returns a new {@link Builder}.
@@ -209,6 +216,13 @@ public abstract class OcAgentTraceExporterConfiguration {
     abstract OcAgentTraceExporterConfiguration autoBuild();
 
     abstract Duration getDeadline();
+
+    abstract ImmutableMap.Builder<String, String> headersBuilder();
+
+    public final Builder addHeader(String key, String value) {
+      headersBuilder().put(key, value);
+      return this;
+    }
 
     /**
      * Builds a {@link OcAgentTraceExporterConfiguration}.

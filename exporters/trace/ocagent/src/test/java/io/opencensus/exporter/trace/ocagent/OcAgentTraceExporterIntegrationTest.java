@@ -20,9 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
-import io.grpc.BindableService;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import io.grpc.*;
 import io.grpc.netty.NettyServerBuilder;
 import io.opencensus.common.Scope;
 import io.opencensus.proto.agent.common.v1.Node;
@@ -37,12 +35,7 @@ import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executor;
 import org.junit.After;
 import org.junit.Before;
@@ -50,21 +43,27 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import javax.annotation.concurrent.GuardedBy;
+
 /** End-to-end integration test for {@link OcAgentTraceExporter}. */
 @RunWith(JUnit4.class)
 public class OcAgentTraceExporterIntegrationTest {
 
   private Server agent;
   private FakeOcAgentTraceServiceGrpcImpl fakeOcAgentTraceServiceGrpc;
+  private HeaderInterceptor headerInterceptor;
   private final Tracer tracer = Tracing.getTracer();
 
   private static final String SERVICE_NAME = "integration-test";
+  private static final String TEST_METADATA_HEADER = "test-header";
+  private static final String TEST_METADATA_VALUE = "test-value";
 
   @Before
   public void setUp() throws IOException {
     fakeOcAgentTraceServiceGrpc = new FakeOcAgentTraceServiceGrpcImpl();
+    headerInterceptor = new HeaderInterceptor();
     agent =
-        getServer(OcAgentTraceExporterConfiguration.DEFAULT_END_POINT, fakeOcAgentTraceServiceGrpc);
+        getServer(OcAgentTraceExporterConfiguration.DEFAULT_END_POINT, fakeOcAgentTraceServiceGrpc, headerInterceptor);
   }
 
   @After
@@ -92,6 +91,7 @@ public class OcAgentTraceExporterIntegrationTest {
             .setServiceName(SERVICE_NAME)
             .setUseInsecure(true)
             .setEnableConfig(false)
+            .addHeader(TEST_METADATA_HEADER, TEST_METADATA_VALUE)
             .build());
 
     // Create one root span and 5 children.
@@ -164,6 +164,12 @@ public class OcAgentTraceExporterIntegrationTest {
     for (int i = 0; i < 8; i++) {
       assertThat(exportedSpanNames).contains("second-iteration-child-" + i);
     }
+
+    for(Metadata metadata : headerInterceptor.getReceivedMetadata()) {
+      Metadata.Key<String> key = Metadata.Key.of(TEST_METADATA_HEADER, Metadata.ASCII_STRING_MARSHALLER);
+      assertThat(metadata.containsKey(key)).isTrue();
+      assertThat(metadata.get(key)).isEqualTo(TEST_METADATA_VALUE);
+    }
   }
 
   @Test
@@ -195,11 +201,11 @@ public class OcAgentTraceExporterIntegrationTest {
     }
   }
 
-  private static Server getServer(String endPoint, BindableService service) throws IOException {
+  private static Server getServer(String endPoint, BindableService service, HeaderInterceptor headerInterceptor) throws IOException {
     ServerBuilder<?> builder = NettyServerBuilder.forAddress(parseEndpoint(endPoint));
     Executor executor = MoreExecutors.directExecutor();
     builder.executor(executor);
-    return builder.addService(service).build();
+    return builder.addService(service).intercept(headerInterceptor).build();
   }
 
   private static InetSocketAddress parseEndpoint(String endPoint) {
@@ -210,6 +216,24 @@ public class OcAgentTraceExporterIntegrationTest {
       return new InetSocketAddress(host, port);
     } catch (RuntimeException e) {
       return new InetSocketAddress("localhost", 55678);
+    }
+  }
+
+  private static class HeaderInterceptor implements ServerInterceptor {
+    @GuardedBy("this")
+    private final List<Metadata> receivedMetadata = new ArrayList<>();
+    @Override
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
+      addReceivedMetadata(headers);
+      return next.startCall(call, headers);
+    }
+
+    private synchronized void addReceivedMetadata(Metadata metadata) {
+      receivedMetadata.add(metadata);
+    }
+
+    synchronized List<Metadata> getReceivedMetadata() {
+      return Collections.unmodifiableList(receivedMetadata);
     }
   }
 }
