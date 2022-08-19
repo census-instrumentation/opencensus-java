@@ -81,7 +81,7 @@ public final class OcAgentTraceExporter {
               configuration.getRetryInterval(),
               configuration.getEnableConfig(),
               configuration.getDeadline(),
-                  configuration.getHeaders());
+              configuration.getHeaders());
       registerInternal(newHandler);
     }
   }
