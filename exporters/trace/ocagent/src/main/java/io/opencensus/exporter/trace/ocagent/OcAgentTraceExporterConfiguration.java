@@ -113,10 +113,7 @@ public abstract class OcAgentTraceExporterConfiguration {
    */
   public abstract Duration getDeadline();
 
-  /**
-   * Returns custom headers to attach as gRPC metadata.
-   * @return
-   */
+  /** Returns custom headers to attach as gRPC metadata. */
   public abstract ImmutableMap<String, String> getHeaders();
 
   /**

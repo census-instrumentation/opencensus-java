@@ -37,13 +37,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.Executor;
+import javax.annotation.concurrent.GuardedBy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import javax.annotation.concurrent.GuardedBy;
 
 /** End-to-end integration test for {@link OcAgentTraceExporter}. */
 @RunWith(JUnit4.class)
@@ -63,7 +62,10 @@ public class OcAgentTraceExporterIntegrationTest {
     fakeOcAgentTraceServiceGrpc = new FakeOcAgentTraceServiceGrpcImpl();
     headerInterceptor = new HeaderInterceptor();
     agent =
-        getServer(OcAgentTraceExporterConfiguration.DEFAULT_END_POINT, fakeOcAgentTraceServiceGrpc, headerInterceptor);
+        getServer(
+            OcAgentTraceExporterConfiguration.DEFAULT_END_POINT,
+            fakeOcAgentTraceServiceGrpc,
+            headerInterceptor);
   }
 
   @After
@@ -165,8 +167,9 @@ public class OcAgentTraceExporterIntegrationTest {
       assertThat(exportedSpanNames).contains("second-iteration-child-" + i);
     }
 
-    for(Metadata metadata : headerInterceptor.getReceivedMetadata()) {
-      Metadata.Key<String> key = Metadata.Key.of(TEST_METADATA_HEADER, Metadata.ASCII_STRING_MARSHALLER);
+    for (Metadata metadata : headerInterceptor.getReceivedMetadata()) {
+      Metadata.Key<String> key =
+          Metadata.Key.of(TEST_METADATA_HEADER, Metadata.ASCII_STRING_MARSHALLER);
       assertThat(metadata.containsKey(key)).isTrue();
       assertThat(metadata.get(key)).isEqualTo(TEST_METADATA_VALUE);
     }
@@ -201,7 +204,9 @@ public class OcAgentTraceExporterIntegrationTest {
     }
   }
 
-  private static Server getServer(String endPoint, BindableService service, HeaderInterceptor headerInterceptor) throws IOException {
+  private static Server getServer(
+      String endPoint, BindableService service, HeaderInterceptor headerInterceptor)
+      throws IOException {
     ServerBuilder<?> builder = NettyServerBuilder.forAddress(parseEndpoint(endPoint));
     Executor executor = MoreExecutors.directExecutor();
     builder.executor(executor);
@@ -222,8 +227,10 @@ public class OcAgentTraceExporterIntegrationTest {
   private static class HeaderInterceptor implements ServerInterceptor {
     @GuardedBy("this")
     private final List<Metadata> receivedMetadata = new ArrayList<>();
+
     @Override
-    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+        ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
       addReceivedMetadata(headers);
       return next.startCall(call, headers);
     }

@@ -60,7 +60,7 @@ public class OcAgentTraceExporterConfigurationTest {
             .setRetryInterval(oneMinute)
             .setEnableConfig(false)
             .setDeadline(oneMinute)
-                .addHeader("foo", "bar")
+            .addHeader("foo", "bar")
             .build();
     assertThat(configuration.getEndPoint()).isEqualTo("192.168.0.1:50051");
     assertThat(configuration.getServiceName()).isEqualTo("service");

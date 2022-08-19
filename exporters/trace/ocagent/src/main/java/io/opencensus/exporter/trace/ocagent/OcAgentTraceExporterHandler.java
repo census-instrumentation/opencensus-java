@@ -122,9 +122,10 @@ final class OcAgentTraceExporterHandler extends TimeLimitedHandler {
     }
     ManagedChannel channel = channelBuilder.build();
     Metadata metadata = new Metadata();
-    for(Map.Entry<String, String> e : headers.entrySet()) {
+    for (Map.Entry<String, String> e : headers.entrySet()) {
       metadata.put(Metadata.Key.of(e.getKey(), Metadata.ASCII_STRING_MARSHALLER), e.getValue());
     }
-    return TraceServiceGrpc.newStub(channel).withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata));
+    return TraceServiceGrpc.newStub(channel)
+        .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata));
   }
 }
