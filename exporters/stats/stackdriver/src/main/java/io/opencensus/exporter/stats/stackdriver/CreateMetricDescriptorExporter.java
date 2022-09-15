@@ -44,8 +44,8 @@ final class CreateMetricDescriptorExporter extends MetricExporter {
   private static final Logger logger =
       Logger.getLogger(CreateMetricDescriptorExporter.class.getName());
   private static final ImmutableSet<String> SUPPORTED_EXTERNAL_DOMAINS =
-      ImmutableSet.<String>of("custom.googleapis.com", "external.googleapis.com",
-      "workload.googleapis.com");
+      ImmutableSet.<String>of(
+          "custom.googleapis.com", "external.googleapis.com", "workload.googleapis.com");
   private static final String GOOGLE_APIS_DOMAIN_SUFFIX = "googleapis.com";
 
   private final String projectId;
