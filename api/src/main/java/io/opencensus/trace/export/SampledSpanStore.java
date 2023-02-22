@@ -74,6 +74,18 @@ public abstract class SampledSpanStore {
   public abstract Summary getSummary();
 
   /**
+   * Sets the maximum number of Spans in th {@code SampledSpanStore}.
+   *
+   * Should be a positive number. The {@code SampledSpanStore} can only grow in size.
+   *
+   * @param maxNumberOfSpans the maximum number of Spans in th {@code SampledSpanStore}.
+   * @throws IllegalArgumentException if {@code maxNumberOfSpans} is negative or zero.
+   */
+  public void setMaxNumberOfSpans(int maxNumberOfSpans) {
+    // HAS NO EFFECT UNLESS IMPLEMENTED
+  }
+
+  /**
    * Returns a list of succeeded spans (spans with {@link Status} equal to {@link Status#OK}) that
    * match the {@code filter}.
    *
@@ -139,7 +151,7 @@ public abstract class SampledSpanStore {
    */
   public abstract Set<String> getRegisteredSpanNamesForCollection();
 
-  /**
+    /**
    * The summary of all available data.
    *
    * @since 0.5

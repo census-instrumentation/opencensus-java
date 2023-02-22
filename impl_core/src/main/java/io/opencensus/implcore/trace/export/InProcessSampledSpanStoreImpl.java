@@ -40,6 +40,9 @@ import javax.annotation.concurrent.ThreadSafe;
 /** In-process implementation of the {@link SampledSpanStore}. */
 @ThreadSafe
 public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
+
+  private static final int NUM_RUNNING_SAMPLE_NAMES = 10;
+
   private static final int NUM_SAMPLES_PER_LATENCY_BUCKET = 10;
   private static final int NUM_SAMPLES_PER_ERROR_BUCKET = 5;
   private static final long TIME_BETWEEN_SAMPLES = TimeUnit.SECONDS.toNanos(1);
@@ -56,6 +59,7 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
 
   @GuardedBy("samples")
   private final Map<String, PerSpanNameSamples> samples;
+  private final EvictingQueue runningSampleNames;
 
   private static final class Bucket {
 
@@ -247,6 +251,21 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
   InProcessSampledSpanStoreImpl(EventQueue eventQueue) {
     samples = new HashMap<String, PerSpanNameSamples>();
     this.eventQueue = eventQueue;
+    runningSampleNames = EvictingQueue.create(NUM_RUNNING_SAMPLE_NAMES);
+  }
+
+  @Override
+  public void setMaxNumberOfSpans(int maxNumberOfSpans) {
+    if (maxNumberOfSpans <= 0) throw new IllegalArgumentException("maxNumberOfSpans should be positive")
+    synchronized (samples) {
+      if (maxNumberOfSpans > runningSampleNames.size()) {
+        EvictingQueue old = runningSampleNames;
+        runningSampleNames = EvictingQueue.create(maxNumberOfSpans);
+        runningSampleNames.addAll(old);
+      } else {
+        throw new IllegalArgumentException("Can't shrink the sore; can only grow");
+      }
+    }
   }
 
   @Override
@@ -298,6 +317,15 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
     synchronized (samples) {
       for (String spanName : spanNames) {
         if (!samples.containsKey(spanName)) {
+          String maybeEvicted = runningSampleNames.peek();
+          runningSampleNames.add(spanName);
+
+          // There is a chance we're at the capacity limit. Let's check if the span name was evicted
+          // and remove its samples.
+          if (maybeEvicted != null && maybeEvicted != runningSampleNames.peek()) {
+            samples.remove(maybeEvicted);
+          }
+
           samples.put(spanName, new PerSpanNameSamples());
         }
       }
