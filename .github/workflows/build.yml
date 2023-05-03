@@ -14,12 +14,12 @@ jobs:
       matrix:
         os:
           - macos-latest
-          - ubuntu-18.04
+          - ubuntu-latest
         java:
           - 8
           # TODO: Java 11 build doesn't work due to Java7 target.
         include:
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             java: 8
             coverage: true
     steps:
