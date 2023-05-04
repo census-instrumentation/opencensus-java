@@ -18,8 +18,10 @@ package io.opencensus.exporter.trace.ocagent;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Metadata;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.stub.MetadataUtils;
 import io.netty.handler.ssl.SslContext;
 import io.opencensus.common.Duration;
 import io.opencensus.exporter.trace.util.TimeLimitedHandler;
@@ -28,6 +30,7 @@ import io.opencensus.proto.agent.trace.v1.ExportTraceServiceRequest;
 import io.opencensus.proto.agent.trace.v1.TraceServiceGrpc;
 import io.opencensus.trace.export.SpanData;
 import java.util.Collection;
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
@@ -42,6 +45,7 @@ final class OcAgentTraceExporterHandler extends TimeLimitedHandler {
   private final Node node;
   private final Boolean useInsecure;
   @Nullable private final SslContext sslContext;
+  private final Map<String, String> headers;
 
   @javax.annotation.Nullable
   private OcAgentTraceServiceExportRpcHandler exportRpcHandler; // Thread-safe
@@ -53,12 +57,14 @@ final class OcAgentTraceExporterHandler extends TimeLimitedHandler {
       @Nullable SslContext sslContext,
       Duration retryInterval,
       boolean enableConfig,
-      Duration deadline) {
+      Duration deadline,
+      Map<String, String> headers) {
     super(deadline, EXPORT_SPAN_NAME);
     this.endPoint = endPoint;
     this.node = OcAgentNodeUtils.getNodeInfo(serviceName);
     this.useInsecure = useInsecure;
     this.sslContext = sslContext;
+    this.headers = headers;
   }
 
   @Override
@@ -67,7 +73,7 @@ final class OcAgentTraceExporterHandler extends TimeLimitedHandler {
       // If not connected, try to initiate a new connection when a new batch of spans arrive.
       // Export RPC doesn't respect the retry interval.
       TraceServiceGrpc.TraceServiceStub stub =
-          getTraceServiceStub(endPoint, useInsecure, sslContext);
+          getTraceServiceStub(endPoint, useInsecure, sslContext, headers);
       exportRpcHandler = createExportRpcHandlerAndConnect(stub, node);
     }
 
@@ -104,7 +110,7 @@ final class OcAgentTraceExporterHandler extends TimeLimitedHandler {
   // Creates a TraceServiceStub with the given parameters.
   // One stub can be used for both Export RPC and Config RPC.
   private static TraceServiceGrpc.TraceServiceStub getTraceServiceStub(
-      String endPoint, Boolean useInsecure, SslContext sslContext) {
+      String endPoint, Boolean useInsecure, SslContext sslContext, Map<String, String> headers) {
     ManagedChannelBuilder<?> channelBuilder;
     if (useInsecure) {
       channelBuilder = ManagedChannelBuilder.forTarget(endPoint).usePlaintext();
@@ -115,6 +121,11 @@ final class OcAgentTraceExporterHandler extends TimeLimitedHandler {
               .sslContext(sslContext);
     }
     ManagedChannel channel = channelBuilder.build();
-    return TraceServiceGrpc.newStub(channel);
+    Metadata metadata = new Metadata();
+    for (Map.Entry<String, String> e : headers.entrySet()) {
+      metadata.put(Metadata.Key.of(e.getKey(), Metadata.ASCII_STRING_MARSHALLER), e.getValue());
+    }
+    return TraceServiceGrpc.newStub(channel)
+        .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata));
   }
 }

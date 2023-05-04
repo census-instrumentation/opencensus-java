@@ -80,7 +80,8 @@ public final class OcAgentTraceExporter {
               configuration.getSslContext(),
               configuration.getRetryInterval(),
               configuration.getEnableConfig(),
-              configuration.getDeadline());
+              configuration.getDeadline(),
+              configuration.getHeaders());
       registerInternal(newHandler);
     }
   }
