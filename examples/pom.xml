@@ -13,7 +13,7 @@
     <!-- change to the version you want to use. -->
     <jetty.version>9.4.41.v20210516</jetty.version>
     <opencensus.version>0.28.3</opencensus.version> <!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
-    <grpc.version>1.32.2</grpc.version> <!-- CURRENT_GRPC_VERSION -->
+    <grpc.version>1.53.0</grpc.version> <!-- CURRENT_GRPC_VERSION -->
   </properties>
   <dependencies>
     <dependency>
